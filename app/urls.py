@@ -1,0 +1,48 @@
+from django.urls import path, include   
+from django.contrib import admin
+from django.contrib.auth import views as auth_views
+from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path("account/", include("django.contrib.auth.urls")),
+    # -------------------------
+    # Public Pages
+    # -------------------------
+    path('', views.home, name='home'),
+    path('about/', views.about, name='about'),
+    path('profile/', views.profile, name='profile'),
+    path('problem-solving/', views.problem_solving, name='problem_solving'),
+    path('money/', views.money, name='money'),
+    path('create-tutorial/', views.create_tutorial, name='create_tutorial'),
+    path('share-tutorial/', views.share_tutorial, name='share_tutorial'),
+    path('faqs/', views.faqs, name='faqs'),
+    path('contact/', views.contact, name='contact'),
+    path('privacy/', views.privacy, name='privacy'),
+    path('security-settings/', views.security_settings, name='security_settings'),
+    path('account-information/', views.account_information, name='account_information'),
+
+    # -------------------------
+    # Authentication / Registration
+    # -------------------------
+    path('register/', views.register, name='register'),
+    path('verify-email/<int:user_id>/', views.verify_email, name='verify_email'),
+
+
+    # -------------------------
+    # Store
+    # -------------------------
+    path('store/create/', views.create_store, name='create_store'),
+    path('store/create/<int:id>/', views.create_store, name='edit_store'),
+    path('store/<slug:slug>/', views.view_store, name='view_store'),
+    path('store/manage/<slug:slug>/', views.manage_store, name='manage_store'),
+    path('store/manage/<slug:slug>/<int:item_id>/', views.manage_store, name='edit_item'),
+    path('store/delete-item/<slug:slug>/<int:item_id>/', views.delete_item, name='delete_item'),
+    path('store/delete-extra-image/<slug:slug>/<int:image_id>/', views.delete_extra_image, name='delete_extra_image'),
+    path('product/<int:id>/', views.product_detail, name='product_detail'),
+    path('like-item/<int:item_id>/', views.like_item, name='like_item'),
+    path('add-product/', views.add_product, name='add_product'),
+]
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

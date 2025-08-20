@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Privacy Policy{% endblock title %}
+
+{% block body %}
+<div class="container py-4">
+  <h2 class="text-center mb-3">Privacy Policy</h2>
+  <p>At Waapfolio, your privacy is extremely important to us. This Privacy Policy outlines the types of information we collect and how we use, disclose, and protect it.</p>
+
+  <h5 class="mt-4">1. Information We Collect</h5>
+  <ul>
+    <li><strong>Personal Information:</strong> Name, email, phone number, and store details when you register.</li>
+    <li><strong>Usage Data:</strong> Pages visited, time spent, and actions taken on our platform.</li>
+  </ul>
+
+  <h5 class="mt-4">2. How We Use Your Information</h5>
+  <ul>
+    <li>To manage and improve our platform experience.</li>
+    <li>To communicate important updates and offers.</li>
+    <li>To protect the security and integrity of Waapfolio.</li>
+  </ul>
+
+  <h5 class="mt-4">3. Information Sharing</h5>
+  <p>We do not sell or share your personal data with third parties, except:</p>
+  <ul>
+    <li>When required by law or legal process.</li>
+    <li>To trusted service providers assisting in our operations.</li>
+  </ul>
+
+  <h5 class="mt-4">4. Security</h5>
+  <p>We implement reasonable security measures to safeguard your data but cannot guarantee 100% protection.</p>
+
+  <h5 class="mt-4">5. Your Rights</h5>
+  <p>You may access, edit, or delete your data by contacting us directly.</p>
+
+  <h5 class="mt-4">6. Changes to This Policy</h5>
+  <p>We may update this policy. Continued use of Waapfolio means you agree to any changes made.</p>
+
+  <h5 class="mt-4">7. Contact Us</h5>
+  <p>For any questions or concerns, please contact us via the <a href="{% url 'contact' %}">Contact Page</a>.</p>
+</div>
+{% endblock %}

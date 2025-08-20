@@ -1,0 +1,128 @@
+{% extends "base.html" %}
+
+{% block title %}
+CREATE YOUR WAAP FOLIO STORE
+{% endblock title %}
+
+{% load static %}
+{% load widget_tweaks %}
+
+{% block body %}
+
+<!-- CSS for intl-tel-input -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
+
+<form method="POST" enctype="multipart/form-data" class="form">
+    {% csrf_token %}
+
+    <p>
+        {{ form.brand_name.label_tag }}
+        {{ form.brand_name }}
+        {{ form.brand_name.errors }}
+    </p>
+
+    <p>
+        <!-- Live preview of brand logo -->
+        <label>Brand Logo Preview:</label><br>
+        <img id="logo-preview"
+             src="{{ form.instance.brand_logo|default:'' }}"
+             alt="Logo Preview"
+             style="max-width:200px; border-radius:8px; margin-bottom:10px;"
+             {% if not form.instance.brand_logo %}hidden{% endif %}>
+        <br>
+        {{ form.brand_logo.label_tag }}
+        {{ form.brand_logo }}
+        {{ form.brand_logo.errors }}
+    </p>
+
+    <p>
+        {{ form.whatsapp_number.label_tag }}
+        {{ form.whatsapp_number }}
+        {{ form.whatsapp_number.errors }}
+    </p>
+
+    <p>
+        {{ form.Bio.label_tag }}
+        {{ form.Bio }}
+        {{ form.Bio.errors }}
+    </p>
+
+    <button type="submit" class="btn btn-primary">
+        {% if form.instance.pk %}
+            Save Changes
+        {% else %}
+            Create Store
+        {% endif %}
+    </button>
+</form>
+
+<!-- JS for intl-tel-input -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script>
+    const phoneInput = document.querySelector("#phone");
+    const iti = window.intlTelInput(phoneInput, {
+        initialCountry: "ng",
+        preferredCountries: ["ng", "us", "gb"],
+        separateDialCode: false,
+        nationalMode: false,
+        formatOnDisplay: false,
+        autoHideDialCode: false,
+        utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+    });
+
+    function keepFullNumber() {
+        const fullNumber = iti.getNumber();
+        if (fullNumber) {
+            phoneInput.value = fullNumber;
+        }
+    }
+
+    phoneInput.addEventListener("blur", keepFullNumber);
+    document.addEventListener("DOMContentLoaded", keepFullNumber);
+    document.querySelector("form").addEventListener("submit", function () {
+        keepFullNumber();
+    });
+
+    // Live preview for brand logo
+    const logoInput = document.querySelector('#id_brand_logo');
+    const logoPreview = document.querySelector('#logo-preview');
+
+    logoInput.addEventListener('change', function(event) {
+        const file = event.target.files[0];
+        if(file){
+            const reader = new FileReader();
+            reader.onload = function(e){
+                logoPreview.src = e.target.result;
+                logoPreview.hidden = false;
+            }
+            reader.readAsDataURL(file);
+        }
+    });
+</script>
+
+<style>
+    form p {
+        margin-bottom: 20px;
+    }
+
+    form p label {
+        display: block;
+        font-weight: bold;
+        margin-bottom: 6px;
+        font-size: 14px;
+        color: #333;
+    }
+
+    form p input,
+    form p select,
+    form p textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
+</style>
+
+{% endblock %}

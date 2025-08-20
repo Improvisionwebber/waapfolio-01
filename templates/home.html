@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% load static %}
+{% block body %}
+
+<div class="container py-5 fade-in">
+  <div class="row align-items-center">
+    <div class="col-lg-6 text-lg-start mb-4 mb-lg-0">
+      <h1 class="display-5 fw-bold text-dark">SHOWCASE <br>YOUR HUSTLE<br>YOUR BRAND<br>YOUR STOREFRONT <br> SELL SMARTER <br>NOT HARDER <br> <span class="text-primary">WAAP FOLIO IS HERE</span></h1>
+      <div class="d-flex gap-2 flex-wrap mt-4 justify-content-center justify-content-lg-start">
+        <a href="{% url 'create_store' %}" class="btn btn-success px-4">Create Store</a>
+        {% if store %}
+          <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4">My Store</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="col-lg-6 text-center">
+      <img src="{% static 'images/banner.jpg' %}" class="img-fluid rounded-4 shadow" alt="Hero Image">
+    </div>
+  </div>
+</div>
+
+<div class="container text-center py-5 fade-in">
+  <h2 class="fw-bold mb-1">Smarter Workflows,</h2>
+  <h2 class="fw-bold text-primary mb-3">Greater Impact</h2>
+  <p class="text-muted mb-4">
+    WAAP FOLIO empowers developers to build websites, brainstorm ideas, and create tech tools — all in seconds using AI. 
+    It’s the future of fast, intelligent development.
+  </p>
+
+  <div class="row g-4">
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        <img src="{% static 'images/tech1.jpg' %}" class="card-img-top" alt="Innovation Era">
+        <div class="card-body">
+          <h5 class="card-title">Innovation Era</h5>
+          <p class="card-text">WAAP FOLIO introduces a new era of creation, inspiring developers and reshaping the tech industry.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        <img src="{% static 'images/easy.jpg' %}" class="card-img-top" alt="Speed with Accuracy">
+        <div class="card-body">
+          <h5 class="card-title">Speed with Accuracy</h5>
+          <p class="card-text">Designed with lightning speed and unmatched precision for efficient development.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        <img src="{% static 'images/free.jpg' %}" class="card-img-top" alt="Free Access">
+        <div class="card-body">
+          <h5 class="card-title">Free Access</h5>
+          <p class="card-text">Get full access without cost — empowering every developer, everywhere.</p>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-12 col-sm-6 col-lg-3">
+      <div class="card h-100 shadow-sm">
+        <img src="{% static 'images/share.jpg' %}" class="card-img-top" alt="Easy To Use">
+        <div class="card-body">
+          <h5 class="card-title">Easy To Use</h5>
+          <p class="card-text">A clean interface that’s intuitive, fast, and beginner-friendly.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

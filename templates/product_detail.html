@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+{% load static %}
+
+{% block body %}
+<div class="container py-5">
+    {% if request.user.is_authenticated and request.user.store %}
+    <a href="{% url 'view_store' request.user.store.slug %}" class="text-decoration-none text-dark mb-3 d-inline-block">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+    {% endif %}
+
+    <h3 class="text-center mb-4 fw-bold">{{ product.name }}</h3>
+
+    <div class="row g-4 justify-content-center">
+        <div class="col-lg-6">
+            <div id="productCarousel" class="carousel slide shadow-lg rounded-4 border border-light border-opacity-25 p-2" 
+                 data-bs-ride="carousel" data-bs-interval="5000"
+                 style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);">
+
+                <div class="carousel-inner rounded-4">
+                    {% if product.image_url %}
+                    <div class="carousel-item active">
+                        <img src="{{ product.image_url }}" class="d-block w-100 rounded-4 shadow-lg" 
+                             alt="Main Image" style="max-height: 400px; object-fit: contain;">
+                    </div>
+                    {% endif %}
+
+                    {% for img in images %}
+                        {% if img.image_url %}
+                        <div class="carousel-item {% if not product.image_url and forloop.first %}active{% endif %}">
+                            <img src="{{ img.image_url }}" class="d-block w-100 rounded-4 shadow-lg" 
+                                 alt="Extra Image" style="max-height: 400px; object-fit: contain;">
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% for video in videos %}
+                        <div class="carousel-item {% if not product.image_url and images|length == 0 and forloop.first %}active{% endif %}">
+                            <video class="d-block w-100 carousel-video rounded-4 shadow-lg" controls muted preload="metadata"
+                                   style="max-height: 400px; object-fit: contain;">
+                                <source src="{{ video.file.url }}" type="video/mp4">
+                                Your browser does not support the video tag.
+                            </video>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <button class="carousel-control-prev bg-white bg-opacity-25 shadow rounded-circle" type="button"
+                        data-bs-target="#productCarousel" data-bs-slide="prev" style="width: 50px; height: 50px; top: 45%;">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next bg-white bg-opacity-25 shadow rounded-circle" type="button"
+                        data-bs-target="#productCarousel" data-bs-slide="next" style="width: 50px; height: 50px; top: 45%;">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="p-4 bg-light rounded shadow-sm border">
+                <h4 class="text-success fw-bold">₦{{ product.price|floatformat:0 }}</h4>
+
+                <div class="mt-3">
+                    <h6 class="fw-bold text-secondary">Product Description</h6>
+                    <p class="text-muted border rounded p-3 bg-white shadow-sm" style="white-space: pre-line; min-height: 150px;">
+                        {{ product.description|default:"No description available." }}
+                    </p>
+                </div>
+
+                <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
+                    class="btn btn-success btn-lg w-100 mt-4 shadow-sm">
+                    <i class="bi bi-whatsapp"></i> Order on WhatsApp
+                </a>
+
+                <div class="mt-4 safety-card p-3 rounded shadow">
+                    <h5 class="fw-bold text-danger mb-3">Safety Precautions to Avoid Scams</h5>
+                    <ul class="list-unstyled text-muted mb-0" style="line-height: 1.6;">
+                        <li>🔒 Always verify the seller's identity before making payment.</li>
+                        <li>📹 Make sure to request a video call to see the product live.</li>
+                        <li>💬 Use WhatsApp chat to clarify all product details and shipping terms.</li>
+                        <li>🚫 Never pay upfront without confirming the product's authenticity.</li>
+                        <li>📍 Prefer cash on delivery (COD) if possible or trusted payment methods.</li>
+                        <li>⚠️ Be cautious of deals that seem too good to be true.</li>
+                        <li>🛑 Report suspicious sellers or conversations immediately.</li>
+                    </ul>
+                </div>
+
+                <!-- Extra Images/Video Preview Section -->
+                <div class="mt-4">
+                    <input type="file" id="extra_images" multiple accept="image/*,video/*" class="form-control mb-3">
+                    <div id="preview-cards" class="row g-3"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+#productCarousel .carousel-item img,
+#productCarousel .carousel-item video {
+    width: 100%;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 0.5rem;
+    background-color: #000;
+}
+
+.safety-card {
+    background: #ffe6e6;
+    border: 1px solid #f5c2c2;
+    box-shadow: 4px 4px 12px rgba(255, 0, 0, 0.15), -4px -4px 12px rgba(255, 255, 255, 0.8);
+    transform-style: preserve-3d;
+    transition: transform 0.3s ease;
+}
+.safety-card:hover {
+    transform: translateZ(10px) scale(1.02);
+    box-shadow: 8px 8px 20px rgba(255, 0, 0, 0.25), -8px -8px 20px rgba(255, 255, 255, 0.9);
+}
+.list-unstyled li { margin-bottom: 0.8rem; font-size: 1rem; }
+
+@media (max-width: 768px) {
+    #productCarousel .carousel-item img,
+    #productCarousel .carousel-item video {
+        height: 300px;
+    }
+}
+.extra-img-card img:hover {
+    cursor: zoom-in;
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+</style>
+
+<!-- Lightbox2 JS -->
+<script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Carousel video play/pause
+    const carousel = document.getElementById("productCarousel");
+    carousel.addEventListener("slid.bs.carousel", function (event) {
+        document.querySelectorAll(".carousel-video").forEach(video => video.pause());
+        const activeVideo = event.target.querySelector(".carousel-item.active video");
+        if(activeVideo) activeVideo.play();
+    });
+    const firstVideo = document.querySelector(".carousel-item.active video");
+    if(firstVideo) firstVideo.play();
+
+    // Extra images/videos preview
+    const extraInput = document.getElementById("extra_images");
+    const previewCards = document.getElementById("preview-cards");
+
+    extraInput.addEventListener("change", function(){
+        previewCards.innerHTML = ""; // clear previous
+        Array.from(this.files).forEach(file => {
+            const col = document.createElement("div");
+            col.className = "col-6 col-md-3 text-center";
+            let html = "";
+
+            if(file.type.startsWith("image/")){
+                html = `<a href="${URL.createObjectURL(file)}" data-lightbox="preview-gallery" data-title="${file.name}">
+                            <img src="${URL.createObjectURL(file)}" class="img-fluid rounded mb-2 shadow-sm" style="height:100px;width:100px;object-fit:cover;cursor:zoom-in;">
+                        </a>`;
+            } else if(file.type.startsWith("video/")){
+                html = `<video src="${URL.createObjectURL(file)}" class="img-fluid rounded mb-2 shadow-sm" style="height:100px;width:100px;object-fit:cover;" controls></video>`;
+            }
+
+            col.innerHTML = `<div class="extra-img-card p-2 shadow-sm rounded bg-white">${html}</div>`;
+            previewCards.appendChild(col);
+        });
+    });
+});
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}

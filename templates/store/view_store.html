@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}{{ store.brand_name }} | Powered by Vend{% endblock title %}
+{% block body %}
+{% load static %}
+
+<!-- STORE HEADER SECTION -->
+<section class="py-5 bg-light">
+  <div class="container text-center">
+    <img src="{{ store.brand_logo.url }}" class="rounded-circle shadow mb-3" width="120" height="120" alt="Brand Logo">
+    <h1 class="fw-bold">{{ store.brand_name }}</h1>
+    <p class="lead text-muted mb-4">{{ store.custom_message }}</p>
+
+    <!-- STORE LINK SECTION -->
+    <div class="input-group mx-auto mb-3" style="max-width: 500px;">
+      <input type="text" id="storeLink" class="form-control form-control-lg" value="{{ full_url }}" readonly>
+      <button class="btn btn-outline-primary" onclick="copyStoreLink()">Copy</button>
+    </div>
+
+    <!-- SHARE / CONTACT BUTTONS -->
+    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
+      <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Vend:%20{{ full_url }}" target="_blank" class="btn btn-success btn-lg">
+        📤 Share on WhatsApp
+      </a>
+      <a href="{{ whatsapp_link }}" class="btn btn-outline-success btn-lg">
+        💬 Contact Seller
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUCT GRID SECTION -->
+<section class="py-5">
+  <div class="container">
+    <h3 class="text-center mb-4 fw-semibold">Store Gallery</h3>
+    <div class="row g-4 justify-content-center">
+      {% for img in images %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card h-100 shadow-sm border-0">
+          <img src="{{ img.image.url }}" class="card-img-top img-fluid object-fit-cover" style="height: 220px;" alt="Store Image">
+          <div class="card-body text-center">
+            <p class="card-text small text-muted">{{ img.caption }}</p>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- CUSTOM STYLES -->
+<style>
+  .object-fit-cover {
+    object-fit: cover;
+  }
+
+  @media (max-width: 576px) {
+    .card-body p {
+      font-size: 0.9rem;
+    }
+  }
+</style>
+
+<!-- COPY SCRIPT -->
+<script>
+  function copyStoreLink() {
+    const input = document.getElementById("storeLink");
+    input.select();
+    input.setSelectionRange(0, 99999); // For mobile
+    navigator.clipboard.writeText(input.value).then(() => {
+      alert("Store link copied!");
+    });
+  }
+</script>
+{% endblock %}

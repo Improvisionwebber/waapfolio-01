@@ -1,0 +1,126 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WAAP FOLIO {% block title %}{% endblock title %}</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    /* Hide header navbar on mobile */
+    @media(max-width: 767px) {
+        .navbar {
+            display: none !important;
+        }
+    }
+
+    /* Bottom nav for mobile */
+    .mobile-bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        background: #198754; /* bootstrap success color */
+        display: flex;
+        justify-content: space-around;
+        align-items: center;
+        padding: 0.5rem 0;
+        z-index: 1050;
+    }
+
+    .mobile-bottom-nav a {
+        color: white;
+        text-align: center;
+        font-size: 0.9rem;
+    }
+
+    .mobile-bottom-nav a:hover {
+        text-decoration: none;
+        color: #d4edda;
+    }
+
+    @media(min-width: 768px){
+        .mobile-bottom-nav {
+            display: none;
+        }
+    }
+</style>
+
+</head>
+<body>
+    <div class="bg-success fade-in">
+        <nav class="navbar navbar-expand-lg">
+            <div class="container-fluid">
+                <a class="navbar-brand text-light" href="{% url 'home' %}">WAAP FOLIO</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav ms-auto align-items-center">
+                        <li class="nav-item">
+                            <a class="nav-link active text-light" aria-current="page" href="{% url 'home' %}">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-light" href="{% url 'profile' %}">Profile</a>
+                        </li>
+
+                        {% if request.user.is_authenticated %}
+                            <li class="nav-item">
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-success text-light text-decoration-none">LOGOUT</button>
+                                </form>
+                            </li>
+                        {% else %}
+                            <li class="nav-item">
+                                <a href="{% url 'login' %}" class="btn btn-success text-light text-decoration-none">LOGIN</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    {% block body %}{% endblock body %}
+
+    <!-- Mobile Bottom Navigation -->
+<div class="mobile-bottom-nav d-flex d-md-none">
+    <a href="{% url 'home' %}" class="text-decoration-none">🏠<br>Home</a>
+    <a href="{% url 'about' %}" class="text-decoration-none">ℹ️<br>About</a>
+    <a href="{% url 'view_store' store.slug %}" class="text-decoration-none">🛒<br>Store</a>
+    <a href="{% url 'profile' %}" class="text-decoration-none">⚙️<br>Settings</a>
+    <a href="#" data-bs-toggle="modal" data-bs-target="#moreModal" class="text-decoration-none">⋯<br>More</a>
+</div>
+
+<!-- More Modal -->
+<div class="modal fade" id="moreModal" tabindex="-1" aria-labelledby="moreModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="moreModalLabel">More Options</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body d-flex flex-column gap-2">
+                <a href="{% url 'problem_solving' %}" class="btn btn-outline-success w-100">✅ Problem it Solves</a>
+                <a href="{% url 'faqs' %}" class="btn btn-outline-success w-100">❓ FAQs</a>
+                <a href="{% url 'money' %}" class="btn btn-outline-success w-100">⚡ 100K Blueprint</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+    <!-- JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{% static 'js/bootstrap.js' %}"></script>
+    <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+</body>
+</html>

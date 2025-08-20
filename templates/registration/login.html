@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}LOGIN PAGE{% endblock title %}
+
+{% block body %}
+<!-- Centered Login Form -->
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+  <form id="loginForm" action="{% url 'login' %}" method="post" class="form fade-in">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <!-- Submit Button -->
+    <button type="submit" class="btn btn-success w-100 mt-2">Login</button>
+
+    <p class="text-center mt-3">
+      <a href="{% url 'password_reset' %}">Forgot Password</a> |
+      <a href="{% url 'register' %}">Register</a>
+    </p>
+  </form>
+</div>
+
+<!-- 🔄 Loading Modal -->
+<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content text-center p-4">
+      <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mb-0">Logging you in, please wait...</p>
+    </div>
+  </div>
+</div>
+
+<!-- 🔁 JavaScript to show loading modal -->
+<script>
+  document.getElementById('loginForm').addEventListener('submit', function() {
+    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
+    modal.show();
+  });
+</script>
+{% endblock body %}
