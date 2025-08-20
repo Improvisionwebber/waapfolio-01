@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}About WAAP FOLIO{% endblock title %}
+
+{% block body %}
+<!-- Hero Section -->
+<section class="about-hero bg-light py-5 text-center">
+    <div class="container">
+        <h1 class="display-4 fw-bold">About WAAP FOLIO</h1>
+        <p class="lead mt-3">Your ultimate platform to showcase stores, products, and digital creativity seamlessly.</p>
+    </div>
+</section>
+
+<!-- Mission Section -->
+<section class="mission py-5">
+    <div class="container">
+        <div class="row align-items-center flex-column flex-md-row">
+            <div class="col-md-6 mb-4 mb-md-0">
+                <img src="{% static 'images/easy.jpg' %}" class="img-fluid rounded shadow" alt="Mission">
+            </div>
+            <div class="col-md-6 text-center text-md-start">
+                <h2 class="fw-bold">Our Mission</h2>
+                <p class="mt-3">WAAP FOLIO was built to empower hustlers, creators, and small businesses to showcase their work online in a sleek, easy-to-use platform. We combine elegance with functionality, making your store stand out.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features py-5 bg-light">
+    <div class="container text-center">
+        <h2 class="fw-bold mb-4">Why Choose WAAP FOLIO?</h2>
+        <div class="row">
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-shop display-4 text-primary mb-3"></i>
+                        <h5 class="card-title fw-bold">Showcase Your Store</h5>
+                        <p class="card-text">Create your online store in minutes, and display your products professionally.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-graph-up display-4 text-success mb-3"></i>
+                        <h5 class="card-title fw-bold">Track Engagement</h5>
+                        <p class="card-text">See how many people view, like, and share your products in real time.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4 mb-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <i class="bi bi-phone display-4 text-warning mb-3"></i>
+                        <h5 class="card-title fw-bold">Mobile Friendly</h5>
+                        <p class="card-text">WAAP FOLIO is fully responsive, giving your audience a seamless experience on any device.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Section -->
+<section class="team py-5">
+    <div class="container">
+        <h2 class="fw-bold text-center mb-5">Meet the Team</h2>
+        <div class="row row-cols-1 row-cols-md-3 g-4 text-center">
+            <div class="col">
+                <img src="{% static 'images/emmy.jpg' %}" class="rounded-circle mb-3" width="150" height="150" alt="Emmy">
+                <h5 class="fw-bold">Emmy</h5>
+                <p class="text-muted">Founder & Lead</p>
+            </div>
+            <div class="col">
+                <img src="{% static 'images/victory.jpg' %}" class="rounded-circle mb-3" width="150" height="150" alt="Victory">
+                <h5 class="fw-bold">Victory</h5>
+                <p class="text-muted">Graphics</p>
+            </div>
+            <div class="col">
+                <img src="{% static 'images/daniel.jpg' %}" class="rounded-circle mb-3" width="150" height="150" alt="Daniel">
+                <h5 class="fw-bold">Daniel</h5>
+                <p class="text-muted">Community & Support</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats py-5 bg-light text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-4">WAAP FOLIO in Numbers</h2>
+        <div class="row row-cols-1 row-cols-md-4 g-4">
+            <div class="col">
+                <h3 class="fw-bold">150+</h3>
+                <p>Stores Created</p>
+            </div>
+            <div class="col">
+                <h3 class="fw-bold">1200+</h3>
+                <p>Products Listed</p>
+            </div>
+            <div class="col">
+                <h3 class="fw-bold">5000+</h3>
+                <p>Active Users</p>
+            </div>
+            <div class="col">
+                <h3 class="fw-bold">50k+</h3>
+                <p>Products Viewed</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="cta py-5 text-center">
+    <div class="container">
+        <h2 class="fw-bold mb-3">Ready to showcase your store?</h2>
+        <a href="{% url 'home' %}" class="btn btn-primary btn-lg">Get Started Now</a>
+    </div>
+</section>
+{% endblock body %}

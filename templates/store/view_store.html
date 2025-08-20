@@ -4,9 +4,26 @@
 {% load static %}
 
 <!-- STORE HEADER SECTION -->
+{% if request.user.is_authenticated and request.user == store.owner %}
+ <div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
+  <a href="{% url 'manage_store' store.slug %}" class="btn btn-success pt-3 mt-3">
+    <i class="bi bi-box-arrow-up-right"></i> Manage Store
+  </a>
+</div>
+{% endif %}
+
+
 <section class="py-5 bg-light">
   <div class="container text-center">
-    <img src="{{ store.brand_logo.url }}" class="rounded-circle shadow mb-3" width="120" height="120" alt="Brand Logo">
+{% if store.brand_logo %}
+    <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
+{% elif store.brand_logo_url %}
+    <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
+{% else %}
+    <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
+{% endif %}
+
+
     <h1 class="fw-bold">{{ store.brand_name }}</h1>
     <p class="lead text-muted mb-4">{{ store.custom_message }}</p>
 

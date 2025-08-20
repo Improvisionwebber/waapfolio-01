@@ -1,9 +1,8 @@
 from django.contrib import admin
 from .models import (
-    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike
+    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike,
 )
-
-
+from .forms import  StoreForm
 # Email OTP
 @admin.register(EmailOTP)
 class EmailOTPAdmin(admin.ModelAdmin):
@@ -13,13 +12,10 @@ class EmailOTPAdmin(admin.ModelAdmin):
     list_filter = ('created_at', 'expires_at')
 
 
-# Store
 @admin.register(Store)
 class StoreAdmin(admin.ModelAdmin):
-    list_display = ('brand_name', 'owner', 'total_views', 'slug')
-    search_fields = ('brand_name', 'owner__username', 'whatsapp_number')
-    readonly_fields = ('slug',)
-    prepopulated_fields = {"slug": ("brand_name",)}
+    form = StoreForm
+    readonly_fields = ['slug']  # shows slug but not editable
 
 
 # Store Image

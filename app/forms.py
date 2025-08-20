@@ -11,33 +11,22 @@ class CustomClearableFileInput(ClearableFileInput):
     pass
 
 
-# Store Form
 class StoreForm(forms.ModelForm):
     whatsapp_number = forms.CharField(
-        widget=forms.TextInput(
-            attrs={
-                'class': 'form-control',
-                'id': 'phone',
-                'placeholder': 'e.g. +2347098865543'
-            }
-        )
+        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone', 'placeholder': 'e.g. +2347098865543'})
     )
     Bio = forms.CharField(
-        widget=forms.Textarea(
-            attrs={
-                'class': 'form-control',
-                'placeholder': 'e.g. Welcome to my Store',
-                'rows': 3
-            }
-        )
+        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Welcome to my Store', 'rows': 3})
     )
 
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio']
+        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio']  # slug not included
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+
 
 
 # Store Image Form

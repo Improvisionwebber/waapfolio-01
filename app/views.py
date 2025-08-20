@@ -44,10 +44,10 @@ class RegistrationForm(UserCreationForm):
 def home(request):
     store = None
     if request.user.is_authenticated:
-        try:
-            store = Store.objects.get(owner=request.user)
-        except Store.DoesNotExist:
-            store = None
+        # Get all stores for the user
+        stores = Store.objects.filter(owner=request.user)
+        # Pick the first one if it exists
+        store = stores.first()  # returns None if the user has no stores
     return render(request, 'home.html', {'store': store})
 
 
@@ -245,6 +245,7 @@ def view_store(request, slug):
         'full_url': full_url,
         'whatsapp_link': whatsapp_link,
     })
+
 
 
 # -------------------------

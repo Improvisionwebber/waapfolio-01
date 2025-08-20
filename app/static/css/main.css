@@ -42,7 +42,7 @@ body {
     width: 100%;
     padding: 12px;
     font-size: 16px;
-    background-color: rgb(238, 152, 152);
+    background-color: rgb(52, 150, 59);
     border: none;
     border-radius: 10px;
     color: white;
@@ -51,7 +51,7 @@ body {
 }
 
 .form button:hover {
-    background-color: rgb(243, 40, 74);
+    background-color: rgb(7, 41, 4);
 }
 .reset{
     margin-bottom: 173px;

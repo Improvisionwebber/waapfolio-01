@@ -4,7 +4,7 @@ from django.utils.text import slugify
 from django.utils import timezone
 import random
 import re
-
+from django.urls import reverse
 
 # Email OTP
 class EmailOTP(models.Model):
@@ -21,32 +21,25 @@ class EmailOTP(models.Model):
         return str(random.randint(100000, 999999))
 
 
-# Store
 class Store(models.Model):
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
     brand_name = models.CharField(max_length=100)
-    brand_logo = models.URLField(blank=True, null=True)
-    whatsapp_number = models.CharField(max_length=20)
-    Bio = models.CharField(max_length=100)
-    total_views = models.PositiveIntegerField(default=0)
     slug = models.SlugField(unique=True, blank=True)
-
-    def __str__(self):
-        return self.brand_name
+    brand_logo = models.ImageField(upload_to='brands/')
+    brand_logo_url = models.URLField(max_length=500, blank=True, null=True)
+    whatsapp_number = models.CharField(max_length=20)
+    Bio = models.TextField()
+    total_views = models.IntegerField(default=0)
+    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
-        if not self.slug and self.brand_name:
-            base_slug = slugify(self.brand_name)
-            slug = base_slug
-            counter = 1
-            while Store.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            self.slug = slug
+        if not self.slug:
+            self.slug = slugify(self.brand_name)
         super().save(*args, **kwargs)
-
     def get_absolute_url(self):
-        return f"/shop/{self.slug}/"
+        return reverse('view_store', kwargs={'slug': self.slug})
+
+    def __str__(self):
+        return self.brand_name  # <-- this makes Django display the store name instead of "Store object (1)"
 
 
 # Store Image

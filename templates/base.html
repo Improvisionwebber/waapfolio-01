@@ -67,21 +67,19 @@
                             <a class="nav-link active text-light" aria-current="page" href="{% url 'home' %}">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'profile' %}">Profile</a>
+                            <a class="nav-link text-light" href="{% url 'about' %}">About</a>
                         </li>
+                        {% if store %}
+                            <a class="nav-link text-light" href="{% url 'view_store' store.slug %}">Store</a>
+                        {% endif %}
 
                         {% if request.user.is_authenticated %}
                             <li class="nav-item">
-                                <form action="{% url 'logout' %}" method="post" class="d-inline">
-                                    {% csrf_token %}
-                                    <button type="submit" class="btn btn-success text-light text-decoration-none">LOGOUT</button>
-                                </form>
-                            </li>
-                        {% else %}
-                            <li class="nav-item">
-                                <a href="{% url 'login' %}" class="btn btn-success text-light text-decoration-none">LOGIN</a>
+                                <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
                             </li>
                         {% endif %}
+
+
                     </ul>
                 </div>
             </div>
@@ -94,8 +92,12 @@
 <div class="mobile-bottom-nav d-flex d-md-none">
     <a href="{% url 'home' %}" class="text-decoration-none">🏠<br>Home</a>
     <a href="{% url 'about' %}" class="text-decoration-none">ℹ️<br>About</a>
-    <a href="{% url 'view_store' store.slug %}" class="text-decoration-none">🛒<br>Store</a>
-    <a href="{% url 'profile' %}" class="text-decoration-none">⚙️<br>Settings</a>
+    {% if store %}
+        <a href="{% url 'view_store' store.slug %}" class="text-decoration-none">🛒<br>Store</a>
+    {% endif %}
+    {% if request.user.is_authenticated %}
+        <a href="{% url 'profile' %}" class="text-decoration-none">⚙️<br>Settings</a>
+    {% endif %}
     <a href="#" data-bs-toggle="modal" data-bs-target="#moreModal" class="text-decoration-none">⋯<br>More</a>
 </div>
 
