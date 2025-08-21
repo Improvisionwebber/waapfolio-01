@@ -3,187 +3,329 @@
 {% block body %}
 {% load static %}
 
-<!-- STORE HEADER SECTION -->
-{% if request.user.is_authenticated and request.user == store.owner %}
- <div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
+<!-- ---------- STYLES ---------- -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+/* ---------- GLOBAL ---------- */
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f0fff0;
+}
+
+/* ---------- HEADER ---------- */
+.store-header {
+  padding: 60px 0;
+  text-align: center;
+  border-radius: 20px;
+}
+.store-header img {
+  width: 130px;
+  height: 130px;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+.store-header img:hover {
+  transform: scale(1.1) rotate(2deg);
+}
+.store-header h1 {
+  font-size: 2.5rem;
+  color: #006400;
+  margin-top: 15px;
+  animation: fadeInUp 1s ease;
+}
+.store-header p {
+  color: #004d00;
+  animation: fadeInUp 1s ease 0.2s;
+}
+
+/* ---------- STORE LINK ---------- */
+.store-link-group input {
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+.store-link-group input:focus {
+  box-shadow: 0 0 15px #00cc00;
+  transform: scale(1.05);
+}
+.store-link-group button {
+  border-radius: 50px;
+}
+
+/* ---------- ACTION BUTTONS ---------- */
+.action-buttons a, .action-buttons button {
+  transition: all 0.3s ease;
+}
+.action-buttons a:hover, .action-buttons button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 128, 0, 0.3);
+}
+
+/* ---------- PRODUCTS GRID ---------- */
+.card {
+  border: none;
+  border-radius: 20px;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 30px rgba(0,128,0,0.25);
+}
+.card img {
+  border-bottom: 2px solid #00cc00;
+  height: 220px;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.card img:hover {
+  transform: scale(1.05);
+}
+
+/* ---------- CARD BODY ---------- */
+.card-body h6 {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #006400;
+}
+.card-body p {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #00cc00;
+}
+
+/* ---------- CARD ACTIONS ---------- */
+.card-actions {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+.card-actions button {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+.card-actions button:hover {
+  transform: scale(1.2);
+  box-shadow: 0 5px 15px rgba(0,128,0,0.3);
+}
+.card-actions i {
+  font-size: 1.2rem;
+}
+.card-actions span {
+  font-weight: 600;
+  color: #004d00;
+}
+
+/* ---------- VIEW DETAILS BUTTON ---------- */
+.view-details {
+  margin-top: 10px;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+.view-details:hover {
+  transform: scale(1.05);
+  box-shadow: 0 8px 20px rgba(0,128,0,0.2);
+}
+
+/* ---------- ANIMATIONS ---------- */
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media(max-width:768px){
+  .card-body p { font-size: 1rem; }
+  .store-header h1 { font-size: 2rem; }
+  .store-header p { font-size: 0.9rem; }
+  .action-buttons { flex-wrap: wrap; gap: 8px; justify-content: center; }
+}
+.verified-badge {
+  display: inline-block;
+  max-height: 1em;       /* same height as text */
+  max-width: 1.2em;      /* limit width to avoid stretching */
+  height: auto;           /* scale height proportionally if needed */
+  width: auto;            /* scale width proportionally */
+  object-fit: contain;    /* prevent distortion */
+  vertical-align: middle;
+  margin-left: 0.3em;
+}
+
+
+/* ---------- EDIT STORE BUTTON ---------- */
+.edit-store-btn {
+  border-radius: 50px;
+  padding: 0.5rem 1.2rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+.edit-store-btn:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(0, 128, 0, 0.3);
+}
+.not-liked-icon {
+  color: transparent;
+  -webkit-text-stroke: 1px red; /* outline red */
+  transition: all 0.3s ease;
+}
+
+.liked-icon {
+  color: red;  /* filled red */
+  transition: all 0.3s ease;
+}
+
+
+</style>
+<div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
   <a href="{% url 'manage_store' store.slug %}" class="btn btn-success pt-3 mt-3">
     <i class="bi bi-box-arrow-up-right"></i> Manage Store
   </a>
 </div>
+<!-- ---------- STORE HEADER ---------- -->
+<section class="store-header">
+  {% if store.brand_logo %}
+    <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }} Logo">
+  {% elif store.brand_logo_url %}
+    <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo">
+  {% else %}
+    <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo">
+  {% endif %}
+<h1 class="d-flex align-items-center justify-content-center gap-2 position-relative">
+  {{ store.brand_name }}
+  {% comment %} {% if store.is_verified %} {% endcomment %}
+    <img src="{% static 'images/verified.png' %}" alt="Verified" class="verified-badge">
+  {% comment %} {% endif %} {% endcomment %}
+</h1>
+
+<!-- Edit Store Button (only visible to store owner) -->
+{% if request.user.is_authenticated and request.user == store.owner %}
+  <a href="{% url 'edit_store' store.id %}" class="btn btn-outline-success mt-3 edit-store-btn">
+    <i class="bi bi-pencil-square"></i> Edit Store
+  </a>
 {% endif %}
+  <p>{{ store.custom_message }}</p>
 
-<section class="py-5 bg-light">
-  <div class="container text-center">
-
-    {% if store.brand_logo %}
-      <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
-    {% elif store.brand_logo_url %}
-      <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
-    {% else %}
-      <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo" class="rounded-circle" width="120" height="120">
-    {% endif %}
-
-    <h1 class="fw-bold mt-3">{{ store.brand_name }}</h1>
-    <p class="lead text-muted mb-4">{{ store.custom_message }}</p>
-
-    <!-- STORE LINK SECTION -->
-    <div class="input-group mx-auto mb-3" style="max-width: 500px;">
-      <input type="text" id="storeLink" class="form-control form-control-lg" value="{{ full_url }}" readonly>
-      <button class="btn btn-outline-primary" onclick="copyStoreLink()">Copy</button>
-    </div>
-
-    <!-- SHARE / CONTACT BUTTONS -->
-    <div class="d-flex flex-column flex-sm-row justify-content-center gap-2">
-      <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Vend:%20{{ full_url }}" target="_blank" class="btn btn-success btn-lg">
-        📤 Share on WhatsApp
-      </a>
-      <a href="{{ whatsapp_link }}" class="btn btn-outline-success btn-lg">
-        💬 Contact Seller
-      </a>
-    </div>
+  <!-- Store link & share -->
+  <div class="store-link-group mt-4 d-flex justify-content-center flex-wrap gap-2">
+    <input type="text" id="storeLink" class="form-control form-control-lg" value="{{ full_url }}" readonly style="max-width: 350px;">
+    <button class="btn btn-outline-primary btn-lg" onclick="copyStoreLink()">Copy</button>
+  </div>
+  <div class="action-buttons mt-3 d-flex flex-wrap justify-content-center gap-2">
+    <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Vend:%20{{ full_url }}" target="_blank" class="btn btn-success btn-lg">📤 Share on WhatsApp</a>
+    <a href="{{ whatsapp_link }}" class="btn btn-outline-success btn-lg">💬 Contact Seller</a>
   </div>
 </section>
 
-<!-- PRODUCTS GRID -->
+<!-- ---------- PRODUCTS GRID ---------- -->
 <section class="py-5">
   <div class="container">
     <h3 class="text-center mb-4 fw-semibold">Products</h3>
     <div class="row g-4 justify-content-center">
       {% for meta in items_meta %}
         {% with item=meta.item %}
-          <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100 shadow-sm border-0 rounded-4 overflow-hidden">
-
-              <!-- Product Image -->
-              <a href="{{ meta.product_url }}">
-                <img src="{{ meta.cover_url }}" class="card-img-top img-fluid object-fit-cover"
-                     style="height:220px;" alt="{{ item.name }}">
-              </a>
-
-              <!-- Card Body -->
-              <div class="card-body text-center p-3">
-                <h6 class="text-uppercase fw-bold mb-1">{{ item.name }}</h6>
-                <p class="text-success fs-5 fw-semibold">₦{{ item.price }}</p>
-              <!-- Actions -->
-              <div class="d-flex justify-content-center align-items-center gap-3 my-2 bg-light p-2 rounded">
-
-                <!-- Like -->
-                <button class="btn-like btn btn-outline-danger btn-sm rounded-circle d-flex align-items-center justify-content-center"
-                        data-item-id="{{ item.id }}" 
-                        style="width:40px; height:40px; background-color: #fff; border-width:2px;">
-                  <i class="bi bi-heart-fill text-danger"></i>
+        <div class="col-6 col-md-4 col-lg-3">
+          <div class="card h-100 shadow-sm">
+            <a href="{{ meta.product_url }}">
+              <img src="{{ meta.cover_url }}" class="card-img-top" alt="{{ item.name }}">
+            </a>
+            <div class="card-body text-center p-3">
+              <h6>{{ item.name }}</h6>
+              <p>₦{{ item.price }}</p>
+              <div class="card-actions mt-2">
+                <button class="btn-like" data-item-id="{{ item.id }}">
+                  <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
                 </button>
-                <span id="likes-count-{{ item.id }}" class="small fw-bold text-dark ms-1">{{ meta.likes_count }}</span>
-
-                <!-- Views -->
-                <div class="text-dark small d-flex align-items-center ms-3">
-                  <i class="bi bi-eye me-1 text-primary"></i>
-                  <span class="fw-bold">{{ item.views }}</span>
+                
+                <span id="likes-count-{{ item.id }}">{{ meta.likes_count }}</span>
+                <div class="d-flex align-items-center gap-1 text-success">
+                  <i class="bi bi-eye-fill"></i>
+                  <span>{{ item.views }}</span>
                 </div>
-
-                <!-- Share -->
-                <button type="button" class="btn btn-outline-success btn-sm rounded-circle d-flex align-items-center justify-content-center ms-3"
-                        style="width:40px; height:40px; background-color:#fff; border-width:2px;"
-                        onclick="shareProduct('{{ meta.product_url }}', '{{ item.name|escapejs }}')">
+                <button onclick="shareProduct('{{ meta.product_url }}', '{{ item.name|escapejs }}')">
                   <i class="bi bi-share-fill text-success"></i>
                 </button>
-
               </div>
-
-              <style>
-                /* Hover effects */
-                .btn-like:hover {
-                  background-color: #ffe6e6;
-                }
-                .btn-outline-success:hover {
-                  background-color: #e6ffe6;
-                }
-              </style>
-
-
-                <!-- View Details Button -->
-                <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 rounded-pill mt-2">
-                  View Details
-                </a>
-              </div>
+              <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">View Details</a>
             </div>
           </div>
+        </div>
         {% endwith %}
       {% endfor %}
     </div>
   </div>
 </section>
 
-<!-- Share Script -->
+<!-- ---------- SCRIPTS ---------- -->
 <script>
-  function shareProduct(url, name){
-    const text = encodeURIComponent(`Check out ${name}: ${url}`);
-    const whatsapp = `https://wa.me/?text=${text}`;
-    window.open(whatsapp, '_blank');
-  }
-</script>
+function copyStoreLink() {
+  const input = document.getElementById("storeLink");
+  input.select();
+  input.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(input.value).then(() => { alert("Store link copied!"); });
+}
 
-<!-- Custom Styles -->
-<style>
-  .object-fit-cover {
-    object-fit: cover;
-  }
-  @media (max-width: 576px) {
-    .card-body p {
-      font-size: 0.9rem;
-    }
-  }
-</style>
-
-<!-- Copy Store Link -->
-<script>
-  function copyStoreLink() {
-    const input = document.getElementById("storeLink");
-    input.select();
-    input.setSelectionRange(0, 99999); // For mobile
-    navigator.clipboard.writeText(input.value).then(() => {
-      alert("Store link copied!");
-    });
-  }
-</script>
-<script>
 document.addEventListener("DOMContentLoaded", function () {
-  // LIKE TOGGLE
   document.querySelectorAll(".btn-like").forEach(button => {
     button.addEventListener("click", function () {
       const itemId = this.getAttribute("data-item-id");
       fetch(`/like-item/${itemId}/`, {
         method: "POST",
-        headers: {
-          "X-CSRFToken": "{{ csrf_token }}",
-        },
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.redirect) {
-          window.location.href = data.redirect;
-        } else {
-          document.querySelector(`#likes-count-${itemId}`).textContent = data.likes;
-        }
-      });
+        headers: { "X-CSRFToken": "{{ csrf_token }}" },
+      }).then(res => res.json())
+        .then(data => {
+          if (data.redirect) window.location.href = data.redirect;
+          else document.querySelector(`#likes-count-${itemId}`).textContent = data.likes;
+        });
     });
   });
 });
 
-// SHARE FUNCTION
 function shareProduct(url, name) {
-  if (navigator.share) {
-    navigator.share({
-      title: name,
-      text: `Check out ${name}`,
-      url: url
-    });
+  if(navigator.share){
+    navigator.share({ title: name, text:`Check out ${name}`, url });
   } else {
-    const text = encodeURIComponent(`Check out ${name}: ${url}`);
-    window.open(`https://wa.me/?text=${text}`, "_blank");
+    window.open(`https://wa.me/?text=${encodeURIComponent(`Check out ${name}: ${url}`)}`, "_blank");
   }
 }
-</script>
+document.querySelectorAll(".btn-like").forEach(button => {
+  button.addEventListener("click", function () {
+    const itemId = this.dataset.itemId;
+    fetch(`/like-item/${itemId}/`, {
+      method: "POST",
+      headers: { "X-CSRFToken": "{{ csrf_token }}" },
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.redirect) {
+        window.location.href = data.redirect;
+      } else {
+        // Update likes count
+        document.getElementById(`likes-count-${itemId}`).textContent = data.likes;
 
+        // Toggle icon class
+        const icon = this.querySelector("i");
+        if (data.liked) { // user liked
+          icon.classList.remove("bi-heart", "not-liked-icon");
+          icon.classList.add("bi-heart-fill", "liked-icon");
+        } else { // user unliked
+          icon.classList.remove("bi-heart-fill", "liked-icon");
+          icon.classList.add("bi-heart", "not-liked-icon");
+        }
+      }
+    });
+  });
+});
+
+</script>
 
 {% endblock %}

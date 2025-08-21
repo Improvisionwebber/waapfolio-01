@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+
 
   <style>
     /* Hide header navbar on mobile */
@@ -49,6 +51,200 @@
             display: none;
         }
     }
+body.dark {
+  background-color: #121212 !important;
+  color: #eee !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+/* Text colors for headings */
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark h4,
+body.dark h5,
+body.dark h6 {
+  color: #eee !important;
+}
+
+/* Paragraphs */
+body.dark p {
+  color: #eee !important;
+}
+
+/* Muted and primary text */
+body.dark p.text-muted {
+  color: #bbb !important;
+}
+body.dark p.text-primary {
+  color: #9ccaff !important; /* lighter blue for contrast */
+}
+
+/* Links */
+body.dark a.text-dark,
+body.dark a.text-decoration-none {
+  color: #8cc4ff !important;
+}
+body.dark a.text-decoration-none:hover {
+  color: #b3d1ff !important;
+}
+
+/* Buttons */
+body.dark a.btn-primary,
+body.dark a.btn-success,
+body.dark .btn-primary,
+body.dark .btn-success {
+  color: #fff !important;
+  border-color: transparent !important;
+}
+body.dark .btn-success {
+  background-color: #198754 !important; /* keep green */
+}
+body.dark .btn-primary {
+  background-color: #007bff !important; /* blue */
+}
+
+/* Containers */
+body.dark .container {
+  background-color: #1e1e1e !important;
+  border-radius: 0.5rem;
+  box-shadow: 0 4px 8px rgba(255 255 255 / 0.1);
+  padding: 1.5rem;
+  color: #eee !important;
+}
+
+/* Override all text inside container */
+body.dark .container *,
+body.dark .container p,
+body.dark .container li {
+  color: #eee !important;
+}
+
+/* Lists */
+body.dark ol,
+body.dark ul {
+  padding-left: 1.5rem;
+}
+body.dark li {
+  margin-bottom: 0.5rem;
+  color: #eee !important;
+}
+
+/* Cards */
+body.dark .card {
+  background-color: #1e1e1e !important;
+  color: #eee !important;
+  box-shadow: 0 0 10px rgba(255 255 255 / 0.1) !important;
+}
+body.dark .card-text,
+body.dark .card-title {
+  color: #eee !important;
+}
+body.dark .card img {
+  border: 1px solid #333;
+  border-radius: 8px;
+}
+
+/* Hero text */
+body.dark .hero-txt,
+body.dark .hero-txt1,
+body.dark .hero-txt2 {
+  color: #eee !important;
+}
+
+/* Accordion */
+body.dark .accordion-button {
+  background-color: #1e1e1e !important;
+  color: #eee !important;
+  border-color: #333 !important;
+}
+body.dark .accordion-button:not(.collapsed) {
+  background-color: #2a2a2a !important;
+  color: #fff !important;
+}
+body.dark .accordion-collapse {
+  background-color: #1e1e1e !important;
+  color: #eee !important;
+}
+
+/* Offcanvas bottom menu */
+body.dark .offcanvas.offcanvas-bottom {
+  background-color: #121212 !important;
+  color: #eee !important;
+  border-top: 1px solid #333;
+}
+body.dark .offcanvas.offcanvas-bottom .offcanvas-header {
+  border-bottom: 1px solid #333;
+}
+body.dark .offcanvas.offcanvas-bottom .offcanvas-title {
+  color: #4da6ff !important;
+}
+body.dark .offcanvas.offcanvas-bottom .btn-close {
+  filter: invert(1);
+}
+body.dark .offcanvas.offcanvas-bottom .list-group-item {
+  background-color: transparent !important;
+  color: #eee !important;
+  border: none;
+}
+body.dark .offcanvas.offcanvas-bottom .list-group-item:hover {
+  background-color: #222 !important;
+  color: #fff !important;
+}
+
+/* Buttons with outline */
+body.dark .btn-outline-primary {
+  color: #4da6ff !important;
+  border-color: #4da6ff !important;
+}
+body.dark .btn-outline-primary:hover {
+  background-color: #4da6ff !important;
+  color: #fff !important;
+}
+body.dark .btn-outline-success {
+  color: #4caf50 !important;
+  border-color: #4caf50 !important;
+}
+body.dark .btn-outline-success:hover {
+  background-color: #4caf50 !important;
+  color: #fff !important;
+}
+/* Only affects this testimonial in dark mode */
+body.dark .testimonial-green p,
+body.dark .testimonial-green strong {
+  color: #28a745 !important; /* green for dark mode */
+}
+/* Dark mode navbar */
+body.dark .navbar,
+body.dark .navbar-collapse,
+body.dark .offcanvas {
+  background-color: #121212 !important; /* very dark background */
+  color: #eee !important;
+}
+
+/* Navbar links */
+body.dark .navbar a,
+body.dark .navbar .nav-link {
+  color: #eee !important;
+}
+
+body.dark .navbar a:hover,
+body.dark .navbar .nav-link:hover {
+  color: #f8f8f9ff !important; /* optional highlight on hover */
+}
+
+/* Navbar toggler button */
+body.dark .navbar-toggler {
+  border-color: #eee !important;
+}
+
+body.dark .navbar-toggler-icon {
+  filter: invert(1); /* makes hamburger icon visible in dark mode */
+}
+body {
+    margin-bottom: 300px; /* same as your mobile nav height */
+}
 </style>
 
 </head>
@@ -121,6 +317,13 @@
 
 
     <!-- JS -->
+       <script>
+    // Apply dark mode class on body if user saved it before
+    if (localStorage.getItem('darkMode') === 'enabled') {
+      document.body.classList.add('dark');
+    }
+  </script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>

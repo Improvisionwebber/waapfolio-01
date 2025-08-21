@@ -1,32 +1,27 @@
-{% extends "base.html" %}
-{% block title %}Contact Us{% endblock title %}
+{% extends 'base.html' %}
+{% block title %}Contact Us - Waapfolio{% endblock %}
 
 {% block body %}
-<div class="container py-4">
-  <h2 class="text-center mb-4">Contact Waapfolio</h2>
+<a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
+  <i class="bi bi-arrow-left"></i> Back
+</a>
 
-  <p class="text-center mb-3">Have questions, suggestions, or feedback? We'd love to hear from you.</p>
+<div class="container mt-4 mb-5 px-3">
+  <h2 class="mb-3">Need Help?</h2>
+  <p class="mb-4">For questions, account support, or business inquiries, you can chat with our team on Telegram or WhatsApp.</p>
 
-  <form method="post">
-    {% csrf_token %}
-    <div class="mb-3">
-      <label for="name" class="form-label">Your Name</label>
-      <input type="text" class="form-control" id="name" name="name" placeholder="e.g. John Doe" required>
-    </div>
+  <!-- Telegram Button -->
+  <a href="https://t.me/waapfolio_support" target="_blank" class="btn btn-primary w-100 mb-3">
+    <i class="bi bi-telegram me-1"></i> Message Us on Telegram
+  </a>
 
-    <div class="mb-3">
-      <label for="email" class="form-label">Your Email</label>
-      <input type="email" class="form-control" id="email" name="email" placeholder="e.g. johndoe@example.com" required>
-    </div>
+  <!-- Optional: WhatsApp Button -->
+  <a href="https://wa.me/2349161453058" target="_blank" class="btn btn-success w-100 mb-3">
+    <i class="bi bi-whatsapp me-1"></i> Chat on WhatsApp
+  </a>
 
-    <div class="mb-3">
-      <label for="message" class="form-label">Your Message</label>
-      <textarea class="form-control" id="message" name="message" rows="5" placeholder="Type your message here..." required></textarea>
-    </div>
+  <hr class="my-4">
 
-    <div class="text-center">
-      <button type="submit" class="btn btn-dark">Send Message</button>
-    </div>
-  </form>
+  <p class="mb-1"><strong>Business Email:</strong> <br><a href="mailto:waapfolioorg@gmail.com">waapfolioorg@gmail.com</a></p>
 </div>
 {% endblock %}

@@ -82,7 +82,7 @@ def share_tutorial(request):
 
 
 def faqs(request):
-    return render(request, "faqs.html")
+    return render(request, "faq.html")
 
 
 def contact(request):
