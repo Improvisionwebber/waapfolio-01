@@ -75,10 +75,42 @@
       {{ form.name.label_tag }}
       {{ form.name }}
     </div>
-    <div class="mb-3">
-      {{ form.price.label_tag }}
-      {{ form.price }}
-    </div>
+<div class="mb-3">
+  <label for="currency" class="form-label">Currency</label>
+  <select id="currency" class="form-select">
+    <option value="₦">🇳🇬 NGN (₦)</option>
+    <option value="$">🇺🇸 USD ($)</option>
+    <option value="€">🇪🇺 EUR (€)</option>
+    <option value="£">🇬🇧 GBP (£)</option>
+    <option value="₵">🇬🇭 GHS (₵)</option>
+  </select>
+</div>
+
+<div class="mb-3">
+  <label for="price" class="form-label">Price</label>
+  <input type="text" id="price" name="price" class="form-control" placeholder="Enter price">
+</div>
+
+<script>
+  const currencySelect = document.getElementById("currency");
+  const priceInput = document.getElementById("price");
+
+  // update placeholder with symbol when selected
+  currencySelect.addEventListener("change", function () {
+    const symbol = this.value;
+    if (priceInput.value.startsWith("₦") || priceInput.value.startsWith("$") || 
+        priceInput.value.startsWith("€") || priceInput.value.startsWith("£") || 
+        priceInput.value.startsWith("₵")) {
+      // replace first symbol
+      priceInput.value = symbol + priceInput.value.slice(1);
+    } else {
+      // just add symbol
+      priceInput.value = symbol + (priceInput.value || "");
+    }
+    priceInput.placeholder = "e.g. " + symbol + "1000";
+  });
+</script>
+
 
     <!-- Cover image -->
     <div class="mb-3">
@@ -189,7 +221,7 @@
           <div id="preview-cards" class="row g-3 mt-2"></div>
           <center>
             <h1 class="card-text text-success">{{ item.name }}</h1>
-            <p class="card-text">₦{{ item.price }}</p>
+            <p class="card-text">{{ item.price }}</p>
           </center>
 
           <div class="d-flex gap-2">

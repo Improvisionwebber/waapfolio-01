@@ -184,8 +184,16 @@ body {
   transition: all 0.3s ease;
 }
 
+.modal-content {
+  animation: zoomIn 0.4s ease;
+}
 
+@keyframes zoomIn {
+  from { transform: scale(0.7); opacity: 0; }
+  to   { transform: scale(1); opacity: 1; }
+}
 </style>
+
 <div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
   <a href="{% url 'manage_store' store.slug %}" class="btn btn-success pt-3 mt-3">
     <i class="bi bi-box-arrow-up-right"></i> Manage Store
@@ -193,14 +201,33 @@ body {
 </div>
 <!-- ---------- STORE HEADER ---------- -->
 <section class="store-header">
-  {% if store.brand_logo %}
-    <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }} Logo">
-  {% elif store.brand_logo_url %}
-    <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo">
-  {% else %}
-    <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo">
-  {% endif %}
+{% if store.brand_logo %}
+  <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }} Logo" data-bs-toggle="modal" data-bs-target="#logoModal">
+{% elif store.brand_logo_url %}
+  <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo" data-bs-toggle="modal" data-bs-target="#logoModal">
+{% else %}
+  <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo" data-bs-toggle="modal" data-bs-target="#logoModal">
+{% endif %}
+<!-- Logo Modal -->
+<div class="modal fade" id="logoModal" tabindex="-1" aria-labelledby="logoModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content bg-transparent border-0">
+      <div class="modal-body text-center">
+        {% if store.brand_logo %}
+          <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }} Logo" class="img-fluid rounded shadow-lg">
+        {% elif store.brand_logo_url %}
+          <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }} Logo" class="img-fluid rounded shadow-lg">
+        {% else %}
+          <img src="{% static 'images/logo.png' %}" alt="{{ store.brand_name }} Logo" class="img-fluid rounded shadow-lg">
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
 <h1 class="d-flex align-items-center justify-content-center gap-2 position-relative">
+
+
   {{ store.brand_name }}
   {% comment %} {% if store.is_verified %} {% endcomment %}
     <img src="{% static 'images/verified.png' %}" alt="Verified" class="verified-badge">
@@ -229,7 +256,7 @@ body {
 <!-- ---------- PRODUCTS GRID ---------- -->
 <section class="py-5">
   <div class="container">
-    <h3 class="text-center mb-4 fw-semibold">Products</h3>
+    <h3 class="text-center mb-4 fw-semibold">{{ store.brand_name }} WAAPS</h3>
     <div class="row g-4 justify-content-center">
       {% for meta in items_meta %}
         {% with item=meta.item %}
@@ -240,7 +267,7 @@ body {
             </a>
             <div class="card-body text-center p-3">
               <h6>{{ item.name }}</h6>
-              <p>₦{{ item.price }}</p>
+              <p>{{ item.price }}</p>
               <div class="card-actions mt-2">
                 <button class="btn-like" data-item-id="{{ item.id }}">
                   <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
@@ -267,65 +294,95 @@ body {
 
 <!-- ---------- SCRIPTS ---------- -->
 <script>
+/* --- Copy store link --- */
 function copyStoreLink() {
   const input = document.getElementById("storeLink");
   input.select();
   input.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(input.value).then(() => { alert("Store link copied!"); });
+  navigator.clipboard.writeText(input.value)
+    .then(() => { alert("Store link copied!"); })
+    .catch(() => { alert("Could not copy. Long-press to copy manually."); });
+}
+
+/* --- Web Share + WhatsApp fallback --- */
+function shareProduct(url, name) {
+  const text = `Check out ${name} on Vend: ${url}`;
+  if (navigator.share) {
+    navigator.share({ title: name, text, url }).catch(() => {});
+  } else {
+    const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    window.open(wa, "_blank");
+  }
+}
+
+/* --- CSRF helpers --- */
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+function getCsrfToken() {
+  // Try cookie first; fall back to <meta> or hidden input if cookie is HttpOnly
+  return (
+    getCookie("csrftoken") ||
+    document.querySelector('meta[name="csrf-token"]')?.content ||
+    document.querySelector('[name="csrfmiddlewaretoken"]')?.value ||
+    ""
+  );
 }
 
 document.addEventListener("DOMContentLoaded", function () {
+  const csrfToken = getCsrfToken();
+
+  // Attach like handlers
   document.querySelectorAll(".btn-like").forEach(button => {
     button.addEventListener("click", function () {
-      const itemId = this.getAttribute("data-item-id");
+      const itemId = this.dataset.itemId;
+      const icon = this.querySelector("i");
+
       fetch(`/like-item/${itemId}/`, {
         method: "POST",
-        headers: { "X-CSRFToken": "{{ csrf_token }}" },
-      }).then(res => res.json())
-        .then(data => {
-          if (data.redirect) window.location.href = data.redirect;
-          else document.querySelector(`#likes-count-${itemId}`).textContent = data.likes;
-        });
-    });
-  });
-});
+        headers: {
+          "X-CSRFToken": csrfToken,
+          "Content-Type": "application/json"
+        },
+        credentials: "same-origin",
+        body: JSON.stringify({}) // keep payload minimal
+      })
+      .then(res => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      })
+      .then(data => {
+        if (data.redirect) { window.location.href = data.redirect; return; }
 
-function shareProduct(url, name) {
-  if(navigator.share){
-    navigator.share({ title: name, text:`Check out ${name}`, url });
-  } else {
-    window.open(`https://wa.me/?text=${encodeURIComponent(`Check out ${name}: ${url}`)}`, "_blank");
-  }
-}
-document.querySelectorAll(".btn-like").forEach(button => {
-  button.addEventListener("click", function () {
-    const itemId = this.dataset.itemId;
-    fetch(`/like-item/${itemId}/`, {
-      method: "POST",
-      headers: { "X-CSRFToken": "{{ csrf_token }}" },
-    })
-    .then(res => res.json())
-    .then(data => {
-      if (data.redirect) {
-        window.location.href = data.redirect;
-      } else {
-        // Update likes count
-        document.getElementById(`likes-count-${itemId}`).textContent = data.likes;
+        const countEl = document.getElementById(`likes-count-${itemId}`);
+        if (countEl) countEl.textContent = data.likes;
 
-        // Toggle icon class
-        const icon = this.querySelector("i");
-        if (data.liked) { // user liked
+        if (data.liked) {
           icon.classList.remove("bi-heart", "not-liked-icon");
           icon.classList.add("bi-heart-fill", "liked-icon");
-        } else { // user unliked
+        } else {
           icon.classList.remove("bi-heart-fill", "liked-icon");
           icon.classList.add("bi-heart", "not-liked-icon");
         }
-      }
+      })
+      .catch(err => {
+        console.error("Like failed:", err);
+        alert("Sorry, like failed. Please refresh and try again.");
+      });
     });
   });
 });
-
 </script>
 
 {% endblock %}

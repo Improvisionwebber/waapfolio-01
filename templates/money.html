@@ -2,35 +2,42 @@
 {% block title %}Make Money with Waapfolio{% endblock %}
 
 {% block body %}
-<!-- Hero / Money-Making Section -->
-<div class="container-fluid d-flex flex-column justify-content-center align-items-center text-center text-white" style="height:100vh; background: linear-gradient(135deg, #bbf3afff, #969da8ff); position: relative; overflow: hidden;">
+<!-- Hero Section -->
+<div class="container-fluid d-flex flex-column justify-content-center align-items-center text-center text-dark px-3" 
+     style="min-height:100vh; background: linear-gradient(135deg, #bbf3af, #969da8); position: relative; overflow: hidden;">
 
-    <!-- Animated Background Stars -->
+    <!-- Animated Stars Background -->
     <div class="stars"></div>
 
-    <h1 class="display-4 fw-bold mb-4" id="typed-text"></h1>
-    <p class="lead mb-5">Follow these simple steps and start earning $100 – N100,000 monthly!</p>
+    <!-- Headline -->
+    <h1 class="fw-bold mb-3" id="typed-text"></h1>
+    <p class="lead mb-4">Follow these simple steps and start earning $100 – N100,000 monthly!</p>
 
-    <a href="{% url 'register' %}" class="btn btn-success btn-lg fw-bold shadow-lg" style="border-radius:50px;">Start Earning Now</a>
+    <!-- CTA Button -->
+    <a href="{% url 'register' %}" 
+       class="btn btn-success btn-lg fw-bold shadow-lg mb-5" 
+       style="border-radius:50px; padding: 12px 30px;">
+       🚀 Start Earning Now
+    </a>
 
-    <!-- Money-Making Steps -->
-    <div class="row mt-5 g-4 justify-content-center w-100">
-        <div class="col-md-3">
-            <div class="card shadow-lg p-4 text-dark h-100">
+    <!-- Steps Section -->
+    <div class="row g-4 justify-content-center w-100 px-2">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card shadow-lg p-4 text-dark h-100 text-center">
                 <h3 class="fw-bold text-success">Step 1</h3>
-                <p>Create your Waapfolio store by signing up and uploading your products or services.</p>
+                <p class="mb-0">Create your Waapfolio store by signing up and uploading your products or services.</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-lg p-4 text-dark h-100">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card shadow-lg p-4 text-dark h-100 text-center">
                 <h3 class="fw-bold text-success">Step 2</h3>
-                <p>Share your unique store link on WhatsApp statuses, social media, and with friends daily.</p>
+                <p class="mb-0">Share your unique store link on WhatsApp, social media, and with friends daily.</p>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="card shadow-lg p-4 text-dark h-100">
+        <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card shadow-lg p-4 text-dark h-100 text-center">
                 <h3 class="fw-bold text-success">Step 3</h3>
-                <p>Watch your network grow, receive sales , and collect your earnings monthly from your customers!</p>
+                <p class="mb-0">Watch your network grow, receive sales, and collect your earnings monthly!</p>
             </div>
         </div>
     </div>
@@ -39,35 +46,43 @@
 
 {% block extra_css %}
 <style>
-/* Hero Section Stars */
+/* Animated Stars */
 .stars {
     position: absolute;
     top:0; left:0;
-    width:100%;
-    height:100%;
-    animation: moveStars 50s linear infinite;
-    opacity:0.2;
+    width:100%; height:100%;
+    background: url("https://www.transparenttextures.com/patterns/stardust.png");
+    animation: moveStars 60s linear infinite;
+    opacity: 0.15;
+    z-index: 0;
 }
 @keyframes moveStars {
     0% {background-position: 0 0;}
-    100% {background-position: 10000px 10000px;}
+    100% {background-position: 1000px 1000px;}
 }
-
-/* Typed Text */
+                                                                                                        
+/* Headline */
 #typed-text {
-    font-size: 2.5rem;
-    font-weight: bold;
-    color: #012a06ff;
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    font-weight: 700;
+    color: #012a06;
+    z-index: 1;
 }
 
 /* Step Cards */
 .card {
-    border-radius: 20px;
+    border-radius: 18px;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 .card:hover {
-    transform: translateY(-10px);
-    box-shadow: 0 15px 25px rgba(0,0,0,0.3);
+    transform: translateY(-6px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.25);
+}
+
+/* Ensure text readability */
+p {
+    font-size: 1rem;
+    line-height: 1.5;
 }
 </style>
 {% endblock %}
@@ -75,11 +90,13 @@
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/typed.js@2.0.12"></script>
 <script>
-var typed = new Typed('#typed-text', {
-    strings: ["Make Money with Waapfolio!", "Earn $100 – N100,000 Monthly!"],
-    typeSpeed: 50,
-    backSpeed: 25,
-    loop: true
+document.addEventListener("DOMContentLoaded", function(){
+    new Typed('#typed-text', {
+        strings: ["Make Money with Waapfolio!", "Earn $100 – N100,000 Monthly!"],
+        typeSpeed: 50,
+        backSpeed: 25,
+        loop: true
+    });
 });
 </script>
 {% endblock %}

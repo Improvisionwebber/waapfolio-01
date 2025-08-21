@@ -245,6 +245,21 @@ body.dark .navbar-toggler-icon {
 body {
     margin-bottom: 300px; /* same as your mobile nav height */
 }
+/* Kill the "Currently: ..." text and link, keep the file input */
+p:has(> a[href*="/media/"]) {
+    font-size: 0; /* hide the text */
+}
+
+p:has(> a[href*="/media/"]) a {
+    display: none !important; /* hide the link */
+}
+
+p:has(> a[href*="/media/"])::before {
+    content: ""; /* remove 'Currently:' completely */
+}
+
+
+
 </style>
 
 </head>
