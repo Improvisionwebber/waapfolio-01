@@ -13,10 +13,10 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import Q
-
+from .utils import upload_to_imgbb, upload_video_to_youtube
 import requests
 import base64
-
+import tempfile
 from .models import (
     Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike
 )
@@ -210,13 +210,20 @@ def create_store(request, id=0):
     return render(request, 'store/create_store.html', {'form': form})
 
 
+from django.shortcuts import render, get_object_or_404
+from django.urls import reverse
+from django.templatetags.static import static
+from django.db.models import Q
+
+from .models import Store, StoreImage, Item, ItemView, ProductMedia
+
 def view_store(request, slug):
     store = get_object_or_404(Store, slug=slug)
     items = Item.objects.filter(store=store)
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
 
-    # Track unique views
+    # --- session / unique views tracking (your existing logic) ---
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
@@ -238,13 +245,62 @@ def view_store(request, slug):
                 user=request.user if request.user.is_authenticated else None,
                 session_key=session_key
             )
+    # ------------------------------------------------------------
+
+    def get_cover_url(item):
+        if item.image_url:
+            return item.image_url
+        if item.image:
+            try:
+                return item.image.url
+            except Exception:
+                pass
+
+        # First extra image matching product name (keeps your prior behavior)
+        extra = StoreImage.objects.filter(store=store, name=item.name).first()
+        if extra:
+            if extra.image_url:
+                return extra.image_url
+            if extra.file:
+                try:
+                    return extra.file.url
+                except Exception:
+                    pass
+
+        # ProductMedia thumbnail (youtube or file)
+        pm = ProductMedia.objects.filter(product=item).first()
+        if pm:
+            if pm.file:
+                return pm.file.url
+            if pm.youtube_id:
+                return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
+
+        # fallback static placeholder (add this file in static/images/)
+        return static('images/no-image.png')
+
+    items_meta = []
+    for item in items:
+        # Build absolute URL that points to product_detail (by id)
+        product_path = reverse('product_detail', kwargs={'id': item.id})
+        absolute_product_url = request.build_absolute_uri(product_path)
+
+        items_meta.append({
+            'item': item,
+            'cover_url': get_cover_url(item),
+            'product_url': absolute_product_url,
+            'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
+        })
+
+    gallery_images = store.images.filter(item__isnull=True)
 
     return render(request, 'store/view_store.html', {
         'store': store,
-        'items': items,
+        'items_meta': items_meta,
         'full_url': full_url,
         'whatsapp_link': whatsapp_link,
+        'gallery_images': gallery_images,
     })
+
 
 
 
@@ -273,6 +329,7 @@ def manage_store(request, slug, item_id=None):
                 product = form.save(commit=False)
                 product.store = store
 
+                # Handle cover image
                 if cover_file:
                     uploaded_url = upload_to_imgbb(cover_file)
                     if uploaded_url:
@@ -282,6 +339,7 @@ def manage_store(request, slug, item_id=None):
 
                 product.save()
 
+                # Handle extra files (images + videos)
                 for f in extra_files:
                     try:
                         if f.content_type.startswith("image/"):
@@ -291,7 +349,27 @@ def manage_store(request, slug, item_id=None):
                                     store=store, image_url=img_url, name=product.name, price=product.price
                                 )
                         elif f.content_type.startswith("video/"):
-                            StoreImage.objects.create(store=store, file=f, name=product.name, price=product.price)
+                            # Save temporarily if needed
+                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
+                                for chunk in f.chunks():
+                                    tmp.write(chunk)
+                                tmp_path = tmp.name
+
+                            # Upload to YouTube
+                            video_id, video_url = upload_video_to_youtube(
+                                file_path=tmp_path,
+                                title=product.name,
+                                description=product.description or ""
+                            )
+
+                            # Create ProductMedia entry
+                            ProductMedia.objects.create(
+                                product=product,
+                                youtube_id=video_id,
+                                youtube_url=video_url,
+                                label=product.name,
+                                description=product.description or ""
+                            )
                     except Exception as e:
                         print(f"Failed to process {f.name}: {e}")
                         continue
@@ -318,6 +396,7 @@ def delete_item(request, slug, item_id):
     item = get_object_or_404(Item, id=item_id, store=store)
 
     StoreImage.objects.filter(store=store, name=item.name).delete()
+    ProductMedia.objects.filter(product=item).delete()
     item.delete()
     messages.success(request, "Product deleted successfully!")
     return redirect("manage_store", slug=slug)
@@ -337,36 +416,42 @@ def product_detail(request, id):
     extra_files = StoreImage.objects.filter(store=product.store, name=product.name)
     product_media = ProductMedia.objects.filter(product=product)
 
-    media_files = []
+    images, videos, youtube_videos = [], [], []
 
-    # Main cover image
-    if product.image_url:
-        media_files.append({'type': 'image', 'url': product.image_url})
-
-    # Extra StoreImages
+    # StoreImage extras
     for f in extra_files:
         try:
             if f.image_url:
-                media_files.append({'type': 'image', 'url': f.image_url})
-            elif f.file and hasattr(f.file, 'url') and not f.file.url.lower().endswith(('.mp4', '.mov', '.avi', '.webm', '.mkv')):
-                media_files.append({'type': 'image', 'url': f.file.url})
+                images.append(f)
+            elif f.file:
+                fname = f.file.name.lower()
+                if fname.endswith(('.mp4', '.mov', '.webm', '.avi', '.mkv')):
+                    videos.append(f)         # has file
+                else:
+                    images.append(f)         # file image
         except Exception:
             continue
 
-    # ProductMedia (YouTube + files)
+    # ProductMedia (files + youtube)
     for m in product_media:
-        if m.youtube_id:
-            media_files.append({'type': 'youtube', 'id': m.youtube_id})
-        elif m.is_video_file():
-            media_files.append({'type': 'video', 'url': m.file.url})
-        elif m.file:
-            media_files.append({'type': 'image', 'url': m.file.url})
+        try:
+            if m.youtube_id or m.youtube_url:
+                youtube_videos.append(m)     # show via iframe
+            elif m.is_video_file() and m.file:
+                videos.append(m)             # file video
+            elif m.file:
+                images.append(m)             # file image
+        except Exception:
+            continue
 
     context = {
         'product': product,
-        'media_files': media_files,
+        'images': images,
+        'videos': videos,
+        'youtube_videos': youtube_videos,
     }
     return render(request, 'store/product_detail.html', context)
+
 
 
 # -------------------------

@@ -2,78 +2,188 @@
 {% load static %}
 {% block body %}
 
+<!-- Hero Section -->
 <div class="container py-5 fade-in">
   <div class="row align-items-center">
     <div class="col-lg-6 text-lg-start mb-4 mb-lg-0">
-      <h1 class="display-5 fw-bold text-dark">SHOWCASE <br>YOUR HUSTLE<br>YOUR BRAND<br>YOUR STOREFRONT <br> SELL SMARTER <br>NOT HARDER <br> <span class="text-primary">WAAP FOLIO IS HERE</span></h1>
-      <div class="d-flex gap-2 flex-wrap mt-4 justify-content-center justify-content-lg-start">
-        {% if not user.is_authenticated %}
-        <a href="{% url 'login' %}" class="btn btn-success px-4">Create or Login Account</a>
-        {% else %}
-        {% if store %}
-            <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4">Visit Store</a>
-        {% else %}
-            <a href="{% url 'create_store' %}" class="btn btn-success px-4">Create Store</a>
-        {% endif %}
-        {% endif %}
+      <h1 class="display-5 fw-bold text-dark">
+        <span id="typed-text"></span><br>
+        <span class="text-primary">WAAPFOLIO IS HERE</span>
+      </h1>
 
+      <div class="d-flex gap-2 flex-wrap mt-3 justify-content-center justify-content-lg-start">
+        {% if not user.is_authenticated %}
+          <a href="{% url 'login' %}" class="btn btn-success px-4 py-2">Create or Login</a>
+        {% else %}
+          {% if store %}
+            <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4 py-2">Visit My Store</a>
+          {% else %}
+            <a href="{% url 'create_store' %}" class="btn btn-success px-4 py-2">Create Store</a>
+          {% endif %}
+        {% endif %}
       </div>
     </div>
     <div class="col-lg-6 text-center">
-      <img src="{% static 'images/banner.jpg' %}" class="img-fluid rounded-4 shadow" alt="Hero Image">
+      <img src="{% static 'images/logo.jpg' %}" class="img-fluid rounded-4 shadow-sm" alt="Waapfolio Hero">
     </div>
   </div>
 </div>
 
-<div class="container text-center py-5 fade-in">
-  <h2 class="fw-bold mb-1">Smarter Workflows,</h2>
-  <h2 class="fw-bold text-primary mb-3">Greater Impact</h2>
-  <p class="text-muted mb-4">
-    WAAP FOLIO empowers developers to build websites, brainstorm ideas, and create tech tools — all in seconds using AI. 
-    It’s the future of fast, intelligent development.
+<!-- About Section -->
+<div class="container text-center py-4 fade-in">
+  <h2 class="fw-bold mb-1">Your Hustle, Your Brand,</h2>
+  <h2 class="fw-bold text-primary mb-3">All in One Place</h2>
+  <p class="text-muted mb-4 px-lg-5">
+    Waapfolio helps hustlers, brands, and small businesses create a professional digital storefront in minutes. 
+    Upload products, showcase media, track views, and sell smarter with direct WhatsApp integration.
   </p>
 
-  <div class="row g-4">
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card h-100 shadow-sm">
-        <img src="{% static 'images/tech1.jpg' %}" class="card-img-top" alt="Innovation Era">
-        <div class="card-body">
-          <h5 class="card-title">Innovation Era</h5>
-          <p class="card-text">WAAP FOLIO introduces a new era of creation, inspiring developers and reshaping the tech industry.</p>
+  <!-- Features -->
+  <div class="row g-3">
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 shadow-sm border-0">
+        <img src="{% static 'images/tech1.jpg' %}" class="card-img-top feature-img" alt="Showcase Products">
+        <div class="card-body p-3">
+          <h6 class="card-title fw-bold">Showcase Products</h6>
+          <p class="card-text small">Upload images, videos, or files to present your products in the most engaging way.</p>
         </div>
       </div>
     </div>
     
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card h-100 shadow-sm">
-        <img src="{% static 'images/easy.jpg' %}" class="card-img-top" alt="Speed with Accuracy">
-        <div class="card-body">
-          <h5 class="card-title">Speed with Accuracy</h5>
-          <p class="card-text">Designed with lightning speed and unmatched precision for efficient development.</p>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 shadow-sm border-0">
+        <img src="{% static 'images/easy.jpg' %}" class="card-img-top feature-img" alt="Sell Smarter">
+        <div class="card-body p-3">
+          <h6 class="card-title fw-bold">Sell Smarter</h6>
+          <p class="card-text small">Turn your hustle into a brand. Your store is always open — ready for customers 24/7.</p>
         </div>
       </div>
     </div>
     
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card h-100 shadow-sm">
-        <img src="{% static 'images/free.jpg' %}" class="card-img-top" alt="Free Access">
-        <div class="card-body">
-          <h5 class="card-title">Free Access</h5>
-          <p class="card-text">Get full access without cost — empowering every developer, everywhere.</p>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 shadow-sm border-0">
+        <img src="{% static 'images/free.jpg' %}" class="card-img-top feature-img" alt="WhatsApp Integration">
+        <div class="card-body p-3">
+          <h6 class="card-title fw-bold">WhatsApp Integration</h6>
+          <p class="card-text small">Customers can chat and order instantly via WhatsApp — no extra setup needed.</p>
         </div>
       </div>
     </div>
     
-    <div class="col-12 col-sm-6 col-lg-3">
-      <div class="card h-100 shadow-sm">
-        <img src="{% static 'images/share.jpg' %}" class="card-img-top" alt="Easy To Use">
-        <div class="card-body">
-          <h5 class="card-title">Easy To Use</h5>
-          <p class="card-text">A clean interface that’s intuitive, fast, and beginner-friendly.</p>
+    <div class="col-6 col-lg-3">
+      <div class="card h-100 shadow-sm border-0">
+        <img src="{% static 'images/easy.jpg' %}" class="card-img-top feature-img" alt="Easy to Use">
+        <div class="card-body p-3">
+          <h6 class="card-title fw-bold">Easy To Use</h6>
+          <p class="card-text small">Built with simplicity. Even first-time users can launch their store in minutes.</p>
         </div>
       </div>
     </div>
   </div>
 </div>
+
+<!-- How It Works -->
+<div class="container py-4 fade-in">
+  <h2 class="fw-bold text-center mb-4">How It Works</h2>
+  <div class="row text-center g-3">
+    <div class="col-12 col-md-4">
+      <div class="p-3 border rounded shadow-sm h-100">
+        <h6 class="fw-bold">1. Create Your Store</h6>
+        <p class="text-muted small">Sign up in seconds and set up your Waapfolio store with just a few clicks.</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="p-3 border rounded shadow-sm h-100">
+        <h6 class="fw-bold">2. Upload Products</h6>
+        <p class="text-muted small">Add images, videos, and descriptions to showcase your products in style.</p>
+      </div>
+    </div>
+    <div class="col-12 col-md-4">
+      <div class="p-3 border rounded shadow-sm h-100">
+        <h6 class="fw-bold">3. Share & Sell</h6>
+        <p class="text-muted small">Share your store link, receive WhatsApp orders, and grow your brand effortlessly.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Testimonials -->
+<div class="container py-4 text-center fade-in">
+  <h2 class="fw-bold text-primary mb-4">What Our Users Say</h2>
+  <div class="row g-3">
+    <div class="col-md-4">
+      <div class="p-3 bg-light rounded shadow-sm h-100">
+        <p class="small">"Waapfolio made it so easy to launch my online shop. Now I sell directly on WhatsApp!"</p>
+        <strong class="small">- Ada, Fashion Vendor</strong>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 bg-light rounded shadow-sm h-100">
+        <p class="small">"As a hustler, I needed something simple. Waapfolio gave me a professional storefront in minutes."</p>
+        <strong class="small">- Tunde, Gadget Seller</strong>
+      </div>
+    </div>
+    <div class="col-md-4">
+      <div class="p-3 bg-light rounded shadow-sm h-100">
+        <p class="small">"No stress, no coding — just upload and sell. Waapfolio is a game-changer."</p>
+        <strong class="small">- Mariam, Skincare Brand</strong>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Final CTA -->
+<div class="container text-center py-5 fade-in">
+  <h2 class="fw-bold">Ready to Showcase Your Hustle?</h2>
+  <a href="{% url 'create_store' %}" class="btn btn-lg btn-success mt-2">Get Started with Waapfolio</a>
+</div>
+
+<!-- CSS Fixes -->
+<style>
+  .feature-img {
+    height: 160px;
+    object-fit: cover;
+  }
+  @media (max-width: 768px) {
+    h1.display-5 {
+      font-size: 1.8rem;
+    }
+    .lead {
+      font-size: 0.95rem;
+    }
+  }
+</style>
+
+<!-- Typing Effect (one-time only) + Fade-in -->
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    // Fade in
+    const fadeElems = document.querySelectorAll(".fade-in");
+    fadeElems.forEach((el, i) => {
+      el.style.opacity = 0;
+      el.style.transform = "translateY(20px)";
+      setTimeout(() => {
+        el.style.transition = "all 0.8s ease";
+        el.style.opacity = 1;
+        el.style.transform = "translateY(0)";
+      }, 200 * i);
+    });
+
+    // One-time Typing Effect
+    const text = "SHOWCASE\n YOUR HUSTLE\n YOUR BRAND,\n YOUR STOREFRONT\n SELL SMARTER\n NOT HARDER";
+    const typedText = document.getElementById("typed-text");
+    typedText.style.whiteSpace = "pre-line";
+    let index = 0;
+
+    function type() {
+      if (index < text.length) {
+        typedText.innerHTML += text.charAt(index);
+        index++;
+        setTimeout(type, 50);
+      }
+    }
+    type();
+  });
+</script>
 
 {% endblock %}
