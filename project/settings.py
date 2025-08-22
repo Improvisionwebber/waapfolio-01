@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 """
 Django settings for project project.
 
@@ -120,8 +122,8 @@ DEFAULT_FROM_EMAIL = "gospele247@gmail.com"    # optional, the displayed sender
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
-# settings.py
-BREVO_API_KEY = "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"
+import os
+BREVO_API_KEY = os.getenv("BREVO_API_KEY")
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
