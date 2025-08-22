@@ -1,6 +1,5 @@
 {% extends "base.html" %}
-{% load static %}
-{% block title %}SET PASSWORD{% endblock title %}
+{% block title %}LOGOUT{% endblock title %}
 {% block body %}
 <form action="{% url 'logout' %}" method="post">
     {% csrf_token %}

@@ -116,7 +116,7 @@ DEFAULT_FROM_EMAIL = "gospele247@gmail.com"    # optional, the displayed sender
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
 # settings.py
-BREVO_API_KEY = "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"
+BREVO_API_KEY = "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"
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

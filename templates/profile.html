@@ -234,7 +234,7 @@
   <div class="action-buttons pb-3">
     {% if request.user.is_authenticated %}
       <form action="{% url 'logout' %}" method="post" class="m-0">
-        {% csrf_token %}
+        {% csrf_token %}   
         <button type="submit" class="btn-custom btn-logout" aria-label="Logout">
           <i class="bi bi-box-arrow-right fs-5"></i> Logout
         </button>

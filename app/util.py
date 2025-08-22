@@ -10,7 +10,7 @@ def send_otp_email(email, otp):
     
     subject = "Your OTP Code"
     html_content = f"<p>Your OTP code is <strong>{otp}</strong>. It expires in 5 minutes.</p>"
-    sender = {"name": "Waapfolio", "email": "noreply@waapfolio.com"}
+    sender = {"name": "Waapfolio", "email": "gospele247@gmail.com"}  # Use verified email
     to = [{"email": email}]
     
     send_smtp_email = sib_api_v3_sdk.SendSmtpEmail(
@@ -22,7 +22,10 @@ def send_otp_email(email, otp):
     
     try:
         api_response = api_instance.send_transac_email(send_smtp_email)
+        print("Email sent:", api_response)
         return True
     except ApiException as e:
-        print("Error when sending OTP: %s\n" % e)
+        print("Error when sending OTP:", e)
+        if hasattr(e, 'body'):
+            print("Details:", e.body)
         return False

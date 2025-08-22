@@ -66,43 +66,77 @@ def profile(request):
 
 
 def problem_solving(request):
-    return render(request, "problem_solving.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "problem_solving.html", {'store': store})
 
 
 def money(request):
-    return render(request, "money.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "money.html", {'store': store})
 
 def notifications(request):
-    return render(request, "notifications.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "notifications.html", {'store': store})
 
 def create_tutorial(request):
-    return render(request, "create_tutorial.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "create_tutorial.html", {'store': store})
 
 
 def share_tutorial(request):
-    return render(request, "share_tutorial.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "share_tutorial.html", {'store': store})
 
 
 def faqs(request):
-    return render(request, "faq.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "faq.html", {'store': store})
 
 
 def contact(request):
-    return render(request, "contact.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "contact.html", {'store': store})
 
 
 def privacy(request):
-    return render(request, "privacy_policy.html")
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "privacy_policy.html", {'store': store})
 
 
 def security_settings(request):
-    return render(request, 'security_settings.html')
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, 'security_settings.html', {'store': store})
 
 
 @login_required
 def account_information(request):
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
     user = request.user
-    return render(request, 'account_information.html', {'user': user})
+    context = {
+        'user': user,
+        'store': store
+    }
+    return render(request, 'account_information.html', context)
 
 
 # -------------------------
@@ -117,7 +151,6 @@ from django.contrib import messages
 from django.contrib.auth.hashers import make_password
 import random
 from .util import send_otp_email   # ✅ use the Brevo API sender
-from django.conf import settings
 from .forms import UserRegistrationForm
 
 def register(request):
@@ -142,7 +175,7 @@ def register(request):
             request.session["username"] = username
             request.session["password"] = make_password(password)
 
-            # Send OTP via Brevo
+            # Send OTP via Brevo API
             send_otp_email(email, otp)
 
             messages.info(request, "An OTP has been sent to your email.")
@@ -151,18 +184,6 @@ def register(request):
         form = UserRegistrationForm()
 
     return render(request, "register.html", {"form": form})
-
-def send_otp_email(to_email, otp):
-    subject = "Your OTP Code"
-    message = f"Your OTP is {otp}"
-    send_mail(
-        subject,
-        message,
-        settings.DEFAULT_FROM_EMAIL,  # this is where 'gospele247@gmail.com' is used
-        [to_email],
-        fail_silently=False,
-    )
-    return True
 
 def verify_otp(request):
     if request.method == "POST":
@@ -190,6 +211,7 @@ def verify_otp(request):
             return render(request, "verify_otp.html", {"error": "Invalid OTP"})
 
     return render(request, "verify_otp.html")
+
 
 
 
