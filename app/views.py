@@ -72,6 +72,8 @@ def problem_solving(request):
 def money(request):
     return render(request, "money.html")
 
+def notifications(request):
+    return render(request, "notifications.html")
 
 def create_tutorial(request):
     return render(request, "create_tutorial.html")
@@ -106,57 +108,89 @@ def account_information(request):
 # -------------------------
 # Registration / OTP
 # -------------------------
+# -------------------------
+# Registration / OTP
+# -------------------------
+from django.shortcuts import render, redirect
+from django.contrib.auth.models import User
+from django.contrib import messages
+from django.contrib.auth.hashers import make_password
+import random
+from .util import send_otp_email   # ✅ use the Brevo API sender
+from django.conf import settings
+from .forms import UserRegistrationForm
+
 def register(request):
-    if request.method == 'POST':
-        form = RegistrationForm(request.POST)
+    if request.method == "POST":
+        form = UserRegistrationForm(request.POST)
         if form.is_valid():
-            user = form.save(commit=False)
-            user.is_active = False
-            user.save()
+            email = form.cleaned_data.get("email")
+            username = form.cleaned_data.get("username")
+            password = form.cleaned_data.get("password1")
 
-            otp_code = EmailOTP.generate_otp()
-            EmailOTP.objects.create(
-                user=user,
-                code=otp_code,
-                expires_at=timezone.now() + timezone.timedelta(minutes=5)
-            )
+            # Check if email already exists
+            if User.objects.filter(email=email).exists():
+                messages.error(request, "Email already registered.")
+                return redirect("register")
 
-            html_content = f"<p>Your OTP is <strong>{otp_code}</strong>. It expires in 5 minutes.</p>"
-            status, resp = send_email(
-                "Your WAAPFOLio Verification Code", html_content, user.email
-            )
-            print("Email API Response:", status, resp)
+            # Generate OTP
+            otp = random.randint(100000, 999999)
 
-            return redirect('verify_email', user_id=user.id)
+            # Store temporarily in session
+            request.session["otp"] = str(otp)
+            request.session["email"] = email
+            request.session["username"] = username
+            request.session["password"] = make_password(password)
+
+            # Send OTP via Brevo
+            send_otp_email(email, otp)
+
+            messages.info(request, "An OTP has been sent to your email.")
+            return redirect("verify_otp")
     else:
-        form = RegistrationForm()
+        form = UserRegistrationForm()
 
-    return render(request, "register.html", {'form': form})
+    return render(request, "register.html", {"form": form})
 
-
-def verify_email(request, user_id):
-    user = User.objects.get(id=user_id)
-    if request.method == 'POST':
-        otp_input = request.POST['otp']
-        otp_obj = EmailOTP.objects.get(user=user)
-        if not otp_obj.is_expired() and otp_obj.code == otp_input:
-            user.is_active = True
-            user.save()
-            otp_obj.delete()
-            return redirect('login')
-        return render(request, 'verify_email.html', {'error': 'Invalid or expired OTP'})
-    return render(request, 'verify_email.html')
-
-
-def send_otp_to_user(user):
-    otp_code = EmailOTP.generate_otp()
-    expires = timezone.now() + timezone.timedelta(minutes=10)
-    EmailOTP.objects.update_or_create(
-        user=user, defaults={"code": otp_code, "expires_at": expires}
+def send_otp_email(to_email, otp):
+    subject = "Your OTP Code"
+    message = f"Your OTP is {otp}"
+    send_mail(
+        subject,
+        message,
+        settings.DEFAULT_FROM_EMAIL,  # this is where 'gospele247@gmail.com' is used
+        [to_email],
+        fail_silently=False,
     )
-    subject = "Your Verification Code"
-    html_content = f"<p>Your OTP is: <strong>{otp_code}</strong></p><p>It expires in 10 minutes.</p>"
-    send_email(user.email, subject, html_content)
+    return True
+
+def verify_otp(request):
+    if request.method == "POST":
+        entered_otp = request.POST.get("otp")
+        session_otp = request.session.get("otp")
+
+        if not session_otp:
+            return render(request, "verify_otp.html", {"error": "Session expired. Please register again."})
+
+        if entered_otp == session_otp:
+            # Create user
+            user = User.objects.create(
+                username=request.session["username"],
+                email=request.session["email"],
+                password=request.session["password"],  # already hashed
+            )
+            user.save()
+
+            # Clear session data after success
+            request.session.flush()
+
+            messages.success(request, "Account created successfully! Please log in.")
+            return redirect("login")
+        else:
+            return render(request, "verify_otp.html", {"error": "Invalid OTP"})
+
+    return render(request, "verify_otp.html")
+
 
 
 # -------------------------

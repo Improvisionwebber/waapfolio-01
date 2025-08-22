@@ -103,11 +103,20 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
+EMAIL_HOST = "smtp-relay.brevo.com"
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = "95268b001@smtp-brevo.com"  # Brevo SMTP login
+EMAIL_HOST_PASSWORD = "fHUqjIgOXB4pZs91"     # Master SMTP password
+DEFAULT_FROM_EMAIL = "gospele247@gmail.com"    # optional, the displayed sender
+
 
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.2/topics/i18n/
-
+# settings.py
+BREVO_API_KEY = "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"
 LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'

@@ -7,6 +7,13 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("account/", include("django.contrib.auth.urls")),
+    path(
+        'account/password-reset/',
+        auth_views.PasswordResetView.as_view(
+            html_email_template_name='registration/password_reset_email.html'  # 👈 This line only
+        ),
+        name='password_reset',
+    ),
     # -------------------------
     # Public Pages
     # -------------------------
@@ -19,7 +26,9 @@ urlpatterns = [
     path('share-tutorial/', views.share_tutorial, name='share_tutorial'),
     path('faqs/', views.faqs, name='faqs'),
     path('contact/', views.contact, name='contact'),
+    path('notifications/', views.notifications, name='notifications'),
     path('privacy/', views.privacy, name='privacy'),
+    path("verify-otp/", views.verify_otp, name="verify_otp"),
     path('security-settings/', views.security_settings, name='security_settings'),
     path('account-information/', views.account_information, name='account_information'),
 
@@ -27,7 +36,6 @@ urlpatterns = [
     # Authentication / Registration
     # -------------------------
     path('register/', views.register, name='register'),
-    path('verify-email/<int:user_id>/', views.verify_email, name='verify_email'),
 
 
     # -------------------------

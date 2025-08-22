@@ -262,6 +262,38 @@ p:has(> a[href*="/media/"])::before {
 
 </style>
 
+  <style>
+    /* ---------- Global Loader ---------- */
+    .global-loader {
+      position: fixed;
+      inset: 0;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,0,0,0.25);
+      z-index: 9999;
+    }
+    .spinner {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      border: 6px solid rgba(0,0,0,0.1);
+      border-top-color: #11b981;
+      animation: spin 0.9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+
+
+
+  <!-- ---------- Global Loader Overlay ---------- -->
+  <div id="globalLoader" class="global-loader">
+    <div class="spinner"></div>
+  </div>
+
+
 </head>
 <body>
     <div class="bg-success fade-in">
@@ -338,7 +370,46 @@ p:has(> a[href*="/media/"])::before {
       document.body.classList.add('dark');
     }
   </script>
+  <!-- ---------- Loader Script ---------- -->
+  <script>
+    const loader = document.getElementById("globalLoader");
 
+    function showLoader() {
+      loader.style.display = "flex";
+    }
+    function hideLoader() {
+      loader.style.display = "none";
+    }
+
+    // Show loader on all form submits
+    document.addEventListener("submit", function(e) {
+      showLoader();
+    });
+
+    // Show loader on all links/buttons with data-loading
+    document.addEventListener("click", function(e) {
+      const t = e.target.closest("[data-loading]");
+      if (t) {
+        showLoader();
+      }
+    });
+
+    // Optional: intercept all fetch() globally
+    const realFetch = window.fetch;
+    window.fetch = async (...args) => {
+      showLoader();
+      try {
+        return await realFetch(...args);
+      } finally {
+        hideLoader();
+      }
+    };
+
+    // Hide loader on Escape (for debugging)
+    window.addEventListener("keydown", e => {
+      if (e.key === "Escape") hideLoader();
+    });
+  </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>

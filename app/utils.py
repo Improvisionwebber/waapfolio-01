@@ -83,3 +83,23 @@ def upload_video_to_youtube(file_path, title="My Video", description="Uploaded v
     except Exception as e:
         print("YouTube upload failed:", e)
         return None, None
+# ---- Email via Brevo ----
+from django.core.mail import EmailMultiAlternatives
+
+def send_email(subject, html_content, to_email):
+    """
+    Send an HTML email using Django's EmailMultiAlternatives.
+    SMTP settings (Brevo) must be in settings.py.
+    """
+    try:
+        msg = EmailMultiAlternatives(
+            subject=subject,
+            body="",  # plain text fallback
+            from_email=None,  # will use DEFAULT_FROM_EMAIL from settings
+            to=[to_email],
+        )
+        msg.attach_alternative(html_content, "text/html")
+        msg.send()
+        return True, "Email sent successfully"
+    except Exception as e:
+        return False, str(e)

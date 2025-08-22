@@ -5,7 +5,16 @@ from django.template.loader import render_to_string
 from .models import Store, StoreImage, Item
 # from utils.email_service import send_email  # make sure the import is correct
 
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
 
+
+class UserRegistrationForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password1", "password2"]
 # Custom Clearable File Input
 class CustomClearableFileInput(ClearableFileInput):
     pass
