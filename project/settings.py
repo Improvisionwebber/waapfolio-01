@@ -80,10 +80,15 @@ WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': 'waapfolio',            # your MySQL database name
+        'USER': 'root',  # replace with your MySQL username
+        'PASSWORD': 'Nwekeemmanuel667@gmail.com',  # replace with your MySQL password
+        'HOST': 'localhost',            # or your MySQL host
+        'PORT': '3306',                 # default MySQL port
     }
 }
+
 
 
 # Password validation
