@@ -5,7 +5,7 @@
 {% block body %}
 <!-- Centered Login Form -->
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-  <form id="loginForm" action="{% url 'login' %}" method="post" class="form fade-in">
+  <form id="loginForm" action="{% url 'login' %}" method="post" class="form fade-in no-global-loader">
     {% csrf_token %}
     {{ form.as_p }}
 

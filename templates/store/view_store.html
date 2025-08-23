@@ -152,13 +152,12 @@ body {
 }
 .verified-badge {
   display: inline-block;
-  max-height: 1em;       /* same height as text */
-  max-width: 1.2em;      /* limit width to avoid stretching */
-  height: auto;           /* scale height proportionally if needed */
-  width: auto;            /* scale width proportionally */
+  max-height: 0.9em;       /* same height as text */
+  max-width: 0.9em;      /* limit width to avoid stretching */
   object-fit: contain;    /* prevent distortion */
   vertical-align: middle;
   margin-left: 0.3em;
+  pointer-events: none;
 }
 
 
@@ -194,11 +193,6 @@ body {
 }
 </style>
 
-<div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
-  <a href="{% url 'manage_store' store.slug %}" class="btn btn-success pt-3 mt-3">
-    <i class="bi bi-box-arrow-up-right"></i> Manage Store
-  </a>
-</div>
 <!-- ---------- STORE HEADER ---------- -->
 <section class="store-header">
 {% if store.brand_logo %}
@@ -288,6 +282,17 @@ body {
         </div>
         {% endwith %}
       {% endfor %}
+      {% if request.user.is_authenticated and request.user == store.owner %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <a href="{% url 'manage_store' store.slug %}" class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card">
+          <div class="text-center">
+            <i class="bi bi-plus-circle display-3"></i>
+            <h6 class="mt-2">Add New Product or Service</h6>
+          </div>
+        </a>
+      </div>
+    {% endif %}
+
     </div>
   </div>
 </section>
@@ -306,7 +311,7 @@ function copyStoreLink() {
 
 /* --- Web Share + WhatsApp fallback --- */
 function shareProduct(url, name) {
-  const text = `Check out ${name} on Vend: ${url}`;
+  const text = `Check out ${name} on Waapfolio: ${url}`;
   if (navigator.share) {
     navigator.share({ title: name, text, url }).catch(() => {});
   } else {

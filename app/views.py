@@ -471,7 +471,7 @@ def product_detail(request, id):
     product = get_object_or_404(Item, id=id)
     extra_files = StoreImage.objects.filter(store=product.store, name=product.name)
     product_media = ProductMedia.objects.filter(product=product)
-
+    store = product.store
     images, videos, youtube_videos = [], [], []
 
     # StoreImage extras
@@ -505,6 +505,7 @@ def product_detail(request, id):
         'images': images,
         'videos': videos,
         'youtube_videos': youtube_videos,
+        'store': store,
     }
     return render(request, 'store/product_detail.html', context)
 

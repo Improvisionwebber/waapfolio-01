@@ -231,9 +231,9 @@
   </div>
 
   <!-- Login / Logout buttons -->
-  <div class="action-buttons pb-3">
+<div class="action-buttons pb-3 d-flex align-items-center">
     {% if request.user.is_authenticated %}
-      <form action="{% url 'logout' %}" method="post" class="m-0">
+      <form action="{% url 'logout' %}" method="post" class="m-0 d-inline">
         {% csrf_token %}   
         <button type="submit" class="btn-custom btn-logout" aria-label="Logout">
           <i class="bi bi-box-arrow-right fs-5"></i> Logout
@@ -244,8 +244,8 @@
         <i class="bi bi-box-arrow-in-right fs-5"></i> Login / Register
       </a>
     {% endif %}
-  </div>
 </div>
+
 
 <script>
   // Dark mode toggle handler

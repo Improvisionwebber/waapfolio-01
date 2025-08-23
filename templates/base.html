@@ -23,7 +23,7 @@
 
     /* Bottom nav for mobile */
     .mobile-bottom-nav {
-        position: fixed;
+      position: fixed;
         bottom: 0;
         left: 0;
         width: 100%;
@@ -31,9 +31,10 @@
         display: flex;
         justify-content: space-around;
         align-items: center;
-        padding: 0.5rem 0;
         z-index: 1050;
+        padding-bottom: env(safe-area-inset-bottom);
     }
+
 
     .mobile-bottom-nav a {
         color: white;
@@ -243,7 +244,7 @@ body.dark .navbar-toggler-icon {
   filter: invert(1); /* makes hamburger icon visible in dark mode */
 }
 body {
-    margin-bottom: 300px; /* same as your mobile nav height */
+    margin-bottom: 100px; /* same as your mobile nav height */
 }
 /* Kill the "Currently: ..." text and link, keep the file input */
 p:has(> a[href*="/media/"]) {
@@ -258,9 +259,33 @@ p:has(> a[href*="/media/"])::before {
     content: ""; /* remove 'Currently:' completely */
 }
 
+/* Mobile bottom nav dark mode */
+body.dark .mobile-bottom-nav {
+  background: #1e1e1e !important;  /* dark background */
+  border-top: 1px solid #333;
+}
 
+body.dark .mobile-bottom-nav a {
+  color: #eee !important;
+}
+
+body.dark .mobile-bottom-nav a:hover {
+  color: #4da6ff !important; /* highlight hover */
+}
+.action-buttons form,
+.action-buttons a {
+  display: inline-flex;
+  align-items: center;
+}
+
+.action-buttons {
+  display: flex;
+  justify-content: flex-end; /* or space-between depending on layout */
+  align-items: center;
+}
 
 </style>
+
 
   <style>
     /* ---------- Global Loader ---------- */
@@ -313,15 +338,20 @@ p:has(> a[href*="/media/"])::before {
                             <a class="nav-link text-light" href="{% url 'about' %}">About</a>
                         </li>
                         {% if store %}
-                            <a class="nav-link text-light" href="{% url 'view_store' store.slug %}">Store</a>
+                            <li class="nav-item">
+                                <a class="nav-link text-light" href="{% url 'view_store' store.slug %}">Store</a>
+                            </li>
                         {% endif %}
-
                         {% if request.user.is_authenticated %}
                             <li class="nav-item">
                                 <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
                             </li>
                         {% endif %}
-
+                        <li class="nav-item">
+                          <a href="#" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#moreModal">
+                            More
+                          </a>
+                        </li>
 
                     </ul>
                 </div>
@@ -383,8 +413,10 @@ p:has(> a[href*="/media/"])::before {
 
     // Show loader on all form submits
     document.addEventListener("submit", function(e) {
+      if (e.target.closest(".no-global-loader")) return; // 🚫 skip these forms
       showLoader();
     });
+
 
     // Show loader on all links/buttons with data-loading
     document.addEventListener("click", function(e) {

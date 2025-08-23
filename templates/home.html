@@ -13,7 +13,7 @@
 
       <div class="d-flex gap-2 flex-wrap mt-3 justify-content-center justify-content-lg-start">
         {% if not user.is_authenticated %}
-          <a href="{% url 'login' %}" class="btn btn-success px-4 py-2">Create or Login</a>
+          <a href="{% url 'register' %}" class="btn btn-success px-4 py-2">Sign Up</a>
         {% else %}
           {% if store %}
             <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4 py-2">Visit My Store</a>
