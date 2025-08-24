@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Page Reported{% endblock %}
+
+{% block body %}
+<div class="container text-center mt-5">
+  <div class="alert alert-success shadow-sm p-4 rounded">
+    <h4 class="mb-2">✅ Page Reported</h4>
+    <p>Thanks! Your report for <strong>{{ store.brand_name }}</strong> was submitted.</p>
+  </div>
+  <a href="{{ store.get_absolute_url }}" class="btn btn-outline-success mt-2">Back to Store</a>
+</div>
+{% endblock %}

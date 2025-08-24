@@ -52,9 +52,11 @@ urlpatterns = [
     path('store/manage/<slug:slug>/<int:item_id>/', views.manage_store, name='edit_item'),
     path('store/delete-item/<slug:slug>/<int:item_id>/', views.delete_item, name='delete_item'),
     path('store/delete-extra-image/<slug:slug>/<int:image_id>/', views.delete_extra_image, name='delete_extra_image'),
+    path("store/<slug:slug>/delete-video/<int:video_id>/", views.delete_extra_video, name="delete_extra_video"),
     path('product/<int:id>/', views.product_detail, name='product_detail'),
     path('like-item/<int:item_id>/', views.like_item, name='like_item'),
     path('add-product/', views.add_product, name='add_product'),
-]
+    path("report/<slug:slug>/", views.report_store, name="report_page"),
+    ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

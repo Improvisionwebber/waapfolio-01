@@ -433,7 +433,11 @@ def manage_store(request, slug, item_id=None):
             messages.success(request, "Product saved successfully!")
             return redirect("manage_store", slug=slug)
 
-    old_files = StoreImage.objects.filter(store=store, name=item.name) if edit_mode and item else []
+    if edit_mode and item:
+        old_files = list(StoreImage.objects.filter(store=store, name=item.name))
+        old_files += list(ProductMedia.objects.filter(product=item))
+    else:
+        old_files = []
     items = Item.objects.filter(store=store)
 
     return render(request, "app/manage_store.html", {
@@ -464,6 +468,13 @@ def delete_extra_image(request, slug, image_id):
     img = get_object_or_404(StoreImage, id=image_id, store=store)
     img.delete()
     messages.success(request, "Extra image deleted successfully!")
+    return redirect("manage_store", slug=slug)
+@login_required
+def delete_extra_video(request, slug, video_id):
+    store = get_object_or_404(Store, slug=slug, owner=request.user)
+    video = get_object_or_404(ProductMedia, id=video_id, product__store=store)
+    video.delete()
+    messages.success(request, "Video deleted successfully!")
     return redirect("manage_store", slug=slug)
 
 
@@ -563,3 +574,23 @@ def add_product(request):
         form = ProductForm()
 
     return render(request, "add_product.html", {"form": form})
+from .models import Report
+
+def report_store(request, slug):
+    store = get_object_or_404(Store, slug=slug)
+
+    if request.method == "POST":
+        reason_choice = request.POST.get("reason_choice", "")
+        reason_text = request.POST.get("reason_text", "")
+        reason = reason_choice
+        if reason_text:
+            reason += f" - {reason_text}"
+
+        Report.objects.create(
+            store=store,
+            reported_by=request.user if request.user.is_authenticated else None,
+            reason=reason
+        )
+        return render(request, "report_success.html", {"store": store})
+
+    return render(request, "report_form.html", {"store": store})

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (
-    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike,
+    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike,Report
 )
 from .forms import  StoreForm
 # Email OTP
@@ -57,3 +57,7 @@ class ItemLikeAdmin(admin.ModelAdmin):
     list_display = ('item', 'user', 'session_key', 'created_at')
     search_fields = ('item__name', 'user__username', 'session_key')
     list_filter = ('created_at', 'item')
+@admin.register(Report)
+class ReportAdmin(admin.ModelAdmin):
+    list_display = ('store', 'reported_by', 'reason', 'created_at')
+    list_filter = ('created_at',)

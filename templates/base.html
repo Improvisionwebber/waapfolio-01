@@ -337,11 +337,12 @@ body.dark .mobile-bottom-nav a:hover {
                         <li class="nav-item">
                             <a class="nav-link text-light" href="{% url 'about' %}">About</a>
                         </li>
-                        {% if store %}
-                            <li class="nav-item">
-                                <a class="nav-link text-light" href="{% url 'view_store' store.slug %}">Store</a>
-                            </li>
+                        {% if user_store %}
+                          <li class="nav-item">
+                              <a class="nav-link text-light" href="{{ user_store.get_absolute_url }}">Store</a>
+                          </li>
                         {% endif %}
+
                         {% if request.user.is_authenticated %}
                             <li class="nav-item">
                                 <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
@@ -365,8 +366,8 @@ body.dark .mobile-bottom-nav a:hover {
 <div class="mobile-bottom-nav d-flex d-md-none">
     <a href="{% url 'home' %}" class="text-decoration-none">🏠<br>Home</a>
     <a href="{% url 'about' %}" class="text-decoration-none">ℹ️<br>About</a>
-    {% if store %}
-        <a href="{% url 'view_store' store.slug %}" class="text-decoration-none">🛒<br>Store</a>
+    {% if user_store %}
+      <a href="{{ user_store.get_absolute_url }}" class="text-decoration-none">🛒<br>Store</a>
     {% endif %}
     {% if request.user.is_authenticated %}
         <a href="{% url 'profile' %}" class="text-decoration-none">⚙️<br>Settings</a>

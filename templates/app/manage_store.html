@@ -78,7 +78,7 @@
 <div class="mb-3">
   <label for="currency" class="form-label">Currency</label>
   <select id="currency" class="form-select">
-    <option value="₦">🇳🇬 NGN (₦)</option>
+    <option value="₦" selected>🇳🇬 NGN (₦)</option>
     <option value="$">🇺🇸 USD ($)</option>
     <option value="€">🇪🇺 EUR (€)</option>
     <option value="£">🇬🇧 GBP (£)</option>
@@ -150,23 +150,26 @@
       <h5>Existing Extra Images & Videos</h5>
       <div class="row g-3">
         {% for file in old_images %}
-          {% if file.file or file.image_url %}
-            <div class="col-6 col-md-3 text-center">
-              <div class="extra-img-card p-2 shadow-sm rounded bg-white">
+          <div class="col-6 col-md-3 text-center">
+            <div class="extra-img-card p-2 shadow-sm rounded bg-white">
+              {% if file.file or file.image_url %}
+                {# StoreImage type #}
                 {% if file.file %}
-                  <video src="{{ file.file.url }}" class="img-fluid rounded mb-2" style="height:100px; width:100px; object-fit:cover;" controls></video>
+                  <img src="{{ file.file.url }}" class="img-fluid rounded mb-2" style="height:100px;width:100px;object-fit:cover;" />
                 {% elif file.image_url %}
-                  <a href="{{ file.image_url }}" data-lightbox="extra-images" data-title="{{ file.name }}">
-                    <img src="{{ file.image_url }}" alt="{{ file.name }}" class="img-fluid rounded mb-2" style="height:100px; width:100px; object-fit:cover; cursor:zoom-in;">
-                  </a>
+                  <img src="{{ file.image_url }}" class="img-fluid rounded mb-2" style="height:100px;width:100px;object-fit:cover;" />
                 {% endif %}
-                <a href="{% url 'delete_extra_image' store.slug file.id %}" class="btn btn-sm btn-danger w-100 mt-1" onclick="return confirm('Delete this file?');">
-                  <i class="bi bi-trash"></i> Delete
-                </a>
-              </div>
+                <a href="{% url 'delete_extra_image' store.slug file.id %}" class="btn btn-sm btn-danger w-100 mt-1">🗑 Delete</a>
+              
+              {% elif file.youtube_url %}
+                {# ProductMedia type (YouTube video) #}
+                <iframe width="100%" height="100" src="https://www.youtube.com/embed/{{ file.youtube_id }}" frameborder="0" allowfullscreen></iframe>
+                <a href="{% url 'delete_extra_video' store.slug file.id %}" class="btn btn-sm btn-danger w-100 mt-1">🗑 Delete</a>
+              {% endif %}
             </div>
-          {% endif %}
+          </div>
         {% endfor %}
+
       </div>
       <hr>
     {% endif %}
@@ -277,27 +280,34 @@
 
 <!-- Lightbox2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
-
 <script>
-const countrySelect = document.querySelector("#country-select");
-const priceInput = document.querySelector("#price");
-const currencySymbols = { NG:"₦", US:"$", GB:"£" };
+(function () {
+  const currencySelect = document.getElementById("currency");
+  const priceInput = document.getElementById("price");
+  if (!currencySelect || !priceInput) return;
 
-function keepCurrency() {
-  const symbol = currencySymbols[countrySelect?.value] || "";
-  let numericValue = priceInput.value.replace(/[^0-9.]/g,"");
-  priceInput.value = numericValue ? symbol + numericValue : symbol;
-}
+  function updateCurrency(initial = false) {
+    const symbol = currencySelect.value || "₦";
+    const numeric = (priceInput.value || "").replace(/[^0-9.]/g, "");
+    // on first load, if empty, just show the symbol so users see it immediately
+    priceInput.value = initial && !numeric ? symbol : (numeric ? symbol + numeric : symbol);
+    priceInput.placeholder = "e.g. " + symbol + "1000";
+  }
 
-if(countrySelect){
-  countrySelect.addEventListener("change", keepCurrency);
-}
-if(priceInput){
-  priceInput.addEventListener("input", keepCurrency);
-}
-document.addEventListener("DOMContentLoaded", keepCurrency);
-document.querySelector("form").addEventListener("submit", keepCurrency);
+  // Run now (covers scripts at end of body) and also for BFCache restores
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", () => updateCurrency(true));
+  } else {
+    updateCurrency(true);
+  }
+  window.addEventListener("pageshow", () => updateCurrency(true));
+
+  currencySelect.addEventListener("change", () => updateCurrency(false));
+  priceInput.addEventListener("input", () => updateCurrency(false));
+  document.querySelector("form")?.addEventListener("submit", () => updateCurrency(false));
+})();
 </script>
+
 
 <script>
 const coverInput = document.getElementById("imageInput");

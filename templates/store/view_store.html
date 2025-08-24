@@ -10,7 +10,6 @@
 /* ---------- GLOBAL ---------- */
 body {
   font-family: 'Poppins', sans-serif;
-  background-color: #f0fff0;
 }
 
 /* ---------- HEADER ---------- */
@@ -191,7 +190,46 @@ body {
   from { transform: scale(0.7); opacity: 0; }
   to   { transform: scale(1); opacity: 1; }
 }
+@media(max-width:768px){
+  .action-buttons a { min-width: 48%; } /* make them share row */
+}
+
 </style>
+<!-- ---------- TOP RIGHT MENU ---------- -->
+<div class="dropdown position-absolute top-0 end-0 m-3">
+  <button class="btn btn-light rounded-circle shadow-sm" type="button" id="storeMenu" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-three-dots-vertical fs-4 text-success"></i>
+  </button>
+  <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="storeMenu">
+    {% if request.user.is_authenticated and request.user == store.owner %}
+      <li>
+        <a class="dropdown-item" href="{% url 'edit_store' store.id %}">
+          <i class="bi bi-pencil-square me-2 text-success"></i> Edit Store
+        </a>
+      </li>
+    {% endif %}
+    {% if request.user.is_authenticated and request.user == store.owner %}
+      <li>
+        <a class="dropdown-item" href="{% url 'manage_store' store.slug %}">
+          <i class="bi bi-pencil-square me-2 text-success"></i> Manage Store
+        </a>
+      </li>
+    {% endif %}
+    <li>
+      <button class="dropdown-item" onclick="shareStore('{{ full_url }}', '{{ store.brand_name|escapejs }}')">
+        <i class="bi bi-share me-2 text-primary"></i> Share on Socials
+      </button>
+    </li>
+
+<li>
+  <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
+    <i class="bi bi-flag me-2"></i> Report Store
+  </button>
+</li>
+
+    {% comment %} {% url 'report_store' store.id %} {% endcomment %}
+  </ul>
+</div>
 
 <!-- ---------- STORE HEADER ---------- -->
 <section class="store-header">
@@ -228,27 +266,33 @@ body {
   {% comment %} {% endif %} {% endcomment %}
 </h1>
 
-<!-- Edit Store Button (only visible to store owner) -->
-{% if request.user.is_authenticated and request.user == store.owner %}
-  <a href="{% url 'edit_store' store.id %}" class="btn btn-outline-success mt-3 edit-store-btn">
-    <i class="bi bi-pencil-square"></i> Edit Store
-  </a>
-{% endif %}
   <p>{{ store.Bio }}</p>
+<div class="d-flex justify-content-center align-items-center text-success fw-semibold mb-2">
+  <i class="bi bi-eye-fill me-2"></i> 
+  {{ store.total_views }} total views
+</div>
 
-  <!-- Store link & share -->
-  <div class="store-link-group mt-4 d-flex justify-content-center flex-wrap gap-2">
-    <input type="text" id="storeLink" class="form-control form-control-lg" value="{{ full_url }}" readonly style="max-width: 350px;">
-    <button class="btn btn-outline-primary btn-lg" onclick="copyStoreLink()">Copy</button>
+<div class="action-buttons mt-3 row g-2">
+  <div class="col-6">
+    <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Waapfolio:%20{{ full_url }}"
+      rel="noopener noreferrer"
+      class="btn btn-success w-100">
+      📤 Share on WhatsApp
+    </a>
   </div>
-  <div class="action-buttons mt-3 d-flex flex-wrap justify-content-center gap-2">
-    <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Vend:%20{{ full_url }}" target="_blank" class="btn btn-success btn-lg">📤 Share on WhatsApp</a>
-    <a href="{{ whatsapp_link }}" class="btn btn-outline-success btn-lg">💬 Contact Seller</a>
+  <div class="col-6">
+    <a href="{{ whatsapp_link }}" 
+       class="btn btn-outline-success w-100">
+       💬 Contact Seller
+    </a>
   </div>
+</div>
+
+
 </section>
 
 <!-- ---------- PRODUCTS GRID ---------- -->
-<section class="py-5">
+<section class="pt-3 pb-5">
   <div class="container">
     <h3 class="text-center mb-4 fw-semibold">{{ store.brand_name }} WAAPS</h3>
     <div class="row g-4 justify-content-center">
@@ -296,6 +340,54 @@ body {
     </div>
   </div>
 </section>
+<!-- Share Store Modal -->
+<div class="modal fade" id="shareStoreModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow">
+      <div class="modal-header">
+        <h5 class="modal-title">Share Store</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body" id="shareStoreBody">
+        <!-- Filled dynamically -->
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Report Store Modal -->
+<div class="modal fade" id="reportStoreModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content rounded-4 shadow">
+      <form method="POST" action="{% url 'report_page' store.slug %}">
+        {% csrf_token %}
+        <div class="modal-header">
+          <h5 class="modal-title">Report {{ store.brand_name }}</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Reason (optional)</label>
+            <select class="form-select mb-2" name="reason_choice">
+              <option value="">Select a reason…</option>
+              <option>Scam / Fraudulent</option>
+              <option>Inappropriate content</option>
+              <option>Impersonation</option>
+              <option>Spam</option>
+              <option>Other</option>
+            </select>
+            <textarea class="form-control" name="reason_text" rows="3" placeholder="Add more details (optional)"></textarea>
+          </div>
+          <input type="hidden" name="page_url" value="{{ request.build_absolute_uri }}">
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-danger">Submit Report</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
 
 <!-- ---------- SCRIPTS ---------- -->
 <script>
@@ -388,6 +480,32 @@ document.addEventListener("DOMContentLoaded", function () {
     });
   });
 });
+</script>
+<script>
+function shareStore(url, name) {
+  const text = `Check out ${name} on Waapfolio: ${url}`;
+
+  if (navigator.share) {
+    navigator.share({
+      title: name,
+      text: text,
+      url: url
+    }).catch(() => {});
+  } else {
+    // Fallback UI modal if Web Share API not supported
+    const modalBody = document.getElementById("shareStoreBody");
+    modalBody.innerHTML = `
+      <input type="text" class="form-control mb-3" value="${url}" readonly onclick="this.select();document.execCommand('copy'); alert('Link copied!');">
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+        <a href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank" class="btn btn-success">WhatsApp</a>
+        <a href="https://t.me/share/url?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}" target="_blank" class="btn btn-primary">Telegram</a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}" target="_blank" class="btn btn-info text-white">Facebook</a>
+        <a href="https://twitter.com/intent/tweet?url=${encodeURIComponent(url)}&text=${encodeURIComponent(text)}" target="_blank" class="btn btn-dark">X / Twitter</a>
+      </div>
+    `;
+    new bootstrap.Modal(document.getElementById("shareStoreModal")).show();
+  }
+}
 </script>
 
 {% endblock %}

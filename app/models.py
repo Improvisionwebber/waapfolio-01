@@ -21,6 +21,11 @@ class EmailOTP(models.Model):
         return str(random.randint(100000, 999999))
 
 
+from django.utils.text import slugify
+from django.urls import reverse
+from django.db import models
+from django.contrib.auth.models import User
+
 class Store(models.Model):
     brand_name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
@@ -29,17 +34,28 @@ class Store(models.Model):
     whatsapp_number = models.CharField(max_length=20)
     Bio = models.TextField()
     total_views = models.IntegerField(default=0)
-    owner = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    owner = models.OneToOneField(User, on_delete=models.CASCADE)
 
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.brand_name)
         super().save(*args, **kwargs)
+
     def get_absolute_url(self):
         return reverse('view_store', kwargs={'slug': self.slug})
 
     def __str__(self):
-        return self.brand_name  # <-- this makes Django display the store name instead of "Store object (1)"
+        return self.brand_name
+
+    # ✅ Add this method
+    @staticmethod
+    def get_user_store(user):
+        """Return the store belonging to a given user, or None if no store exists."""
+        try:
+            return Store.objects.get(owner=user)
+        except Store.DoesNotExist:
+            return None
+# <-- this makes Django display the store name instead of "Store object (1)"
 
 
 # Store Image
@@ -131,3 +147,11 @@ class ItemLike(models.Model):
 
     def __str__(self):
         return f"{self.item.name} liked"
+class Report(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE, related_name="reports")
+    reported_by = models.ForeignKey(User, null=True, blank=True, on_delete=models.SET_NULL)
+    reason = models.TextField(blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Report on {self.store.brand_name} by {self.reported_by or 'Anonymous'}"
