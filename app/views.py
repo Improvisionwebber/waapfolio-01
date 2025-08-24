@@ -312,7 +312,6 @@ def view_store(request, slug):
             except Exception:
                 pass
 
-        # First extra image matching product name (keeps your prior behavior)
         extra = StoreImage.objects.filter(store=store, name=item.name).first()
         if extra:
             if extra.image_url:
@@ -323,7 +322,6 @@ def view_store(request, slug):
                 except Exception:
                     pass
 
-        # ProductMedia thumbnail (youtube or file)
         pm = ProductMedia.objects.filter(product=item).first()
         if pm:
             if pm.file:
@@ -331,12 +329,10 @@ def view_store(request, slug):
             if pm.youtube_id:
                 return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
 
-        # fallback static placeholder (add this file in static/images/)
         return static('images/no-image.png')
 
     items_meta = []
     for item in items:
-        # Build absolute URL that points to product_detail (by id)
         product_path = reverse('product_detail', kwargs={'id': item.id})
         absolute_product_url = request.build_absolute_uri(product_path)
 
@@ -349,12 +345,18 @@ def view_store(request, slug):
 
     gallery_images = store.images.filter(item__isnull=True)
 
+    # ✅ Step 1 logic: does this user already have a store?
+    user_has_store = False
+    if request.user.is_authenticated:
+        user_has_store = Store.objects.filter(owner=request.user).exists()
+
     return render(request, 'store/view_store.html', {
         'store': store,
         'items_meta': items_meta,
         'full_url': full_url,
         'whatsapp_link': whatsapp_link,
         'gallery_images': gallery_images,
+        'user_has_store': user_has_store,   # ✅ Pass it to template
     })
 
 

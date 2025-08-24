@@ -336,10 +336,6 @@ body {
         </a>
       </div>
     {% endif %}
-
-    </div>
-  </div>
-</section>
 {% if not request.user.is_authenticated or not user_has_store %}
 <div class="col-12 text-center mt-4">
   <a href="{% url 'home' %}" class="btn btn-lg btn-success px-4 py-2 rounded-pill shadow-sm">
@@ -347,6 +343,11 @@ body {
   </a>
 </div>
 {% endif %}
+
+    </div>
+  </div>
+</section>
+
 
 <!-- Share Store Modal -->
 <div class="modal fade" id="shareStoreModal" tabindex="-1" aria-hidden="true">
