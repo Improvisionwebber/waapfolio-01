@@ -27,10 +27,12 @@ class StoreForm(forms.ModelForm):
     Bio = forms.CharField(
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Welcome to my Store', 'rows': 3})
     )
-
+    social = forms.URLField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. tiktok, instagram or any social media link '})
+    )
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio']  # slug not included
+        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social']  # slug not included
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }

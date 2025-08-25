@@ -193,8 +193,67 @@ body {
 @media(max-width:768px){
   .action-buttons a { min-width: 48%; } /* make them share row */
 }
+/* Reduce store header padding on mobile */
+@media(max-width:768px){
+  .store-header {
+    padding: 20px 0 10px; /* much smaller */
+  }
+  .store-header img {
+    width: 90px;
+    height: 90px;
+  }
+  .store-header h1 {
+    font-size: 1.5rem;
+    margin-top: 10px;
+  }
+  .store-header p {
+    font-size: 0.85rem;
+    margin-bottom: 8px;
+  }
+
+  /* Action buttons same line */
+  .action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .action-buttons .col-6 {
+    flex: 1 1 auto;
+    max-width: 48%;
+    padding: 0;
+  }
+  .action-buttons a {
+    font-size: 0.9rem;
+    padding: 8px 5px;
+    white-space: nowrap;
+  }
+}
+.section-divider {
+  border-top: 2px solid #e0e0e0; /* light grey line */
+  margin: 20px auto;
+  width: 90%;
+}
+.social-pill {
+  display: inline-block;
+  padding: 6px 14px;             /* smaller padding */
+  border-radius: 999px;          /* stretched oval */
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  font-size: 0.85rem;            /* smaller font */
+  font-weight: 500;
+  color: #007bff;
+  text-decoration: none;
+  max-width: 85%;                /* don’t let it stretch too wide */
+  word-break: break-all;         /* wrap long URLs */
+  transition: all 0.25s ease;
+}
 
 </style>
+<div class="container py-5">
+  <a href="{% url 'home' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
+  <i class="bi bi-arrow-left"></i> Back
+</a>
 <!-- ---------- TOP RIGHT MENU ---------- -->
 <div class="dropdown position-absolute top-0 end-0 m-3">
   <button class="btn btn-light rounded-circle shadow-sm" type="button" id="storeMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -271,6 +330,13 @@ body {
   <i class="bi bi-eye-fill me-2"></i> 
   {{ store.total_views }} total views
 </div>
+{% if store.social %}
+<div class="text-center my-3">
+  <a href="{{ store.social }}" target="_blank" class="social-pill">
+    {{ store.social }}
+  </a>
+</div>
+{% endif %}
 
 <div class="action-buttons mt-3 row g-2">
   <div class="col-6">
@@ -288,8 +354,8 @@ body {
   </div>
 </div>
 
-
 </section>
+<div class="section-divider"></div>
 
 <!-- ---------- PRODUCTS GRID ---------- -->
 <section class="pt-3 pb-5">

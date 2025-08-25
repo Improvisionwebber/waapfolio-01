@@ -35,7 +35,7 @@ class Store(models.Model):
     Bio = models.TextField()
     total_views = models.IntegerField(default=0)
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
-
+    social = models.URLField(max_length=255, blank=True, null=True)
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.brand_name)
@@ -155,3 +155,12 @@ class Report(models.Model):
 
     def __str__(self):
         return f"Report on {self.store.brand_name} by {self.reported_by or 'Anonymous'}"
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="notifications")
+    message = models.TextField()
+    link = models.URLField(blank=True, null=True)  # optional: link to the page/item
+    created_at = models.DateTimeField(default=timezone.now)
+    is_read = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"Notification for {self.user.username}: {self.message}"

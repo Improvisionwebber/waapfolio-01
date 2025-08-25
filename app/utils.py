@@ -65,7 +65,7 @@ def upload_video_to_youtube(file_path, title="My Video", description="Uploaded v
             part="snippet,status",
             body={
                 "snippet": {"title": title, "description": description},
-                "status": {"privacyStatus": "public"}
+                "status": {"privacyStatus": "unlisted"}
             },
             media_body=media
         )

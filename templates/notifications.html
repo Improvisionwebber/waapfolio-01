@@ -1,22 +1,36 @@
 {% extends "base.html" %}
 {% block title %}Notifications{% endblock title %}
-\  
+
 {% block body %}
 <div class="container my-5">
-<div class="container py-5">
-  <a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-  <i class="bi bi-arrow-left"></i> Back
-</a>
+    <a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
+        <i class="bi bi-arrow-left"></i> Back
+    </a>
+
     <div class="row justify-content-center">
-        <div class="col-md-6 text-center">
-            <div class="card shadow-sm border-0">
-                <div class="card-body py-5">
+        <div class="col-md-6">
+            {% if notifications %}
+                <ul class="list-group">
+                    {% for notification in notifications %}
+                        <li class="list-group-item d-flex justify-content-between align-items-start {% if not notification.is_read %}list-group-item-warning{% endif %}">
+                            <div>
+                                <p class="mb-1">{{ notification.message }}</p>
+                                {% if notification.link %}
+                                    <a href="{{ notification.link }}" class="small text-success">View</a>
+                                {% endif %}
+                            </div>
+                            <span class="text-muted small">{{ notification.created_at|timesince }} ago</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <div class="card shadow-sm border-0 text-center py-5">
                     <i class="bi bi-bell-slash display-1 text-muted"></i>
                     <h4 class="mt-3 text-muted">No Notifications Yet</h4>
                     <p class="text-secondary">You're all caught up! Any new notifications will appear here.</p>
                 </div>
-            </div>
+            {% endif %}
         </div>
     </div>
 </div>
-{% endblock body %}
+{% endblock %}

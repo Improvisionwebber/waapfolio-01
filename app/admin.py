@@ -18,7 +18,7 @@ class StoreAdmin(admin.ModelAdmin):
     readonly_fields = ['slug']  # shows slug but not editable
 
 
-# Store Image
+# Store Image  
 @admin.register(StoreImage)
 class StoreImageAdmin(admin.ModelAdmin):
     list_display = ('store', 'item', 'name', 'price')

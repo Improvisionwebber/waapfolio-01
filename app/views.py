@@ -25,6 +25,7 @@ from .forms import (
 )
 from .utils import upload_to_imgbb
 from utils.email_service import send_email
+from .models import Notification
 
 
 # -------------------------
@@ -163,23 +164,23 @@ def register(request):
 
             # Check if email already exists
             if User.objects.filter(email=email).exists():
-                messages.error(request, "Email already registered.")
-                return redirect("register")
+                form.add_error("email", "Email already registered.")  # attach error to form
+            else:
+                # Generate OTP
+                otp = random.randint(100000, 999999)
 
-            # Generate OTP
-            otp = random.randint(100000, 999999)
+                # Store temporarily in session
+                request.session["otp"] = str(otp)
+                request.session["email"] = email
+                request.session["username"] = username
+                request.session["password"] = make_password(password)
 
-            # Store temporarily in session
-            request.session["otp"] = str(otp)
-            request.session["email"] = email
-            request.session["username"] = username
-            request.session["password"] = make_password(password)
+                # Send OTP via Brevo API
+                send_otp_email(email, otp)
 
-            # Send OTP via Brevo API
-            send_otp_email(email, otp)
-
-            messages.info(request, "An OTP has been sent to your email.")
-            return redirect("verify_otp")
+                messages.info(request, "An OTP has been sent to your email.")
+                return redirect("verify_otp")
+        # If form is invalid, it will automatically go to render at the end and show errors
     else:
         form = UserRegistrationForm()
 
@@ -279,19 +280,19 @@ def view_store(request, slug):
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
 
-    # --- session / unique views tracking (your existing logic) ---
+    # --- Session / unique views tracking ---
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
         session_key = request.session.session_key
 
     for item in items:
+        # Check if already viewed by this user or session
         view_filter = Q(session_key=session_key)
         if request.user.is_authenticated:
             view_filter |= Q(user=request.user)
 
-        already_viewed = ItemView.objects.filter(item=item).filter(view_filter).exists()
-        if not already_viewed:
+        if not ItemView.objects.filter(item=item).filter(view_filter).exists():
             item.views += 1
             item.save()
             store.total_views += 1
@@ -301,8 +302,8 @@ def view_store(request, slug):
                 user=request.user if request.user.is_authenticated else None,
                 session_key=session_key
             )
-    # ------------------------------------------------------------
 
+    # --- Item cover image logic ---
     def get_cover_url(item):
         if item.image_url:
             return item.image_url
@@ -345,10 +346,18 @@ def view_store(request, slug):
 
     gallery_images = store.images.filter(item__isnull=True)
 
-    # ✅ Step 1 logic: does this user already have a store?
-    user_has_store = False
-    if request.user.is_authenticated:
-        user_has_store = Store.objects.filter(owner=request.user).exists()
+    # Check if user owns any store
+    user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
+
+    # Create notification if viewer is not the owner
+    if request.user != store.owner:
+        store.total_views += 1
+        store.save()
+        Notification.objects.create(
+            user=store.owner,
+            message=f"{request.user.username} just viewed your store!",
+            link=request.build_absolute_uri()
+        )
 
     return render(request, 'store/view_store.html', {
         'store': store,
@@ -356,7 +365,7 @@ def view_store(request, slug):
         'full_url': full_url,
         'whatsapp_link': whatsapp_link,
         'gallery_images': gallery_images,
-        'user_has_store': user_has_store,   # ✅ Pass it to template
+        'user_has_store': user_has_store,
     })
 
 
@@ -527,27 +536,34 @@ def product_detail(request, id):
 # -------------------------
 # Like Item API
 # -------------------------
+@login_required
 def like_item(request, item_id):
     try:
         item = Item.objects.get(id=item_id)
     except Item.DoesNotExist:
         return JsonResponse({'error': 'Item not found'}, status=404)
 
-    if not request.user.is_authenticated:
-        return JsonResponse({'redirect': '/register/'})
-
+    # Toggle like
     liked_instance, created = ItemLike.objects.get_or_create(item=item, user=request.user)
     if not created:
         liked_instance.delete()
-        liked_count = item.likes.count()
         liked_state = False
     else:
-        liked_count = item.likes.count()
         liked_state = True
+
+        # ✅ Create notification if liked
+        if request.user != item.store.owner:  # don't notify yourself
+            Notification.objects.create(
+                user=item.store.owner,
+                message=f"{request.user.username} liked your product: {item.name}",
+                link=request.build_absolute_uri(item.get_absolute_url())
+            )
+
+    likes_count = item.likes.count() if hasattr(item, 'likes') else 0
 
     return JsonResponse({
         'liked': liked_state,
-        'likes': liked_count
+        'likes': likes_count
     })
 
 
@@ -596,3 +612,35 @@ def report_store(request, slug):
         return render(request, "report_success.html", {"store": store})
 
     return render(request, "report_form.html", {"store": store})
+@login_required
+def delete_account(request):
+    if request.method == "POST":
+        # Check if user confirmed deletion
+        if "confirm" in request.POST:
+            user = request.user
+            try:
+                with transaction.atomic():
+                    # Delete related objects here if needed
+                    user.delete()
+                messages.success(request, "Your account and all data have been deleted.")
+            except Exception as e:
+                messages.error(request, f"Error deleting account: {e}")
+            
+            logout(request)
+            return redirect("home")
+        else:
+            # User canceled deletion
+            messages.info(request, "Account deletion canceled.")
+            return redirect("profile")
+
+    # GET request: show confirmation page
+    return render(request, "confirm_delete_account.html")
+# notifications/views.py
+from django.shortcuts import render
+from django.contrib.auth.decorators import login_required
+from .models import Notification
+
+@login_required
+def notifications_view(request):
+    notifications = request.user.notifications.order_by("-created_at")
+    return render(request, "notifications.html", {"notifications": notifications})

@@ -220,6 +220,16 @@
     Contact
     <span class="section-icon">›</span>
   </a>
+<!-- Delete Account -->
+<!-- Delete Account -->
+<div class="action-buttons pb-3 d-flex align-items-center">
+    {% if request.user.is_authenticated %}
+      <a href="{% url 'delete_account' %}" class="btn-custom btn-logout text-decoration-none" style="background-color: #ff4d4d;" aria-label="Delete Account">
+          <i class="bi bi-trash fs-5"></i> Delete Account
+      </a>
+    {% endif %}
+</div>
+
 
   <!-- Dark / Light Mode Toggle -->
   <div class="toggle-switch" role="region" aria-label="Toggle dark and light mode">

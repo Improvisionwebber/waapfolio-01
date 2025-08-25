@@ -46,7 +46,11 @@ CREATE YOUR WAAP FOLIO STORE
         {{ form.Bio }}
         {{ form.Bio.errors }}
     </p>
-
+    <p>
+        {{ form.social.label_tag }}
+        {{ form.social }}
+        {{ form.social.errors }}
+    </p>
     <button type="submit" class="btn btn-primary">
         {% if form.instance.pk %}
             Save Changes
