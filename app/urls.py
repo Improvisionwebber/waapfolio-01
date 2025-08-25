@@ -58,6 +58,7 @@ urlpatterns = [
     path('add-product/', views.add_product, name='add_product'),
     path("report/<slug:slug>/", views.report_store, name="report_page"),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path('notifications/', views.notifications_view, name='notifications'),
     ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

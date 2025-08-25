@@ -36,6 +36,19 @@ class Store(models.Model):
     total_views = models.IntegerField(default=0)
     owner = models.OneToOneField(User, on_delete=models.CASCADE)
     social = models.URLField(max_length=255, blank=True, null=True)
+    dob = models.DateField(blank=True, null=True)
+    address = models.CharField(max_length=255, blank=True, null=True)
+
+    BUSINESS_CHOICES = [
+        ('retail', 'Retail'),
+        ('services', 'Services'),
+        ('food', 'Food & Beverage'),
+        ('fashion', 'Fashion'),
+        ('tech', 'Technology'),
+        ('other', 'Other'),
+    ]
+    business_type = models.CharField(max_length=50, choices=BUSINESS_CHOICES, blank=True, null=True)
+
     def save(self, *args, **kwargs):
         if not self.slug:
             self.slug = slugify(self.brand_name)

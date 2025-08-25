@@ -22,20 +22,62 @@ class CustomClearableFileInput(ClearableFileInput):
 
 class StoreForm(forms.ModelForm):
     whatsapp_number = forms.CharField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'phone', 'placeholder': 'e.g. +2347098865543'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'id': 'phone',
+            'placeholder': 'e.g. +2347098865543'
+        })
     )
+
     Bio = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Welcome to my Store', 'rows': 3})
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Welcome to my Store',
+            'rows': 3
+        })
     )
+
     social = forms.URLField(
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. tiktok, instagram or any social media link '})
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. tiktok, instagram or any social media link'
+        })
     )
+
+    # --- NEW FIELDS ---
+    dob = forms.DateField(
+        required=False,
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date',
+            'placeholder': 'Date of Birth'
+        })
+    )
+
+    address = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Store Address'
+        })
+    )
+
+    business_type = forms.ChoiceField(
+        required=False,
+        choices=Store.BUSINESS_CHOICES,
+        widget=forms.Select(attrs={
+            'class': 'form-control'
+        })
+    )
+
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social']  # slug not included
+        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social', 'dob', 'address', 'business_type']  # slug not included
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }
+
 
 
 

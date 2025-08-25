@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ store.brand_name }} | Powered by Vend{% endblock title %}
+{% block title %}{{ store.brand_name }} | Powered by Waapfolio{% endblock title %}
 {% block body %}
 {% load static %}
 
@@ -330,6 +330,14 @@ body {
   <i class="bi bi-eye-fill me-2"></i> 
   {{ store.total_views }} total views
 </div>
+  <!-- ---------- ADD ADDRESS HERE ---------- -->
+  {% if store.address %}
+    <div class="text-center text-muted mb-2">
+      <i class="bi bi-geo-alt-fill me-1"></i> {{ store.address }}
+    </div>
+  {% endif %}
+
+
 {% if store.social %}
 <div class="text-center my-3">
   <a href="{{ store.social }}" target="_blank" class="social-pill">
@@ -466,15 +474,6 @@ body {
 
 <!-- ---------- SCRIPTS ---------- -->
 <script>
-/* --- Copy store link --- */
-function copyStoreLink() {
-  const input = document.getElementById("storeLink");
-  input.select();
-  input.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(input.value)
-    .then(() => { alert("Store link copied!"); })
-    .catch(() => { alert("Could not copy. Long-press to copy manually."); });
-}
 
 /* --- Web Share + WhatsApp fallback --- */
 function shareProduct(url, name) {

@@ -12,7 +12,7 @@ CREATE YOUR WAAP FOLIO STORE
 <!-- CSS for intl-tel-input -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
 
-<form method="POST" enctype="multipart/form-data" class="form">
+<form method="POST" enctype="multipart/form-data" class="form" style="padding-bottom: 80px;">
     {% csrf_token %}
 
     <p>
@@ -47,10 +47,30 @@ CREATE YOUR WAAP FOLIO STORE
         {{ form.Bio.errors }}
     </p>
     <p>
-        {{ form.social.label_tag }}
-        {{ form.social }}
-        {{ form.social.errors }}
-    </p>
+    {{ form.dob.label_tag }}
+    {{ form.dob }}
+    {{ form.dob.errors }}
+</p>
+
+<p>
+    {{ form.address.label_tag }}
+    {{ form.address }}
+    {{ form.address.errors }}
+</p>
+
+<p>
+    {{ form.business_type.label_tag }}
+    {{ form.business_type }}
+    {{ form.business_type.errors }}
+</p>
+
+<p>
+    {{ form.social.label_tag }}
+    <input type="text" name="{{ form.social.name }}" class="form-control" placeholder="e.g. tiktok, instagram or any social media link" value="{{ form.social.value|default_if_none:'' }}">
+    {{ form.social.errors }}
+</p>
+
+
     <button type="submit" class="btn btn-primary">
         {% if form.instance.pk %}
             Save Changes

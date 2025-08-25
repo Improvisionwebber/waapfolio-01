@@ -274,20 +274,40 @@ from django.db.models import Q
 
 from .models import Store, StoreImage, Item, ItemView, ProductMedia
 
+from django.shortcuts import render, get_object_or_404
+from django.db.models import Q
+from django.templatetags.static import static
+from django.urls import reverse
+from .models import Store, Item, ItemView, StoreImage, ProductMedia, Notification
+
 def view_store(request, slug):
     store = get_object_or_404(Store, slug=slug)
     items = Item.objects.filter(store=store)
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
 
-    # --- Session / unique views tracking ---
+    # -------------------------------
+    # Session / unique views tracking
+    # -------------------------------
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
         session_key = request.session.session_key
 
+    # Track store view only once per session
+    store_viewed_key = f"viewed_store_{store.id}"
+    if not request.session.get(store_viewed_key) and request.user != store.owner:
+        store.total_views += 1
+        store.save()
+        Notification.objects.create(
+            user=store.owner,
+            message=f"{request.user.username} just viewed your store!",
+            link=request.build_absolute_uri()
+        )
+        request.session[store_viewed_key] = True
+
+    # Track individual item views
     for item in items:
-        # Check if already viewed by this user or session
         view_filter = Q(session_key=session_key)
         if request.user.is_authenticated:
             view_filter |= Q(user=request.user)
@@ -295,15 +315,15 @@ def view_store(request, slug):
         if not ItemView.objects.filter(item=item).filter(view_filter).exists():
             item.views += 1
             item.save()
-            store.total_views += 1
-            store.save()
             ItemView.objects.create(
                 item=item,
                 user=request.user if request.user.is_authenticated else None,
                 session_key=session_key
             )
 
-    # --- Item cover image logic ---
+    # -------------------------------
+    # Helper: get item cover image
+    # -------------------------------
     def get_cover_url(item):
         if item.image_url:
             return item.image_url
@@ -332,11 +352,13 @@ def view_store(request, slug):
 
         return static('images/no-image.png')
 
+    # -------------------------------
+    # Build items meta
+    # -------------------------------
     items_meta = []
     for item in items:
         product_path = reverse('product_detail', kwargs={'id': item.id})
         absolute_product_url = request.build_absolute_uri(product_path)
-
         items_meta.append({
             'item': item,
             'cover_url': get_cover_url(item),
@@ -346,18 +368,7 @@ def view_store(request, slug):
 
     gallery_images = store.images.filter(item__isnull=True)
 
-    # Check if user owns any store
     user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
-
-    # Create notification if viewer is not the owner
-    if request.user != store.owner:
-        store.total_views += 1
-        store.save()
-        Notification.objects.create(
-            user=store.owner,
-            message=f"{request.user.username} just viewed your store!",
-            link=request.build_absolute_uri()
-        )
 
     return render(request, 'store/view_store.html', {
         'store': store,
@@ -636,11 +647,11 @@ def delete_account(request):
     # GET request: show confirmation page
     return render(request, "confirm_delete_account.html")
 # notifications/views.py
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
-from .models import Notification
-
 @login_required
 def notifications_view(request):
+    store = Store.objects.filter(owner=request.user).first()
     notifications = request.user.notifications.order_by("-created_at")
-    return render(request, "notifications.html", {"notifications": notifications})
+    return render(request, "notifications.html", {
+        "store": store,
+        "notifications": notifications
+    })
