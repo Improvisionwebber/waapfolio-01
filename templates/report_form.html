@@ -1,15 +1,40 @@
 {% extends "base.html" %}
 
 {% block content %}
-<div class="container mt-5">
+<div class="container mt-5 p-4 rounded shadow report-form-container">
   <h3>Report {{ store.brand_name }}</h3>
   <form method="post">
     {% csrf_token %}
     <div class="mb-3">
-      <label for="reason" class="form-label">Reason for report:</label>
+      <label for="reason" class="form-label">Reason (optional):</label>
       <textarea name="reason" id="reason" rows="4" class="form-control"></textarea>
     </div>
     <button type="submit" class="btn btn-danger">Submit Report</button>
   </form>
 </div>
+
+<style>
+/* 🌙 Dark mode modal container */
+body.dark .modal-content {
+  background-color: #1e1e1e !important;
+  color: #eee !important;
+  border: 1px solid #333 !important;
+}
+
+/* Modal header/footer */
+body.dark .modal-header,
+body.dark .modal-footer {
+  background-color: #1e1e1e !important;
+  border-color: #333 !important;
+}
+
+body.dark .modal-title {
+  color: #eee !important;
+}
+
+body.dark .btn-close {
+  filter: invert(1); /* make the X visible */
+}
+
+</style>
 {% endblock %}

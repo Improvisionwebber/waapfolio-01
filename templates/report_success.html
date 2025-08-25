@@ -3,10 +3,23 @@
 
 {% block body %}
 <div class="container text-center mt-5">
-  <div class="alert alert-success shadow-sm p-4 rounded">
-    <h4 class="mb-2">✅ Page Reported</h4>
+  <div class="alert alert-success shadow-sm p-4 rounded report-success">
+    <h4 class="mb-2">✅ Store Reported</h4>
     <p>Thanks! Your report for <strong>{{ store.brand_name }}</strong> was submitted.</p>
   </div>
   <a href="{{ store.get_absolute_url }}" class="btn btn-outline-success mt-2">Back to Store</a>
 </div>
+
+<style>
+/* 🌙 Dark mode for success alert */
+body.dark .report-success {
+  background-color: #1e392a !important; /* deep green background */
+  color: #d4f5e0 !important; /* light green text */
+  border: 1px solid #2e5a42 !important;
+}
+
+body.dark .report-success strong {
+  color: #fff !important;
+}
+</style>
 {% endblock %}

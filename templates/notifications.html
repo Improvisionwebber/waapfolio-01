@@ -2,7 +2,7 @@
 {% block title %}Notifications{% endblock title %}
 
 {% block body %}
-<div class="container my-5">
+<div class="container my-5 {% if request.COOKIES.darkMode == 'enabled' %}dark{% endif %}">
     <a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
         <i class="bi bi-arrow-left"></i> Back
     </a>
@@ -16,7 +16,7 @@
                             <div>
                                 <p class="mb-1">{{ notification.message }}</p>
                                 {% if notification.link %}
-                                    <a href="{{ notification.link }}" class="small text-success">View</a>
+                                    <a href="{% url "view_store" store.slug %}}" class="small text-success">View</a>
                                 {% endif %}
                             </div>
                             <span class="text-muted small">{{ notification.created_at|timesince }} ago</span>

@@ -58,12 +58,18 @@ def about(request):
         store = Store.objects.filter(owner=request.user).first()
     return render(request, 'about.html', {'store': store})
 
-
 def profile(request):
     if not request.user.is_authenticated:
         return render(request, "login_required.html")
+    
     store = Store.objects.filter(owner=request.user).first()
-    return render(request, "profile.html", {'store': store})
+    unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
+
+    context = {
+        'store': store,
+        'unread_count': unread_count
+    }
+    return render(request, "profile.html", context)
 
 
 def problem_solving(request):

@@ -62,79 +62,99 @@ body {
 }
 
 /* ---------- PRODUCTS GRID ---------- */
-.card {
-  border: none;
-  border-radius: 20px;
-  overflow: hidden;
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* ---------- PRODUCT CARD STYLING ---------- */
+/* ✅ Grid fix for product cards */
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 1rem;
 }
-.card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 12px 30px rgba(0,128,0,0.25);
+
+/* ✅ Card styling */
+.card {
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: #fff;
+  transition: all 0.3s ease;
 }
 .card img {
-  border-bottom: 2px solid #00cc00;
-  height: 220px;
+  width: 100%;
+  height: 160px; /* smaller for mobile */
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-.card img:hover {
-  transform: scale(1.05);
 }
 
-/* ---------- CARD BODY ---------- */
+/* ✅ Compact body */
+.card-body {
+  flex: 1;
+  padding: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
 .card-body h6 {
+  font-size: 0.9rem;
   font-weight: 600;
-  margin-bottom: 5px;
-  color: #006400;
+  margin: 4px 0;
 }
 .card-body p {
-  font-size: 1.1rem;
-  font-weight: 600;
-  color: #00cc00;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin: 0;
 }
 
-/* ---------- CARD ACTIONS ---------- */
+/* ✅ Actions row */
 .card-actions {
   display: flex;
-  justify-content: center;
+  justify-content: space-evenly;
   align-items: center;
-  gap: 10px;
-  margin-top: 10px;
+  margin-top: 6px;
 }
 .card-actions button {
-  width: 42px;
-  height: 42px;
+  width: 34px;
+  height: 34px;
+  font-size: 1rem;
   border-radius: 50%;
-  border: none;
-  background-color: #fff;
   display: flex;
   align-items: center;
   justify-content: center;
-  transition: all 0.3s ease;
-}
-.card-actions button:hover {
-  transform: scale(1.2);
-  box-shadow: 0 5px 15px rgba(0,128,0,0.3);
-}
-.card-actions i {
-  font-size: 1.2rem;
-}
-.card-actions span {
-  font-weight: 600;
-  color: #004d00;
 }
 
-/* ---------- VIEW DETAILS BUTTON ---------- */
-.view-details {
-  margin-top: 10px;
-  border-radius: 50px;
-  transition: all 0.3s ease;
+/* ✅ Add New Product card */
+.add-card {
+  border: 2px dashed #00cc66;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 260px; /* match normal card height */
 }
-.view-details:hover {
-  transform: scale(1.05);
-  box-shadow: 0 8px 20px rgba(0,128,0,0.2);
+.add-card a {
+  color: #00cc66;
+  font-weight: 600;
+  text-decoration: none;
 }
+.add-card:hover {
+  background: rgba(0, 204, 102, 0.05);
+  transform: translateY(-4px);
+}
+
+/* ✅ Dark Mode Fix */
+body.dark .card {
+  background: #1e1e1e;
+  border: 1px solid #2a2a2a;
+}
+body.dark .add-card {
+  border: 2px dashed #00e676;
+  background: #1a1f1a;
+}
+body.dark .add-card a {
+  color: #00e676;
+}
+
+
 
 /* ---------- ANIMATIONS ---------- */
 @keyframes fadeInUp {
@@ -368,7 +388,6 @@ body {
 <!-- ---------- PRODUCTS GRID ---------- -->
 <section class="pt-3 pb-5">
   <div class="container">
-    <h3 class="text-center mb-4 fw-semibold">{{ store.brand_name }} WAAPS</h3>
     <div class="row g-4 justify-content-center">
       {% for meta in items_meta %}
         {% with item=meta.item %}
