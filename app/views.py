@@ -79,11 +79,11 @@ def money(request):
         store = Store.objects.filter(owner=request.user).first()
     return render(request, "money.html", {'store': store})
 
-def notifications(request):
-    store = None
-    if request.user.is_authenticated:
-        store = Store.objects.filter(owner=request.user).first()
-    return render(request, "notifications.html", {'store': store})
+# def notifications(request):
+#     store = None
+#     if request.user.is_authenticated:
+#         store = Store.objects.filter(owner=request.user).first()
+#     return render(request, "notifications.html", {'store': store})
 
 def create_tutorial(request):
     store = None
