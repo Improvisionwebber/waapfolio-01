@@ -64,11 +64,11 @@ body {
 /* ---------- PRODUCTS GRID ---------- */
 /* ---------- PRODUCT CARD STYLING ---------- */
 /* ✅ Grid fix for product cards */
-.products-grid {
+{% comment %} .products-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
   gap: 1rem;
-}
+} {% endcomment %}
 
 /* ✅ Card styling */
 .card {
@@ -116,11 +116,19 @@ body {
   width: 34px;
   height: 34px;
   font-size: 1rem;
-  border-radius: 50%;
+  border: none;
   display: flex;
   align-items: center;
   justify-content: center;
 }
+/* Remove greyish background from like/share buttons */
+.card-actions button {
+  background: transparent;   /* no grey background */
+  border: none;              /* remove default border */
+  box-shadow: none;          /* remove any shadows */
+  padding: 0;                /* optional, shrink button */
+}
+
 
 /* ✅ Add New Product card */
 .add-card {
@@ -413,7 +421,7 @@ body.dark .add-card a {
                   <i class="bi bi-share-fill text-success"></i>
                 </button>
               </div>
-              <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">View Details</a>
+              <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
             </div>
           </div>
         </div>
@@ -568,7 +576,7 @@ document.addEventListener("DOMContentLoaded", function () {
       })
       .catch(err => {
         console.error("Like failed:", err);
-        alert("Sorry, like failed. Please refresh and try again.");
+        alert("Stay signed in to be able to like");
       });
     });
   });

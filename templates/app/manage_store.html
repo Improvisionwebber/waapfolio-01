@@ -46,6 +46,46 @@
     .card-text { font-size:1rem; } 
     .btn { font-size:0.9rem; } 
   }
+/* Base loading overlay (light mode) */
+#loadingOverlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  z-index: 9999;
+
+  background: rgba(255, 255, 255, 0.9); /* light background */
+  color: #198754; /* green text */
+}
+
+/* Spinner color */
+#loadingOverlay .spinner-border {
+  width: 4rem;
+  height: 4rem;
+  border-width: 0.4rem;
+  border-color: #198754 transparent transparent transparent; /* light mode */
+}
+
+/* Dark mode overlay */
+body.dark #loadingOverlay {
+  background: rgba(0, 0, 0, 0.9) !important;
+  color: #00ff88 !important; /* default text color */
+}
+
+/* Spinner in dark mode */
+body.dark #loadingOverlay .spinner-border {
+  border-color: #00ff88 transparent transparent transparent !important;
+}
+
+/* Loader text in dark mode */
+body.dark #loadingOverlay .loading-text {
+  color: #00ff88 !important;
+}
+
+
 </style>
 
 <center>
@@ -237,28 +277,23 @@
 </center>
 
 <!-- Loading Overlay -->
-<div id="loadingOverlay" style="
-    position:fixed;
-    top:0; left:0;
-    width:100%; height:100%;
-    background:rgba(255,255,255,0.9);
-    display:flex;
-    align-items:center;
-    justify-content:center;
-    flex-direction:column;
-    z-index:9999;
-    display:none;
-">
+<div id="loadingOverlay">
   <!-- Logo -->
-  <img src="/static/images/logo-bg.png" alt="Logo" style="width:80px;height:auto;margin-bottom:20px;">
+  <img src="/static/images/logo-bg.png" alt="Logo" class="loading-logo">
 
   <!-- Spinner -->
-  <div class="spinner-border text-success" role="status" style="width:4rem;height:4rem;">
+  <div class="spinner-border" role="status">
     <span class="visually-hidden">Loading...</span>
   </div>
 
-  <p class="mt-3 fw-bold text-success"> <br>Preparing your product details…<br> This may take up to 1 minute depending on size<br> and length of images and videos.<br> Please hold on</p>
+  <p class="loading-text">
+    Preparing your product details…<br>
+    This may take up to 1 minute depending on size<br>
+    and length of images and videos.<br>
+    Please hold on
+  </p>
 </div>
+
 
 <!-- Lightbox2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
