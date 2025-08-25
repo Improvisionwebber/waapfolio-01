@@ -26,7 +26,6 @@ urlpatterns = [
     path('share-tutorial/', views.share_tutorial, name='share_tutorial'),
     path('faqs/', views.faqs, name='faqs'),
     path('contact/', views.contact, name='contact'),
-    path('notifications/', views.notifications, name='notifications'),
     path('privacy/', views.privacy, name='privacy'),
     path("verify-otp/", views.verify_otp, name="verify_otp"),
     path('security-settings/', views.security_settings, name='security_settings'),
