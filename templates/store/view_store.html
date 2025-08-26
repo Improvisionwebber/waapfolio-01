@@ -301,22 +301,15 @@ body.dark .add-card a {
 }
 
 }
+@media(max-width: 768px){
+  .action-buttons .col-6 {
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+}
 
 </style>
-<div class="container px-3">
-  <form method="get" action="" class="search-bar mb-3">
-    <div class="input-group">
-      <input type="text" 
-             name="q" 
-             class="form-control search-input" 
-             placeholder="🔍 Search products..." 
-             value="{{ request.GET.q }}">
-      <button type="submit" class="btn btn-success search-btn">
-        Search
-      </button>
-    </div>
-  </form>
-</div>
+
 
 <!-- ---------- TOP RIGHT MENU ---------- -->
 <div class="dropdown position-absolute top-0 end-0 m-3">
@@ -410,7 +403,7 @@ body.dark .add-card a {
 </div>
 {% endif %}
 
-<div class="action-buttons mt-3 row g-2">
+<div class="action-buttons mt-3 row g-2 px-3">
   <div class="col-6">
     <a href="https://wa.me/?text=Check%20out%20my%20store%20on%20Waapfolio:%20{{ full_url }}"
       rel="noopener noreferrer"
@@ -426,9 +419,23 @@ body.dark .add-card a {
   </div>
 </div>
 
+
 </section>
 <div class="section-divider"></div>
-
+<div class="container px-3">
+  <form method="get" action="" class="search-bar mb-3">
+    <div class="input-group">
+      <input type="text" 
+             name="q" 
+             class="form-control search-input" 
+             placeholder="🔍 Search products..." 
+             value="{{ request.GET.q }}">
+      <button type="submit" class="btn btn-success search-btn">
+        Search
+      </button>
+    </div>
+  </form>
+</div>
 <!-- ---------- PRODUCTS GRID ---------- -->
 <!-- ---------- PRODUCTS GRID ---------- -->
 <section class="pt-3 pb-5">
