@@ -11,7 +11,14 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
 DEBUG = True 
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
+ALLOWED_HOSTS = [
+    "waapfolio-01-db-env.up.railway.app",
+    "localhost",
+    "127.0.0.1",
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://waapfolio-01-db-env.up.railway.app",
+]
 
 # Applications
 INSTALLED_APPS = [
@@ -58,9 +65,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'project.wsgi.application'
 
 DATABASES = {
-    'default': dj_database_url.parse(
-        os.getenv('DATABASE_URL', 'postgresql://postgres:PUjKAqPjZovuAhfudgCNGEgMWkSoFRVi@caboose.proxy.rlwy.net:41270/railway')
-    )
+    'default': dj_database_url.parse(os.getenv('DATABASE_URL'))
 }
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
