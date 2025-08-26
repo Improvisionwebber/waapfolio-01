@@ -15,6 +15,7 @@ ALLOWED_HOSTS = [
     "waapfolio-01-db-env.up.railway.app",
     "localhost",
     "127.0.0.1",
+    "waapfolio.up.railway.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://waapfolio-01-db-env.up.railway.app",
