@@ -26,7 +26,7 @@ from .forms import (
 from .utils import upload_to_imgbb
 from utils.email_service import send_email
 from .models import Notification
-
+from django.conf import settings
 
 # -------------------------
 # Forms
@@ -225,6 +225,7 @@ def verify_otp(request):
 # -------------------------
 # Store Views
 # -------------------------
+
 @login_required
 def create_store(request, id=0):
     store_instance = get_object_or_404(Store, pk=id) if id else None
@@ -254,18 +255,32 @@ def create_store(request, id=0):
             try:
                 url = 'https://api.imgbb.com/1/upload'
                 payload = {
-                    'key': 'c346e6e29bbc0340846deb957f6d510a',
+                    'key': settings.IMGBB_API_KEY,
                     'image': base64.b64encode(logo_file.read()).decode('utf-8')
                 }
-                response = requests.post(url, data=payload)
+                response = requests.post(url, data=payload, timeout=10)
+                response.raise_for_status()
                 data = response.json()
-                if response.status_code == 200 and data.get('success'):
+
+                if data.get('success'):
                     store.brand_logo = data['data']['url']
                 else:
-                    messages.error(request, f"Logo upload failed: {data.get('error', 'Unknown error')}")
+                    messages.warning(
+                        request,
+                        f"Logo upload failed: {data.get('error', 'Unknown error')}. Default logo will be used."
+                    )
+            except requests.exceptions.RequestException as e:
+                messages.warning(
+                    request,
+                    f"Logo upload failed: {str(e)}. Default logo will be used."
+                )
             except Exception as e:
-                messages.error(request, f"Logo upload failed: {str(e)}")
+                messages.warning(
+                    request,
+                    f"Unexpected error during logo upload: {str(e)}. Default logo will be used."
+                )
 
+        # Save store even if logo upload fails
         store.save()
         messages.success(request, "Store saved successfully!")
         return redirect(store.get_absolute_url())
