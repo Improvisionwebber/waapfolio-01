@@ -28,6 +28,9 @@ from utils.email_service import send_email
 from .models import Notification
 from django.conf import settings
 
+from django.urls import reverse
+from django.templatetags.static import static
+from django.db.models import Q
 # -------------------------
 # Forms
 # -------------------------
@@ -288,22 +291,20 @@ def create_store(request, id=0):
     return render(request, 'store/create_store.html', {'form': form})
 
 
-from django.shortcuts import render, get_object_or_404
-from django.urls import reverse
-from django.templatetags.static import static
-from django.db.models import Q
-
-from .models import Store, StoreImage, Item, ItemView, ProductMedia
-
-from django.shortcuts import render, get_object_or_404
-from django.db.models import Q
-from django.templatetags.static import static
-from django.urls import reverse
-from .models import Store, Item, ItemView, StoreImage, ProductMedia, Notification
 
 def view_store(request, slug):
     store = get_object_or_404(Store, slug=slug)
     items = Item.objects.filter(store=store)
+
+    # -------------------------------
+    # Search logic
+    # -------------------------------
+    query = request.GET.get("q")
+    if query:
+        items = items.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        )
+
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
 
@@ -315,7 +316,6 @@ def view_store(request, slug):
         request.session.create()
         session_key = request.session.session_key
 
-    # Track store view only once per session
     store_viewed_key = f"viewed_store_{store.id}"
     if not request.session.get(store_viewed_key) and request.user != store.owner:
         store.total_views += 1
@@ -327,7 +327,6 @@ def view_store(request, slug):
         )
         request.session[store_viewed_key] = True
 
-    # Track individual item views
     for item in items:
         view_filter = Q(session_key=session_key)
         if request.user.is_authenticated:
@@ -353,7 +352,6 @@ def view_store(request, slug):
                 return item.image.url
             except Exception:
                 pass
-
         extra = StoreImage.objects.filter(store=store, name=item.name).first()
         if extra:
             if extra.image_url:
@@ -363,14 +361,12 @@ def view_store(request, slug):
                     return extra.file.url
                 except Exception:
                     pass
-
         pm = ProductMedia.objects.filter(product=item).first()
         if pm:
             if pm.file:
                 return pm.file.url
             if pm.youtube_id:
                 return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
-
         return static('images/no-image.png')
 
     # -------------------------------
@@ -385,10 +381,10 @@ def view_store(request, slug):
             'cover_url': get_cover_url(item),
             'product_url': absolute_product_url,
             'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
+            'user_liked': request.user.is_authenticated and item.likes.filter(id=request.user.id).exists(),
         })
 
     gallery_images = store.images.filter(item__isnull=True)
-
     user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
 
     return render(request, 'store/view_store.html', {
@@ -399,7 +395,6 @@ def view_store(request, slug):
         'gallery_images': gallery_images,
         'user_has_store': user_has_store,
     })
-
 
 
 

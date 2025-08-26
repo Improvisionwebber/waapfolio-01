@@ -278,10 +278,12 @@ body.dark .add-card a {
 }
 
 </style>
-<div class="container py-5">
-  <a href="{% url 'home' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-  <i class="bi bi-arrow-left"></i> Back
-</a>
+  <form method="get" action="" class="d-flex mb-4">
+    <input type="text" name="q" class="form-control me-2" 
+           placeholder="🔍 Search posts..." 
+           value="{{ request.GET.q }}">
+    <button type="submit" class="btn btn-primary">Search</button>
+  </form>
 <!-- ---------- TOP RIGHT MENU ---------- -->
 <div class="dropdown position-absolute top-0 end-0 m-3">
   <button class="btn btn-light rounded-circle shadow-sm" type="button" id="storeMenu" data-bs-toggle="dropdown" aria-expanded="false">
