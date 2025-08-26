@@ -275,15 +275,49 @@ body.dark .add-card a {
   max-width: 85%;                /* don’t let it stretch too wide */
   word-break: break-all;         /* wrap long URLs */
   transition: all 0.25s ease;
+  /* ---------- SEARCH BAR ---------- */
+.search-bar {
+  max-width: 600px;
+  margin: 0 auto;        /* center it */
+}
+.search-input {
+  border-radius: 50px 0 0 50px !important;
+  padding: 0.65rem 1rem;
+}
+.search-btn {
+  border-radius: 0 50px 50px 0 !important;
+  padding: 0.65rem 1.2rem;
+  font-weight: 600;
+}
+@media(max-width: 768px) {
+  .search-input {
+    font-size: 0.9rem;
+    padding: 0.55rem 0.9rem;
+  }
+  .search-btn {
+    font-size: 0.9rem;
+    padding: 0.55rem 0.9rem;
+  }
+}
+
 }
 
 </style>
-  <form method="get" action="" class="d-flex mb-4">
-    <input type="text" name="q" class="form-control me-2" 
-           placeholder="🔍 Search posts..." 
-           value="{{ request.GET.q }}">
-    <button type="submit" class="btn btn-primary">Search</button>
+<div class="container px-3">
+  <form method="get" action="" class="search-bar mb-3">
+    <div class="input-group">
+      <input type="text" 
+             name="q" 
+             class="form-control search-input" 
+             placeholder="🔍 Search products..." 
+             value="{{ request.GET.q }}">
+      <button type="submit" class="btn btn-success search-btn">
+        Search
+      </button>
+    </div>
   </form>
+</div>
+
 <!-- ---------- TOP RIGHT MENU ---------- -->
 <div class="dropdown position-absolute top-0 end-0 m-3">
   <button class="btn btn-light rounded-circle shadow-sm" type="button" id="storeMenu" data-bs-toggle="dropdown" aria-expanded="false">
@@ -396,60 +430,73 @@ body.dark .add-card a {
 <div class="section-divider"></div>
 
 <!-- ---------- PRODUCTS GRID ---------- -->
+<!-- ---------- PRODUCTS GRID ---------- -->
 <section class="pt-3 pb-5">
   <div class="container">
-    <div class="row g-4 justify-content-center">
-      {% for meta in items_meta %}
-        {% with item=meta.item %}
-        <div class="col-6 col-md-4 col-lg-3">
-          <div class="card h-100 shadow-sm">
-            <a href="{{ meta.product_url }}">
-              <img src="{{ meta.cover_url }}" class="card-img-top" alt="{{ item.name }}">
-            </a>
-            <div class="card-body text-center p-3">
-              <h6>{{ item.name }}</h6>
-              <p>{{ item.price }}</p>
-              <div class="card-actions mt-2">
-                <button class="btn-like" data-item-id="{{ item.id }}">
-                  <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
-                </button>
-                
-                <span id="likes-count-{{ item.id }}">{{ meta.likes_count }}</span>
-                <div class="d-flex align-items-center gap-1 text-success">
-                  <i class="bi bi-eye-fill"></i>
-                  <span>{{ item.views }}</span>
+    {% if items_meta %}
+      <div class="row g-4 justify-content-center">
+        {% for meta in items_meta %}
+          {% with item=meta.item %}
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100 shadow-sm">
+              <a href="{{ meta.product_url }}">
+                <img src="{{ meta.cover_url }}" class="card-img-top" alt="{{ item.name }}">
+              </a>
+              <div class="card-body text-center p-3">
+                <h6>{{ item.name }}</h6>
+                <p>{{ item.price }}</p>
+                <div class="card-actions mt-2">
+                  <button class="btn-like" data-item-id="{{ item.id }}">
+                    <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
+                  </button>
+                  <span id="likes-count-{{ item.id }}">{{ meta.likes_count }}</span>
+                  <div class="d-flex align-items-center gap-1 text-success">
+                    <i class="bi bi-eye-fill"></i>
+                    <span>{{ item.views }}</span>
+                  </div>
+                  <button onclick="shareProduct('{{ meta.product_url }}', '{{ item.name|escapejs }}')">
+                    <i class="bi bi-share-fill text-success"></i>
+                  </button>
                 </div>
-                <button onclick="shareProduct('{{ meta.product_url }}', '{{ item.name|escapejs }}')">
-                  <i class="bi bi-share-fill text-success"></i>
-                </button>
+                <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
               </div>
-              <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
             </div>
           </div>
+          {% endwith %}
+        {% endfor %}
+
+        {% if request.user.is_authenticated and request.user == store.owner %}
+        <div class="col-6 col-md-4 col-lg-3">
+          <a href="{% url 'manage_store' store.slug %}" class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card">
+            <div class="text-center">
+              <i class="bi bi-plus-circle display-3"></i>
+              <h6 class="mt-2">Add New Product or Service</h6>
+            </div>
+          </a>
         </div>
-        {% endwith %}
-      {% endfor %}
-      {% if request.user.is_authenticated and request.user == store.owner %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <a href="{% url 'manage_store' store.slug %}" class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card">
-          <div class="text-center">
-            <i class="bi bi-plus-circle display-3"></i>
-            <h6 class="mt-2">Add New Product or Service</h6>
-          </div>
-        </a>
+        {% endif %}
+
+        {% if not request.user.is_authenticated or not user_has_store %}
+        <div class="col-12 text-center mt-4">
+          <a href="{% url 'home' %}" class="btn btn-lg btn-success px-4 py-2 rounded-pill shadow-sm">
+            🚀 Create Your Own Free Store
+          </a>
+        </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <!-- ✅ No results message -->
+      <div class="text-center text-muted my-5">
+        <i class="bi bi-search fs-3 d-block mb-2"></i>
+        No products found 
+        {% if request.GET.q %}
+          for "<strong>{{ request.GET.q }}</strong>"
+        {% endif %}
       </div>
     {% endif %}
-{% if not request.user.is_authenticated or not user_has_store %}
-<div class="col-12 text-center mt-4">
-  <a href="{% url 'home' %}" class="btn btn-lg btn-success px-4 py-2 rounded-pill shadow-sm">
-    🚀 Create Your Own Free Store
-  </a>
-</div>
-{% endif %}
-
-    </div>
   </div>
 </section>
+
 
 
 <!-- Share Store Modal -->
