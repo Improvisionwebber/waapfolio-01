@@ -12,13 +12,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
 DEBUG = True 
 ALLOWED_HOSTS = [
-    "waapfolio-01-db-env.up.railway.app",
     "localhost",
     "127.0.0.1",
     "waapfolio.up.railway.app",
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://waapfolio-01-db-env.up.railway.app",
+    "https://waapfolio.up.railway.app",
 ]
 
 # Applications
