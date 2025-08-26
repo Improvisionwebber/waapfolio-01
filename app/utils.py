@@ -7,10 +7,14 @@ from googleapiclient.http import MediaFileUpload
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from django.core.mail import EmailMultiAlternatives
-
+from django.conf import settings
 # ---- Config ----
 IMGBB_API_KEY = getattr(settings, "IMGBB_API_KEY", None)
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+
+YOUTUBE_CLIENT_ID = os.environ.get("YOUTUBE_CLIENT_ID")
+YOUTUBE_CLIENT_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
+YOUTUBE_REFRESH_TOKEN = os.environ.get("YOUTUBE_REFRESH_TOKEN")
 
 YOUTUBE_CREDENTIALS_DIR = os.path.join(os.path.dirname(__file__), "youtube_credentials")
 CLIENT_SECRETS_FILE = os.path.join(YOUTUBE_CREDENTIALS_DIR, "client_secret.json")
@@ -41,22 +45,25 @@ def upload_to_imgbb(image_file):
 # ---- YouTube Auth ----
 def get_youtube_service():
     """
-    Loads saved token.json and refreshes if expired.
+    Creates a YouTube API service using credentials from environment variables.
     """
-    creds = None
-    if os.path.exists(TOKEN_FILE):
-        creds = Credentials.from_authorized_user_file(TOKEN_FILE, SCOPES)
+    if not (YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN):
+        raise Exception("YouTube environment variables not set!")
 
-    if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            try:
-                creds.refresh(Request())
-                with open(TOKEN_FILE, "w") as token_file:
-                    token_file.write(creds.to_json())
-            except Exception as e:
-                raise Exception("YouTube token refresh failed. Re-generate token.json.") from e
-        else:
-            raise Exception("No valid YouTube credentials. Run local auth script to generate token.json.")
+    creds = Credentials(
+        token=None,  # no access token yet
+        refresh_token=YOUTUBE_REFRESH_TOKEN,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=YOUTUBE_CLIENT_ID,
+        client_secret=YOUTUBE_CLIENT_SECRET,
+        scopes=SCOPES
+    )
+
+    if not creds.valid:
+        try:
+            creds.refresh(Request())
+        except Exception as e:
+            raise Exception("Failed to refresh YouTube credentials.") from e
 
     return build("youtube", "v3", credentials=creds, static_discovery=False)
 
