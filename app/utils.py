@@ -8,6 +8,8 @@ from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
+import requests, base64
+
 # ---- Config ----
 IMGBB_API_KEY = getattr(settings, "IMGBB_API_KEY", None)
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
@@ -21,26 +23,35 @@ CLIENT_SECRETS_FILE = os.path.join(YOUTUBE_CREDENTIALS_DIR, "client_secret.json"
 TOKEN_FILE = os.path.join(YOUTUBE_CREDENTIALS_DIR, "token.json")
 
 # ---- ImgBB Upload ----
+
 def upload_to_imgbb(image_file):
     if not IMGBB_API_KEY:
         print("ImgBB API key is missing in settings.")
         return None
+
     try:
-        image_file.seek(0)
+        image_file.seek(0)  
         url = "https://api.imgbb.com/1/upload"
-        payload = {"key": IMGBB_API_KEY}
-        files = {"image": base64.b64encode(image_file.read()).decode('utf-8')}
+        payload = {
+            "key": IMGBB_API_KEY,
+            "image": base64.b64encode(image_file.read()).decode("utf-8"),
+        }
+
         response = requests.post(url, data=payload, timeout=15)
         result = response.json()
+
         if response.status_code == 200 and result.get("success"):
             return result["data"]["url"]
         else:
-            print("ImgBB upload failed:", result.get("error", "Unknown error"))
+            print("ImgBB upload failed:", result.get("error", {}).get("message", "Unknown error"))
+
     except requests.exceptions.RequestException as e:
         print("ImgBB request failed:", e)
     except Exception as e:
         print("Unexpected error during ImgBB upload:", e)
+
     return None
+
 
 # ---- YouTube Auth ----
 def get_youtube_service():
