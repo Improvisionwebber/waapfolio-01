@@ -79,33 +79,27 @@ def get_youtube_service():
     return build("youtube", "v3", credentials=creds, static_discovery=False)
 
 # ---- YouTube Upload ----
-def upload_video_to_youtube(file_path, title="My Video", description="Uploaded via Waapfolio"):
-    try:
-        youtube = get_youtube_service()
-        media = MediaFileUpload(file_path, chunksize=-1, resumable=True)
+# ---- YouTube Access Token Helper ----
+def get_youtube_access_token():
+    """
+    Returns a short-lived access token that the frontend can use
+    to upload directly to YouTube.
+    """
+    if not (YOUTUBE_CLIENT_ID and YOUTUBE_CLIENT_SECRET and YOUTUBE_REFRESH_TOKEN):
+        raise Exception("YouTube environment variables not set!")
 
-        request = youtube.videos().insert(
-            part="snippet,status",
-            body={
-                "snippet": {"title": title, "description": description},
-                "status": {"privacyStatus": "unlisted"}
-            },
-            media_body=media
-        )
+    creds = Credentials(
+        token=None,
+        refresh_token=YOUTUBE_REFRESH_TOKEN,
+        token_uri="https://oauth2.googleapis.com/token",
+        client_id=YOUTUBE_CLIENT_ID,
+        client_secret=YOUTUBE_CLIENT_SECRET,
+        scopes=SCOPES,
+    )
 
-        response = None
-        while response is None:
-            status, response = request.next_chunk()
-            if status:
-                print(f"Upload progress: {int(status.progress() * 100)}%")
-
-        video_id = response.get("id")
-        video_url = f"https://youtu.be/{video_id}"
-        print(f"Video uploaded successfully: {video_url}")
-        return video_id, video_url
-    except Exception as e:
-        print("YouTube upload failed:", e)
-        return None, None
+    # Refresh to get a new access token
+    creds.refresh(Request())
+    return creds.token
 
 # ---- Email via Brevo ----
 def send_email(subject, html_content, to_email):

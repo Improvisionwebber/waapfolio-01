@@ -297,7 +297,49 @@ body.dark #loadingOverlay .loading-text {
 
 <!-- Lightbox2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
-<script>
+{% comment %} <script>
+if (productForm && loadingOverlay) {
+  productForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); // stop normal submit
+    loadingOverlay.style.display = "flex";
+
+    const files = Array.from(extraInput.files).filter(f => f.type.startsWith("video/"));
+    const youtubeLinks = [];
+
+    try {
+      for (let f of files) {
+        const { youtube_id, youtube_url } = await uploadVideoToYoutube(
+          f,
+          document.getElementById("price").value || "Untitled Product",
+          document.getElementById("description").value || ""
+        );
+
+        // Add hidden inputs so Django receives them
+        const hiddenId = document.createElement("input");
+        hiddenId.type = "hidden";
+        hiddenId.name = "youtube_ids";
+        hiddenId.value = youtube_id;
+
+        const hiddenUrl = document.createElement("input");
+        hiddenUrl.type = "hidden";
+        hiddenUrl.name = "youtube_urls";
+        hiddenUrl.value = youtube_url;
+
+        productForm.appendChild(hiddenId);
+        productForm.appendChild(hiddenUrl);
+
+        youtubeLinks.push(youtube_url);
+      }
+
+      // now submit the form normally
+      productForm.submit();
+    } catch (err) {
+      loadingOverlay.style.display = "none";
+      alert("Video upload failed: " + err.message);
+    }
+  });
+}
+
 (function () {
     const currencySelect = document.getElementById("currency");
     const priceInput = document.getElementById("price");
@@ -416,5 +458,254 @@ body.dark #loadingOverlay .loading-text {
     }
 
 })();
+async function getYoutubeToken() {
+  const res = await fetch("/youtube-token/");
+  const data = await res.json();
+  if (!data.access_token) throw new Error(data.error || "Failed to fetch token");
+  return data.access_token;
+}
+
+async function uploadVideoToYoutube(file, title, description) {
+  const token = await getYoutubeToken();
+
+  // Step 1: Init resumable upload
+  const initRes = await fetch(
+    "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": file.type,
+      },
+      body: JSON.stringify({
+        snippet: { title, description },
+        status: { privacyStatus: "unlisted" },
+      }),
+    }
+  );
+
+  const uploadUrl = initRes.headers.get("location");
+  if (!uploadUrl) throw new Error("Failed to get upload URL");
+
+  // Step 2: Upload file to YouTube
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+
+  const result = await uploadRes.json();
+  if (!result.id) throw new Error("Upload failed");
+
+  return {
+    youtube_id: result.id,
+    youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
+  };
+}
+
+</script> {% endcomment %}
+<script>
+(function () {
+  const currencySelect = document.getElementById("currency");
+  const priceInput = document.getElementById("price");
+  const coverInput = document.getElementById("imageInput");
+  const coverPreview = document.getElementById("preview");
+  const extraInput = document.getElementById("extra_images");
+  const previewCards = document.getElementById("preview-cards");
+  const productForm = document.querySelector("form");
+  const loadingOverlay = document.getElementById("loadingOverlay");
+
+  if (!currencySelect || !priceInput) return;
+
+  // -------------------------
+  // Price formatting helpers
+  // -------------------------
+  function formatNumberWithCommas(x) {
+    return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  }
+
+  function setPriceValue(value) {
+    const symbol = currencySelect.value || "₦";
+    priceInput.value = symbol + value;
+  }
+
+  function getCursorPosition(el) {
+    return el.selectionStart;
+  }
+
+  function setCursorPosition(el, pos) {
+    el.setSelectionRange(pos, pos);
+  }
+
+  function formatPriceInput() {
+    const symbol = currencySelect.value || "₦";
+    let raw = priceInput.value.replace(new RegExp(`[^0-9]`, "g"), "");
+    if (!raw) {
+      priceInput.value = "";
+      return;
+    }
+
+    // Remember cursor position relative to numbers
+    let cursorPos = getCursorPosition(priceInput);
+    let left = priceInput.value.slice(0, cursorPos).replace(/[^0-9]/g, "").length;
+
+    // Format
+    let formatted = formatNumberWithCommas(raw);
+
+    priceInput.value = symbol + formatted;
+
+    // Restore cursor position
+    let newPos = formatted.length - (raw.length - left) + symbol.length;
+    setCursorPosition(priceInput, newPos);
+  }
+
+  function initPrice() {
+    if (!priceInput.value) return;
+    priceInput.value = priceInput.value.replace(/^[₦$€£₵]/, "");
+    formatPriceInput();
+  }
+
+  document.addEventListener("DOMContentLoaded", initPrice);
+  window.addEventListener("pageshow", initPrice);
+
+  priceInput.addEventListener("input", formatPriceInput);
+  currencySelect.addEventListener("change", formatPriceInput);
+
+  // -------------------------
+  // Cover image preview
+  // -------------------------
+  if (coverInput && coverPreview) {
+    coverInput.addEventListener("change", function () {
+      const file = this.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = e => {
+          coverPreview.src = e.target.result;
+          coverPreview.style.display = "block";
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  // -------------------------
+  // Extra images/videos preview
+  // -------------------------
+  if (extraInput && previewCards) {
+    extraInput.addEventListener("change", function () {
+      previewCards.innerHTML = "";
+      Array.from(this.files).forEach(file => {
+        const col = document.createElement("div");
+        col.className = "col-6 col-md-3 text-center mb-3";
+        let html = "";
+
+        if (file.type.startsWith("image/")) {
+          html = `<a href="#" data-lightbox="preview-gallery" data-title="${file.name}">
+                    <img src="${URL.createObjectURL(file)}" class="img-fluid rounded mb-2 shadow-sm" style="height:100px;width:100px;object-fit:cover;cursor:zoom-in;">
+                  </a>`;
+        } else if (file.type.startsWith("video/")) {
+          html = `<video src="${URL.createObjectURL(file)}" class="img-fluid rounded mb-2 shadow-sm" style="height:100px;width:100px;object-fit:cover;" controls></video>`;
+        }
+
+        col.innerHTML = `<div class="extra-img-card p-2 shadow-sm rounded bg-white">${html}</div>`;
+        previewCards.appendChild(col);
+      });
+    });
+  }
+
+  // -------------------------
+  // Unified submit handler: show loader, upload YouTube videos, append hidden inputs, submit
+  // -------------------------
+  if (productForm && loadingOverlay) {
+    productForm.addEventListener("submit", async function (e) {
+      e.preventDefault(); // stop normal submit
+      loadingOverlay.style.display = "flex";
+
+      const files = extraInput ? Array.from(extraInput.files).filter(f => f.type.startsWith("video/")) : [];
+      const youtubeLinks = [];
+
+      try {
+        for (let f of files) {
+          const { youtube_id, youtube_url } = await uploadVideoToYoutube(
+            f,
+            document.getElementById("price")?.value || "Untitled Product",
+            document.getElementById("description")?.value || ""
+          );
+
+          // Add hidden inputs so Django receives them
+          const hiddenId = document.createElement("input");
+          hiddenId.type = "hidden";
+          hiddenId.name = "youtube_ids";
+          hiddenId.value = youtube_id;
+
+          const hiddenUrl = document.createElement("input");
+          hiddenUrl.type = "hidden";
+          hiddenUrl.name = "youtube_urls";
+          hiddenUrl.value = youtube_url;
+
+          productForm.appendChild(hiddenId);
+          productForm.appendChild(hiddenUrl);
+
+          youtubeLinks.push(youtube_url);
+        }
+
+        // now submit the form normally
+        productForm.submit();
+      } catch (err) {
+        loadingOverlay.style.display = "none";
+        alert("Video upload failed: " + (err && err.message ? err.message : err));
+      }
+    });
+  }
+
+})(); // end IIFE
+
+async function getYoutubeToken() {
+  const res = await fetch("/youtube-token/");
+  const data = await res.json();
+  if (!data.access_token) throw new Error(data.error || "Failed to fetch token");
+  return data.access_token;
+}
+
+async function uploadVideoToYoutube(file, title, description) {
+  const token = await getYoutubeToken();
+
+  // Step 1: Init resumable upload
+  const initRes = await fetch(
+    "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json; charset=UTF-8",
+        "X-Upload-Content-Type": file.type,
+      },
+      body: JSON.stringify({
+        snippet: { title, description },
+        status: { privacyStatus: "unlisted" },
+      }),
+    }
+  );
+
+  const uploadUrl = initRes.headers.get("location");
+  if (!uploadUrl) throw new Error("Failed to get upload URL");
+
+  // Step 2: Upload file to YouTube
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file,
+  });
+
+  const result = await uploadRes.json();
+  if (!result.id) throw new Error("Upload failed");
+
+  return {
+    youtube_id: result.id,
+    youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
+  };
+}
 </script>
+
 {% endblock %}

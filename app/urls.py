@@ -40,7 +40,7 @@ urlpatterns = [
     # -------------------------
     path('register/', views.register, name='register'),
 
-
+    path("youtube-token/", views.youtube_token_view, name="youtube-token"),
     # -------------------------
     # Store
     # -------------------------

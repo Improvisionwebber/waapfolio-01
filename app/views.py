@@ -13,7 +13,6 @@ from django.core.mail import send_mail
 from django.utils import timezone
 from django.contrib import messages
 from django.db.models import Q
-from .utils import upload_to_imgbb, upload_video_to_youtube
 import requests
 import base64
 import tempfile
@@ -398,10 +397,8 @@ def view_store(request, slug):
         'user_has_store': user_has_store,
     })
 
-
-
 # -------------------------
-# Product Management
+# Product Management (Images handled here, Videos handled via frontend → YouTube)
 # -------------------------
 @login_required
 def manage_store(request, slug, item_id=None):
@@ -417,7 +414,7 @@ def manage_store(request, slug, item_id=None):
         edit_mode = False
 
     if request.method == "POST":
-        extra_files = request.FILES.getlist("extra_images")
+        extra_files = request.FILES.getlist("extra_images")  # images only
         cover_file = request.FILES.get("image")
 
         if form.is_valid():
@@ -439,39 +436,40 @@ def manage_store(request, slug, item_id=None):
 
                 product.save()
 
-                # ---- Extra Files (Images + Videos) ----
+                # ---- Extra Images ----
                 for f in extra_files:
                     try:
                         if f.content_type.startswith("image/"):
                             img_url = upload_to_imgbb(f)
                             if img_url:
                                 StoreImage.objects.create(
-                                    store=store, image_url=img_url,
-                                    name=product.name, price=product.price
+                                    store=store,
+                                    image_url=img_url,
+                                    name=product.name,
+                                    price=product.price
                                 )
-                        elif f.content_type.startswith("video/"):
-                            with tempfile.NamedTemporaryFile(delete=False, suffix=".mp4") as tmp:
-                                for chunk in f.chunks():
-                                    tmp.write(chunk)
-                                tmp_path = tmp.name
-
-                            video_id, video_url = upload_video_to_youtube(
-                                file_path=tmp_path,
-                                title=product.name,
-                                description=product.description or ""
-                            )
-                            if video_id and video_url:
-                                ProductMedia.objects.create(
-                                    product=product,
-                                    youtube_id=video_id,
-                                    youtube_url=video_url,
-                                    label=product.name,
-                                    description=product.description or ""
-                                )
+                        # 🔹 Videos are no longer uploaded here (handled in frontend)
                     except Exception as e:
                         messages.warning(request, f"Failed to process {f.name}: {e}")
                         print(f"Failed to process {f.name}: {e}")
                         continue
+
+                # ---- YouTube Videos (from frontend hidden inputs) ----
+                youtube_ids = request.POST.getlist("youtube_ids")
+                youtube_urls = request.POST.getlist("youtube_urls")
+
+                for vid, url in zip(youtube_ids, youtube_urls):
+                    try:
+                        ProductMedia.objects.create(
+                            product=product,
+                            youtube_id=vid,
+                            youtube_url=url,
+                            label=product.name,
+                            description=product.description or ""
+                        )
+                    except Exception as e:
+                        messages.warning(request, f"Failed to save YouTube video {vid}: {e}")
+                        print(f"Failed to save YouTube video {vid}: {e}")
 
             messages.success(request, "Product saved successfully!")
             return redirect("manage_store", slug=slug)
@@ -493,6 +491,7 @@ def manage_store(request, slug, item_id=None):
         "old_images": old_files,
         "items": items,
     })
+
 
 
 @login_required
@@ -710,3 +709,16 @@ def notifications_view(request):
         "store": store,
         "notifications": notifications
     })
+from django.http import JsonResponse
+from .utils import get_youtube_access_token
+
+@login_required
+def youtube_token(request):
+    """
+    API endpoint to fetch a fresh YouTube access token for direct uploads.
+    """
+    try:
+        token = get_youtube_access_token()
+        return JsonResponse({"access_token": token})
+    except Exception as e:
+        return JsonResponse({"error": str(e)}, status=500)
