@@ -47,13 +47,14 @@ class StoreForm(forms.ModelForm):
 
     # --- NEW FIELDS ---
     dob = forms.DateField(
-        required=False,
-        widget=forms.DateInput(attrs={
-            'class': 'form-control',
-            'type': 'date',
-            'placeholder': 'Date of Birth'
-        })
+        widget=forms.TextInput(
+            attrs={'placeholder': 'DD/MM/YYYY'}
+        )
     )
+
+    class Meta:
+        model = Store
+        fields = '__all__'
 
     address = forms.CharField(
         required=False,
