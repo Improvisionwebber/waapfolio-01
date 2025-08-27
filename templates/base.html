@@ -411,6 +411,20 @@ body.dark .btn-close {
   filter: invert(1);
   opacity: .85;
 }
+/* 🌙 Dark mode for Notifications */
+body.dark .list-group-item {
+  background-color: #1e1e1e !important;
+  color: #4caf50 !important; /* green text */
+  border: 1px solid #333 !important;
+}
+
+body.dark .list-group-item p {
+  color: #4caf50 !important; /* notification message in green */
+}
+
+body.dark .list-group-item span {
+  color: #9ccaff !important; /* keep time ago in light blue for contrast */
+}
 
 .action-buttons form,
 .action-buttons a {
