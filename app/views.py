@@ -18,10 +18,10 @@ import requests
 import base64
 import tempfile
 from .models import (
-    Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike
+    Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike, Comment
 )
 from .forms import (
-    StoreForm, StoreImageForm, ProductForm
+    StoreForm, StoreImageForm, ProductForm, CommentForm
 )
 from .utils import upload_to_imgbb
 from utils.email_service import send_email
@@ -320,11 +320,13 @@ def view_store(request, slug):
     if not request.session.get(store_viewed_key) and request.user != store.owner:
         store.total_views += 1
         store.save()
+        viewer_name = request.user.username if request.user.is_authenticated else "Someone"
         Notification.objects.create(
             user=store.owner,
-            message=f"{request.user.username} just viewed your store!",
+            message=f"{viewer_name} just viewed your store!",
             link=request.build_absolute_uri()
         )
+
         request.session[store_viewed_key] = True
 
     for item in items:
@@ -528,6 +530,22 @@ def product_detail(request, id):
     store = product.store
     images, videos, youtube_videos = [], [], []
 
+    # Handle comments
+    if request.method == "POST":
+        if not request.user.is_authenticated:
+            return redirect("login")
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.product = product
+            comment.user = request.user
+            comment.save()
+            return redirect("product_detail", id=product.id)
+    else:
+        form = CommentForm()
+
+    comments = product.comments.all()  # thanks to related_name="comments"
+
     # StoreImage extras
     for f in extra_files:
         try:
@@ -536,9 +554,9 @@ def product_detail(request, id):
             elif f.file:
                 fname = f.file.name.lower()
                 if fname.endswith(('.mp4', '.mov', '.webm', '.avi', '.mkv')):
-                    videos.append(f)         # has file
+                    videos.append(f)
                 else:
-                    images.append(f)         # file image
+                    images.append(f)
         except Exception:
             continue
 
@@ -546,11 +564,11 @@ def product_detail(request, id):
     for m in product_media:
         try:
             if m.youtube_id or m.youtube_url:
-                youtube_videos.append(m)     # show via iframe
+                youtube_videos.append(m)
             elif m.is_video_file() and m.file:
-                videos.append(m)             # file video
+                videos.append(m)
             elif m.file:
-                images.append(m)             # file image
+                images.append(m)
         except Exception:
             continue
 
@@ -560,6 +578,8 @@ def product_detail(request, id):
         'videos': videos,
         'youtube_videos': youtube_videos,
         'store': store,
+        'form': form,
+        'comments': comments,
     }
     return render(request, 'store/product_detail.html', context)
 
@@ -672,6 +692,10 @@ def delete_account(request):
 def notifications_view(request):
     store = Store.objects.filter(owner=request.user).first()
     notifications = request.user.notifications.order_by("-created_at")
+
+    # ✅ Mark all unread as read
+    notifications.filter(is_read=False).update(is_read=True)
+
     return render(request, "notifications.html", {
         "store": store,
         "notifications": notifications

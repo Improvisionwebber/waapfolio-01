@@ -73,6 +73,36 @@
                 {{ product.description|default:"No description available." }}
             </p>
         </div>
+<!-- COMMENTS SECTION -->
+<div class="mt-5">
+  <h5 class="fw-bold mb-3">💬 Comments</h5>
+
+  <!-- Comment form -->
+  {% if user.is_authenticated %}
+    <form method="post" class="mb-4">
+      {% csrf_token %}
+      {{ form.text }}
+      <button type="submit" class="btn btn-success mt-2">Post Comment</button>
+    </form>
+  {% else %}
+    <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+  {% endif %}
+
+  <!-- Display comments -->
+  {% if comments %}
+    <ul class="list-unstyled">
+      {% for c in comments %}
+        <li class="mb-3 p-3 border rounded bg-light">
+          <strong>{{ c.user.username }}</strong>
+          <small class="text-muted">• {{ c.created_at|timesince }} ago</small>
+          <p class="mb-0">{{ c.text|linebreaks }}</p>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No comments yet. Be the first to comment!</p>
+  {% endif %}
+</div>
 
         <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
             class="btn btn-success btn-lg w-100 mt-4 shadow-sm">
@@ -165,6 +195,14 @@ body.dark .safety-card {
 
 body.dark .safety-card li {
     color: #ccc !important;
+}
+body.dark .bg-light {
+  background-color: #2a2a2a !important;
+  border: 1px solid #444 !important;
+  color: #eee !important;
+}
+body.dark .border {
+  border-color: #555 !important;
 }
 
 
