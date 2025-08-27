@@ -94,6 +94,8 @@ class Item(models.Model):
     image_url = models.URLField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
     views = models.PositiveIntegerField(default=0)
+    created_at = models.DateTimeField(default=timezone.now, editable=False)
+    updated_at = models.DateTimeField(default=timezone.now)
     slug = models.SlugField(unique=True, blank=True)  # For /product/<slug>/
 
     def __str__(self):
