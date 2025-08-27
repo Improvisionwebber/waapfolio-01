@@ -79,7 +79,11 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 IMGBB_API_KEY = os.getenv('IMGBB_API_KEY')
 
-DATA_UPLOAD_MAX_MEMORY_SIZE = 200 * 1024 * 1024
+# Maximum size of request body (bytes)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576000  # ~1 GB
+
+# Maximum size of a single uploaded file (bytes)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 1048576000  # ~1 GB
 
 # Email
 EMAIL_BACKEND = "django.core.mail.backends.smtp.EmailBackend"
