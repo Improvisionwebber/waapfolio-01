@@ -522,7 +522,6 @@ def delete_extra_video(request, slug, video_id):
     messages.success(request, "Video deleted successfully!")
     return redirect("manage_store", slug=slug)
 
-
 def product_detail(request, id):
     product = get_object_or_404(Item, id=id)
     extra_files = StoreImage.objects.filter(store=product.store, name=product.name)
@@ -540,11 +539,21 @@ def product_detail(request, id):
             comment.product = product
             comment.user = request.user
             comment.save()
+
+            # ✅ Create notification for store owner (avoid self-notification)
+            if request.user != store.owner:
+                Notification.objects.create(
+                    user=store.owner,
+                    message=f"{request.user.username} commented on your product: {product.name}",
+                    link=request.build_absolute_uri(product.get_absolute_url())
+                )
+
+            messages.success(request, "Your comment has been posted!")
             return redirect("product_detail", id=product.id)
     else:
         form = CommentForm()
 
-    comments = product.comments.all()  # thanks to related_name="comments"
+    comments = product.comments.all().order_by("-created_at")  # newest first
 
     # StoreImage extras
     for f in extra_files:
@@ -582,6 +591,7 @@ def product_detail(request, id):
         'comments': comments,
     }
     return render(request, 'store/product_detail.html', context)
+
 
 
 
