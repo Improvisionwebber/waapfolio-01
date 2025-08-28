@@ -688,7 +688,12 @@ async function uploadVideoToYoutube(file, title, description) {
     }
   );
 
-  const uploadUrl = initRes.headers.get("location");
+  if (!initRes.ok) {
+    const errText = await initRes.text();
+    throw new Error(`YouTube init failed: ${initRes.status} ${errText}`);
+  }
+
+  const uploadUrl = initRes.headers.get("Location");
   if (!uploadUrl) throw new Error("Failed to get upload URL");
 
   // Step 2: Upload file to YouTube
@@ -698,14 +703,21 @@ async function uploadVideoToYoutube(file, title, description) {
     body: file,
   });
 
+  if (!uploadRes.ok) {
+    const errText = await uploadRes.text();
+    throw new Error(`Upload failed: ${uploadRes.status} ${errText}`);
+  }
+
   const result = await uploadRes.json();
-  if (!result.id) throw new Error("Upload failed");
+  if (!result.id) throw new Error("Upload failed: no video ID returned");
 
   return {
     youtube_id: result.id,
     youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
   };
 }
+
+
 </script>
 
 {% endblock %}
