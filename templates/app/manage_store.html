@@ -108,7 +108,7 @@ body.dark #loadingOverlay .loading-text {
     <a href="{% url 'manage_store' store.slug %}" class="btn btn-secondary mt-2">Cancel Edit</a>
   {% endif %}
 
-  <form method="POST" enctype="multipart/form-data" class="my-4 form">
+  <form method="POST" action="{% url 'manage_store' store.slug %}" enctype="multipart/form-data" class="my-4 form">
     {% csrf_token %}
     <h4 class="mb-3">{{ edit_mode|yesno:"Edit Product,Add New Product" }}</h4>
 

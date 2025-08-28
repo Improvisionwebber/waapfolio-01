@@ -311,7 +311,9 @@ body.dark .add-card a {
 body.dark .store-address {
   color: #fff !important;
 }
-
+.btn-close-red {
+  filter: invert(30%) sepia(90%) saturate(600%) hue-rotate(-10deg) brightness(90%) contrast(90%);
+}
 </style>
 
 
@@ -478,6 +480,7 @@ body.dark .store-address {
         {% endfor %}
 
         {% if request.user.is_authenticated and request.user == store.owner %}
+        <!-- Show Add Product card alongside existing products -->
         <div class="col-6 col-md-4 col-lg-3">
           <a href="{% url 'manage_store' store.slug %}" class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card">
             <div class="text-center">
@@ -487,22 +490,24 @@ body.dark .store-address {
           </a>
         </div>
         {% endif %}
-
-        {% if not request.user.is_authenticated or not user_has_store %}
-        <div class="col-12 text-center mt-4">
-          <a href="{% url 'home' %}" class="btn btn-lg btn-success px-4 py-2 rounded-pill shadow-sm">
-            🚀 Create Your Own Free Store
-          </a>
-        </div>
-        {% endif %}
       </div>
     {% else %}
-      <!-- ✅ No results message -->
-      <div class="text-center text-muted my-5">
-        <i class="bi bi-search fs-3 d-block mb-2"></i>
-        No products found 
-        {% if request.GET.q %}
-          for "<strong>{{ request.GET.q }}</strong>"
+      <div class="text-center my-5">
+        {% if request.user.is_authenticated and request.user == store.owner %}
+          <!-- ✅ If owner and no products, show Add Product card only -->
+          <a href="{% url 'manage_store' store.slug %}" class="card shadow-sm d-inline-flex justify-content-center align-items-center text-success add-card" style="width:220px; height:260px;">
+            <div class="text-center">
+              <i class="bi bi-plus-circle display-3"></i>
+              <h6 class="mt-2">Add Your First Product</h6>
+            </div>
+          </a>
+        {% else %}
+          <!-- ✅ If not owner, just show "No products found" -->
+          <i class="bi bi-search fs-3 d-block mb-2"></i>
+          No products found
+          {% if request.GET.q %}
+            for "<strong>{{ request.GET.q }}</strong>"
+          {% endif %}
         {% endif %}
       </div>
     {% endif %}
@@ -559,6 +564,28 @@ body.dark .store-address {
     </div>
   </div>
 </div>
+
+<!-- CPA Popup – FOMO / Android style -->
+<div class="modal fade" id="cpaFomoPopup" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4 shadow border-success">
+      <div class="modal-header border-0 justify-content-between">
+        <h5 class="modal-title text-success">🎁 Exclusive Android Giveaway!</h5>
+        <!-- Top-right cancel X button -->
+        <button type="button" class="btn-close btn-close-red" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body text-center">
+        <img src="https://cdn-icons-png.flaticon.com/512/888/888879.png" alt="Android" style="width:60px; margin-bottom:15px;">
+        <p class="mb-3">Only for Android users! Hurry, spots are limited! ⏳</p>
+        <a href="https://singingfiles.com/show.php?l=0&u=2333038&id=56776" target="_blank" class="btn btn-success btn-lg w-100 mb-2">Claim Now</a>
+        <small class="text-muted d-block mt-2" id="fomoSpots">50 spots left!</small>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+
 
 <!-- ---------- SCRIPTS ---------- -->
 <script>
@@ -668,6 +695,19 @@ function shareStore(url, name) {
     new bootstrap.Modal(document.getElementById("shareStoreModal")).show();
   }
 }
+document.addEventListener("DOMContentLoaded", function () {
+  // Show popup only once per session
+  if (!sessionStorage.getItem("cpaFomoShown")) {
+    const cpaModal = new bootstrap.Modal(document.getElementById('cpaFomoPopup'));
+    cpaModal.show();
+    sessionStorage.setItem("cpaFomoShown", "true");
+
+    // Optional: randomize spots for FOMO effect
+    const spotsEl = document.getElementById("fomoSpots");
+    const spots = Math.floor(Math.random() * 30) + 20; // 20–50 spots
+    spotsEl.textContent = `${spots} spots left!`;
+  }
+});
 </script>
 
 {% endblock %}
