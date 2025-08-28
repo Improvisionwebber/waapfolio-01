@@ -1,25 +1,45 @@
 {% extends "base.html" %}
 {% load static %}
+{% load widget_tweaks %}
+
 {% block title %}LOGIN PAGE{% endblock title %}
 
 {% block body %}
-<!-- Centered Login Form -->
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-  <form id="loginForm" action="{% url 'login' %}" method="post" class="form fade-in no-global-loader">
+
+<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f7f7f7;">
+  <form id="loginForm" action="{% url 'login' %}" method="post" class="form p-4 rounded shadow" style="background: white; width: 100%; max-width: 400px;">
     {% csrf_token %}
-    {{ form.as_p }}
+    <h2 class="text-center mb-4">Login</h2>
 
-    <!-- Submit Button -->
-    <button type="submit" class="btn btn-success w-100 mt-2">Login</button>
+    <!-- Username -->
+    <div class="mb-3">
+        {{ form.username.label_tag }}
+        {{ form.username|add_class:"form-control form-control-lg" }}
+    </div>
 
+    <!-- Password -->
+    <div class="mb-3">
+        {{ form.password.label_tag }}
+        <div class="position-relative">
+            {{ form.password|add_class:"form-control form-control-lg" }}
+            <span id="togglePasswordLogin" class="toggle-password">
+                <i class="fa-solid fa-eye"></i>
+            </span>
+        </div>
+    </div>
+
+    <!-- Submit -->
+    <button type="submit" class="btn btn-success w-100 btn-lg">Login</button>
+
+    <!-- Links -->
     <p class="text-center mt-3">
-      <a href="{% url 'password_reset' %}">Forgot Password</a> |
+      <a href="{% url 'password_reset' %}">Forgot Password</a> | 
       <a href="{% url 'register' %}">Register</a>
     </p>
   </form>
 </div>
 
-<!-- 🔄 Loading Modal -->
+<!-- Loading Modal -->
 <div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content text-center p-4">
@@ -31,11 +51,57 @@
   </div>
 </div>
 
-<!-- 🔁 JavaScript to show loading modal -->
+<!-- JS -->
 <script>
-  document.getElementById('loginForm').addEventListener('submit', function() {
+document.getElementById('loginForm').addEventListener('submit', function() {
     const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
     modal.show();
-  });
+});
+
+document.querySelectorAll('.toggle-password').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        const input = this.previousElementSibling; // password input
+        const icon = this.querySelector('i');      // eye icon
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    });
+});
 </script>
+
+<!-- CSS -->
+<style>
+/* Inputs */
+form input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.375rem;
+    box-sizing: border-box;
+}
+
+/* Eye toggle inside password input */
+.position-relative {
+    position: relative;
+}
+
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    cursor: pointer;
+    user-select: none;
+    color: #555;
+}
+</style>
 {% endblock body %}

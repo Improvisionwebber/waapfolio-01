@@ -4,6 +4,9 @@
 {% block title %}REGISTRATION PAGE{% endblock title %}
 
 {% block body %}
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
 <form action="{% url 'register' %}" method="post" class="form">
     {% csrf_token %}
     <h1>Register</h1>
@@ -12,53 +15,73 @@
         <div class="form-col">
             {{ form.username.label_tag }}
             {{ form.username }}
-            {% if form.username.errors %}
-                <div class="text-danger">
-                    {% for error in form.username.errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
         <div class="form-col">
             {{ form.email.label_tag }}
             {{ form.email }}
-            {% if form.email.errors %}
-                <div class="text-danger">
-                    {% for error in form.email.errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
         </div>
     </div>
 
     <div class="form-row">
         <div class="form-col">
             {{ form.password1.label_tag }}
-            {{ form.password1 }}
-            {% if form.password1.errors %}
-                <div class="text-danger">
-                    {% for error in form.password1.errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+            <div class="password-wrapper">
+                {{ form.password1 }}
+                <span id="togglePassword1" class="toggle-password">
+                    <i class="fa-solid fa-eye"></i>
+                </span>
+            </div>
         </div>
         <div class="form-col">
             {{ form.password2.label_tag }}
-            {{ form.password2 }}
-            {% if form.password2.errors %}
-                <div class="text-danger">
-                    {% for error in form.password2.errors %}
-                        <p>{{ error }}</p>
-                    {% endfor %}
-                </div>
-            {% endif %}
+            <div class="password-wrapper">
+                {{ form.password2 }}
+                <span id="togglePassword2" class="toggle-password">
+                    <i class="fa-solid fa-eye"></i>
+                </span>
+            </div>
         </div>
     </div>
 
     <button type="submit">REGISTER</button>
     <p><a href="{% url 'login' %}">Already have an account?</a></p>
 </form>
+
+<style>
+.password-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+.password-wrapper input {
+    flex: 1;
+}
+.toggle-password {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    user-select: none;
+    color: #555;
+    font-size: 1.2rem;
+}
+</style>
+
+<script>
+document.querySelectorAll('.toggle-password').forEach(toggle => {
+    toggle.addEventListener('click', function() {
+        const input = this.previousElementSibling;  // input field
+        const icon = this.querySelector('i');      // eye icon
+
+        if (input.type === "password") {
+            input.type = "text";
+            icon.classList.remove("fa-eye");
+            icon.classList.add("fa-eye-slash");
+        } else {
+            input.type = "password";
+            icon.classList.remove("fa-eye-slash");
+            icon.classList.add("fa-eye");
+        }
+    });
+});
+</script>
 {% endblock body %}
