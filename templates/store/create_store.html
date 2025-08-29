@@ -65,7 +65,7 @@ CREATE YOUR WAAP FOLIO STORE
 </p>
 
 <p>
-    {{ form.social.label_tag }}
+    {{ form.social.label_tag }}<small class="text-muted">(optional)</small>
     <input type="text" name="{{ form.social.name }}" class="form-control" placeholder="e.g. tiktok, instagram or any social media link" value="{{ form.social.value|default_if_none:'' }}">
     {{ form.social.errors }}
 </p>

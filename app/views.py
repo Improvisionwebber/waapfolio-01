@@ -16,6 +16,10 @@ from django.db.models import Q
 import requests
 import base64
 import tempfile
+from django.http import HttpResponse
+import logging
+
+logger = logging.getLogger(__name__)
 from .models import (
     Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike, Comment
 )
@@ -400,97 +404,105 @@ def view_store(request, slug):
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
 # -------------------------
+
 @login_required
 def manage_store(request, slug, item_id=None):
-    store = get_object_or_404(Store, slug=slug, owner=request.user)
+    try:
+        store = get_object_or_404(Store, slug=slug, owner=request.user)
 
-    if item_id:
-        item = get_object_or_404(Item, id=item_id, store=store)
-        form = ProductForm(request.POST or None, request.FILES or None, instance=item)
-        edit_mode = True
-    else:
-        item = None
-        form = ProductForm(request.POST or None, request.FILES or None)
-        edit_mode = False
+        if item_id:
+            item = get_object_or_404(Item, id=item_id, store=store)
+            form = ProductForm(request.POST or None, request.FILES or None, instance=item)
+            edit_mode = True
+        else:
+            item = None
+            form = ProductForm(request.POST or None, request.FILES or None)
+            edit_mode = False
 
-    if request.method == "POST":
-        extra_files = request.FILES.getlist("extra_images")  # images only
-        cover_file = request.FILES.get("image")
+        if request.method == "POST":
+            extra_files = request.FILES.getlist("extra_images")
+            cover_file = request.FILES.get("image")
 
-        if form.is_valid():
-            with transaction.atomic():
-                product = form.save(commit=False)
-                product.store = store
+            if form.is_valid():
+                with transaction.atomic():
+                    product = form.save(commit=False)
+                    product.store = store
 
-                # ---- Cover Image ----
-                if cover_file:
-                    try:
-                        uploaded_url = upload_to_imgbb(cover_file)
-                        if uploaded_url:
-                            product.image_url = uploaded_url
-                        if product.image:
-                            product.image.delete(save=False)
-                    except Exception as e:
-                        messages.warning(request, f"Cover image upload failed: {e}")
-                        print(f"Cover image upload failed: {e}")
+                    # ---- Cover Image ----
+                    if cover_file:
+                        try:
+                            uploaded_url = upload_to_imgbb(cover_file)
+                            if uploaded_url:
+                                product.image_url = uploaded_url
+                            if product.image:
+                                product.image.delete(save=False)
+                        except Exception as e:
+                            messages.warning(request, f"Cover image upload failed: {e}")
+                            logger.warning(f"Cover image upload failed: {e}")
 
-                product.save()
+                    product.save()
 
-                # ---- Extra Images ----
-                for f in extra_files:
-                    try:
-                        if f.content_type.startswith("image/"):
-                            img_url = upload_to_imgbb(f)
-                            if img_url:
-                                StoreImage.objects.create(
-                                    store=store,
-                                    image_url=img_url,
-                                    name=product.name,
-                                    price=product.price
-                                )
-                        # 🔹 Videos are no longer uploaded here (handled in frontend)
-                    except Exception as e:
-                        messages.warning(request, f"Failed to process {f.name}: {e}")
-                        print(f"Failed to process {f.name}: {e}")
-                        continue
+                    # ---- Extra Images ----
+                    for f in extra_files:
+                        try:
+                            if f.content_type.startswith("image/"):
+                                img_url = upload_to_imgbb(f)
+                                if img_url:
+                                    StoreImage.objects.create(
+                                        store=store,
+                                        image_url=img_url,
+                                        name=product.name,
+                                        price=product.price
+                                    )
+                        except Exception as e:
+                            messages.warning(request, f"Failed to process {f.name}: {e}")
+                            logger.warning(f"Failed to process {f.name}: {e}")
+                            continue
 
-                # ---- YouTube Videos (from frontend hidden inputs) ----
-                youtube_ids = request.POST.getlist("youtube_ids")
-                youtube_urls = request.POST.getlist("youtube_urls")
+                    # ---- YouTube Videos ----
+                    youtube_ids = request.POST.getlist("youtube_ids")
+                    youtube_urls = request.POST.getlist("youtube_urls")
 
-                for vid, url in zip(youtube_ids, youtube_urls):
-                    try:
-                        ProductMedia.objects.create(
-                            product=product,
-                            youtube_id=vid,
-                            youtube_url=url,
-                            label=product.name,
-                            description=product.description or ""
-                        )
-                    except Exception as e:
-                        messages.warning(request, f"Failed to save YouTube video {vid}: {e}")
-                        print(f"Failed to save YouTube video {vid}: {e}")
+                    for vid, url in zip(youtube_ids, youtube_urls):
+                        try:
+                            ProductMedia.objects.create(
+                                product=product,
+                                youtube_id=vid,
+                                youtube_url=url,
+                                label=product.name,
+                                description=product.description or ""
+                            )
+                        except Exception as e:
+                            messages.warning(request, f"Failed to save YouTube video {vid}: {e}")
+                            logger.warning(f"Failed to save YouTube video {vid}: {e}")
 
-            messages.success(request, "Product saved successfully!")
-            return redirect("manage_store", slug=slug)
+                messages.success(request, "Product saved successfully!")
+                return redirect("manage_store", slug=slug)
 
-    # Old files for editing
-    if edit_mode and item:
-        old_files = list(StoreImage.objects.filter(store=store, name=item.name))
-        old_files += list(ProductMedia.objects.filter(product=item))
-    else:
-        old_files = []
+        # Old files for editing
+        if edit_mode and item:
+            old_files = list(StoreImage.objects.filter(store=store, name=item.name))
+            old_files += list(ProductMedia.objects.filter(product=item))
+        else:
+            old_files = []
 
-    items = Item.objects.filter(store=store)
+        items = Item.objects.filter(store=store)
 
-    return render(request, "app/manage_store.html", {
-        "store": store,
-        "form": form,
-        "edit_mode": edit_mode,
-        "edit_item": item,
-        "old_images": old_files,
-        "items": items,
-    })
+        return render(request, "app/manage_store.html", {
+            "store": store,
+            "form": form,
+            "edit_mode": edit_mode,
+            "edit_item": item,
+            "old_images": old_files,
+            "items": items,
+        })
+
+    except (ConnectionResetError, OSError) as e:
+        logger.error(f"Network error in manage_store: {e}")
+        return HttpResponse(
+            "<h2>Connection lost</h2><p>Your network seems unstable. Please try again.</p>",
+            status=400
+        )
 
 
 

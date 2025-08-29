@@ -54,7 +54,7 @@ class StoreForm(forms.ModelForm):
     # --- NEW FIELDS ---
     dob = forms.DateField(
         widget=forms.TextInput(
-            attrs={'placeholder': 'DD/MM/YYYY'}
+            attrs={'placeholder': 'YYYY/MM/DD'}
         )
     )
 
