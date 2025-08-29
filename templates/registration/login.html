@@ -7,7 +7,7 @@
 {% block body %}
 
 <div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f7f7f7;">
-  <form id="loginForm" action="{% url 'login' %}" method="post" class="form p-4 rounded shadow" style="background: white; width: 100%; max-width: 400px;">
+  <form id="loginForm" action="{% url 'login' %}" method="post" class="form p-4 rounded shadow no-global-loader" style="background: white; width: 100%; max-width: 400px;">
     {% csrf_token %}
     <h2 class="text-center mb-4">Login</h2>
 
