@@ -1,13 +1,9 @@
-"""
-WSGI config for project project.
-
-It exposes the WSGI callable as a module-level variable named ``application``.
-
-For more information on this file, see
-https://docs.djangoproject.com/en/5.2/howto/deployment/wsgi/
-"""
-
 import os
+import sys
+
+# Add your project directory to the Python path
+sys.path.insert(0, '/home/waapfoli/waapfolio')  # <- your cPanel project path
+sys.path.insert(1, '/home/waapfoli/waapfolio/project')  # optional if Django settings are in 'project'
 
 from django.core.wsgi import get_wsgi_application
 
