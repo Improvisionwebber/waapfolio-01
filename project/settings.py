@@ -13,7 +13,8 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "waapfolio.com",   # your new domain
+    "waapfolio.com", 
+    "www.waapfolio.com",
 ]
 CSRF_TRUSTED_ORIGINS = [
     "https://waapfolio.com",
