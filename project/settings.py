@@ -1,23 +1,22 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import dj_database_url
+
 # Load .env file
 load_dotenv()
 
-# Base directory
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG = True 
+DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "waapfolio.up.railway.app",
+    "waapfolio.com",   # your new domain
 ]
 CSRF_TRUSTED_ORIGINS = [
-    "https://waapfolio.up.railway.app",
+    "https://waapfolio.com",
 ]
 
 # Applications
@@ -30,7 +29,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'widget_tweaks',
-    'app'
+    'app',
 ]
 
 MIDDLEWARE = [
@@ -41,7 +40,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware'
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 # Templates
@@ -64,12 +63,21 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'project.wsgi.application'
 
+# ✅ MySQL Database (from .env)
 DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get("DATABASE_URL"),
-        conn_max_age=600
-    )
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': os.getenv('DB_NAME'),
+        'USER': os.getenv('DB_USER'),
+        'PASSWORD': os.getenv('DB_PASSWORD'),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
+    }
 }
+
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
@@ -77,12 +85,11 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
+
 IMGBB_API_KEY = os.getenv('IMGBB_API_KEY')
 
-# Maximum size of request body (bytes)
+# Upload limits
 DATA_UPLOAD_MAX_MEMORY_SIZE = 1048576000  # ~1 GB
-
-# Maximum size of a single uploaded file (bytes)
 FILE_UPLOAD_MAX_MEMORY_SIZE = 1048576000  # ~1 GB
 
 # Email
@@ -94,7 +101,6 @@ EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
 DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL')
 
-# API Keys
 BREVO_API_KEY = os.getenv('BREVO_API_KEY')
 
 # Internationalization
@@ -115,5 +121,4 @@ LOGIN_REDIRECT_URL = 'home'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# Default primary key
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
