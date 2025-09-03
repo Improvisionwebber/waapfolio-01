@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 from django.core.mail import EmailMultiAlternatives
 from django.conf import settings
 import requests, base64
+from googleapiclient.errors import HttpError
 
 # ---- Config ----
 IMGBB_API_KEY = getattr(settings, "IMGBB_API_KEY", None)
@@ -120,3 +121,40 @@ def send_email(subject, html_content, to_email):
     except Exception as e:
         print("Email send failed:", e)
         return False, str(e)
+
+def upload_to_youtube(video_file, title="Untitled", description=""):
+    """
+    Uploads a video to YouTube, throws error if daily upload limit is reached.
+    """
+    youtube = get_youtube_service()
+
+    body = {
+        "snippet": {
+            "title": title,
+            "description": description,
+            "tags": ["waapfolio"],
+            "categoryId": "22",  # People & Blogs
+        },
+        "status": {
+            "privacyStatus": "public",
+        },
+    }
+
+    media = MediaFileUpload(video_file, chunksize=-1, resumable=True)
+
+    try:
+        request_upload = youtube.videos().insert(
+            part="snippet,status",
+            body=body,
+            media_body=media
+        )
+        response = request_upload.execute()
+        return response
+
+    except HttpError as e:
+        error_content = e.content.decode("utf-8") if hasattr(e, "content") else str(e)
+
+        if "uploadLimitExceeded" in error_content or "quotaExceeded" in error_content:
+            raise Exception("🚫 Video Upload limit finished for today. Upload only images or check back in 24hrs")
+        else:
+            raise

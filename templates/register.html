@@ -6,19 +6,41 @@
 {% block body %}
 <!-- Font Awesome -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
-
 <form action="{% url 'register' %}" method="post" class="form">
     {% csrf_token %}
     <h1>Register</h1>
+
+    <!-- Display form-wide errors (like user already exists) -->
+    {% if form.non_field_errors %}
+        <div class="error-messages">
+            {% for error in form.non_field_errors %}
+                <p class="error">{{ error }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <div class="form-row">
         <div class="form-col">
             {{ form.username.label_tag }}
             {{ form.username }}
+            {% if form.username.errors %}
+                <div class="error-messages">
+                    {% for error in form.username.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         <div class="form-col">
             {{ form.email.label_tag }}
             {{ form.email }}
+            {% if form.email.errors %}
+                <div class="error-messages">
+                    {% for error in form.email.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 
@@ -31,6 +53,13 @@
                     <i class="fa-solid fa-eye"></i>
                 </span>
             </div>
+            {% if form.password1.errors %}
+                <div class="error-messages">
+                    {% for error in form.password1.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
         <div class="form-col">
             {{ form.password2.label_tag }}
@@ -40,12 +69,21 @@
                     <i class="fa-solid fa-eye"></i>
                 </span>
             </div>
+            {% if form.password2.errors %}
+                <div class="error-messages">
+                    {% for error in form.password2.errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
         </div>
     </div>
 
     <button type="submit">REGISTER</button>
     <p><a href="{% url 'login' %}">Already have an account?</a></p>
 </form>
+
+
 
 <style>
 .password-wrapper {
@@ -63,6 +101,11 @@
     user-select: none;
     color: #555;
     font-size: 1.2rem;
+}
+.error-messages {
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 3px;
 }
 </style>
 

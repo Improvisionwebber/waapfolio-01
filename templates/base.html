@@ -439,10 +439,6 @@ body.dark .list-group-item span {
   align-items: center;
 }
 
-</style>
-
-
-  <style>
     /* ---------- Global Loader ---------- */
     .global-loader {
       position: fixed;
@@ -466,8 +462,13 @@ body.dark .list-group-item span {
 </head>
 <body>
 
-
-
+{% if messages %}
+  <div class="messages">
+    {% for message in messages %}
+      <p class="text-danger">{{ message }}</p>
+    {% endfor %}
+  </div>
+{% endif %}
   <!-- ---------- Global Loader Overlay ---------- -->
   <div id="globalLoader" class="global-loader">
     <div class="spinner"></div>

@@ -18,7 +18,7 @@ import base64
 import tempfile
 from django.http import HttpResponse
 import logging
-
+from utils.validators import validate_file_size
 logger = logging.getLogger(__name__)
 from .models import (
     Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike, Comment
@@ -244,6 +244,15 @@ def create_store(request, id=0):
     if form.is_valid():
         store = form.save(commit=False)
         store.owner = request.user
+        
+        # ---- Validate brand logo size ----
+        logo_file = request.FILES.get('brand_logo')
+        if logo_file:
+            try:
+                validate_file_size(logo_file, 32)  # <-- limit 32MB
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return render(request, 'store/create_store.html', {'form': form})
 
         # Generate slug
         if not store.slug:
@@ -478,7 +487,26 @@ def manage_store(request, slug, item_id=None):
 
                 messages.success(request, "Product saved successfully!")
                 return redirect("manage_store", slug=slug)
+        if request.method == "POST":
+            extra_files = request.FILES.getlist("extra_images")
+            cover_file = request.FILES.get("image")
 
+            # ---- Check file size BEFORE uploading ----
+            try:
+                if cover_file:
+                    validate_file_size(cover_file, 32)
+
+                for f in extra_files:
+                    validate_file_size(f, 32)
+            except ValidationError as e:
+                messages.error(request, str(e))
+                return render(request, "app/manage_store.html", {
+                    "store": store,
+                    "form": form,
+                    "edit_mode": edit_mode,
+                    "edit_item": item,
+                    "items": Item.objects.filter(store=store),
+                })
         # Old files for editing
         if edit_mode and item:
             old_files = list(StoreImage.objects.filter(store=store, name=item.name))

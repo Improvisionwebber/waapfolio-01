@@ -77,6 +77,11 @@
                 {{ product.description|default:"No description available." }}
             </p>
         </div>
+        
+        <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
+            class="btn btn-success btn-lg w-100 mt-4 shadow-sm">
+            <i class="bi bi-whatsapp"></i> Order on WhatsApp
+        </a>
 <!-- COMMENTS SECTION -->
 <div class="mt-5">
   <h5 class="fw-bold mb-3">💬 Comments</h5>
@@ -108,10 +113,6 @@
   {% endif %}
 </div>
 
-        <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
-            class="btn btn-success btn-lg w-100 mt-4 shadow-sm">
-            <i class="bi bi-whatsapp"></i> Order on WhatsApp
-        </a>
 
         <div class="mt-4 safety-card p-3 rounded shadow">
             <h5 class="fw-bold text-danger mb-3">Safety Precautions to Avoid Scams</h5>
