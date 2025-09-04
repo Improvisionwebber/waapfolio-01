@@ -111,9 +111,13 @@ class StoreImageForm(forms.ModelForm):
                 attrs={
                     'class': 'form-control',
                     'id': 'price-input',
-                    'placeholder': 'e.g. 1000'
+                    'placeholder': 'Enter price (numbers only)',
+                    'step': '0.01',   # allows decimals like 1000.50
+                    'min': '0',       # no negative prices
+                    'inputmode': 'decimal',  # mobile keyboard shows numbers
                 }
             ),
+
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Product name'}),
         }
 

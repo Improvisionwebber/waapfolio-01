@@ -128,8 +128,12 @@ body.dark #loadingOverlay .loading-text {
 </div>
 
 <div class="mb-3">
-  <label for="price" class="form-label">Price</label>
-  <input type="text" id="price" name="price" class="form-control" placeholder="₦1,000">
+{% if obj.currency == "NGN" %}₦{% endif %}
+{% if obj.currency == "USD" %}${% endif %}
+{% if obj.currency == "EUR" %}€{% endif %}
+{% if obj.currency == "GBP" %}£{% endif %}
+{{ obj.price }}
+
 </div>
 
 

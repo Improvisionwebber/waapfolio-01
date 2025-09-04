@@ -79,7 +79,22 @@ class StoreImage(models.Model):
     image_url = models.URLField(max_length=500, blank=True, null=True)
     file = models.FileField(upload_to='store_media/', blank=True, null=True)
     name = models.CharField(max_length=255, blank=True)
-    price = models.CharField(max_length=255, blank=True)
+    CURRENCY_CHOICES = [
+        ("NGN", "Naira (₦)"),
+        ("USD", "US Dollar ($)"),
+        ("EUR", "Euro (€)"),
+        ("GBP", "British Pound (£)"),
+    ]
+
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    currency = models.CharField(
+        max_length=3,
+        choices=CURRENCY_CHOICES,
+        default="NGN",
+        null=False,
+        blank=False
+    )
+
 
     def __str__(self):
         return f"Extra file for {self.store.brand_name} - {self.item.name if self.item else 'No item'}"
