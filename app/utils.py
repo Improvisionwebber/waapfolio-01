@@ -136,7 +136,7 @@ def upload_to_youtube(video_file, title="Untitled", description=""):
             "categoryId": "22",  # People & Blogs
         },
         "status": {
-            "privacyStatus": "public",
+            "privacyStatus": "unlisted",
         },
     }
 

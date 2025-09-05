@@ -26,7 +26,7 @@ from .models import (
 from .forms import (
     StoreForm, StoreImageForm, ProductForm, CommentForm
 )
-from .utils import upload_to_imgbb
+from .utils import upload_to_imgbb, upload_to_youtube
 from utils.email_service import send_email
 from .models import Notification
 from django.conf import settings
@@ -414,6 +414,8 @@ def view_store(request, slug):
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
 # -------------------------
 
+import tempfile
+import os
 @login_required
 def manage_store(request, slug, item_id=None):
     try:
@@ -428,76 +430,16 @@ def manage_store(request, slug, item_id=None):
             form = ProductForm(request.POST or None, request.FILES or None)
             edit_mode = False
 
+        extra_files = request.FILES.getlist("extra_images")
+        cover_file = request.FILES.get("image")
+
         if request.method == "POST":
-            extra_files = request.FILES.getlist("extra_images")
-            cover_file = request.FILES.get("image")
-
-            if form.is_valid():
-                with transaction.atomic():
-                    product = form.save(commit=False)
-                    product.store = store
-
-                    # ---- Cover Image ----
-                    if cover_file:
-                        try:
-                            uploaded_url = upload_to_imgbb(cover_file)
-                            if uploaded_url:
-                                product.image_url = uploaded_url
-                            if product.image:
-                                product.image.delete(save=False)
-                        except Exception as e:
-                            messages.warning(request, f"Cover image upload failed: {e}")
-                            logger.warning(f"Cover image upload failed: {e}")
-
-                    product.save()
-
-                    # ---- Extra Images ----
-                    for f in extra_files:
-                        try:
-                            if f.content_type.startswith("image/"):
-                                img_url = upload_to_imgbb(f)
-                                if img_url:
-                                    StoreImage.objects.create(
-                                        store=store,
-                                        image_url=img_url,
-                                        name=product.name,
-                                        price=product.price
-                                    )
-                        except Exception as e:
-                            messages.warning(request, f"Failed to process {f.name}: {e}")
-                            logger.warning(f"Failed to process {f.name}: {e}")
-                            continue
-
-                    # ---- YouTube Videos ----
-                    youtube_ids = request.POST.getlist("youtube_ids")
-                    youtube_urls = request.POST.getlist("youtube_urls")
-
-                    for vid, url in zip(youtube_ids, youtube_urls):
-                        try:
-                            ProductMedia.objects.create(
-                                product=product,
-                                youtube_id=vid,
-                                youtube_url=url,
-                                label=product.name,
-                                description=product.description or ""
-                            )
-                        except Exception as e:
-                            messages.warning(request, f"Failed to save YouTube video {vid}: {e}")
-                            logger.warning(f"Failed to save YouTube video {vid}: {e}")
-
-                messages.success(request, "Product saved successfully!")
-                return redirect("manage_store", slug=slug)
-        if request.method == "POST":
-            extra_files = request.FILES.getlist("extra_images")
-            cover_file = request.FILES.get("image")
-
-            # ---- Check file size BEFORE uploading ----
             try:
                 if cover_file:
                     validate_file_size(cover_file, 32)
-
                 for f in extra_files:
-                    validate_file_size(f, 32)
+                    if f.content_type.startswith("image/"):  # <-- add this check
+                        validate_file_size(f, 32)
             except ValidationError as e:
                 messages.error(request, str(e))
                 return render(request, "app/manage_store.html", {
@@ -507,9 +449,93 @@ def manage_store(request, slug, item_id=None):
                     "edit_item": item,
                     "items": Item.objects.filter(store=store),
                 })
-        # Old files for editing
+
+        if request.method == "POST" and form.is_valid():
+            with transaction.atomic():
+                product = form.save(commit=False)
+                product.store = store
+
+                # ---- Cover Image ----
+                if cover_file:
+                    try:
+                        uploaded_url = upload_to_imgbb(cover_file)
+                        if uploaded_url:
+                            product.image_url = uploaded_url
+                        if product.image:
+                            product.image.delete(save=False)
+                    except Exception as e:
+                        messages.warning(request, f"Cover image upload failed: {e}")
+                        logger.warning(f"Cover image upload failed: {e}")
+
+                product.save()
+
+                # ---- Extra Images ----
+                for f in extra_files:
+                    if f.content_type.startswith("image/"):
+                        try:
+                            img_url = upload_to_imgbb(f)
+                            if img_url:
+                                StoreImage.objects.create(
+                                    store=store,
+                                    item=product,
+                                    image_url=img_url,
+                                    name=product.name,
+                                    price=product.price
+                                )
+                        except Exception as e:
+                            messages.warning(request, f"Failed to process {getattr(f, 'name', 'file')}: {e}")
+                            logger.warning(f"Failed to process {getattr(f, 'name', 'file')}: {e}")
+                            continue
+
+                # ---- Video Uploads with TempFile ----
+                # Filter uploaded videos
+                video_files = [f for f in extra_files if f.content_type.startswith("video/")]
+
+                # Only delete videos if explicitly requested (optional). Otherwise, keep old ones.
+                # For now, we keep old videos and just add new ones
+
+                for video in video_files:
+                    try:
+                        # Save InMemoryUploadedFile to a temporary file
+                        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(video.name)[1]) as tmp_file:
+                            for chunk in video.chunks():
+                                tmp_file.write(chunk)
+                            tmp_file_path = tmp_file.name
+
+                        # Upload to YouTube
+                        response = upload_to_youtube(
+                            tmp_file_path,
+                            title=product.name,
+                            description=product.description or ""
+                        )
+
+                        # Remove temporary file after upload
+                        os.remove(tmp_file_path)
+
+                        # Extract YouTube ID and URL
+                        youtube_id = response.get("id")
+                        youtube_url = f"https://www.youtube.com/watch?v={youtube_id}" if youtube_id else None
+
+                        # Create ProductMedia entry
+                        ProductMedia.objects.create(
+                            product=product,
+                            youtube_id=youtube_id,
+                            youtube_url=youtube_url,
+                            label=product.name,
+                            description=product.description or ""
+                        )
+
+                    except Exception as e:
+                        messages.warning(request, f"Failed to upload video {getattr(video, 'name', '')}: {e}")
+                        logger.warning(f"Failed to upload video {getattr(video, 'name', '')}: {e}")
+                        continue
+
+            messages.success(request, "Product saved successfully!")
+            return redirect("manage_store", slug=slug)
+
+        # ---- Edit Form Old Files ----
         if edit_mode and item:
-            old_files = list(StoreImage.objects.filter(store=store, name=item.name))
+            old_files = list(StoreImage.objects.filter(item=item))
             old_files += list(ProductMedia.objects.filter(product=item))
         else:
             old_files = []
@@ -531,6 +557,7 @@ def manage_store(request, slug, item_id=None):
             "<h2>Connection lost</h2><p>Your network seems unstable. Please try again.</p>",
             status=400
         )
+
 
 
 
