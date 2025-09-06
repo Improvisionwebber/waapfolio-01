@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
 {% load static %}
-{% load humanize %}
 
 {% block body %}
 
@@ -66,10 +65,8 @@
 
       <div class="col-lg-6">
     <div class="p-4 bg-light rounded shadow-sm border product-details-card">
-      <h4 class="card-text">
-        {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% endif %}
-        {{ item.price|intcomma }}
-      </h4>        
+        <h4 class="text-success fw-bold">{% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% endif %}{{ item.price|intcomma }}</h4>
+        
         <p class="text-muted">
           Posted on: {{ product.created_at|date:"F j, Y" }} at {{ product.created_at|time:"H:i" }}
         </p>
