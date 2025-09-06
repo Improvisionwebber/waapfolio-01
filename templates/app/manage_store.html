@@ -115,7 +115,9 @@ body.dark #loadingOverlay .loading-text {
                   {% url 'manage_store' store.slug %}
               {% endif %}" 
       enctype="multipart/form-data" 
-      class="my-4 form">
+      class="my-4 form"
+      class="no-global-loader"
+      >
 
     {% csrf_token %}
     <h4 class="mb-3">{{ edit_mode|yesno:"Edit Product,Add New Product" }}</h4>
@@ -125,20 +127,25 @@ body.dark #loadingOverlay .loading-text {
       {{ form.name }}
     </div>
 <div class="mb-3">
-  <label for="currency" class="form-label">Currency</label>
-  <select id="currency" class="form-select">
-    <option value="₦" selected>🇳🇬 NGN (₦)</option>
-    <option value="$">🇺🇸 USD ($)</option>
-    <option value="€">🇪🇺 EUR (€)</option>
-    <option value="£">🇬🇧 GBP (£)</option>
-    <option value="₵">🇬🇭 GHS (₵)</option>
-  </select>
+  <label for="price" class="form-label">Price</label>
+  <div class="input-group">
+    {% comment %} <span class="input-group-text" id="currency-symbol">{{ form.currency.value|default:"₦" }}</span> {% endcomment %}
+    <input type="text" id="price" name="price" class="form-control" placeholder="Enter product price" value="{{ form.price.value|default:'' }}">
+  </div>
 </div>
 
-    <div class="mb-3">
-      {{ form.price.label_tag }}
-      {{ form.price }}
-    </div>
+<div class="mb-3">
+  <label for="currency" class="form-label">Currency</label>
+  <select id="currency" name="currency" class="form-select">
+    <option value="NGN" {% if form.currency.value == "NGN" %}selected{% endif %}>🇳🇬 NGN (₦)</option>
+    <option value="USD" {% if form.currency.value == "USD" %}selected{% endif %}>🇺🇸 USD ($)</option>
+    <option value="EUR" {% if form.currency.value == "EUR" %}selected{% endif %}>🇪🇺 EUR (€)</option>
+    <option value="GBP" {% if form.currency.value == "GBP" %}selected{% endif %}>🇬🇧 GBP (£)</option>
+    <option value="GHS" {% if form.currency.value == "GHS" %}selected{% endif %}>🇬🇭 GHS (₵)</option>
+  </select>
+
+</div>
+
 
 
 
@@ -204,14 +211,14 @@ body.dark #loadingOverlay .loading-text {
       <hr>
     {% endif %}
 
-    <button type="submit" class="btn btn-success mt-3">
+    <button type="submit" class="btn btn-success mt-3" >
       {% if form.instance.pk %}Save Changes{% else %}FINISH   {% endif %}
     </button>
   </form>
 
   <section class="py-5">
     <hr>
-    <center><h1>WAPPS</h1></center>
+    <center><h1>WAAPS</h1></center>         
     <div class="row">
       {% for item in items %}
         <div class="card h-100 shadow-sm border-0">
@@ -254,12 +261,15 @@ body.dark #loadingOverlay .loading-text {
           <div id="preview-cards" class="row g-3 mt-2"></div>
           <center>
             <h1 class="card-text text-success">{{ item.name }}</h1>
-            <p class="card-text">{{ item.price }}</p>
-          </center>
+                <p class="card-text">
+                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% endif %}
+                  {{ item.price|intcomma }}
+                </p>
+            </center>
 
           <div class="d-flex gap-2">
             <a href="{% url 'edit_item' store.slug item.id %}" class="btn btn-primary btn-sm">Edit</a>
-            <a href="{% url 'delete_item' store.slug item.id %}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this item?');">Delete</a>
+            <a href="{% url 'delete_item' store.slug item.id %}" class="btn btn-danger btn-sm delete-item-btn">Delete</a>
           </div>
 
           {% comment %} {% for img in item.extra_files.all %}
@@ -307,6 +317,38 @@ body.dark #loadingOverlay .loading-text {
 <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
 <!-- Lightbox2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/lightbox2@2/dist/js/lightbox-plus-jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const deleteButtons = document.querySelectorAll(".delete-item-btn");
+
+    deleteButtons.forEach(btn => {
+        btn.addEventListener("click", function(e) {
+            e.preventDefault(); // stop default link
+
+            const url = this.href; // get delete URL
+
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // redirect to the delete URL
+                    window.location.href = url;
+                }
+            });
+        });
+    });
+});
+</script>
+
+
 <script>
 (function () {
     const currencySelect = document.getElementById("currency");
@@ -321,40 +363,16 @@ body.dark #loadingOverlay .loading-text {
     if (!currencySelect || !priceInput || !productForm) return;
 
     // -------------------------
-    // Price formatting helpers
+    // Price input (digits only)
     // -------------------------
-    function formatNumberWithCommas(x) {
-        return x.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    function sanitizePriceInput() {
+        priceInput.value = priceInput.value.replace(/[^0-9]/g, "");
     }
 
-    function getCursorPosition(el) { return el.selectionStart; }
-    function setCursorPosition(el, pos) { el.setSelectionRange(pos, pos); }
-
-    function formatPriceInput() {
-        const symbol = currencySelect.value || "₦";
-        let raw = priceInput.value.replace(/[^0-9]/g, "");
-        if (!raw) { priceInput.value = ""; return; }
-
-        let cursorPos = getCursorPosition(priceInput);
-        let left = priceInput.value.slice(0, cursorPos).replace(/[^0-9]/g, "").length;
-
-        let formatted = formatNumberWithCommas(raw);
-        priceInput.value = symbol + formatted;
-
-        let newPos = formatted.length - (raw.length - left) + symbol.length;
-        setCursorPosition(priceInput, newPos);
-    }
-
-    function initPrice() {
-        if (!priceInput.value) return;
-        priceInput.value = priceInput.value.replace(/^[₦$€£₵]/, "");
-        formatPriceInput();
-    }
-
-    document.addEventListener("DOMContentLoaded", initPrice);
-    window.addEventListener("pageshow", initPrice);
-    priceInput.addEventListener("input", formatPriceInput);
-    currencySelect.addEventListener("change", formatPriceInput);
+    priceInput.addEventListener("input", sanitizePriceInput);
+    currencySelect.addEventListener("change", sanitizePriceInput);
+    document.addEventListener("DOMContentLoaded", sanitizePriceInput);
+    window.addEventListener("pageshow", sanitizePriceInput);
 
     // -------------------------
     // Cover image preview
@@ -362,14 +380,13 @@ body.dark #loadingOverlay .loading-text {
     if (coverInput && coverPreview) {
         coverInput.addEventListener("change", function () {
             const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = e => {
-                    coverPreview.src = e.target.result;
-                    coverPreview.style.display = "block";
-                };
-                reader.readAsDataURL(file);
-            }
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = e => {
+                coverPreview.src = e.target.result;
+                coverPreview.style.display = "block";
+            };
+            reader.readAsDataURL(file);
         });
     }
 
@@ -399,19 +416,17 @@ body.dark #loadingOverlay .loading-text {
     }
 
     // -------------------------
-    // Submit handler (YouTube uploads + hidden fields)
+    // Form submit + loader
     // -------------------------
     productForm.addEventListener("submit", async function (e) {
-        e.preventDefault(); 
-        loadingOverlay.style.display = "flex";
+        if (loadingOverlay) loadingOverlay.style.display = "flex";
 
         const files = extraInput ? Array.from(extraInput.files).filter(f => f.type.startsWith("video/")) : [];
-
         try {
             for (let f of files) {
                 const { youtube_id, youtube_url } = await uploadVideoToYoutube(
                     f,
-                    document.getElementById("price")?.value || "Untitled Product",
+                    priceInput.value || "Untitled Product",
                     document.getElementById("description")?.value || ""
                 );
 
@@ -428,74 +443,70 @@ body.dark #loadingOverlay .loading-text {
                 productForm.appendChild(hiddenId);
                 productForm.appendChild(hiddenUrl);
             }
-
-            productForm.submit(); 
         } catch (err) {
-            loadingOverlay.style.display = "none";
-            alert("Video upload failed: " + (err && err.message ? err.message : err));
+            if (loadingOverlay) loadingOverlay.style.display = "none";
+            alert("Video upload failed: " + (err?.message || err));
         }
     });
 
-})(); // end IIFE
+})();
 
 // -------------------------
 // YouTube helpers
 // -------------------------
 async function getYoutubeToken() {
-  const res = await fetch("/youtube-token/");
-  const data = await res.json();
-  if (!data.access_token) throw new Error(data.error || "Failed to fetch token");
-  return data.access_token;
+    const res = await fetch("/youtube-token/");
+    const data = await res.json();
+    if (!data.access_token) throw new Error(data.error || "Failed to fetch token");
+    return data.access_token;
 }
 
 async function uploadVideoToYoutube(file, title, description) {
-  const token = await getYoutubeToken();
+    const token = await getYoutubeToken();
 
-  const initRes = await fetch(
-    "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
-    {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json; charset=UTF-8",
-        "X-Upload-Content-Type": file.type,
-      },
-      body: JSON.stringify({
-        snippet: { title, description },
-        status: { privacyStatus: "unlisted" },
-      }),
+    const initRes = await fetch(
+        "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
+        {
+            method: "POST",
+            headers: {
+                Authorization: `Bearer ${token}`,
+                "Content-Type": "application/json; charset=UTF-8",
+                "X-Upload-Content-Type": file.type,
+            },
+            body: JSON.stringify({
+                snippet: { title, description },
+                status: { privacyStatus: "unlisted" },
+            }),
+        }
+    );
+
+    if (!initRes.ok) {
+        const errText = await initRes.text();
+        throw new Error(`YouTube init failed: ${initRes.status} ${errText}`);
     }
-  );
 
-  if (!initRes.ok) {
-    const errText = await initRes.text();
-    throw new Error(`YouTube init failed: ${initRes.status} ${errText}`);
-  }
+    const uploadUrl = initRes.headers.get("Location");
+    if (!uploadUrl) throw new Error("Failed to get upload URL");
 
-  const uploadUrl = initRes.headers.get("Location");
-  if (!uploadUrl) throw new Error("Failed to get upload URL");
+    const uploadRes = await fetch(uploadUrl, {
+        method: "PUT",
+        headers: { "Content-Type": file.type },
+        body: file,
+    });
 
-  const uploadRes = await fetch(uploadUrl, {
-    method: "PUT",
-    headers: { "Content-Type": file.type },
-    body: file,
-  });
+    if (!uploadRes.ok) {
+        const errText = await uploadRes.text();
+        throw new Error(`Upload failed: ${uploadRes.status} ${errText}`);
+    }
 
-  if (!uploadRes.ok) {
-    const errText = await uploadRes.text();
-    throw new Error(`Upload failed: ${uploadRes.status} ${errText}`);
-  }
+    const result = await uploadRes.json();
+    if (!result.id) throw new Error("Upload failed: no video ID returned");
 
-  const result = await uploadRes.json();
-  if (!result.id) throw new Error("Upload failed: no video ID returned");
-
-  return {
-    youtube_id: result.id,
-    youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
-  };
+    return {
+        youtube_id: result.id,
+        youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
+    };
 }
 </script>
-
-
 
 {% endblock %}

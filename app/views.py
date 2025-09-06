@@ -34,6 +34,8 @@ from django.conf import settings
 from django.urls import reverse
 from django.templatetags.static import static
 from django.db.models import Q
+import re
+
 # -------------------------
 # Forms
 # -------------------------
@@ -413,9 +415,10 @@ def view_store(request, slug):
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
 # -------------------------
-
 import tempfile
 import os
+from decimal import Decimal
+
 @login_required
 def manage_store(request, slug, item_id=None):
     try:
@@ -433,12 +436,14 @@ def manage_store(request, slug, item_id=None):
         extra_files = request.FILES.getlist("extra_images")
         cover_file = request.FILES.get("image")
 
+        product = None  # Ensure product exists before use
+
         if request.method == "POST":
             try:
                 if cover_file:
                     validate_file_size(cover_file, 32)
                 for f in extra_files:
-                    if f.content_type.startswith("image/"):  # <-- add this check
+                    if f.content_type.startswith("image/"):
                         validate_file_size(f, 32)
             except ValidationError as e:
                 messages.error(request, str(e))
@@ -450,25 +455,42 @@ def manage_store(request, slug, item_id=None):
                     "items": Item.objects.filter(store=store),
                 })
 
-        if request.method == "POST" and form.is_valid():
-            with transaction.atomic():
-                product = form.save(commit=False)
-                product.store = store
+            if form.is_valid():
+                with transaction.atomic():
+                    product = form.save(commit=False)
+                    product.store = store
 
-                # ---- Cover Image ----
-                if cover_file:
-                    try:
-                        uploaded_url = upload_to_imgbb(cover_file)
-                        if uploaded_url:
-                            product.image_url = uploaded_url
-                        if product.image:
-                            product.image.delete(save=False)
-                    except Exception as e:
-                        messages.warning(request, f"Cover image upload failed: {e}")
-                        logger.warning(f"Cover image upload failed: {e}")
+                    # ---- Price (clean digits and convert to Decimal with .00) ----
+                    raw_price = request.POST.get("price", "")
+                    clean_price = re.sub(r"[^\d.]", "", raw_price)
+                    if not clean_price:
+                        clean_price = "0.00"
+                    elif "." not in clean_price:
+                        clean_price += ".00"
+                    product.price = Decimal(clean_price)
 
-                product.save()
+                    # ---- Currency ----
+                    product.currency = request.POST.get("currency", "₦")
 
+                    # ---- Cover Image ----
+                    if cover_file:
+                        try:
+                            uploaded_url = upload_to_imgbb(cover_file)
+                            if uploaded_url:
+                                product.image_url = uploaded_url
+                            if product.image:
+                                product.image.delete(save=False)
+                        except Exception as e:
+                            messages.warning(request, f"Cover image upload failed: {e}")
+                            logger.warning(f"Cover image upload failed: {e}")
+
+                    product.save()
+            else:
+                print("Form errors:", form.errors)
+                messages.error(request, form.errors)
+
+            # ✅ Only process files if product exists
+            if product:
                 # ---- Extra Images ----
                 for f in extra_files:
                     if f.content_type.startswith("image/"):
@@ -487,36 +509,27 @@ def manage_store(request, slug, item_id=None):
                             logger.warning(f"Failed to process {getattr(f, 'name', 'file')}: {e}")
                             continue
 
-                # ---- Video Uploads with TempFile ----
-                # Filter uploaded videos
+                # ---- Video Uploads ----
                 video_files = [f for f in extra_files if f.content_type.startswith("video/")]
-
-                # Only delete videos if explicitly requested (optional). Otherwise, keep old ones.
-                # For now, we keep old videos and just add new ones
 
                 for video in video_files:
                     try:
-                        # Save InMemoryUploadedFile to a temporary file
                         with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(video.name)[1]) as tmp_file:
                             for chunk in video.chunks():
                                 tmp_file.write(chunk)
                             tmp_file_path = tmp_file.name
 
-                        # Upload to YouTube
                         response = upload_to_youtube(
                             tmp_file_path,
                             title=product.name,
                             description=product.description or ""
                         )
 
-                        # Remove temporary file after upload
                         os.remove(tmp_file_path)
 
-                        # Extract YouTube ID and URL
                         youtube_id = response.get("id")
                         youtube_url = f"https://www.youtube.com/watch?v={youtube_id}" if youtube_id else None
 
-                        # Create ProductMedia entry
                         ProductMedia.objects.create(
                             product=product,
                             youtube_id=youtube_id,
@@ -557,8 +570,6 @@ def manage_store(request, slug, item_id=None):
             "<h2>Connection lost</h2><p>Your network seems unstable. Please try again.</p>",
             status=400
         )
-
-
 
 
 @login_required

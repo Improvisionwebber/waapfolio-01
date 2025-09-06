@@ -121,8 +121,11 @@ class StoreImageForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Product name'}),
         }
 
+import re
+from django import forms
+from .models import Item
 
-# Item Form
+
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
@@ -139,8 +142,14 @@ class ItemForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_price(self):
+        raw_price = str(self.data.get("price", ""))
+        clean_price = re.sub(r"[^\d.]", "", raw_price)
+        if not clean_price:
+            raise forms.ValidationError("Enter a valid number.")
+        return float(clean_price)
 
-# Product Form
+
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Item
@@ -164,6 +173,12 @@ class ProductForm(forms.ModelForm):
             'name': forms.TextInput(attrs={'class': 'form-control'}),
         }
 
+    def clean_price(self):
+        raw_price = str(self.data.get("price", ""))
+        clean_price = re.sub(r"[^\d.]", "", raw_price)
+        if not clean_price:
+            raise forms.ValidationError("Enter a valid number.")
+        return float(clean_price)
 
 # Custom Password Reset Form using Brevo
 # class BrevoPasswordResetForm(PasswordResetForm):
