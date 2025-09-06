@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block title %}{{ store.brand_name }} | Powered by Waapfolio{% endblock title %}
+{% load static %}
 {% block head %}
     <!-- Open Graph / WhatsApp Share -->
     <meta property="og:title" content="{{ store.brand_name }}">
@@ -13,9 +14,9 @@
     <meta name="twitter:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
     <meta name="twitter:image" content="{% if store.brand_logo %}{{ store.brand_logo.url }}{% else %}{% static 'images/logo.png' %}{% endif %}">
 {% endblock head %}
-
-{% block body %}
 {% load static %}
+{% block body %}
+
 {% load humanize %}
 
 <!-- ---------- STYLES ---------- -->
