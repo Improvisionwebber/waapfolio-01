@@ -2,57 +2,37 @@
 {% block title %}{{ store.brand_name }} | Powered by Waapfolio{% endblock title %}
 {% load static %}
 {% block head %}
-{% comment %} Determine OG image dynamically {% endcomment %}
+  {% comment %} Determine OG image dynamically {% endcomment %}
 
-{% if product %}
-  {% comment %} Sharing a product {% endcomment %}
-  {% with og_image=request.build_absolute_uri(product.cover_url) %}
-    <meta property="og:title" content="{{ product.name }}">
-    <meta property="og:description" content="{{ product.description|default:store.Bio }}">
+  {% if items_meta and items_meta.0 %}
+    {% comment %} Sharing a product {% endcomment %}
+    <meta property="og:title" content="{{ items_meta.0.item.name }}">
+    <meta property="og:description" content="{{ items_meta.0.item.description|default:store.Bio }}">
     <meta property="og:image" content="{{ og_image }}">
     <meta property="og:url" content="{{ full_url }}">
     <meta property="og:type" content="product">
 
     <!-- Optional Twitter tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ product.name }}">
-    <meta name="twitter:description" content="{{ product.description|default:store.Bio }}">
+    <meta name="twitter:title" content="{{ items_meta.0.item.name }}">
+    <meta name="twitter:description" content="{{ items_meta.0.item.description|default:store.Bio }}">
     <meta name="twitter:image" content="{{ og_image }}">
-  {% endwith %}
-{% else %}
-  {% comment %} Sharing the store {% endcomment %}
-  {% if store.brand_logo %}
-    {% with og_image=request.build_absolute_uri(store.brand_logo.url) %}
-      <meta property="og:title" content="{{ store.brand_name }}">
-      <meta property="og:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
-      <meta property="og:image" content="{{ og_image }}">
-      <meta property="og:url" content="{{ full_url }}">
-      <meta property="og:type" content="website">
-
-      <!-- Optional Twitter tags -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="{{ store.brand_name }}">
-      <meta name="twitter:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
-      <meta name="twitter:image" content="{{ og_image }}">
-    {% endwith %}
   {% else %}
-    {% with og_image=request.build_absolute_uri(static('images/logo.png')) %}
-      <meta property="og:title" content="{{ store.brand_name }}">
-      <meta property="og:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
-      <meta property="og:image" content="{{ og_image }}">
-      <meta property="og:url" content="{{ full_url }}">
-      <meta property="og:type" content="website">
+    {% comment %} Sharing the store {% endcomment %}
+    <meta property="og:title" content="{{ store.brand_name }}">
+    <meta property="og:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
+    <meta property="og:image" content="{{ og_image }}">
+    <meta property="og:url" content="{{ full_url }}">
+    <meta property="og:type" content="website">
 
-      <!-- Optional Twitter tags -->
-      <meta name="twitter:card" content="summary_large_image">
-      <meta name="twitter:title" content="{{ store.brand_name }}">
-      <meta name="twitter:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
-      <meta name="twitter:image" content="{{ og_image }}">
-    {% endwith %}
+    <!-- Optional Twitter tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ store.brand_name }}">
+    <meta name="twitter:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
+    <meta name="twitter:image" content="{{ og_image }}">
   {% endif %}
-{% endif %}
-
 {% endblock head %}
+
 
 {% load static %}
 {% block body %}
