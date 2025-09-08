@@ -45,6 +45,7 @@ class StoreForm(forms.ModelForm):
 
     social = forms.URLField(
         required=False,
+        label="Link",
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'e.g. tiktok, instagram or any social media link'

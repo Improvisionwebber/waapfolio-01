@@ -47,7 +47,7 @@ CREATE YOUR WAAP FOLIO STORE
         {{ form.Bio.errors }}
     </p>
     <p>
-    {{ form.dob.label_tag }}
+    {{ form.dob.label_tag }}<small class="text-muted">(YYYY-MM-DD)</small>
     {{ form.dob }}
     {{ form.dob.errors }}
 </p>
@@ -66,9 +66,10 @@ CREATE YOUR WAAP FOLIO STORE
 
 <p>
     {{ form.social.label_tag }}<small class="text-muted">(optional)</small>
-    <input type="text" name="{{ form.social.name }}" class="form-control" placeholder="e.g. tiktok, instagram or any social media link" value="{{ form.social.value|default_if_none:'' }}">
+    <input type="url" name="{{ form.social.name }}" class="form-control" placeholder="Enter a link" value="{{ form.social.value|default_if_none:'' }}">
     {{ form.social.errors }}
 </p>
+
 
 
     <button type="submit" class="btn btn-primary">
