@@ -495,7 +495,7 @@ def view_store(request, slug):
     # -------------------------------
     items_meta = []
     for item in items:
-        product_path = reverse('product_detail', kwargs={'id': item.id})
+        product_path = reverse('product_detail', kwargs={'slug': item.slug})  # ✅ use slug instead of id
         absolute_product_url = request.build_absolute_uri(product_path)
         items_meta.append({
             'item': item,
@@ -715,8 +715,8 @@ def delete_extra_video(request, slug, video_id):
     messages.success(request, "Video deleted successfully!")
     return redirect("manage_store", slug=slug)
 
-def product_detail(request, id):
-    product = get_object_or_404(Item, id=id)
+def product_detail(request, slug):
+    product = get_object_or_404(Item, slug=slug)
     extra_files = StoreImage.objects.filter(store=product.store, name=product.name)
     product_media = ProductMedia.objects.filter(product=product)
     store = product.store
@@ -742,7 +742,7 @@ def product_detail(request, id):
                 )
 
             messages.success(request, "Your comment has been posted!")
-            return redirect("product_detail", id=product.id)
+            return redirect("product_detail", slug=product.slug)
     else:
         form = CommentForm()
 
