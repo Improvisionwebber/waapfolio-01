@@ -379,11 +379,14 @@ body.dark .store-address {
       </button>
     </li>
 
-<li>
-  <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
-    <i class="bi bi-flag me-2"></i> Report Store
-  </button>
-</li>
+    {% comment %} Only show Report Store if visitor is NOT the store owner {% endcomment %}
+    {% if not request.user.is_authenticated or request.user != store.owner %}
+    <li>
+      <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
+        <i class="bi bi-flag me-2"></i> Report Store
+      </button>
+    </li>
+    {% endif %}
 
     {% comment %} {% url 'report_store' store.id %} {% endcomment %}
   </ul>
@@ -489,7 +492,7 @@ body.dark .store-address {
           {% with item=meta.item %}
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm">
-              <a href="{{ meta.product_url }}">
+              <a href="{{ item.get_absolute_url }}">
                 <img src="{{ meta.cover_url }}" class="card-img-top" alt="{{ item.name }}">
               </a>
               <div class="card-body text-center p-3">
@@ -507,11 +510,11 @@ body.dark .store-address {
                     <i class="bi bi-eye-fill"></i>
                     <span>{{ item.views }}</span>
                   </div>
-                  <button onclick="shareProduct('{{ meta.product_url }}', '{{ item.name|escapejs }}')">
+                  <button onclick="shareProduct('{{ item.get_absolute_url }}', '{{ item.name|escapejs }}')">
                     <i class="bi bi-share-fill text-success"></i>
                   </button>
                 </div>
-                <a href="{{ meta.product_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
+                <a href="{{ item.get_absolute_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
               </div>
             </div>
           </div>

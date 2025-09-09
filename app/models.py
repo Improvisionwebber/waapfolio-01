@@ -56,7 +56,9 @@ class Store(models.Model):
 
     def get_absolute_url(self):
         return reverse('view_store', kwargs={'slug': self.slug})
-
+    
+    def get_store_url(self):
+        return self.store.get_absolute_url()
     def __str__(self):
         return self.brand_name
 
@@ -130,7 +132,8 @@ class Item(models.Model):
 
     def get_absolute_url(self):
         return f"/product/{self.slug}/"
-
+    def get_store_url(self):
+        return self.store.get_absolute_url()
 
 
 # Product Media
