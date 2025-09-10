@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG = True
+DEBUG = False
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -19,6 +19,7 @@ ALLOWED_HOSTS = [
 CSRF_TRUSTED_ORIGINS = [
     "https://waapfolio.com",
 ]
+CSRF_FAILURE_VIEW = 'app.views.csrf_failure'
 
 # Applications
 INSTALLED_APPS = [

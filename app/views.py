@@ -916,3 +916,6 @@ def youtube_token(request):
         return JsonResponse({"access_token": token})
     except Exception as e:
         return JsonResponse({"error": str(e)}, status=500)
+def csrf_failure(request, reason=""):
+    # Redirect user to login page whenever CSRF fails
+    return redirect('login') 
