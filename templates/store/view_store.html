@@ -316,6 +316,12 @@ body.dark .add-card a {
   max-width: 600px;
   margin: 0 auto;        /* center it */
 }
+.store-header p {
+  max-width: 30ch;   /* ~length of the brand name line */
+  margin: 0 auto;
+  word-wrap: break-word;
+}
+
 .search-input {
   border-radius: 50px 0 0 50px !important;
   padding: 0.65rem 1rem;
@@ -607,24 +613,28 @@ body.dark .store-address {
   </div>
 </div>
 
-<!-- CPA Popup – FOMO / Android style -->
-<div class="modal fade" id="cpaFomoPopup" tabindex="-1" aria-hidden="true">
+{% if not user.is_authenticated %}
+<!-- Registration Promo Popup -->
+<div class="modal fade" id="registerPopup" tabindex="-1" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content rounded-4 shadow border-success">
       <div class="modal-header border-0 justify-content-between">
-        <h5 class="modal-title text-success">🎁 Exclusive Android Giveaway!</h5>
-        <!-- Top-right cancel X button -->
-        <button type="button" class="btn-close btn-close-red" data-bs-dismiss="modal" aria-label="Close"></button>
+        <h5 class="modal-title text-success">🚀 Create Your Own Store</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body text-center">
-        <img src="https://cdn-icons-png.flaticon.com/512/888/888879.png" alt="Android" style="width:60px; margin-bottom:15px;">
-        <p class="mb-3">Only for Android users! Hurry, spots are limited! ⏳</p>
-        <a href="https://singingfiles.com/show.php?l=0&u=2333038&id=71371" target="_blank" class="btn btn-success btn-lg w-100 mb-2">Claim Now</a>
-        <small class="text-muted d-block mt-2" id="fomoSpots">50 spots left!</small>
+        <img src="https://cdn-icons-png.flaticon.com/512/1040/1040230.png" alt="Store Icon" style="width:70px; margin-bottom:15px;">
+        <p class="mb-3">Like this store? Start your journey today and open yours in just minutes!</p>
+        <a href="{% url 'register' %}" class="btn btn-success btn-lg w-100 mb-2">
+          Register Free
+        </a>
+        <small class="text-muted d-block mt-2">No hidden fees. Join in under 1 minute.</small>
       </div>
     </div>
   </div>
 </div>
+{% endif %}
+
 
 
 

@@ -39,7 +39,7 @@ urlpatterns = [
     # Authentication / Registration
     # -------------------------
     path('register/', views.register, name='register'),
-
+    path("search/products/", views.product_search, name="product_search"),
     path("youtube-token/", views.youtube_token, name="youtube-token"),
     # -------------------------
     # Store
@@ -57,6 +57,7 @@ urlpatterns = [
     path('add-product/', views.add_product, name='add_product'),
     path("report/<slug:slug>/", views.report_store, name="report_page"),
     path('delete-account/', views.delete_account, name='delete_account'),
+    path("search/", views.store_search, name="store_search"),
     path('notifications/', views.notifications_view, name='notifications'),
     ]
 if settings.DEBUG:

@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body %}
+<!-- ✅ Sticky Header Search -->
+<header class="sticky-top bg-white shadow-sm p-3">
+  <div class="container">
+    <form method="get" action="">
+      <div class="input-group">
+        <input 
+          type="text" 
+          name="q" 
+          value="{{ query }}" 
+          class="form-control rounded-start-pill" 
+          placeholder="Search products..."
+        >
+        <button class="btn btn-success rounded-end-pill" type="submit">Search</button>
+      </div>
+    </form>
+  </div>
+</header>
+
+<!-- ✅ Results Section -->
+<div class="container mt-4">
+  <h4 class="mb-3">Products matching “{{ query }}”</h4>
+
+  {% if results %}
+    <div class="row">
+      {% for item in results %}
+        <div class="col-md-4 mb-4">
+          <div class="card h-100 shadow-sm">
+
+            <!-- ✅ Show product image, fallback, or placeholder -->
+            {% if item.image %}
+              <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+            {% elif item.image_url %}
+              <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
+            {% endif %}
+
+            <div class="card-body">
+              <h5 class="card-title">{{ item.name }}</h5>
+              <p class="card-text text-muted">
+                {{ item.description|default:"No description"|truncatewords:15 }}
+              </p>
+              <p class="fw-bold">{{ item.price }} {{ item.currency }}</p>
+
+              <div class="d-flex justify-content-between">
+                <a href="{{ item.get_absolute_url }}" class="btn btn-sm btn-success">View Product</a>
+                <a href="{{ item.store.get_absolute_url }}" class="btn btn-sm btn-outline-success">Visit Store</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p>No products found.</p>
+  {% endif %}
+</div>
+{% endblock %}

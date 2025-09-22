@@ -69,7 +69,6 @@
     {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
     {{ product.price|intcomma }}
     </h4>
-        
         <p class="text-muted">
           Posted on: {{ product.created_at|date:"F j, Y" }} at {{ product.created_at|time:"H:i" }}
         </p>

@@ -706,14 +706,16 @@ def delete_extra_image(request, slug, image_id):
     img = get_object_or_404(StoreImage, id=image_id, store=store)
     img.delete()
     messages.success(request, "Extra image deleted successfully!")
-    return redirect("manage_store", slug=slug)
+    return redirect(request.META.get("HTTP_REFERER", "manage_store"), slug=slug)
+
+
 @login_required
 def delete_extra_video(request, slug, video_id):
     store = get_object_or_404(Store, slug=slug, owner=request.user)
     video = get_object_or_404(ProductMedia, id=video_id, product__store=store)
     video.delete()
     messages.success(request, "Video deleted successfully!")
-    return redirect("manage_store", slug=slug)
+    return redirect(request.META.get("HTTP_REFERER", "manage_store"), slug=slug)
 
 def product_detail(request, slug):
     product = get_object_or_404(Item, slug=slug)
@@ -919,3 +921,82 @@ def youtube_token(request):
 def csrf_failure(request, reason=""):
     # Redirect user to login page whenever CSRF fails
     return redirect('login') 
+from django.templatetags.static import static
+from django.conf import settings
+from urllib.parse import urljoin
+
+def _get_store_logo_url(request, store):
+    """
+    Return a usable absolute URL for the store's logo:
+    - if brand_logo is an ImageField -> use .url
+    - if brand_logo is a string URL -> use it directly
+    - elif brand_logo_url -> use that
+    - else -> default static image
+    """
+    # 1) brand_logo as ImageField
+    if getattr(store, "brand_logo", None):
+        # If it's an ImageFieldFile object it will have .url
+        try:
+            url = store.brand_logo.url
+            # make absolute
+            if url.startswith("http"):
+                return url
+            return request.build_absolute_uri(url)
+        except Exception:
+            # brand_logo might be a plain string URL stored by your imgbb logic
+            try:
+                if isinstance(store.brand_logo, str) and store.brand_logo.startswith("http"):
+                    return store.brand_logo
+            except Exception:
+                pass
+
+    # 2) explicit brand_logo_url field (external)
+    if getattr(store, "brand_logo_url", None):
+        if store.brand_logo_url.startswith("http"):
+            return store.brand_logo_url
+        return request.build_absolute_uri(store.brand_logo_url)
+
+    # 3) fallback static image
+    return request.build_absolute_uri(static("images/logo.png"))
+
+
+def store_search(request):
+    query = request.GET.get("q", "").strip()
+    qs = Store.objects.filter(brand_name__icontains=query) if query else Store.objects.none()
+
+    # Convert queryset into list and attach computed logo_url
+    stores = []
+    for s in qs:
+        # attach a safe property the template can use
+        s.logo_url = _get_store_logo_url(request, s)
+        stores.append(s)
+
+    return render(request, "store_search.html", {"stores": stores, "query": query})
+from django.shortcuts import render
+from django.db.models import Q
+from .models import Store, Item
+
+def store_search(request):
+    query = request.GET.get("q", "")
+    results = []
+    if query:
+        results = Store.objects.filter(
+            Q(brand_name__icontains=query) | Q(Bio__icontains=query)
+        )
+    return render(request, "store_search.html", {
+        "query": query,
+        "results": results
+    })
+
+
+def product_search(request):
+    query = request.GET.get("q", "")
+    results = []
+    if query:
+        results = Item.objects.filter(
+            Q(name__icontains=query) | Q(description__icontains=query)
+        ).select_related("store")
+    return render(request, "search/product_results.html", {
+        "query": query,
+        "results": results
+    })

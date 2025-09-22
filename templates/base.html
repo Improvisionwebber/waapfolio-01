@@ -467,6 +467,86 @@ body.dark .list-group-item span {
       animation: spin 0.9s linear infinite;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
+    .search-float-btn {
+  position: fixed;
+  bottom: 80px; /* move up from bottom nav */
+  right: 20px;
+  width: 55px;
+  height: 55px;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1050;
+}
+/* ---------- SAFE SPACING FOR FIXED MOBILE NAV ---------- */
+/* tweak these values if your nav height differs */
+:root{
+  --mobile-bottom-nav-height: 72px; /* height of your mobile-bottom-nav */
+  --mobile-top-nav-height: 0px;     /* set >0 if you have a fixed top nav */
+}
+
+/* on small screens ensure extra padding so nothing sits under fixed bottom nav */
+@media (max-width: 767px) {
+  /* ensure the whole page leaves room for bottom nav + safe area */
+  html, body {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+    /* for scroll-to-anchor behaviour */
+    scroll-padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+
+  /* give main containers an extra bottom buffer too */
+  .container, .main-content, main {
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + 1rem);
+    margin-bottom: 0; /* avoid double margins */
+  }
+
+  /* push floating search button above bottom nav */
+  .search-float-btn {
+    bottom: calc(var(--mobile-bottom-nav-height) + 18px);
+  }
+
+  /* small visual polish */
+  .mobile-bottom-nav {
+    height: var(--mobile-bottom-nav-height);
+    padding-top: 6px;
+    padding-bottom: calc(6px + env(safe-area-inset-bottom));
+    box-shadow: 0 -6px 18px rgba(0,0,0,0.08);
+    z-index: 1060; /* keep above most things */
+  }
+
+  /* ensure last rows of grid have breathing room */
+  .row.g-3, .search-results-row {
+    margin-bottom: calc(var(--mobile-bottom-nav-height) + 1rem);
+    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
+  }
+}
+
+/* Desktop: smaller bottom padding (if needed) */
+@media (min-width: 768px) {
+  html, body {
+    padding-bottom: 24px;
+    scroll-padding-top: 12px;
+  }
+}
+
+/* Card consistent sizing (already added earlier but keep here centrally) */
+.card.flex-fill.h-100 {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}
+.card-img-top {
+  height: 150px;
+  object-fit: contain;
+  padding: 10px;
+}
+
+/* Optional helper class: add to pages that need extra space */
+.add-bottom-safe {
+  padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
+}
+
   </style>
 </head>
 <body>
@@ -529,6 +609,93 @@ body.dark .list-group-item span {
     </div>
 
     {% block body %}{% endblock body %}
+<!-- Floating Search Button -->
+<div class="position-fixed bottom-0 end-0 p-4">
+  <div class="fab-container">
+    <!-- Main FAB -->
+    <button id="mainFab" class="btn btn-success rounded-circle shadow-lg fab-main">
+      🔍
+    </button>
+
+    <!-- Expanding options -->
+    <div class="fab-options">
+      <a href="{% url 'store_search' %}" 
+         class="btn btn-light shadow-sm d-flex align-items-center gap-2 fab-option px-3 py-2 rounded-pill">
+        <span class="fs-6 text-success fw-semibold">🏬 Stores</span>
+      </a>
+      <a href="{% url 'product_search' %}" 
+         class="btn btn-light shadow-sm d-flex align-items-center gap-2 fab-option px-3 py-2 rounded-pill">
+        <span class="fs-6 text-success fw-semibold">🛍 Products</span>
+      </a>
+    </div>
+  </div>
+</div>
+
+<style>
+  /* Container */
+  .fab-container {
+    position: relative;
+  }
+
+  /* Main FAB */
+  .fab-main {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.3s ease;
+  }
+
+  /* Options (hidden by default) */
+  .fab-options {
+    position: absolute;
+    bottom: 70px;
+    right: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: all 0.3s ease;
+  }
+
+  /* Each option */
+  .fab-option {
+    border-radius: 50px;
+    padding: 8px 16px;
+    font-size: 15px;
+    transition: background 0.2s;
+  }
+  .fab-option:hover {
+    background: #e8f5e9;
+  }
+
+  /* When active */
+  .fab-container.active .fab-options {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+  }
+  .fab-container.active .fab-main {
+    transform: rotate(45deg);
+  }
+</style>
+
+<script>
+  // Toggle FAB expansion
+  document.addEventListener("DOMContentLoaded", () => {
+    const fabContainer = document.querySelector(".fab-container");
+    const mainFab = document.getElementById("mainFab");
+
+    mainFab.addEventListener("click", () => {
+      fabContainer.classList.toggle("active");
+    });
+  });
+</script>
+
 
     <!-- Mobile Bottom Navigation -->
 <div class="mobile-bottom-nav d-flex d-md-none">
