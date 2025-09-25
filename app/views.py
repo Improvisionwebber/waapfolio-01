@@ -30,6 +30,7 @@ from .utils import upload_to_imgbb, upload_to_youtube
 from utils.email_service import send_email
 from .models import Notification
 from django.conf import settings
+from rapidfuzz import process
 
 from django.urls import reverse
 from django.templatetags.static import static
@@ -420,9 +421,23 @@ def view_store(request, slug):
     # -------------------------------
     query = request.GET.get("q")
     if query:
-        items = items.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
-        )
+        # ✅ grab all product names in current queryset (so we don’t search whole DB if items already filtered by store, etc.)
+        all_names = list(items.values_list("name", flat=True))
+
+        if all_names:
+            # ✅ fuzzy match with threshold
+            matches = process.extract(query, all_names, limit=15, score_cutoff=60)
+            matched_names = [m[0] for m in matches]
+
+            # ✅ filter items by those matches
+            items = items.filter(name__in=matched_names)
+
+        # ✅ fallback if no fuzzy match found
+        if not items.exists():
+            items = items.filter(
+                Q(name__icontains=query) | Q(description__icontains=query)
+            )
+
 
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
@@ -976,16 +991,32 @@ from django.shortcuts import render
 from django.db.models import Q
 from .models import Store, Item
 
+
 def store_search(request):
     query = request.GET.get("q", "")
-    results = []
+    stores = []
     if query:
-        results = Store.objects.filter(
-            Q(brand_name__icontains=query) | Q(Bio__icontains=query)
-        )
+        all_names = list(Store.objects.values_list("brand_name", flat=True))
+
+        if all_names:
+            # Only keep matches with score >= 60
+            matches = process.extract(query, all_names, limit=10, score_cutoff=60)
+
+            # Extract names only
+            matched_names = [m[0] for m in matches]
+
+            # Query only those stores
+            stores = Store.objects.filter(brand_name__in=matched_names)
+
+        # fallback to icontains if fuzzy gave nothing
+        if not stores.exists():
+            stores = Store.objects.filter(
+                Q(brand_name__icontains=query) | Q(Bio__icontains=query)
+            )
+
     return render(request, "store_search.html", {
         "query": query,
-        "results": results
+        "stores": stores
     })
 
 
@@ -993,9 +1024,25 @@ def product_search(request):
     query = request.GET.get("q", "")
     results = []
     if query:
-        results = Item.objects.filter(
-            Q(name__icontains=query) | Q(description__icontains=query)
-        ).select_related("store")
+        # ✅ grab all product names
+        all_names = list(Item.objects.values_list("name", flat=True))
+
+        if all_names:
+            # ✅ fuzzy match with score threshold
+            matches = process.extract(query, all_names, limit=15, score_cutoff=60)
+
+            # ✅ get just the matched names
+            matched_names = [m[0] for m in matches]
+
+            # ✅ query DB for those items (and pull related store in one go)
+            results = Item.objects.filter(name__in=matched_names).select_related("store")
+
+        # ✅ fallback if no fuzzy result
+        if not results:
+            results = Item.objects.filter(
+                Q(name__icontains=query) | Q(description__icontains=query)
+            ).select_related("store")
+
     return render(request, "search/product_results.html", {
         "query": query,
         "results": results
