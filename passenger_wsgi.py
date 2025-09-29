@@ -1,6 +1,5 @@
 import sys
 import os
-import traceback
 
 try:
     # -------------------------------
@@ -28,7 +27,4 @@ try:
     application = get_wsgi_application()
 
 except Exception:
-    log_path = "/home/waapfoli/public_html/wsgi_debug.log"
-    with open(log_path, "w") as f:
-        f.write(traceback.format_exc())
-    raise
+    raise   # just re-raise the error (no file writing)

@@ -59,6 +59,7 @@ urlpatterns = [
     path('delete-account/', views.delete_account, name='delete_account'),
     path("search/", views.store_search, name="store_search"),
     path('notifications/', views.notifications_view, name='notifications'),
+    path("record-order/<int:store_id>/", views.record_order, name="record_order"),
     ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -1047,3 +1047,16 @@ def product_search(request):
         "query": query,
         "results": results
     })
+from django.views.decorators.csrf import csrf_exempt
+
+@csrf_exempt
+def record_order(request, store_id):
+    if request.method == "POST":
+        try:
+            store = Store.objects.get(id=store_id)
+            store.total_orders += 1
+            store.save()
+            return JsonResponse({"success": True, "total_orders": store.total_orders})
+        except Store.DoesNotExist:
+            return JsonResponse({"success": False, "error": "Store not found"}, status=404)
+    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)

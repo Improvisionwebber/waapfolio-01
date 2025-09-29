@@ -80,10 +80,12 @@
             </p>
         </div>
         
-        <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
-            class="btn btn-success btn-lg w-100 mt-4 shadow-sm">
-            <i class="bi bi-whatsapp"></i> Order on WhatsApp
-        </a>
+<a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello! I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
+   class="btn btn-success btn-lg w-100 mt-4 shadow-sm"
+   onclick="recordOrder('{{ product.store.id }}')">
+   <i class="bi bi-whatsapp"></i> Order on WhatsApp
+</a>
+
 <!-- COMMENTS SECTION -->
 <div class="mt-5">
   <h5 class="fw-bold mb-3">💬 Comments</h5>
@@ -311,6 +313,43 @@ document.addEventListener('DOMContentLoaded', function () {
   // Initial attempt to play the first active item (if video/YouTube)
   setTimeout(playActiveMedia, 300);
 });
+function recordOrder(storeId) {
+  fetch(`/record-order/${storeId}/`, {
+    method: "POST",
+    headers: {
+      "X-CSRFToken": getCookie("csrftoken"),
+      "Content-Type": "application/json"
+    }
+  })
+  .then(res => res.json())
+  .then(data => {
+    if (data.success) {
+      console.log("Order recorded:", data.total_orders);
+    }
+  })
+  .catch(err => console.error("Error recording order:", err));
+  
+  // let WhatsApp link continue
+  return true;
+}
+
+// Helper: get CSRF token from cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== "") {
+    const cookies = document.cookie.split(";");
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + "=")) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+
 </script>
 
 

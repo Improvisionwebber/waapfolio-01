@@ -554,6 +554,23 @@ body.dark .list-group-item span {
 .add-bottom-safe {
   padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
 }
+.waap-footer {
+  background: #f8f9fa;
+  border-top: 2px solid #198754; /* your green accent */
+}
+.waap-footer a:hover {
+  color: #198754 !important;
+}
+body.dark .waap-footer {
+  background: #1e1e1e !important;
+  border-top: 2px solid #198754 !important;
+}
+body.dark .waap-footer h6,
+body.dark .waap-footer p,
+body.dark .waap-footer a,
+body.dark .waap-footer small {
+  color: #eee !important;
+}
 
   </style>
 </head>
@@ -579,41 +596,51 @@ body.dark .list-group-item span {
     <div class="bg-success fade-in">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
+                  <ul class="navbar-nav me-auto align-items-center">
+        <!-- Logo + Name -->
+        <li class="nav-item d-flex align-items-center me-3">
+            <a class="navbar-brand d-flex align-items-center text-light" href="{% url 'home' %}">
+                <img src="{% static 'images/logo-bg.png' %}" alt="Logo" width="32" height="32" class="me-2">
+            </a>
+        </li>
+    </ul>
                 <a class="navbar-brand text-light" href="{% url 'home' %}">WAAP FOLIO</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto align-items-center">
-                        <li class="nav-item">
-                            <a class="nav-link active text-light" aria-current="page" href="{% url 'home' %}">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light" href="{% url 'about' %}">About</a>
-                        </li>
-                        {% if user_store %}
-                          <li class="nav-item">
-                              <a class="nav-link text-light" href="{{ user_store.get_absolute_url }}">Store</a>
-                          </li>
-                        {% endif %}
+               <div class="collapse navbar-collapse" id="navbarNav">
 
-                        {% if request.user.is_authenticated %}
-                            <li class="nav-item">
-                                <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
-                            </li>
-                        {% endif %}
-                        <li class="nav-item">
-                          <a href="#" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#moreModal">
-                            More
-                          </a>
-                        </li>
 
-                    </ul>
-                </div>
-            </div>
-        </nav>
-    </div>
+    <ul class="navbar-nav ms-auto align-items-center">
+        <li class="nav-item">
+            <a class="nav-link active text-light" aria-current="page" href="{% url 'home' %}">Home</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-light" href="{% url 'about' %}">About</a>
+        </li>
+        {% if user_store %}
+          <li class="nav-item">
+              <a class="nav-link text-light" href="{{ user_store.get_absolute_url }}">Store</a>
+          </li>
+        {% endif %}
+
+        {% if request.user.is_authenticated %}
+            <li class="nav-item">
+                <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
+            </li>
+        {% endif %}
+        <li class="nav-item">
+          <a href="#" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#moreModal">
+            More
+          </a>
+        </li>
+    </ul>
+</div>
+</div>
+</nav>
+</div>
+
 
     {% block body %}{% endblock body %}
 <!-- Floating Search Button -->
@@ -736,6 +763,65 @@ body.dark .list-group-item span {
         </div>
     </div>
 </div>
+<!-- Desktop Footer -->
+<footer class="waap-footer d-none d-lg-block">
+  <div class="container py-5">
+    <div class="row">
+      <!-- Brand -->
+      <div class="col-lg-4 mb-3">
+        <h4 class="fw-bold text-success">WAAP FOLIO</h4>
+        <p class="text-muted small">
+          Showcase your products beautifully and connect directly on WhatsApp.
+        </p>
+      </div>
+
+      <!-- Links -->
+      <div class="col-lg-2 mb-3">
+        <h6 class="fw-semibold text-dark">Quick Links</h6>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'home' %}" class="text-muted text-decoration-none">Home</a></li>
+          <li><a href="{% url 'about' %}" class="text-muted text-decoration-none">About</a></li>
+          <li><a href="{% url 'problem_solving' %}" class="text-muted text-decoration-none">Problem it Solves</a></li>
+          <li><a href="{% url 'faqs' %}" class="text-muted text-decoration-none">FAQs</a></li>
+        </ul>
+      </div>
+
+      <!-- Resources -->
+      <div class="col-lg-3 mb-3">
+        <h6 class="fw-semibold text-dark">Resources</h6>
+        <ul class="list-unstyled">
+          <li><a href="{% url 'money' %}" class="text-muted text-decoration-none">100K Blueprint</a></li>
+          <li><a href="{% url "privacy" %}" class="text-muted text-decoration-none">Privacy Policy and Terms of Service</a></li>
+        </ul>
+      </div>
+
+      <!-- Contact -->
+      <div class="col-lg-3 mb-3">
+        <h6 class="fw-semibold text-dark">Get in Touch</h6>
+        <p class="text-muted small mb-1"><i class="bi bi-envelope-fill text-success"></i> waapfolioorg@gmail.com</p>
+        <p class="text-muted small"><i class="bi bi-telephone-fill text-success"></i> +234 9161453058</p>
+        <div class="d-flex gap-3 mt-2">
+          <a href="https://wa.me/2349161453058" class="text-success fs-5"><i class="bi bi-whatsapp"></i></a>
+          <a href="https://www.facebook.com/profile.php?id=61579309809005" class="text-success fs-5"><i class="bi bi-facebook"></i></a>
+          <a href="https://x.com/Bigemmy77?t=VTxSLNqqA6S2YmrO8lA7YQ&s=09" class="text-success fs-5"><i class="bi bi-twitter-x"></i></a>
+          <a href="https://www.instagram.com/waapfolio/" class="text-warning fs-5"><i class="bi bi-instagram"></i></a>
+          <a href="https://www.tiktok.com/@waapfolio" class="text-success fs-5"><i class="bi bi-tiktok"></i></a>
+          <a href="https://www.youtube.com/@waapfolio" class="text-success fs-5"><i class="bi bi-youtube"></i></a>
+
+        </div>
+      </div>
+    </div>
+
+    <hr>
+    <div class="text-center text-muted small">
+      © <span id="year"></span> Waapfolio. All rights reserved.
+    </div>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
 
 
 

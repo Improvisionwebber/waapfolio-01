@@ -38,7 +38,7 @@ class Store(models.Model):
     social = models.URLField(max_length=255, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
-
+    total_orders = models.PositiveIntegerField(default=0)
     BUSINESS_CHOICES = [
         ('retail', 'Retail'),
         ('services', 'Services'),
