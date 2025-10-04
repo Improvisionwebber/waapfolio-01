@@ -30,6 +30,8 @@
     <meta name="twitter:title" content="{{ store.brand_name }}">
     <meta name="twitter:description" content="{{ store.Bio|default:'Check out this store on Waapfolio!' }}">
     <meta name="twitter:image" content="{{ og_image }}">
+    <meta name="description" content="{{ brand.bio|truncatewords:25 }}">
+
   {% endif %}
 {% endblock head %}
 
@@ -636,6 +638,23 @@ body.dark .store-address {
   </div>
 </div>
 {% endif %}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org/",
+  "@type": "Product",
+  "name": "{{ item.name }}",
+  "image": "{{ item.image.url }}",
+  "description": "{{ item.description }}",
+  "brand": "{{ brand.name }}",
+  "offers": {
+    "@type": "Offer",
+    "url": "{{ request.build_absolute_uri }}",
+    "priceCurrency": "NGN",
+    "price": "{{ item.price }}",
+    "availability": "https://schema.org/InStock"
+  }
+}
+</script>
 
 
 
