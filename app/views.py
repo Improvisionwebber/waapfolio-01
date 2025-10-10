@@ -1060,3 +1060,37 @@ def record_order(request, store_id):
         except Store.DoesNotExist:
             return JsonResponse({"success": False, "error": "Store not found"}, status=404)
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+def marketplace_view(request):
+    query = request.GET.get("q", "").strip()
+
+    # ✅ Get all active products
+    products = Item.objects.select_related("store").order_by("-created_at")
+
+    # ✅ If search query exists, filter across multiple fields
+    if query:
+        products = products.filter(
+            Q(name__icontains=query)
+            | Q(description__icontains=query)
+            | Q(store__brand_name__icontains=query)
+        ).distinct()
+
+    # ✅ AJAX response for live search
+    if request.headers.get("x-requested-with") == "XMLHttpRequest":
+        data = []
+        for p in products[:12]:  # limit for speed
+            data.append({
+                "id": p.id,
+                "name": p.name,
+                "price": f"{p.price} {p.currency}",
+                "image": p.image.url if p.image else "/static/images/placeholder.png",
+                "store_name": p.store.brand_name if p.store else "Unknown Store",
+                "product_url": p.get_absolute_url(),
+                "store_url": p.store.get_absolute_url() if p.store else "#",
+            })
+        return JsonResponse({"results": data})
+
+    # ✅ Normal render for full marketplace
+    return render(request, "marketplace.html", {
+        "results": products,
+        "query": query,
+    })

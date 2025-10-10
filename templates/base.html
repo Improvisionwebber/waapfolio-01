@@ -631,6 +631,10 @@ body.dark .waap-footer small {
             </li>
         {% endif %}
         <li class="nav-item">
+        <a class="nav-link text-light" href="{% url 'marketplace' %}">Marketplace</a>
+        </li>
+
+        <li class="nav-item">
           <a href="#" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#moreModal">
             More
           </a>
@@ -740,7 +744,9 @@ body.dark .waap-footer small {
     <a href="{% url 'about' %}" class="text-decoration-none">ℹ️<br>About</a>
     {% if user_store %}
       <a href="{{ user_store.get_absolute_url }}" class="text-decoration-none">🛒<br>Store</a>
-    {% endif %}
+    {% endif %}    
+    <a href="{% url 'marketplace' %}" class="text-decoration-none">🛍️<br>Market</a>
+
     {% if request.user.is_authenticated %}
         <a href="{% url 'profile' %}" class="text-decoration-none">⚙️<br>Settings</a>
     {% endif %}
