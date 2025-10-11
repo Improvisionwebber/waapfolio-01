@@ -1078,16 +1078,25 @@ def marketplace_view(request):
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         data = []
         for p in products[:12]:  # limit for speed
+            # 🧠 Use either uploaded image or external image_url
+            if p.image:
+                image_link = p.image.url
+            elif p.image_url:
+                image_link = p.image_url
+            else:
+                image_link = "/static/images/placeholder.png"
+
             data.append({
                 "id": p.id,
                 "name": p.name,
                 "price": f"{p.price} {p.currency}",
-                "image": p.image.url if p.image else "/static/images/placeholder.png",
+                "image": image_link,
                 "store_name": p.store.brand_name if p.store else "Unknown Store",
                 "product_url": p.get_absolute_url(),
                 "store_url": p.store.get_absolute_url() if p.store else "#",
             })
         return JsonResponse({"results": data})
+
 
     # ✅ Normal render for full marketplace
     return render(request, "marketplace.html", {
