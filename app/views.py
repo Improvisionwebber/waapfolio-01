@@ -1103,3 +1103,4 @@ def marketplace_view(request):
         "results": products,
         "query": query,
     })
+    
