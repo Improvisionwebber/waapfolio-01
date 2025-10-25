@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>403 | Waapfolio</title>
+  <style>
+    body {
+      font-family: "Poppins", sans-serif;
+      background-color: #f1f4ff;
+      text-align: center;
+      padding: 80px 20px;
+    }
+    h1 {
+      font-size: 80px;
+      color: #7bff00ff;
+    }
+    p {
+      color: #555;
+      margin-bottom: 25px;
+    }
+    a {
+      background-color: #1eff00ff;
+      color: white;
+      padding: 10px 25px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+    a:hover {
+      background-color: #00cc1bff;
+    }
+  </style>
+</head>
+<body>
+  <h1>403</h1>
+  <h2>Access Denied</h2>
+  <p>You don’t have permission to access this page.</p>
+  <a href="{% url "home" %}">Return Home</a>
+</body>
+</html>

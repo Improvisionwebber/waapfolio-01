@@ -105,7 +105,7 @@ class StoreImage(models.Model):
 # Item
 class Item(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
-    name = models.CharField(max_length=255, default="No Caption")
+    name = models.CharField(max_length=1000, default="No Caption")
     price = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
     currency = models.CharField(max_length=5, blank=True, null=True, default="NGN")  # ✅ give safe default
     image = models.ImageField(upload_to='item_images/', blank=True, null=True)
@@ -114,7 +114,7 @@ class Item(models.Model):
     views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(default=timezone.now)
-    slug = models.SlugField(unique=True, blank=True)
+    slug = models.SlugField(unique=True, blank=True, max_length=1000,)
 
     def __str__(self):
         return self.name

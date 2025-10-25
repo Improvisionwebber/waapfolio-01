@@ -62,5 +62,11 @@ urlpatterns = [
     path("record-order/<int:store_id>/", views.record_order, name="record_order"),
     path("marketplace/", views.marketplace_view, name="marketplace"),
     ]
+handler404 = 'app.views.custom_404'
+handler500 = 'app.views.custom_500'
+handler403 = 'app.views.custom_403'
+handler400 = 'app.views.custom_400'
+
+
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
