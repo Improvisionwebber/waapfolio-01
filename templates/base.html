@@ -605,7 +605,7 @@ body.dark .waap-footer small {
 
 
 
-    <div class="bg-success fade-in">
+    <div class="waap-footer d-none d-lg-block">
         <nav class="navbar navbar-expand-lg">
             <div class="container-fluid">
                   <ul class="navbar-nav me-auto align-items-center">
@@ -616,7 +616,7 @@ body.dark .waap-footer small {
             </a>
         </li>
     </ul>
-                <a class="navbar-brand text-light" href="{% url 'home' %}">WAAPFOLIO</a>
+                <a class="navbar-brand text-success" href="{% url 'home' %}">WAAPFOLIO</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -626,28 +626,28 @@ body.dark .waap-footer small {
 
     <ul class="navbar-nav ms-auto align-items-center">
         <li class="nav-item">
-            <a class="nav-link active text-light" aria-current="page" href="{% url 'home' %}">Home</a>
+            <a class="nav-link active text-dark" aria-current="page" href="{% url 'home' %}">Home</a>
         </li>
         <li class="nav-item">
-            <a class="nav-link text-light" href="{% url 'about' %}">About</a>
+            <a class="nav-link text-dark" href="{% url 'about' %}">About</a>
         </li>
         {% if user_store %}
           <li class="nav-item">
-              <a class="nav-link text-light" href="{{ user_store.get_absolute_url }}">Store</a>
+              <a class="nav-link text-dark" href="{{ user_store.get_absolute_url }}">Store</a>
           </li>
         {% endif %}
 
         {% if request.user.is_authenticated %}
             <li class="nav-item">
-                <a class="nav-link text-light" href="{% url 'profile' %}">Settings</a>
+                <a class="nav-link text-dark" href="{% url 'profile' %}">Settings</a>
             </li>
         {% endif %}
         <li class="nav-item">
-        <a class="nav-link text-light" href="{% url 'marketplace' %}">Marketplace</a>
+        <a class="nav-link text-dark" href="{% url 'marketplace' %}">Marketplace</a>
         </li>
 
         <li class="nav-item">
-          <a href="#" class="nav-link text-light" data-bs-toggle="modal" data-bs-target="#moreModal">
+          <a href="#" class="nav-link text-dark" data-bs-toggle="modal" data-bs-target="#moreModal">
             More
           </a>
         </li>
