@@ -53,12 +53,24 @@ class RegistrationForm(UserCreationForm):
 # -------------------------
 def home(request):
     store = None
+    stores = []
+
     if request.user.is_authenticated:
-        # Get all stores for the user
-        stores = Store.objects.filter(owner=request.user)
-        # Pick the first one if it exists
-        store = stores.first()  # returns None if the user has no stores
-    return render(request, 'home.html', {'store': store})
+        # Get all stores
+        stores = Store.objects.filter(owner=request.user).order_by("id")
+
+        # Try active store from session
+        active_store_id = request.session.get("active_store_id")
+        if active_store_id:
+            store = stores.filter(id=active_store_id).first()
+
+        # Fallback to first store if no active store
+        if not store:
+            store = stores.first()
+            if store:
+                request.session["active_store_id"] = store.id
+
+    return render(request, "home.html", {"store": store, "user_stores": stores})
 
 
 def about(request):
@@ -234,11 +246,14 @@ def verify_otp(request):
 # -------------------------
 # Store Views
 # -------------------------
-
+ALLOW_MULTI = ["plutodollar91@gmail.com"]   
 @login_required
 def create_store(request, id=0):
     store_instance = get_object_or_404(Store, pk=id) if id else None
-
+    if request.user.email not in ALLOW_MULTI:
+        if Store.objects.filter(user=request.user).exists():
+            return HttpResponse("You can only create one store.")
+        
     if request.method == 'GET':
         form = StoreForm(instance=store_instance)
         return render(request, 'store/create_store.html', {'form': form})
@@ -553,6 +568,23 @@ from decimal import Decimal
 @login_required
 def manage_store(request, slug, item_id=None):
     try:
+        # ---------------------- MULTI-STORE SWITCHER ----------------------
+        # Only for your email
+        your_email = "plutodollar91@gmail.com"  # <-- change this
+        stores = []
+        active_store = None
+
+        if request.user.email == your_email:
+            stores = Store.objects.filter(owner=request.user).order_by("id")
+            # Use session to track active store
+            active_store_id = request.session.get("active_store_id")
+            if active_store_id:
+                active_store = Store.objects.filter(id=active_store_id, owner=request.user).first()
+            if not active_store and stores:
+                active_store = stores.first()
+                request.session["active_store_id"] = active_store.id
+
+        # ---------------------- EXISTING STORE LOGIC ----------------------
         store = get_object_or_404(Store, slug=slug, owner=request.user)
 
         if item_id:
@@ -584,6 +616,8 @@ def manage_store(request, slug, item_id=None):
                     "edit_mode": edit_mode,
                     "edit_item": item,
                     "items": Item.objects.filter(store=store),
+                    "stores": stores,
+                    "active_store": active_store,
                 })
 
             if form.is_valid():
@@ -693,6 +727,8 @@ def manage_store(request, slug, item_id=None):
             "edit_item": item,
             "old_images": old_files,
             "items": items,
+            "stores": stores,
+            "active_store": active_store,
         })
 
     except (ConnectionResetError, OSError) as e:
@@ -731,15 +767,16 @@ def delete_extra_video(request, slug, video_id):
     video.delete()
     messages.success(request, "Video deleted successfully!")
     return redirect(request.META.get("HTTP_REFERER", "manage_store"), slug=slug)
-
 def product_detail(request, slug):
     product = get_object_or_404(Item, slug=slug)
-    extra_files = StoreImage.objects.filter(store=product.store, name=product.name)
-    product_media = ProductMedia.objects.filter(product=product)
     store = product.store
+    extra_files = StoreImage.objects.filter(store=store, name=product.name)
+    product_media = ProductMedia.objects.filter(product=product)
     images, videos, youtube_videos = [], [], []
 
+    # -------------------------------
     # Handle comments
+    # -------------------------------
     if request.method == "POST":
         if not request.user.is_authenticated:
             return redirect("login")
@@ -765,7 +802,9 @@ def product_detail(request, slug):
 
     comments = product.comments.all().order_by("-created_at")  # newest first
 
+    # -------------------------------
     # StoreImage extras
+    # -------------------------------
     for f in extra_files:
         try:
             if f.image_url:
@@ -779,7 +818,9 @@ def product_detail(request, slug):
         except Exception:
             continue
 
-    # ProductMedia (files + youtube)
+    # -------------------------------
+    # ProductMedia (files + YouTube)
+    # -------------------------------
     for m in product_media:
         try:
             if m.youtube_id or m.youtube_url:
@@ -791,18 +832,64 @@ def product_detail(request, slug):
         except Exception:
             continue
 
+    # -------------------------------
+    # Helper: get cover image URL
+    # -------------------------------
+    def get_cover_url(item):
+        if item.image_url:
+            return item.image_url
+        if item.image:
+            try:
+                return item.image.url
+            except Exception:
+                pass
+        extra = StoreImage.objects.filter(store=item.store, name=item.name).first()
+        if extra:
+            if extra.image_url:
+                return extra.image_url
+            if extra.file:
+                try:
+                    return extra.file.url
+                except Exception:
+                    pass
+        pm = ProductMedia.objects.filter(product=item).first()
+        if pm:
+            if pm.file:
+                return pm.file.url
+            if pm.youtube_id:
+                return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
+        return '/static/images/no-image.png'
+
+    # -------------------------------
+    # Fetch 5 other products from the same store
+    # -------------------------------
+    other_items = Item.objects.filter(store=store).exclude(id=product.id)[:5]
+    items_meta = []
+    for item in other_items:
+        cover_url = get_cover_url(item)
+        items_meta.append({
+            'item': item,
+            'cover_url': cover_url,
+            'product_url': request.build_absolute_uri(
+                reverse('product_detail', kwargs={'slug': item.slug})
+            ),
+        })
+
+    # -------------------------------
+    # Build context
+    # -------------------------------
     context = {
         'product': product,
+        'store': store,
         'images': images,
         'videos': videos,
         'youtube_videos': youtube_videos,
-        'store': store,
         'form': form,
         'comments': comments,
+        'items_meta': items_meta,  # <-- for "You may also like"
     }
+
     return render(request, 'store/product_detail.html', context)
-
-
 
 
 # -------------------------
@@ -1114,3 +1201,25 @@ def custom_403(request, exception):
 
 def custom_400(request, exception):
     return render(request, '400.html', status=400)    
+@login_required
+def switch_store(request, store_id):
+    store = get_object_or_404(Store, id=store_id, owner=request.user)
+    request.session['active_store'] = store.id
+    messages.success(request, f'Switched to store: {store.brand_name}')
+    return redirect('manage_store', slug=store.slug)
+
+
+@login_required
+def delete_store(request, store_id):
+    store = get_object_or_404(Store, id=store_id, owner=request.user)
+
+    if request.method == "POST":
+        store.delete()
+
+        # Remove from current session if user deleted active store
+        if request.session.get("active_store_id") == store_id:
+            request.session["active_store_id"] = None
+
+        return JsonResponse({"status": "success"})
+
+    return JsonResponse({"status": "error", "message": "Invalid method"}, status=400)

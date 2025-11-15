@@ -87,6 +87,86 @@ body.dark #loadingOverlay .loading-text {
 
 
 </style>
+<li class="nav-item dropdown">
+    <a class="nav-link dropdown-toggle text-dark" href="#" id="storeDropdown" role="button" 
+       data-bs-toggle="dropdown" aria-expanded="false">
+        {% if active_store %}
+            {{ active_store.brand_name }}
+        {% else %}
+            Switch Store
+        {% endif %}
+    </a>
+
+    <ul class="dropdown-menu" aria-labelledby="storeDropdown">
+
+        <!-- STORE LIST -->
+        {% for store in user_stores %}
+        <li class="d-flex align-items-center px-2">
+
+            <a class="dropdown-item flex-grow-1" href="{% url 'switch_store' store.id %}">
+                {% if store.id == active_store.id %}
+                    ✔ {{ store.brand_name }}
+                {% else %}
+                    {{ store.brand_name }}
+                {% endif %}
+            </a>
+
+            {% if store.id != active_store.id %}
+            <button class="btn btn-sm text-danger border-0"
+                    data-bs-toggle="modal"
+                    data-bs-target="#deleteStoreModal"
+                    data-store-id="{{ store.id }}"
+                    data-store-name="{{ store.brand_name }}">
+                Delete
+            </button>
+            {% endif %}
+
+        </li>
+        {% endfor %}
+
+        <li><hr class="dropdown-divider"></li>
+
+        <!-- ADD STORE RETURNS -->
+        <li>
+            <a class="dropdown-item text-success fw-semibold" href="{% url 'create_store' %}">
+                + Create New Store
+            </a>
+        </li>
+    </ul>
+</li>
+
+
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteStoreModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+
+      <div class="modal-header">
+        <h5 class="modal-title">Delete Store</h5>
+        <button class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+        Are you sure you want to delete <b id="storeName"></b>?
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+
+        <form id="deleteStoreForm" method="POST">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Delete</button>
+        </form>
+
+      </div>
+
+    </div>
+  </div>
+</div>
+
+
+
 
 <center>
 {% if messages %}
@@ -507,6 +587,22 @@ async function uploadVideoToYoutube(file, title, description) {
         youtube_url: `https://www.youtube.com/watch?v=${result.id}`,
     };
 }
+document.addEventListener("DOMContentLoaded", () => {
+    const deleteModal = document.getElementById("deleteStoreModal");
+    const storeNameElem = document.getElementById("storeName");
+    const deleteForm = document.getElementById("deleteStoreForm");
+
+    deleteModal.addEventListener("show.bs.modal", function (event) {
+        const button = event.relatedTarget;
+        const storeId = button.getAttribute("data-store-id");
+        const storeName = button.getAttribute("data-store-name");
+
+        storeNameElem.textContent = storeName;
+        deleteForm.action = `/store/delete/${storeId}/`; // POST request
+    });
+});
+
+
 </script>
 
 {% endblock %}

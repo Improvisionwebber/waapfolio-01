@@ -51,6 +51,14 @@ class StoreForm(forms.ModelForm):
             'placeholder': 'e.g. tiktok, instagram or any social media link'
         })
     )
+    background_color = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'type': 'color',
+            'class': 'form-control form-control-color',
+            'style': 'height: 50px; padding: 0;'
+        })
+    )
+
 
     # --- NEW FIELDS ---
     dob = forms.DateField(
@@ -81,7 +89,7 @@ class StoreForm(forms.ModelForm):
 
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social', 'dob', 'address', 'business_type']  # slug not included
+        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']  # slug not included
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }

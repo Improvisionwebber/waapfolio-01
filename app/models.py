@@ -34,7 +34,7 @@ class Store(models.Model):
     whatsapp_number = models.CharField(max_length=20)
     Bio = models.TextField()
     total_views = models.IntegerField(default=0)
-    owner = models.OneToOneField(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="stores")
     social = models.URLField(max_length=255, blank=True, null=True)
     dob = models.DateField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
@@ -48,21 +48,36 @@ class Store(models.Model):
         ('other', 'Other'),
     ]
     business_type = models.CharField(max_length=50, choices=BUSINESS_CHOICES, blank=True, null=True)
+    background_color = models.CharField(
+        max_length=20,
+        default="#ffffff",
+        help_text="Hex color (e.g. #F5F5F5)"
+    )
 
     def save(self, *args, **kwargs):
-        if not self.slug:
+        # ✅ Update slug if brand_name changed
+        if not self.slug or self.brand_name_changed():
             self.slug = slugify(self.brand_name)
         super().save(*args, **kwargs)
+
+    def brand_name_changed(self):
+        """Return True if brand_name changed."""
+        if not self.pk:
+            return True
+        old = Store.objects.filter(pk=self.pk).first()
+        if not old:
+            return True
+        return old.brand_name != self.brand_name
 
     def get_absolute_url(self):
         return reverse('view_store', kwargs={'slug': self.slug})
     
     def get_store_url(self):
-        return self.store.get_absolute_url()
+        return self.get_absolute_url()  # fixed typo: self.store → self
+
     def __str__(self):
         return self.brand_name
 
-    # ✅ Add this method
     @staticmethod
     def get_user_store(user):
         """Return the store belonging to a given user, or None if no store exists."""
@@ -70,7 +85,6 @@ class Store(models.Model):
             return Store.objects.get(owner=user)
         except Store.DoesNotExist:
             return None
-# <-- this makes Django display the store name instead of "Store object (1)"
 
 
 # Store Image

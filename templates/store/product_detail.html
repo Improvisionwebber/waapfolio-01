@@ -1,219 +1,276 @@
-{% extends "base.html" %}
+{% extends "store_base.html" %}
 {% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
 {% load static %}
 {% load humanize %}
 {% block body %}
 
 <div class="container py-5">
+
   <a href="{% url 'view_store' product.store.slug %}" class="text-decoration-none text-dark mb-3 d-inline-block">
     <i class="bi bi-arrow-left"></i> Back to Store
-</a>
+  </a>
 
-    <h3 class="text-center mb-4 fw-bold">{{ product.name }}</h3>
+  <h3 class="text-center mb-4 fw-bold">{{ product.name }}</h3>
 
-    <div class="row g-4 justify-content-center">
-        <div class="col-lg-6">
-            <div id="productCarousel" class="carousel slide shadow-lg rounded-4 border border-light border-opacity-25 p-2" 
-                 data-bs-ride="carousel" data-bs-interval="5000"
-                 style="background: rgba(255,255,255,0.1); backdrop-filter: blur(20px);">
+  <div class="row g-4 justify-content-center">
 
-                <div class="carousel-inner rounded-4">
-                    {% if product.image_url %}
-                    <div class="carousel-item active">
-                        <img src="{{ product.image_url }}" class="d-block w-100 rounded-4 shadow-lg" 
-                             alt="Main Image" style="max-height: 400px; object-fit: contain;">
-                    </div>
-                    {% endif %}
+    <!-- LEFT SIDE -->
+    <div class="col-lg-6">
 
-                    {% for img in images %}
-                        {% if img.image_url %}
-                        <div class="carousel-item {% if not product.image_url and forloop.first %}active{% endif %}">
-                            <img src="{{ img.image_url }}" class="d-block w-100 rounded-4 shadow-lg" 
-                                 alt="Extra Image" style="max-height: 400px; object-fit: contain;">
-                        </div>
-                        {% endif %}
-                    {% endfor %}
+<!-- MAIN DISPLAY -->
+<div class="main-image-wrapper shadow-lg rounded-4 mb-3" id="mainDisplayWrapper">
+  <img id="mainDisplayImage"
+       src="{{ product.image_url }}"
+       class="main-display-img img-fluid rounded-4"
+       alt="{{ product.name }}">
+</div>
 
-                    {% for y in youtube_videos %}
-                    <div class="carousel-item {% if not product.image_url and not product.image and images|length == 0 and videos|length == 0 and forloop.first %}active{% endif %}">
-                        <div class="ratio ratio-16x9">
-                        <iframe
-                            class="rounded-4 shadow-lg"
-                            src="https://www.youtube.com/embed/{{ y.youtube_id }}"
-                            title="YouTube video"
-                            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                            allowfullscreen>
-                        </iframe>
-                        </div>
-                    </div>
-                    {% endfor %}
+<!-- THUMBNAILS -->
+<div class="d-flex flex-wrap gap-2 thumbnail-row">
+  {% if product.image_url %}
+      <img src="{{ product.image_url }}" class="thumb-img" onclick="showMainImage(this.src)">
+  {% endif %}
 
-                </div>
+  {% for img in product.extra_files.all %}
+      {% if img.image %}
+          <img src="{{ img.image.url }}" class="thumb-img" onclick="showMainImage(this.src)">
+      {% elif img.image_url %}
+          <img src="{{ img.image_url }}" class="thumb-img" onclick="showMainImage(this.src)">
+      {% endif %}
+  {% endfor %}
 
-                <button class="carousel-control-prev bg-white bg-opacity-25 shadow rounded-circle" type="button"
-                        data-bs-target="#productCarousel" data-bs-slide="prev" style="width: 50px; height: 50px; top: 45%;">
-                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Previous</span>
-                </button>
-                <button class="carousel-control-next bg-white bg-opacity-25 shadow rounded-circle" type="button"
-                        data-bs-target="#productCarousel" data-bs-slide="next" style="width: 50px; height: 50px; top: 45%;">
-                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                    <span class="visually-hidden">Next</span>
-                </button>
-            </div>
+
+    {% for y in product.media.all %}
+        {% if y.youtube_id %}
+        <div class="thumb-video" onclick="showMainVideo('{{ y.youtube_id }}')">
+            <i class="bi bi-play-circle video-icon"></i>
         </div>
+        {% endif %}
+    {% endfor %}
 
-      <div class="col-lg-6">
-    <div class="p-4 bg-light rounded shadow-sm border product-details-card">
-    <h4 class="text-success fw-bold">
-    {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
-    {{ product.price|intcomma }}
-    </h4>
+
+
+
+
+</div>
+
+
+    </div>
+
+    <!-- RIGHT SIDE -->
+    <div class="col-lg-6">
+      <div class="p-4 bg-light rounded shadow-sm border product-details-card">
+
+        <h4 class="text-success fw-bold">
+          {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+          {{ product.price|intcomma }}
+        </h4>
+
         <p class="text-muted">
           Posted on: {{ product.created_at|date:"F j, Y" }} at {{ product.created_at|time:"H:i" }}
         </p>
 
         <div class="mt-3">
-            <h6 class="fw-bold text-secondary">Product Description</h6>
-            <p class="text-muted border rounded p-3 bg-white shadow-sm product-description" style="white-space: pre-line; min-height: 150px;">
-                {{ product.description|default:"No description available." }}
-            </p>
+          <h6 class="fw-bold text-secondary">Product Description</h6>
+          <p class="text-muted border rounded p-3 bg-white shadow-sm product-description" style="white-space: pre-line; min-height: 150px;">
+            {{ product.description|default:"No description available." }}
+          </p>
         </div>
-        
-<a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello!, I found you on Waap Folio and I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
-   class="btn btn-success btn-lg w-100 mt-4 shadow-sm"
-   onclick="recordOrder('{{ product.store.id }}')">
-   <i class="bi bi-whatsapp"></i> Order on WhatsApp
-</a>
 
-<!-- COMMENTS SECTION -->
-<div class="mt-5">
-  <h5 class="fw-bold mb-3">💬 Comments</h5>
+        <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello!, I found you on Waap Folio and I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
+           class="btn btn-success btn-lg w-100 mt-4 shadow-sm"
+           onclick="recordOrder('{{ product.store.id }}')">
+          <i class="bi bi-whatsapp"></i> Order on WhatsApp
+        </a>
 
-  <!-- Comment form -->
-  {% if user.is_authenticated %}
-    <form method="post" class="mb-4">
-      {% csrf_token %}
-      {{ form.text }}
-      <button type="submit" class="btn btn-success mt-2">Post Comment</button>
-    </form>
-  {% else %}
-    <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
-  {% endif %}
 
-  <!-- Display comments -->
-  {% if comments %}
-    <ul class="list-unstyled">
-      {% for c in comments %}
-        <li class="mb-3 p-3 border rounded bg-light">
-          <strong>{{ c.user.username }}</strong>
-          <small class="text-muted">• {{ c.created_at|timesince }} ago</small>
-          <p class="mb-0">{{ c.text|linebreaks }}</p>
-        </li>
+
+        <!-- COMMENTS -->
+        <div class="mt-5">
+          <h5 class="fw-bold mb-3">💬 Comments</h5>
+
+          {% if user.is_authenticated %}
+          <form method="post" class="mb-4">
+            {% csrf_token %}
+            {{ form.text }}
+            <button type="submit" class="btn btn-success mt-2">Post Comment</button>
+          </form>
+          {% else %}
+          <p><a href="{% url 'login' %}">Log in</a> to leave a comment.</p>
+          {% endif %}
+
+          {% if comments %}
+          <ul class="list-unstyled">
+            {% for c in comments %}
+            <li class="mb-3 p-3 border rounded bg-light">
+              <strong>{{ c.user.username }}</strong>
+              <small class="text-muted">• {{ c.created_at|timesince }} ago</small>
+              <p class="mb-0">{{ c.text|linebreaks }}</p>
+            </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted">No comments yet. Be the first to comment!</p>
+          {% endif %}
+        </div>
+<hr class="my-5">
+
+<!-- YOU MAY ALSO LIKE -->
+<div class="mt-3">
+  <h5 class="fw-bold text-success mb-3">You may also like</h5>
+
+  {% if items_meta %}
+    <div class="row g-2">
+      {% for meta in items_meta %}
+        <div class="col-6 col-md-3">
+          <a href="{{ meta.product_url }}" class="d-block">
+            <img 
+              src="{{ meta.cover_url }}" 
+              alt="{{ meta.item.name }}" 
+              class="img-fluid rounded shadow-sm"
+              style="width: 100%; height: 150px; object-fit: cover;"
+            >
+          </a>
+        </div>
       {% endfor %}
-    </ul>
+    </div>
   {% else %}
-    <p class="text-muted">No comments yet. Be the first to comment!</p>
+    <p class="text-muted">No products to show yet.</p>
   {% endif %}
+
 </div>
-
-
         <div class="mt-4 safety-card p-3 rounded shadow">
-            <h5 class="fw-bold text-danger mb-3">Safety Precautions to Avoid Scams</h5>
-            <ul class="list-unstyled text-muted mb-0" style="line-height: 1.6;">
-                <li>🔒 Always verify the seller's identity before making payment.</li>
-                <li>📹 Make sure to request a video call to see the product live.</li>
-                <li>💬 Use WhatsApp chat to clarify all product details and shipping terms.</li>
-                <li>🚫 Never pay upfront without confirming the product's authenticity.</li>
-                <li>📍 Prefer cash on delivery (COD) if possible or trusted payment methods.</li>
-                <li>⚠️ Be cautious of deals that seem too good to be true.</li>
-                <li>🛑 Report suspicious sellers or conversations immediately.</li>
-            </ul>
+          <h5 class="fw-bold text-danger mb-3">Safety Precautions to Avoid Scams</h5>
+          <ul class="list-unstyled text-muted mb-0" style="line-height: 1.6;">
+            <li>🔒 Always verify the seller's identity before making payment.</li>
+            <li>📹 Request a video call to see the product live.</li>
+            <li>💬 Confirm shipping terms before paying.</li>
+            <li>🚫 Avoid upfront payment without verification.</li>
+            <li>📍 Prefer cash on delivery (COD) if possible.</li>
+            <li>⚠️ Be cautious of deals that look too good to be true.</li>
+            <li>🛑 Report suspicious sellers immediately.</li>
+          </ul>
         </div>
 
+      </div>
     </div>
+
+  </div>
 </div>
 
-    </div>
-</div>
 
 <style>
 #productCarousel .carousel-item img,
 #productCarousel .carousel-item video {
-    width: 100%;
-    height: 400px;
-    object-fit: cover;
-    border-radius: 0.5rem;
-    background-color: #000;
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  background-color: #000;
 }
-
-.safety-card {
-    background: #ffe6e6;
-    border: 1px solid #f5c2c2;
-    box-shadow: 4px 4px 12px rgba(255, 0, 0, 0.15), -4px -4px 12px rgba(255, 255, 255, 0.8);
-    transform-style: preserve-3d;
-    transition: transform 0.3s ease;
-}
-.safety-card:hover {
-    transform: translateZ(10px) scale(1.02);
-    box-shadow: 8px 8px 20px rgba(255, 0, 0, 0.25), -8px -8px 20px rgba(255, 255, 255, 0.9);
-}
-.list-unstyled li { margin-bottom: 0.8rem; font-size: 1rem; }
 
 @media (max-width: 768px) {
-    #productCarousel .carousel-item img,
-    #productCarousel .carousel-item video {
-        height: 300px;
-    }
+  #productCarousel .carousel-item img,
+  #productCarousel .carousel-item video {
+    height: 300px;
+  }
 }
-.extra-img-card img:hover {
-    cursor: zoom-in;
-    transform: scale(1.05);
-    transition: transform 0.3s ease;
+
+/* MAIN IMAGE */
+.main-image-wrapper {
+  background: rgba(255,255,255,0.1);
+  backdrop-filter: blur(20px);
+  max-height: 450px;
+  overflow: hidden;
 }
-/* Product details card */
+.main-display-img {
+  object-fit: contain;
+  max-height: 270px;
+  transition: 0.35s ease;
+  width: 100px;
+
+}
+
+/* THUMBNAILS */
+.thumb-img {
+  width: 70px;
+  height: 70px;
+  object-fit: cover;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.thumb-img:hover {
+  transform: scale(1.08);
+  border-color: #28a745;
+}
+
+.thumb-video {
+  width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  background: #000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: 0.3s ease;
+}
+.thumb-video:hover {
+  transform: scale(1.08);
+}
+.video-icon {
+  font-size: 30px;
+  color: #fff;
+  opacity: 0.8;
+}
+
+/* SAFETY CARD */
+.safety-card {
+  background: #ffe6e6;
+  border: 1px solid #f5c2c2;
+  box-shadow: 4px 4px 12px rgba(255, 0, 0, 0.15);
+  transition: 0.3s ease;
+}
+.safety-card:hover {
+  transform: scale(1.02);
+  box-shadow: 8px 8px 20px rgba(255, 0, 0, 0.25);
+}
+
+/* RELATED PRODUCTS */
+.hover-up {
+  transition: 0.25s ease;
+}
+.hover-up:hover {
+  transform: translateY(-5px);
+}
+
+/* DARK MODE FIXES */
 body.dark .product-details-card {
-    background-color: #1e1e1e !important;
-    border: 1px solid #333 !important;
-    color: #eee !important;
+  background: #1e1e1e !important;
+  border: 1px solid #333 !important;
 }
-
-/* Price */
-body.dark .product-details-card .text-success {
-    color: #28a745 !important;
-}
-
-/* Product description */
 body.dark .product-description {
-    background-color: #2a2a2a !important;
-    color: #eee !important;
-    border: 1px solid #444 !important;
-}
-
-/* Text headers */
-body.dark .product-details-card h6 {
-    color: #bbb !important;
-}
-
-/* Safety card */
-body.dark .safety-card {
-    background-color: #2a1a1a !important;
-    border: 1px solid #661111 !important;
-    color: #eee !important;
-}
-
-body.dark .safety-card li {
-    color: #ccc !important;
-}
-body.dark .bg-light {
-  background-color: #2a2a2a !important;
+  background: #2a2a2a !important;
   border: 1px solid #444 !important;
-  color: #eee !important;
 }
-body.dark .border {
-  border-color: #555 !important;
+body.dark .safety-card {
+  background: #2a1a1a !important;
+  border: 1px solid #661111 !important;
+}
+/* Make the wrapper full width */
+.main-image-wrapper {
+    width: 100%;
 }
 
+/* Make the image fill the wrapper fully */
+.main-display-img {
+    width: 100%;       /* Full width */
+    height: auto;      /* Keep aspect ratio */
+    display: block;    /* Remove any spacing below the image */
+    object-fit: cover; /* Optional: ensures image covers container nicely */
+}
 
 </style>
 
@@ -348,8 +405,45 @@ function getCookie(name) {
   }
   return cookieValue;
 }
+function changeMainImage(src) {
+    const main = document.getElementById("mainDisplayImage");
+    if (!main) return;
 
+    main.style.opacity = "0";
+    setTimeout(() => {
+        main.src = src;
+        main.style.opacity = "1";
+    }, 200);
+}
 
+function changeMainVideo(youtubeId) {
+    const main = document.getElementById("mainDisplayImage");
+    if (!main) return;
+
+    main.style.opacity = "0";
+    setTimeout(() => {
+        main.src = `https://img.youtube.com/vi/${youtubeId}/maxresdefault.jpg`;
+        main.style.opacity = "1";
+    }, 200);
+}
+function showMainImage(src) {
+    const wrapper = document.getElementById('mainDisplayWrapper');
+    wrapper.innerHTML = `<img id="mainDisplayImage" src="${src}" class="w-100 rounded-4 main-display-img img-fluid">`;
+}
+
+function showMainVideo(youtubeId) {
+    const wrapper = document.getElementById('mainDisplayWrapper');
+    wrapper.innerHTML = `
+        <div class="ratio ratio-16x9">
+          <iframe
+            src="https://www.youtube.com/embed/${youtubeId}?autoplay=1&mute=1"
+            title="YouTube video"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+            class="rounded-4 shadow-lg w-100 h-100">
+          </iframe>
+        </div>`;
+}
 </script>
 
 
