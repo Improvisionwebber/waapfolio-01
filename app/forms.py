@@ -89,7 +89,7 @@ class StoreForm(forms.ModelForm):
 
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo', 'whatsapp_number', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']  # slug not included
+        fields = ['brand_name', 'brand_logo','whatsapp_number', 'facebook_link', 'tiktok_link', 'depop_link','order_system', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']  # slug not included
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }
@@ -134,21 +134,19 @@ import re
 from django import forms
 from .models import Item
 
-
 class ItemForm(forms.ModelForm):
     class Meta:
         model = Item
-        fields = ['image', 'price', 'name']
+        fields = ['image', 'price', 'name', 'description', 'order_system', 'facebook_link', 'tiktok_link', 'depop_link']
         widgets = {
             'image': CustomClearableFileInput(attrs={'class': 'form-control'}),
-            'price': forms.NumberInput(
-                attrs={
-                    'class': 'form-control',
-                    'id': 'price-input',
-                    'placeholder': 'e.g. 1000'
-                }
-            ),
+            'price': forms.NumberInput(attrs={'class': 'form-control', 'placeholder': 'e.g. 1000'}),
             'name': forms.TextInput(attrs={'class': 'form-control'}),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Product details...'}),
+            'order_system': forms.Select(attrs={'class': 'form-control'}),
+            'facebook_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Facebook link'}),
+            'tiktok_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'TikTok link'}),
+            'depop_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Depop link'}),
         }
 
     def clean_price(self):
@@ -157,6 +155,7 @@ class ItemForm(forms.ModelForm):
         if not clean_price:
             raise forms.ValidationError("Enter a valid number.")
         return float(clean_price)
+
 
 
 class ProductForm(forms.ModelForm):

@@ -41,6 +41,42 @@ CREATE YOUR WAAP FOLIO STORE
         {{ form.whatsapp_number.errors }}
     </p>
 
+
+    <!-- Select Order System -->
+    <p>
+        <label for="id_order_system">Choose Order System:</label>
+        <select id="id_order_system" name="order_system" class="form-control">
+            <option value="whatsapp" {% if form.instance.order_system == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
+            <option value="facebook" {% if form.instance.order_system == 'facebook' %}selected{% endif %}>Facebook</option>
+            <option value="tiktok" {% if form.instance.order_system == 'tiktok' %}selected{% endif %}>TikTok</option>
+            <option value="depop" {% if form.instance.order_system == 'depop' %}selected{% endif %}>Depop</option>
+        </select>
+    </p>
+
+    <!-- WhatsApp number input -->
+    <p id="whatsapp-field" style="display: none;">
+        {{ form.whatsapp_number.label_tag }}
+        {{ form.whatsapp_number }}
+        {{ form.whatsapp_number.errors }}
+    </p>
+
+    <!-- Facebook link input -->
+    <p id="facebook-field" style="display: none;">
+        <label>Facebook Page Link:</label>
+        <input type="url" name="facebook_link" class="form-control" value="{{ form.instance.facebook_link|default_if_none:'' }}">
+    </p>
+
+    <!-- TikTok link input -->
+    <p id="tiktok-field" style="display: none;">
+        <label>TikTok Profile Link:</label>
+        <input type="url" name="tiktok_link" class="form-control" value="{{ form.instance.tiktok_link|default_if_none:'' }}">
+    </p>
+
+    <!-- Depop link input -->
+    <p id="depop-field" style="display: none;">
+        <label>Depop Profile Link:</label>
+        <input type="url" name="depop_link" class="form-control" value="{{ form.instance.depop_link|default_if_none:'' }}">
+    </p>
     <p>
         {{ form.Bio.label_tag }}
         {{ form.Bio }}
@@ -128,6 +164,24 @@ CREATE YOUR WAAP FOLIO STORE
             reader.readAsDataURL(file);
         }
     });
+        // Show/hide order fields based on selection
+    const orderSelect = document.getElementById('id_order_system');
+    const whatsappField = document.getElementById('whatsapp-field');
+    const facebookField = document.getElementById('facebook-field');
+    const tiktokField = document.getElementById('tiktok-field');
+    const depopField = document.getElementById('depop-field');
+
+    function toggleOrderFields() {
+        const val = orderSelect.value;
+        whatsappField.style.display = (val === 'whatsapp') ? 'block' : 'none';
+        facebookField.style.display = (val === 'facebook') ? 'block' : 'none';
+        tiktokField.style.display = (val === 'tiktok') ? 'block' : 'none';
+        depopField.style.display = (val === 'depop') ? 'block' : 'none';
+    }
+
+    orderSelect.addEventListener('change', toggleOrderFields);
+    document.addEventListener('DOMContentLoaded', toggleOrderFields);
+
 </script>
 
 <style>

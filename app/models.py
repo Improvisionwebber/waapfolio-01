@@ -53,7 +53,16 @@ class Store(models.Model):
         default="#ffffff",
         help_text="Hex color (e.g. #F5F5F5)"
     )
-
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
+    facebook_link = models.URLField(blank=True, null=True)
+    tiktok_link = models.URLField(blank=True, null=True)
+    depop_link = models.URLField(blank=True, null=True)
+    order_system = models.CharField(max_length=20, choices=[
+        ('whatsapp', 'WhatsApp'),
+        ('facebook', 'Facebook'),
+        ('tiktok', 'TikTok'),
+        ('depop', 'Depop'),
+    ], default='whatsapp')
     def save(self, *args, **kwargs):
         # ✅ Update slug if brand_name changed
         if not self.slug or self.brand_name_changed():
@@ -128,6 +137,23 @@ class Item(models.Model):
     views = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(default=timezone.now, editable=False)
     updated_at = models.DateTimeField(default=timezone.now)
+    ORDER_SYSTEM_CHOICES = [
+        ('whatsapp', 'WhatsApp'),
+        ('facebook', 'Facebook'),
+        ('tiktok', 'TikTok'),
+        ('depop', 'Depop'),
+    ]
+
+    order_system = models.CharField(
+        max_length=20,
+        choices=ORDER_SYSTEM_CHOICES,
+        default='whatsapp'
+    )
+
+    # Optional links if vendor wants specific ones per product
+    facebook_link = models.URLField(max_length=255, blank=True, null=True)
+    tiktok_link = models.URLField(max_length=255, blank=True, null=True)
+    depop_link = models.URLField(max_length=255, blank=True, null=True)
     slug = models.SlugField(unique=True, blank=True, max_length=1000,)
 
     def __str__(self):

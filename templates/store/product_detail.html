@@ -77,11 +77,87 @@
           </p>
         </div>
 
-        <a href="https://wa.me/{{ product.store.whatsapp_number|urlencode }}?text=Hello!, I found you on Waap Folio and I'm interested in your product: {{ product.name }} (₦{{ product.price|floatformat:0 }})"
-           class="btn btn-success btn-lg w-100 mt-4 shadow-sm"
-           onclick="recordOrder('{{ product.store.id }}')">
-          <i class="bi bi-whatsapp"></i> Order on WhatsApp
-        </a>
+{% comment %}
+  Generate order buttons with autofill messages
+{% endcomment %}
+
+{% if product.store.order_system == 'whatsapp' %}
+  <a href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }}" 
+     class="order-btn whatsapp-btn">Order on WhatsApp</a>
+
+{% elif product.store.order_system == 'facebook' %}
+  {% if product.store.facebook_username %}
+    <a href="https://m.me/{{ product.store.facebook_username }}?ref={{ product.name|urlencode }}" 
+       class="order-btn facebook-btn">Order on Facebook</a>
+  {% else %}
+    <p class="text-muted">Facebook Messenger link not set.</p>
+  {% endif %}
+
+{% elif product.store.order_system == 'tiktok' %}
+  <div class="d-flex flex-column gap-2">
+    <a href="{{ product.store.tiktok_link }}" target="_blank" class="order-btn tiktok-btn">Order on TikTok</a>
+    <input type="text" id="tiktokMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
+    <button onclick="copyMessage('tiktokMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
+  </div>
+
+{% elif product.store.order_system == 'depop' %}
+  <div class="d-flex flex-column gap-2">
+    <a href="{{ product.store.depop_link }}" target="_blank" class="order-btn depop-btn">Order on Depop</a>
+    <input type="text" id="depopMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
+    <button onclick="copyMessage('depopMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
+  </div>
+{% endif %}
+
+<style>
+.order-btn {
+    display: inline-block;
+    padding: 12px 25px;
+    margin: 5px 0;
+    border-radius: 12px;
+    text-decoration: none;  /* removes underline */
+    color: white;
+    font-weight: bold;
+    font-family: Arial, sans-serif;
+    transition: all 0.2s ease-in-out;
+}
+
+.order-btn:hover {
+    opacity: 0.85;
+    transform: scale(1.02);
+}
+
+.whatsapp-btn { background-color: #25D366; }
+.facebook-btn { background-color: #1877f2; }
+.tiktok-btn { background-color: black; }
+.depop-btn { background-color: #690505ff; }
+
+input[readonly] {
+    width: 100%;
+    padding: 8px 10px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+}
+
+button.btn-sm {
+    width: fit-content;
+    padding: 5px 12px;
+}
+</style>
+
+<script>
+function copyMessage(inputId) {
+    const input = document.getElementById(inputId);
+    input.select();
+    input.setSelectionRange(0, 99999); // mobile support
+    navigator.clipboard.writeText(input.value)
+      .then(() => alert("Message copied! Paste it in chat."))
+      .catch(() => alert("Failed to copy message."));
+}
+</script>
+
+
+
 
 
 
