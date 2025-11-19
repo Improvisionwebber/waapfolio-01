@@ -250,9 +250,12 @@ ALLOW_MULTI = ["plutodollar91@gmail.com"]
 @login_required
 def create_store(request, id=0):
     store_instance = get_object_or_404(Store, pk=id) if id else None
-    if request.user.email not in ALLOW_MULTI:
-        if Store.objects.filter(user=request.user).exists():
-            return HttpResponse("You can only create one store.")
+    # If editing, do NOT block
+    if not id:  # means creating new store
+        if request.user.email not in ALLOW_MULTI:
+            if Store.objects.filter(owner=request.user).exists():
+                return HttpResponse("You can only create one store.")
+
         
     if request.method == 'GET':
         form = StoreForm(instance=store_instance)
