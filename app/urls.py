@@ -17,7 +17,7 @@ urlpatterns = [
     # -------------------------
     # Public Pages
     # -------------------------
-    path('home', views.home, name='home'),
+    path('', views.home, name='home'),
     path('about/', views.about, name='about'),
     path('profile/', views.profile, name='profile'),
     path('problem-solving/', views.problem_solving, name='problem_solving'),
@@ -62,7 +62,7 @@ urlpatterns = [
     path("search/", views.store_search, name="store_search"),
     path('notifications/', views.notifications_view, name='notifications'),
     path("record-order/<int:store_id>/", views.record_order, name="record_order"),
-    path("", views.marketplace_view, name="marketplace"),
+    path("marketplace/", views.marketplace_view, name="marketplace"),
     ]
 handler404 = 'app.views.custom_404'
 handler500 = 'app.views.custom_500'

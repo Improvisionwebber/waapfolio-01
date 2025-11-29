@@ -36,44 +36,7 @@
 
 
   <style>
-    /* Hide header navbar on mobile */
-    @media(max-width: 767px) {
-        .navbar {
-            display: none !important;
-        }
-    }
 
-    /* Bottom nav for mobile */
-    .mobile-bottom-nav {
-      position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        background: #198754; /* bootstrap success color */
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        z-index: 1050;
-        padding-bottom: env(safe-area-inset-bottom);
-    }
-
-
-    .mobile-bottom-nav a {
-        color: white;
-        text-align: center;
-        font-size: 0.9rem;
-    }
-
-    .mobile-bottom-nav a:hover {
-        text-decoration: none;
-        color: #d4edda;
-    }
-
-    @media(min-width: 68px){
-        .mobile-bottom-nav {
-            display: none;
-        }
-    }
 body.dark {
   background-color: #121212 !important;
   color: #eee !important;
@@ -676,7 +639,7 @@ body.with-sidebar {
   </style>
 </head>
 <body>
-
+<div class="page-wrapper d-flex flex-column min-vh-100">
 {% if messages %}
   <div class="messages">
     {% for message in messages %}
@@ -701,7 +664,7 @@ body.with-sidebar {
 
 
 
-  <div class="waap-footer bg-dark">
+  <div class="waap-footer bg-dark d-none d-md-block">
     <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container-fluid py-2">
             <!-- Logo + Brand -->
@@ -825,6 +788,20 @@ body.with-sidebar {
   .fab-container.active .fab-main {
     transform: rotate(45deg);
   }
+  html, body {
+  height: 100%;
+}
+
+.page-wrapper {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh; /* full viewport height */
+}
+
+.waap-footer {
+  margin-top: auto; /* pushes footer to bottom */
+}
+
 </style>
 
 <script>
@@ -880,6 +857,8 @@ body.with-sidebar {
             </div>
         </div>
     </div>
+</div>
+
 </div>
 <!-- Desktop Footer -->
 <footer class="waap-footer bg-dark text-light py-3">
