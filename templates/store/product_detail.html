@@ -82,7 +82,7 @@
 {% endcomment %}
 
 {% if product.store.order_system == 'whatsapp' %}
-  <a href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }}" 
+  <a href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }} for           {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}  {{ product.price|intcomma }}" 
      class="order-btn whatsapp-btn">Order on WhatsApp</a>
 
 {% elif product.store.order_system == 'facebook' %}

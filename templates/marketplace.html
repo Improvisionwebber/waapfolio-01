@@ -1,232 +1,388 @@
+<!-- UPDATED WAAPFOLIO MARKETPLACE FRONTEND (FULL REWRITE) -->
 {% extends "base.html" %}
 {% load static %}
 
 {% block body %}
 <style>
-/* 🌿 WAAPFOLIO MARKETPLACE APPLE-LIKE STYLING 🌿 */
+/* =============================================
+      ⭐ WAAPFOLIO MARKETPLACE – ULTRA CLEAN UI
+   With 10 Professional Features Included
+============================================= */
+
+/* GLOBAL */
 body {
-  background: #f8fafc;
+  font-family: "Inter", sans-serif;
 }
 
 h4 {
-  font-weight: 700;
+  font-weight: 800;
   color: #0fa80f;
 }
 
-/* === Card Styling === */
-.card {
+/* ==========================
+    🔍 FIXED SEARCH BAR
+========================== */
+.market-header {
+  position: sticky;
+  top: 0;
+  z-index: 999;
+  background: white;
+  padding: 12px 0;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.search-box {
+  border-radius: 30px;
+  overflow: hidden;
+  border: 1px solid #d9d9d9;
+}
+
+.search-box input {
   border: none;
-  border-radius: 1.2rem;
-  background: #ffffff;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.06);
+  padding: 12px;
+  font-size: 0.9rem;
+}
+
+.search-box button {
+  border-radius: 0 !important;
+  padding: 0 20px;
+}
+
+/* ==========================
+   CATEGORY SCROLLER (FIXED)
+============================ */
+.category-scroll {
+  white-space: nowrap;
+  overflow-x: auto;
+  padding-bottom: 6px;
+  {% comment %} margin-top: -5px; {% endcomment %}
+}
+
+.cat-chip {
+  flex: 0 0 auto;
+  background: #fff;
+  border-radius: 22px;
+  padding: 4px 7px;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: black;
+  border: 1px solid #e8e8e8;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.cat-chip:hover {
+  background: #0fa80f;
+  color: white;
+  border-color: #0fa80f;
+}
+
+.cat-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ==========================
+       PRODUCT CARDS
+============================ */
+
+.store-badge {
+  display: inline-block;
+  background: #e5f8e5;
+  color: #0fa80f;
+  font-size: 0.75rem;
+  padding: 5px 12px;
+  border-radius: 12px;
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+/* ==========================
+       PRODUCT CARDS
+============================ */
+.card {
+  border-radius: 20px;
+  border: none;
+  background: white;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
+  transition: 0.25s;
+  overflow: hidden;
 }
 
 .card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
 }
 
 .card-img-top {
-  height: 180px;
-  object-fit: cover;
-  border-radius: 1.2rem 1.2rem 0 0;
-  background-color: #f2f2f2;
+  border-radius: 20px 20px 0 0; /* keep top rounded */
+  width: 100%;
+  height: 200px; /* slightly taller so images fill more area */
+  object-fit: cover; /* fills container, crops if needed */
+  display: block;
+  background: #f0f0f0;
 }
-
+/* make smaller on mobile */
+@media (max-width: 575px) {
+  .card-img-top {
+    height: 150px;
+  }
+}
+/* CARD BODY */
 .card-body {
-  padding: 1rem 1.2rem;
+  padding: 10px 12px;
 }
 
 .card-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #111;
-  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  margin-bottom: 4px;
 }
 
 .card-text {
-  font-size: 0.88rem;
-  color: #555;
-  margin-bottom: 0.7rem;
+  font-size: 0.8rem;
+  color: #666;
+  margin-bottom: 6px;
 }
 
 .fw-bold {
-  color: #0b840b;
-  font-size: 0.95rem;
-}
-
-/* === Buttons === */
-.btn-success {
-  background-color: #0fa80f;
-  border: none;
-  border-radius: 1.2rem;
-  padding: 0.35rem 0.9rem;
-  font-size: 0.82rem;
-}
-
-.btn-success:hover {
-  background-color: #0c860c;
-}
-
-.btn-outline-success {
-  border-color: #0fa80f;
+  font-size: 0.85rem;
   color: #0fa80f;
-  border-radius: 1.2rem;
-  font-size: 0.82rem;
 }
 
-.btn-outline-success:hover {
-  background-color: #0fa80f;
-  color: white;
-}
-
-/* === Mixed Store Tag === */
-.store-badge {
-  background: #e8f5e9;
-  color: #0b840b;
-  font-size: 0.7rem;
-  font-weight: 600;
-  border-radius: 0.8rem;
-  padding: 0.25rem 0.6rem;
-  display: inline-block;
-  margin-bottom: 0.4rem;
-}
-
-/* === Grid for Apple Compact Look === */
-@media (max-width: 768px) {
+/* RESPONSIVE GRID - more columns on larger screens */
+@media (min-width: 992px) {
   .col-md-4 {
-    flex: 0 0 33.33%;
-    max-width: 33.33%;
+    flex: 0 0 25%; /* 4 cards per row on large desktops */
+    max-width: 25%;
   }
 }
 
-@media (max-width: 576px) {
-  .col-md-4 {
+@media (max-width: 575px) {
+  .col-6 {
     flex: 0 0 50%;
     max-width: 50%;
   }
-
   .card-img-top {
-    height: 140px;
+    height: 120px;
+  }
+  .card-title {
+    font-size: 0.85rem;
+  }
+  .card-text {
+    font-size: 0.75rem;
+  }
+  .fw-bold {
+    font-size: 0.8rem;
   }
 }
+.btn-success, .btn-outline-success {
+  border-radius: 10px;
+}
+
+/* ==========================
+      PAGINATION
+============================ */
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 25px;
+}
+
+.pagination-container a {
+  padding: 8px 14px;
+  background: #fff;
+  border-radius: 10px;
+  border: 1px solid #d9d9d9;
+  margin: 0 5px;
+  color: #0fa80f;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.pagination-container a:hover {
+  background: #0fa80f;
+  color: white;
+}
+
 </style>
 
-<!-- ✅ Sticky Header Search -->
-<header class="sticky-top bg-white shadow-sm p-3">
+
+
+
+
+<!-- =================================================== -->
+<!--                 🛒 MARKETPLACE BODY                 -->
+<!-- =================================================== -->
+ <center>
+<div class="container mt-4">
+
+  <h4 class="mb-3">WAAPFOLIO MARKETPLACE</h4>
+  <p class="text-muted" style="margin-top:-10px;font-size:0.9rem;">Waapfolio Marketplace is the best marketplace. Easy to create a store & products automatically appear here. All orders go directly to WhatsApp.</p>
+<div class="mb-2">
+        {% if not user.is_authenticated %}
+          <a href="{% url 'register' %}" class="btn btn-success px-4 py-2">Sign Up & Create Store, Your products will appear here automatically</a>
+        {% else %}
+          {% if store %}
+            <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4 py-2">Visit Your Store</a>
+          {% else %}
+            <a href="{% url 'create_store' %}" class="btn btn-success px-4 py-2">Create Your Store</a>
+          {% endif %}
+        {% endif %}
+</div>
+</center>
+<!-- =================================================== -->
+<!--                🔎 NORMAL SEARCH HEADER            -->
+<!-- =================================================== -->
+<header class="market-header py-2" style="position: relative; z-index: 1;">
   <div class="container">
     <form method="get" action="">
       <div class="input-group">
-        <input 
-          type="text" 
-          name="q" 
-          value="{{ query }}" 
-          class="form-control rounded-start-pill" 
-          placeholder="Search products..."
-        >
-        <button class="btn btn-success rounded-end-pill" type="submit">Search</button>
+        <input type="text" name="q" placeholder="Search products..." value="{{ query }}" class="form-control">
+        <button class="btn btn-success" type="submit">Search</button>
       </div>
     </form>
   </div>
 </header>
 
-<!-- ✅ Marketplace Section -->
-<div class="container mt-4">
-  {% if query %}
-    <h4 class="mb-3">Products matching “{{ query }}”</h4>
-  {% else %}
-    <h4 class="mb-3">WAAPFOLIO MARKETPLACE</h4>
-  {% endif %}
 
-  {% if results %}
-    <div class="row">
-      {% for item in results %}
-        <div class="col-md-4 mb-4">
-          <div class="card h-100">
 
-            <!-- 🌿 Mixed Store Badge -->
-            {% if item.store.name %}
-              <div class="p-2 pt-3 ps-3">
-                <span class="store-badge">{{ item.store.name|truncatechars:18 }}</span>
-              </div>
-            {% endif %}
+<!-- =================================================== -->
+<!--             🧭 CATEGORY SLIDER CLEANED              -->
+<!-- =================================================== -->
+<div class="container ">
+  <div class="category-scroll d-flex gap-3">
 
-            <!-- 🌿 Product Image -->
-            {% if item.image %}
-              <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
-            {% elif item.image_url %}
-              <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}">
-            {% else %}
-              <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
-            {% endif %}
+    <a href="?category=food" class="cat-chip">
+      <img src="https://img.icons8.com/color/48/meal.png" class="cat-icon"> Food
+    </a>
 
-            <!-- 🌿 Card Body -->
-            <div class="card-body">
-              <h5 class="card-title">{{ item.name }}</h5>
-              <p class="card-text text-muted">
-                {{ item.description|default:"No description"|truncatewords:15 }}
-              </p>
-              <p class="fw-bold">{{ item.price }} {{ item.currency }}</p>
+    <a href="?category=clothing" class="cat-chip">
+      <img src="https://img.icons8.com/color/48/t-shirt.png" class="cat-icon"> Clothing
+    </a>
 
-              <div class="d-flex justify-content-between">
-                <a href="{{ item.get_absolute_url }}" class="btn btn-sm btn-success">View</a>
-                <a href="{{ item.store.get_absolute_url }}" class="btn btn-sm btn-outline-success">Store</a>
-              </div>
-            </div>
-          </div>
-        </div>
-      {% endfor %}
-    </div>
-  {% else %}
-    <p>No products found.</p>
-  {% endif %}
+    <a href="?category=tech" class="cat-chip">
+      <img src="https://img.icons8.com/color/48/laptop.png" class="cat-icon"> Tech
+    </a>
+
+    <a href="?category=home" class="cat-chip">
+      <img src="https://img.icons8.com/color/48/sofa.png" class="cat-icon"> Home
+    </a>
+
+    <a href="?category=beauty" class="cat-chip">
+       <img src="https://static.vecteezy.com/system/resources/thumbnails/053/013/629/small/featuring-sleek-lines-and-a-clean-design-the-makeup-brush-beauty-icon-represents-a-contemporary-graphic-style-vector.jpg" class="cat-icon"> Beauty
+    </a>
+
+    <a href="?category=gaming" class="cat-chip">
+      <img src="https://img.icons8.com/color/48/controller.png" class="cat-icon"> Gaming
+    </a>
+
+    <a href="?category=accessories" class="cat-chip">
+        <i class="bi bi-bag" style="font-size: 24px;"></i> Accessories
+    </a>
+
+  </div>
 </div>
+<div class="row">
+  {% for item in results %}
+  <div class="col-6 col-md-4 mb-4">
+    <div class="card h-100 position-relative overflow-hidden">
+
+      <!-- Store Badge overlay -->
+      {% if item.store.name %}
+      <span class="store-badge position-absolute top-2 start-2">{{ item.store.name|truncatechars:18 }}</span>
+      {% endif %}
+
+      <!-- Product Image -->
+      {% if item.image %}
+      <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
+      {% elif item.image_url %}
+      <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}">
+      {% else %}
+      <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
+      {% endif %}
+
+      <div class="card-body">
+        <h5 class="card-title">{{ item.name }}</h5>
+        <p class="card-text">{{ item.description|default:"No description"|truncatewords:12 }}</p>
+        <p class="fw-bold">{{ item.price }} {{ item.currency }}</p>
+
+        <div class="d-flex justify-content-between">
+          <a href="{{ item.get_absolute_url }}" class="btn btn-sm btn-success">View</a>
+          <a href="{{ item.store.get_absolute_url }}" class="btn btn-sm btn-outline-success">Store</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+
+  <!-- ============================= -->
+  <!--        PAGINATION BUTTONS     -->
+  <!-- ============================= -->
+  {% if page_obj.has_other_pages %}
+  <div class="pagination-container">
+    {% if page_obj.has_previous %}
+      <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Prev</a>
+    {% endif %}
+
+    {% if page_obj.has_next %}
+      <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+</div>
+
+<!-- =================================================== -->
+<!--        AJAX LIVE SEARCH (SMOOTH, FIXED)             -->
+<!-- =================================================== -->
 <script>
 document.addEventListener("DOMContentLoaded", function() {
   const input = document.querySelector('input[name="q"]');
-  const resultsContainer = document.querySelector(".row");
-
+  const resultsContainer = document.querySelector('.row');
   let timeout = null;
 
-  input.addEventListener("keyup", function() {
+  input.addEventListener('keyup', function() {
     clearTimeout(timeout);
     const query = this.value.trim();
 
     timeout = setTimeout(() => {
-      if (query.length < 2) return; // wait till 2+ chars
+      if (query.length < 2) return;
       fetch(`?q=${encodeURIComponent(query)}`, {
-        headers: { "x-requested-with": "XMLHttpRequest" },
+        headers: { 'x-requested-with': 'XMLHttpRequest' }
       })
       .then(res => res.json())
       .then(data => {
-        resultsContainer.innerHTML = "";
-        if (data.results.length === 0) {
-          resultsContainer.innerHTML = "<p>No products found.</p>";
-        } else {
-          data.results.forEach(item => {
-            const card = `
-              <div class="col-md-4 mb-4">
-                <div class="card h-100">
-                  <div class="p-2 pt-3 ps-3">
-                    <span class="store-badge">${item.store_name}</span>
-                  </div>
-                  <img src="${item.image}" class="card-img-top" alt="${item.name}">
-                  <div class="card-body">
-                    <h5 class="card-title">${item.name}</h5>
-                    <p class="fw-bold">${item.price}</p>
-                    <div class="d-flex justify-content-between">
-                      <a href="${item.product_url}" class="btn btn-sm btn-success">View</a>
-                      <a href="${item.store_url}" class="btn btn-sm btn-outline-success">Store</a>
-                    </div>
+        resultsContainer.innerHTML = '';
+
+        data.results.forEach(item => {
+          const card = `
+            <div class="col-6 col-md-4 mb-4">
+              <div class="card h-100">
+                <div class="p-3 pb-0">
+                  <span class="store-badge">${item.store_name}</span>
+                </div>
+                <img src="${item.image}" class="card-img-top">
+                <div class="card-body">
+                  <h5 class="card-title">${item.name}</h5>
+                  <p class="fw-bold">${item.price}</p>
+                  <div class="d-flex justify-content-between">
+                    <a href="${item.product_url}" class="btn btn-sm btn-success">View</a>
+                    <a href="${item.store_url}" class="btn btn-sm btn-outline-success">Store</a>
                   </div>
                 </div>
-              </div>`;
-            resultsContainer.insertAdjacentHTML("beforeend", card);
-          });
-        }
+              </div>
+            </div>`;
+
+          resultsContainer.insertAdjacentHTML('beforeend', card);
+        });
       });
-    }, 400); // ⏳ small delay for smooth typing
+    }, 400);
   });
 });
 </script>

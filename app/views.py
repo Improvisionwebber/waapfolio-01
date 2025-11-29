@@ -1150,13 +1150,65 @@ def record_order(request, store_id):
         except Store.DoesNotExist:
             return JsonResponse({"success": False, "error": "Store not found"}, status=404)
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+import random
+from itertools import chain
+from django.db.models import Q
+from django.http import JsonResponse
+from django.shortcuts import render
+from django.core.paginator import Paginator       # ⭐ ADDED
+from .models import Item
+
+
+# 🔥 MINI-AI CATEGORY KEYWORD MAP
+CATEGORY_KEYWORDS = {
+    "food": [
+        "food", "meal", "snack", "drink", "cake", "bread", "pizza", "burger",
+        "chicken", "donut", "doughnut", "rice", "fruit", "vegetable", "beverage"
+    ],
+    "clothing": [
+        "shirt", "t-shirt", "cloth", "clothes", "jeans", "jacket", "hoodie",
+        "dress", "shoe", "sneaker", "cap", "baggy", "shorts"
+    ],
+    "tech": [
+        "laptop", "phone", "computer", "tablet", "charger", "earbuds",
+        "headset", "smartwatch", "keyboard", "mouse"
+    ],
+    "home": [
+        "sofa", "chair", "bed", "furniture", "table", "home", "decor",
+        "cookware", "pot", "pan", "pillow"
+    ],
+    "beauty": [
+        "cream", "makeup", "skincare", "lotion", "perfume", "lipstick",
+        "hair", "beauty", "cosmetic"
+    ],
+    "gaming": [
+        "game", "gaming", "controller", "console", "playstation",
+        "xbox", "nintendo"
+    ],
+    "accessories": [
+        "bag", "belt", "watch", "jewelry", "ring", "bracelet",
+        "necklace", "wallet", "accessory"
+    ],
+}
+
+
 def marketplace_view(request):
     query = request.GET.get("q", "").strip()
-
-    # ✅ Get all active products
+    category = request.GET.get("category", "").strip().lower()
+    store = None
+    if request.user.is_authenticated:
+        try:
+            store = Store.objects.get(owner=request.user)
+        except Store.DoesNotExist:
+            store = None
+    # ===========================================================
+    # 🔥 Get all active products
+    # ===========================================================
     products = Item.objects.select_related("store").order_by("-created_at")
 
-    # ✅ If search query exists, filter across multiple fields
+    # ===========================================================
+    # 🔥 SEARCH FILTER
+    # ===========================================================
     if query:
         products = products.filter(
             Q(name__icontains=query)
@@ -1164,11 +1216,39 @@ def marketplace_view(request):
             | Q(store__brand_name__icontains=query)
         ).distinct()
 
-    # ✅ AJAX response for live search
+    # ===========================================================
+    # 🔥 CATEGORY FILTER (AI)
+    # ===========================================================
+    if category and category in CATEGORY_KEYWORDS:
+        keywords = CATEGORY_KEYWORDS[category]
+
+        q_objects = Q()
+        for kw in keywords:
+            q_objects |= Q(name__icontains=kw) | Q(description__icontains=kw)
+
+        products = products.filter(q_objects).distinct()
+
+    # ===========================================================
+    # ⭐ FAIR-MIX RANDOMIZATION
+    # ===========================================================
+    store_groups = {}
+    for p in products:
+        store_id = p.store_id if p.store else 0
+        store_groups.setdefault(store_id, []).append(p)
+
+    mixed = []
+    for store_id, items in store_groups.items():
+        random.shuffle(items)
+        mixed.extend(items[:4])
+
+    random.shuffle(mixed)
+
+    # ===========================================================
+    # 🔥 AJAX RESPONSE (unchanged)
+    # ===========================================================
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         data = []
-        for p in products[:12]:  # limit for speed
-            # 🧠 Use either uploaded image or external image_url
+        for p in mixed[:12]:
             if p.image:
                 image_link = p.image.url
             elif p.image_url:
@@ -1185,14 +1265,29 @@ def marketplace_view(request):
                 "product_url": p.get_absolute_url(),
                 "store_url": p.store.get_absolute_url() if p.store else "#",
             })
+
         return JsonResponse({"results": data})
 
+    # ===========================================================
+    # ⭐⭐⭐ PAGINATION ADDED HERE ⭐⭐⭐
+    # ===========================================================
+    paginator = Paginator(mixed, 18)   # 👈 change 18 to any items per page
+    page_number = request.GET.get("page")
+    page_obj = paginator.get_page(page_number)
 
-    # ✅ Normal render for full marketplace
+    # ===========================================================
+    # 🔥 NORMAL RENDER (same, but now paginated)
+    # ===========================================================
     return render(request, "marketplace.html", {
-        "results": products,
+        "results": page_obj.object_list,   # 👈 use sliced items
+        "page_obj": page_obj,              # 👈 new
         "query": query,
+        "store": store,
+        "category": category,
     })
+
+
+
 def custom_404(request, exception):
     return render(request, '404.html', status=404)
 
