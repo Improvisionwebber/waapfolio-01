@@ -1195,12 +1195,15 @@ CATEGORY_KEYWORDS = {
 def marketplace_view(request):
     query = request.GET.get("q", "").strip()
     category = request.GET.get("category", "").strip().lower()
-    store = None
+
+    # ===========================================================
+    # 🔥 FIX: Avoid MultipleObjectsReturned
+    # ===========================================================
     if request.user.is_authenticated:
-        try:
-            store = Store.objects.get(owner=request.user)
-        except Store.DoesNotExist:
-            store = None
+        store = Store.objects.filter(owner=request.user).first()
+    else:
+        store = None
+
     # ===========================================================
     # 🔥 Get all active products
     # ===========================================================
@@ -1244,7 +1247,7 @@ def marketplace_view(request):
     random.shuffle(mixed)
 
     # ===========================================================
-    # 🔥 AJAX RESPONSE (unchanged)
+    # 🔥 AJAX RESPONSE
     # ===========================================================
     if request.headers.get("x-requested-with") == "XMLHttpRequest":
         data = []
@@ -1269,23 +1272,22 @@ def marketplace_view(request):
         return JsonResponse({"results": data})
 
     # ===========================================================
-    # ⭐⭐⭐ PAGINATION ADDED HERE ⭐⭐⭐
+    # ⭐⭐⭐ PAGINATION
     # ===========================================================
-    paginator = Paginator(mixed, 18)   # 👈 change 18 to any items per page
+    paginator = Paginator(mixed, 18)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
     # ===========================================================
-    # 🔥 NORMAL RENDER (same, but now paginated)
+    # 🔥 NORMAL RENDER
     # ===========================================================
     return render(request, "marketplace.html", {
-        "results": page_obj.object_list,   # 👈 use sliced items
-        "page_obj": page_obj,              # 👈 new
+        "results": page_obj.object_list,
+        "page_obj": page_obj,
         "query": query,
         "store": store,
         "category": category,
     })
-
 
 
 def custom_404(request, exception):
