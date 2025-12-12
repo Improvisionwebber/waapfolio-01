@@ -222,6 +222,8 @@ body.dark #loadingOverlay .loading-text {
     <option value="EUR" {% if form.currency.value == "EUR" %}selected{% endif %}>🇪🇺 EUR (€)</option>
     <option value="GBP" {% if form.currency.value == "GBP" %}selected{% endif %}>🇬🇧 GBP (£)</option>
     <option value="GHS" {% if form.currency.value == "GHS" %}selected{% endif %}>🇬🇭 GHS (₵)</option>
+    <option value="MWK" {% if form.currency.value == "MWK" %}selected{% endif %}>🇲🇼 MWK (MK)</option>
+
   </select>
 
 </div>
@@ -342,7 +344,7 @@ body.dark #loadingOverlay .loading-text {
           <center>
             <h1 class="card-text text-success">{{ item.name }}</h1>
                 <p class="card-text">
-                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% endif %}
+                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
                   {{ item.price|intcomma }}
                 </p>
             </center>

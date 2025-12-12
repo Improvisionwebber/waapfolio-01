@@ -745,7 +745,7 @@ body.dark .store-address {
               <div class="card-body text-center ">
                 <h6>{{ item.name }}</h6>
                 <p class="card-text">
-                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% endif %}
+                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
                   {{ item.price|intcomma }}
                 </p>
                 <div class="card-actions mt-2">

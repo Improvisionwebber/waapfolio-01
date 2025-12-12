@@ -25,7 +25,6 @@ class UserRegistrationForm(UserCreationForm):
 class CustomClearableFileInput(ClearableFileInput):
     pass
 
-
 class StoreForm(forms.ModelForm):
     whatsapp_number = forms.CharField(
         widget=forms.TextInput(attrs={
@@ -34,62 +33,18 @@ class StoreForm(forms.ModelForm):
             'placeholder': 'e.g. +2347098865543'
         })
     )
-
     Bio = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Welcome to my Store',
-            'rows': 3
-        })
+        widget=forms.Textarea(attrs={'class': 'form-control','placeholder': 'Welcome to my Store','rows': 3})
     )
-
-    social = forms.URLField(
-        required=False,
-        label="Link",
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'e.g. tiktok, instagram or any social media link'
-        })
-    )
-    background_color = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'type': 'color',
-            'class': 'form-control form-control-color',
-            'style': 'height: 50px; padding: 0;'
-        })
-    )
-
-
-    # --- NEW FIELDS ---
-    dob = forms.DateField(
-        widget=forms.TextInput(
-            attrs={'placeholder': 'YYYY-MM-DD'}
-        )
-    )
+    social = forms.URLField(required=False, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'e.g. tiktok, instagram or any social media link'}))
+    background_color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color','class': 'form-control form-control-color','style': 'height: 50px; padding: 0;'}))
+    dob = forms.DateField(widget=forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}))
+    address = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Store Address'}))
+    business_type = forms.ChoiceField(required=False, choices=Store.BUSINESS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
 
     class Meta:
         model = Store
-        fields = '__all__'
-
-    address = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Store Address'
-        })
-    )
-
-    business_type = forms.ChoiceField(
-        required=False,
-        choices=Store.BUSINESS_CHOICES,
-        widget=forms.Select(attrs={
-            'class': 'form-control'
-        })
-    )
-
-    class Meta:
-        model = Store
-        fields = ['brand_name', 'brand_logo','whatsapp_number', 'facebook_link', 'tiktok_link', 'depop_link','order_system', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']  # slug not included
+        fields = ['brand_name', 'brand_logo','whatsapp_number', 'facebook_link', 'tiktok_link', 'depop_link','order_system', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']
         widgets = {
             'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
         }
