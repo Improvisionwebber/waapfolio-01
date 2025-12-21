@@ -1,4 +1,4 @@
-{% extends "base.html" %}
+{% extends "store_base.html" %}
 {% block title %}Manage Store{% endblock %}
 {% block body %}
 {% load humanize %}
@@ -210,7 +210,7 @@ body.dark #loadingOverlay .loading-text {
   <label for="price" class="form-label">Price</label>
   <div class="input-group">
     {% comment %} <span class="input-group-text" id="currency-symbol">{{ form.currency.value|default:"₦" }}</span> {% endcomment %}
-    <input type="text" id="price" name="price" class="form-control" placeholder="Enter product price" value="{{ form.price.value|default:'' }}">
+    <input type="text" id="price" name="price" class="form-control" placeholder="Enter product price (Optional)" value="{{ form.price.value|default:'' }}">
   </div>
 </div>
 
@@ -343,10 +343,13 @@ body.dark #loadingOverlay .loading-text {
           <div id="preview-cards" class="row g-3 mt-2"></div>
           <center>
             <h1 class="card-text text-success">{{ item.name }}</h1>
+              {% if item.price %}
                 <p class="card-text">
                   {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
                   {{ item.price|intcomma }}
                 </p>
+              {% endif %}
+
             </center>
 
           <div class="d-flex gap-2">

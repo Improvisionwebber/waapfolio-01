@@ -75,7 +75,7 @@ class StoreImageForm(forms.ModelForm):
                 attrs={
                     'class': 'form-control',
                     'id': 'price-input',
-                    'placeholder': 'Enter price (numbers only)',
+                    'placeholder': 'Enter price (Optional)',
                     'step': '0.01',   # allows decimals like 1000.50
                     'min': '0',       # no negative prices
                     'inputmode': 'decimal',  # mobile keyboard shows numbers
@@ -103,13 +103,15 @@ class ItemForm(forms.ModelForm):
             'tiktok_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'TikTok link'}),
             'depop_link': forms.URLInput(attrs={'class': 'form-control', 'placeholder': 'Depop link'}),
         }
-
     def clean_price(self):
-        raw_price = str(self.data.get("price", ""))
+        raw_price = str(self.data.get("price", "")).strip()
+        if not raw_price:
+            return None  # <-- allow empty
         clean_price = re.sub(r"[^\d.]", "", raw_price)
         if not clean_price:
-            raise forms.ValidationError("Enter a valid number.")
+            return None  # optional: treat as empty
         return float(clean_price)
+
 
 
 
@@ -137,11 +139,14 @@ class ProductForm(forms.ModelForm):
         }
 
     def clean_price(self):
-        raw_price = str(self.data.get("price", ""))
+        raw_price = str(self.data.get("price", "")).strip()
+        if not raw_price:
+            return None  # <-- allow empty
         clean_price = re.sub(r"[^\d.]", "", raw_price)
         if not clean_price:
-            raise forms.ValidationError("Enter a valid number.")
+            return None  # optional: treat as empty
         return float(clean_price)
+
 
 # Custom Password Reset Form using Brevo
 # class BrevoPasswordResetForm(PasswordResetForm):

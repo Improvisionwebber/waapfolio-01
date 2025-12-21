@@ -3679,3 +3679,154 @@ Traceback (most recent call last):
     raise NoReverseMatch(msg)
 django.urls.exceptions.NoReverseMatch: Reverse for 'product_detail' with arguments '('emmy-tech', '')' not found. 1 pattern(s) tried: ['product/(?P<slug>[-a-zA-Z0-9_]+)/\\Z']
 "GET /store/emmy-tech/ HTTP/1.1" 500 175708
+Internal Server Error: /marketplace/
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\mysql\base.py", line 76, in execute
+    return self.cursor.execute(query, args)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 331, in _query
+    self._do_get_result(db)
+    ~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 136, in _do_get_result
+    self._result = result = self._get_result()
+                            ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 363, in _get_result
+    return self._get_db().store_result()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+MySQLdb.OperationalError: (2013, 'Lost connection to server during query')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\app\views.py", line 1238, in marketplace_view
+    for p in products:
+             ^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\query.py", line 384, in __iter__
+    self._fetch_all()
+    ~~~~~~~~~~~~~~~^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\query.py", line 1949, in _fetch_all
+    self._result_cache = list(self._iterable_class(self))
+                         ~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\query.py", line 91, in __iter__
+    results = compiler.execute_sql(
+        chunked_fetch=self.chunked_fetch, chunk_size=self.chunk_size
+    )
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 122, in execute
+    return super().execute(sql, params)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\mysql\base.py", line 76, in execute
+    return self.cursor.execute(query, args)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 331, in _query
+    self._do_get_result(db)
+    ~~~~~~~~~~~~~~~~~~~^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 136, in _do_get_result
+    self._result = result = self._get_result()
+                            ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 363, in _get_result
+    return self._get_db().store_result()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^^
+django.db.utils.OperationalError: (2013, 'Lost connection to server during query')
+"GET /marketplace/ HTTP/1.1" 500 179939
+Internal Server Error: /store/emmy-tech/
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\mysql\base.py", line 76, in execute
+    return self.cursor.execute(query, args)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 330, in _query
+    db.query(q)
+    ~~~~~~~~^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\connections.py", line 280, in query
+    _mysql.connection.query(self, query)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+MySQLdb.OperationalError: (2013, 'Lost connection to server during query')
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\app\views.py", line 537, in view_store
+    'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
+                   ~~~~~~~~~~~~~~~~^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\manager.py", line 87, in manager_method
+    return getattr(self.get_queryset(), name)(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\query.py", line 604, in count
+    return self.query.get_count(using=self.db)
+           ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\sql\query.py", line 644, in get_count
+    return obj.get_aggregation(using, {"__count": Count("*")})["__count"]
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\sql\query.py", line 626, in get_aggregation
+    result = compiler.execute_sql(SINGLE)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\models\sql\compiler.py", line 1623, in execute_sql
+    cursor.execute(sql, params)
+    ~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 79, in execute
+    return self._execute_with_wrappers(
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~^
+        sql, params, many=False, executor=self._execute
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 92, in _execute_with_wrappers
+    return executor(sql, params, many, context)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 100, in _execute
+    with self.db.wrap_database_errors:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\utils.py", line 91, in __exit__
+    raise dj_exc_value.with_traceback(traceback) from exc_value
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\utils.py", line 105, in _execute
+    return self.cursor.execute(sql, params)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\db\backends\mysql\base.py", line 76, in execute
+    return self.cursor.execute(query, args)
+           ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 179, in execute
+    res = self._query(mogrified_query)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\cursors.py", line 330, in _query
+    db.query(q)
+    ~~~~~~~~^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\MySQLdb\connections.py", line 280, in query
+    _mysql.connection.query(self, query)
+    ~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+django.db.utils.OperationalError: (2013, 'Lost connection to server during query')

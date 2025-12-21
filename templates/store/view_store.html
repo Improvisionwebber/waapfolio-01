@@ -744,10 +744,13 @@ body.dark .store-address {
               </a>
               <div class="card-body text-center ">
                 <h6>{{ item.name }}</h6>
-                <p class="card-text">
-                  {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
-                  {{ item.price|intcomma }}
-                </p>
+                {% if item.price %}
+                  <p class="card-text">
+                    {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
+                    {{ item.price|intcomma }}
+                  </p>
+                {% endif %}
+
                 <div class="card-actions mt-2">
                   <button class="btn-like" data-item-id="{{ item.id }}">
                     <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>

@@ -111,7 +111,12 @@ class StoreImage(models.Model):
         ("GBP", "British Pound (£)"),
     ]
 
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,  # allows form to be empty
+        null=True    # allows database to store NULL
+    )
     currency = models.CharField(
         max_length=3,
         choices=CURRENCY_CHOICES,
@@ -129,8 +134,13 @@ class StoreImage(models.Model):
 class Item(models.Model):
     store = models.ForeignKey(Store, on_delete=models.CASCADE)
     name = models.CharField(max_length=1000, default="No Caption")
-    price = models.DecimalField(max_digits=20, decimal_places=2, default=0.00)
-    currency = models.CharField(max_length=5, blank=True, null=True, default="NGN")  # ✅ give safe default
+    price = models.DecimalField(
+        max_digits=20, 
+        decimal_places=2, 
+        blank=True, 
+        null=True
+    )    
+    currency = models.CharField(max_length=5, blank=True, null=True,)  # ✅ give safe default
     image = models.ImageField(upload_to='item_images/', blank=True, null=True)
     image_url = models.URLField(max_length=500, blank=True, null=True)
     description = models.TextField(blank=True, null=True)
