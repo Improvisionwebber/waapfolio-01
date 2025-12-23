@@ -71,19 +71,17 @@ class RegistrationForm(UserCreationForm):
 #                 request.session["active_store_id"] = store.id
 
 #     return render(request, "home.html", {"store": store, "user_stores": stores})
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, get_object_or_404
 from .models import Store
+from .views import view_store  # if in same file, just call directly
 
 def home(request):
-    # 🔥 ADD: detect subdomain
+    # 🔥 detect subdomain
     subdomain = getattr(request, "subdomain", None)
 
-    # 🔥 ADD: if subdomain exists, load store
+    # 🔥 if subdomain exists, LOAD STORE DIRECTLY (NO REDIRECT)
     if subdomain:
-        store = get_object_or_404(Store, slug=subdomain)
-        return redirect(store.get_absolute_url())
-        # OR if you prefer direct render:
-        # return view_store(request, slug=subdomain)
+        return view_store(request, slug=subdomain)
 
     # -------------------------
     # EXISTING LOGIC (UNCHANGED)
@@ -92,15 +90,12 @@ def home(request):
     stores = []
 
     if request.user.is_authenticated:
-        # Get all stores
         stores = Store.objects.filter(owner=request.user).order_by("id")
 
-        # Try active store from session
         active_store_id = request.session.get("active_store_id")
         if active_store_id:
             store = stores.filter(id=active_store_id).first()
 
-        # Fallback to first store if no active store
         if not store:
             store = stores.first()
             if store:
@@ -110,6 +105,7 @@ def home(request):
         "store": store,
         "user_stores": stores
     })
+
 
 
 def about(request):
