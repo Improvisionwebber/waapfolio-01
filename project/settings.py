@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG = False
+DEBUG = True            
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -22,6 +22,11 @@ CSRF_TRUSTED_ORIGINS = [
     "https://www.waapfolio.com",
 ]
 CSRF_FAILURE_VIEW = 'app.views.csrf_failure'
+SESSION_COOKIE_DOMAIN = ".waapfolio.com"
+CSRF_COOKIE_DOMAIN = ".waapfolio.com"
+SESSION_COOKIE_SAMESITE = "Lax"
+SESSION_COOKIE_SECURE = True   # since you are on HTTPS
+CSRF_COOKIE_SECURE = True
 
 # Applications
 INSTALLED_APPS = [

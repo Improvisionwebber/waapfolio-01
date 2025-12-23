@@ -77,6 +77,8 @@ class Store(models.Model):
         if not old:
             return True
         return old.brand_name != self.brand_name
+    def get_absolute_url(self):
+        return reverse('view_store', kwargs={'slug': self.slug})
 
     def get_absolute_url(self):
         return f"https://{self.slug}.waapfolio.com/"

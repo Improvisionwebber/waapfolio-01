@@ -71,41 +71,46 @@ class RegistrationForm(UserCreationForm):
 #                 request.session["active_store_id"] = store.id
 
 #     return render(request, "home.html", {"store": store, "user_stores": stores})
-from django.shortcuts import render, get_object_or_404
-from .models import Store
-from .views import view_store  # if in same file, just call directly
-
 def home(request):
-    # 🔥 detect subdomain
-    subdomain = getattr(request, "subdomain", None)
-
-    # 🔥 if subdomain exists, LOAD STORE DIRECTLY (NO REDIRECT)
-    if subdomain:
-        return view_store(request, slug=subdomain)
-
-    # -------------------------
-    # EXISTING LOGIC (UNCHANGED)
-    # -------------------------
+    print("HOST:", request.get_host())
+    print("SUBDOMAIN:", getattr(request, "subdomain", None))
     store = None
     stores = []
 
+    # 🔥 Detect subdomain only if not localhost
+    host = request.get_host()  # e.g., '127.0.0.1:8000' or 'ekeson-ventures.waapfolio.com'
+    subdomain = None
+    if "localhost" not in host and "127.0.0.1" not in host:
+        parts = host.split(".")
+        if len(parts) > 2:  # e.g., subdomain.domain.com
+            subdomain = parts[0]
+
+    # 🔥 If subdomain exists, try to load store
+    if subdomain:
+        try:
+            return view_store(request, slug=subdomain)
+        except Store.DoesNotExist:
+            # Subdomain not found, ignore and fallback to normal home
+            subdomain = None
+
+    # ------------------------
+    # Normal home logic
+    # ------------------------
     if request.user.is_authenticated:
         stores = Store.objects.filter(owner=request.user).order_by("id")
 
+        # Try active store from session
         active_store_id = request.session.get("active_store_id")
         if active_store_id:
             store = stores.filter(id=active_store_id).first()
 
+        # Fallback to first store if no active store
         if not store:
             store = stores.first()
             if store:
                 request.session["active_store_id"] = store.id
 
-    return render(request, "home.html", {
-        "store": store,
-        "user_stores": stores
-    })
-
+    return render(request, "home.html", {"store": store, "user_stores": stores})
 
 
 def about(request):
@@ -466,6 +471,18 @@ def create_store(request, id=0):
 #         'user_has_store': user_has_store,
 #     })
 def view_store(request, slug):
+    # -------------------------------
+    # Optional: detect subdomain for live hosts
+    # -------------------------------
+    host = request.get_host()
+    if "localhost" not in host and "127.0.0.1" not in host:
+        subdomain = getattr(request, "subdomain", None)
+        if subdomain and subdomain != slug:
+            slug = subdomain  # override slug if subdomain detected
+
+    # -------------------------------
+    # Load store
+    # -------------------------------
     store = get_object_or_404(Store, slug=slug)
     items = Item.objects.filter(store=store)
 
@@ -474,30 +491,20 @@ def view_store(request, slug):
     # -------------------------------
     query = request.GET.get("q")
     if query:
-        # ✅ grab all product names in current queryset (so we don’t search whole DB if items already filtered by store, etc.)
         all_names = list(items.values_list("name", flat=True))
-
         if all_names:
-            # ✅ fuzzy match with threshold
             matches = process.extract(query, all_names, limit=15, score_cutoff=60)
             matched_names = [m[0] for m in matches]
-
-            # ✅ filter items by those matches
             items = items.filter(name__in=matched_names)
-
-        # ✅ fallback if no fuzzy match found
         if not items.exists():
-            items = items.filter(
-                Q(name__icontains=query) | Q(description__icontains=query)
-            )
-
+            items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
     full_url = request.build_absolute_uri()
     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
 
     # -------------------------------
-    # Session / unique views tracking
-    # -------------------------------
+  
+
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
@@ -513,7 +520,6 @@ def view_store(request, slug):
             message=f"{viewer_name} just viewed your store!",
             link=request.build_absolute_uri()
         )
-
         request.session[store_viewed_key] = True
 
     for item in items:
@@ -563,7 +569,7 @@ def view_store(request, slug):
     # -------------------------------
     items_meta = []
     for item in items:
-        product_path = reverse('product_detail', kwargs={'slug': item.slug})  # ✅ use slug instead of id
+        product_path = reverse('product_detail', kwargs={'slug': item.slug})
         absolute_product_url = request.build_absolute_uri(product_path)
         items_meta.append({
             'item': item,
@@ -593,7 +599,7 @@ def view_store(request, slug):
         'whatsapp_link': whatsapp_link,
         'gallery_images': gallery_images,
         'user_has_store': user_has_store,
-        'og_image': og_image,  # <-- added this
+        'og_image': og_image,
     })
 
 # -------------------------
