@@ -110,6 +110,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
+# In settings.py
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -121,10 +122,16 @@ DATABASES = {
         'OPTIONS': {
             'charset': 'utf8mb4',
             'init_command': "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci', sql_mode='STRICT_TRANS_TABLES'",
+            'connect_timeout': 10,
+            'read_timeout': 600,
+            'write_timeout': 600,
+            # Auto reconnect for lost connections
+            'autocommit': True,
         },
-        'CONN_MAX_AGE': 600,  # Keep DB connections alive for 10 minutes
+        'CONN_MAX_AGE': 0,  # 0 disables persistent connections if server drops them
     }
 }
+
 
 
 
