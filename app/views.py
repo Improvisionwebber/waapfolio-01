@@ -124,7 +124,7 @@ def about(request):
 
 def profile(request):
     if not request.user.is_authenticated:
-        return render(request, "login_required.html")
+        return render(request, "login")
     
     store = Store.objects.filter(owner=request.user).first()
     unread_count = Notification.objects.filter(user=request.user, is_read=False).count()
