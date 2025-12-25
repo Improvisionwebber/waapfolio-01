@@ -110,7 +110,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -123,6 +122,7 @@ DATABASES = {
             'charset': 'utf8mb4',
             'init_command': "SET NAMES 'utf8mb4' COLLATE 'utf8mb4_general_ci', sql_mode='STRICT_TRANS_TABLES'",
         },
+        'CONN_MAX_AGE': 600,  # Keep DB connections alive for 10 minutes
     }
 }
 
