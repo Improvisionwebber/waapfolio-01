@@ -474,139 +474,149 @@ def create_store(request, id=0):
 #         'gallery_images': gallery_images,
 #         'user_has_store': user_has_store,
 #     })
+import logging, traceback
+from django.http import HttpResponse
+
+logger = logging.getLogger(__name__)
+
 def view_store(request, slug):
-    # -------------------------------
-    # Optional: detect subdomain for live hosts
-    # -------------------------------
-    host = request.get_host()
-    if "localhost" not in host and "127.0.0.1" not in host:
-        subdomain = getattr(request, "store", None)
-        if subdomain:
-            slug = subdomain.slug  # use store from middleware if set
+    try:
+        # -------------------------------
+        # Optional: detect subdomain for live hosts
+        # -------------------------------
+        host = request.get_host()
+        if "localhost" not in host and "127.0.0.1" not in host:
+            subdomain = getattr(request, "store", None)
+            if subdomain:
+                slug = subdomain.slug  # use store from middleware if set
 
-    # -------------------------------
-    # Load store (fix: prefer middleware store)
-    # -------------------------------
-    store = getattr(request, "store", None)
-    if not store:
-        store = get_object_or_404(Store, slug=slug)
+        # -------------------------------
+        # Load store (fix: prefer middleware store)
+        # -------------------------------
+        store = getattr(request, "store", None)
+        if not store:
+            store = get_object_or_404(Store, slug=slug)
 
-    items = Item.objects.filter(store=store)
+        items = Item.objects.filter(store=store)
 
-    # -------------------------------
-    # Search logic
-    # -------------------------------
-    query = request.GET.get("q")
-    if query:
-        all_names = list(items.values_list("name", flat=True))
-        if all_names:
-            matches = process.extract(query, all_names, limit=15, score_cutoff=60)
-            matched_names = [m[0] for m in matches]
-            items = items.filter(name__in=matched_names)
-        if not items.exists():
-            items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
+        # -------------------------------
+        # Search logic
+        # -------------------------------
+        query = request.GET.get("q")
+        if query:
+            all_names = list(items.values_list("name", flat=True))
+            if all_names:
+                matches = process.extract(query, all_names, limit=15, score_cutoff=60)
+                matched_names = [m[0] for m in matches]
+                items = items.filter(name__in=matched_names)
+            if not items.exists():
+                items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
-    full_url = request.build_absolute_uri()
-    whatsapp_number = store.whatsapp_number or ""
-    whatsapp_link = f"https://wa.me/{whatsapp_number}" if whatsapp_number else ""
+        full_url = request.build_absolute_uri()
+        whatsapp_number = store.whatsapp_number or ""
+        whatsapp_link = f"https://wa.me/{whatsapp_number}" if whatsapp_number else ""
 
-    # -------------------------------
-    session_key = request.session.session_key
-    if not session_key:
-        request.session.create()
+        # -------------------------------
         session_key = request.session.session_key
+        if not session_key:
+            request.session.create()
+            session_key = request.session.session_key
 
-    store_viewed_key = f"viewed_store_{store.id}"
-    if not request.session.get(store_viewed_key) and request.user != store.owner:
-        store.total_views += 1
-        store.save()
-        viewer_name = request.user.username if request.user.is_authenticated else "Someone"
-        Notification.objects.create(
-            user=store.owner,
-            message=f"{viewer_name} just viewed your store!",
-            link=request.build_absolute_uri()
-        )
-        request.session[store_viewed_key] = True
-
-    for item in items:
-        view_filter = Q(session_key=session_key)
-        if request.user.is_authenticated:
-            view_filter |= Q(user=request.user)
-
-        if not ItemView.objects.filter(item=item).filter(view_filter).exists():
-            item.views += 1
-            item.save()
-            ItemView.objects.create(
-                item=item,
-                user=request.user if request.user.is_authenticated else None,
-                session_key=session_key
+        store_viewed_key = f"viewed_store_{store.id}"
+        if not request.session.get(store_viewed_key) and request.user != store.owner:
+            store.total_views += 1
+            store.save()
+            viewer_name = request.user.username if request.user.is_authenticated else "Someone"
+            Notification.objects.create(
+                user=store.owner,
+                message=f"{viewer_name} just viewed your store!",
+                link=request.build_absolute_uri()
             )
+            request.session[store_viewed_key] = True
 
-    # -------------------------------
-    # Helper: get item cover image
-    # -------------------------------
-    def get_cover_url(item):
-        if item.image_url:
-            return item.image_url
-        if item.image:
-            try:
-                return item.image.url
-            except Exception:
-                pass
-        extra = StoreImage.objects.filter(store=store, name=item.name).first()
-        if extra:
-            if extra.image_url:
-                return extra.image_url
-            if extra.file:
+        for item in items:
+            view_filter = Q(session_key=session_key)
+            if request.user.is_authenticated:
+                view_filter |= Q(user=request.user)
+
+            if not ItemView.objects.filter(item=item).filter(view_filter).exists():
+                item.views += 1
+                item.save()
+                ItemView.objects.create(
+                    item=item,
+                    user=request.user if request.user.is_authenticated else None,
+                    session_key=session_key
+                )
+
+        # -------------------------------
+        # Helper: get item cover image
+        # -------------------------------
+        def get_cover_url(item):
+            if item.image_url:
+                return item.image_url
+            if item.image:
                 try:
-                    return extra.file.url
+                    return item.image.url
                 except Exception:
                     pass
-        pm = ProductMedia.objects.filter(product=item).first()
-        if pm:
-            if pm.file:
-                return pm.file.url
-            if pm.youtube_id:
-                return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
-        return static('images/no-image.png')
+            extra = StoreImage.objects.filter(store=store, name=item.name).first()
+            if extra:
+                if extra.image_url:
+                    return extra.image_url
+                if extra.file:
+                    try:
+                        return extra.file.url
+                    except Exception:
+                        pass
+            pm = ProductMedia.objects.filter(product=item).first()
+            if pm:
+                if pm.file:
+                    return pm.file.url
+                if pm.youtube_id:
+                    return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
+            return static('images/no-image.png')
 
-    # -------------------------------
-    # Build items meta
-    # -------------------------------
-    items_meta = []
-    for item in items:
-        product_path = reverse('product_detail', kwargs={'slug': item.slug})
-        absolute_product_url = request.build_absolute_uri(product_path)
-        items_meta.append({
-            'item': item,
-            'cover_url': get_cover_url(item),
-            'product_url': absolute_product_url,
-            'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
-            'user_liked': request.user.is_authenticated and item.likes.filter(id=request.user.id).exists(),
+        # -------------------------------
+        # Build items meta
+        # -------------------------------
+        items_meta = []
+        for item in items:
+            product_path = reverse('product_detail', kwargs={'slug': item.slug})
+            absolute_product_url = request.build_absolute_uri(product_path)
+            items_meta.append({
+                'item': item,
+                'cover_url': get_cover_url(item),
+                'product_url': absolute_product_url,
+                'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
+                'user_liked': request.user.is_authenticated and item.likes.filter(id=request.user.id).exists(),
+            })
+
+        gallery_images = store.images.filter(item__isnull=True)
+        user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
+
+        # -------------------------------
+        # Determine OG image for sharing
+        # -------------------------------
+        if items_meta:
+            og_image = request.build_absolute_uri(items_meta[0]['cover_url'])
+        elif store.brand_logo:
+            og_image = request.build_absolute_uri(store.brand_logo.url)
+        else:
+            og_image = request.build_absolute_uri(static('images/logo.png'))
+
+        return render(request, 'store/view_store.html', {
+            'store': store,
+            'items_meta': items_meta,
+            'full_url': full_url,
+            'whatsapp_link': whatsapp_link,
+            'gallery_images': gallery_images,
+            'user_has_store': user_has_store,
+            'og_image': og_image,
         })
 
-    gallery_images = store.images.filter(item__isnull=True)
-    user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
-
-    # -------------------------------
-    # Determine OG image for sharing
-    # -------------------------------
-    if items_meta:
-        og_image = request.build_absolute_uri(items_meta[0]['cover_url'])
-    elif store.brand_logo:
-        og_image = request.build_absolute_uri(store.brand_logo.url)
-    else:
-        og_image = request.build_absolute_uri(static('images/logo.png'))
-
-    return render(request, 'store/view_store.html', {
-        'store': store,
-        'items_meta': items_meta,
-        'full_url': full_url,
-        'whatsapp_link': whatsapp_link,
-        'gallery_images': gallery_images,
-        'user_has_store': user_has_store,
-        'og_image': og_image,
-    })
+    except Exception:
+        logger.error("Error in view_store:\n%s", traceback.format_exc())
+        return HttpResponse("Something went wrong. Check server logs for details.", status=500)
 
 
 # -------------------------
