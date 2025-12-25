@@ -26,6 +26,7 @@ from .models import (
 from .forms import (
     StoreForm, StoreImageForm, ProductForm, CommentForm
 )
+from django.http import Http404
 from .utils import upload_to_imgbb, upload_to_youtube
 from utils.email_service import send_email
 from .models import Notification
@@ -818,8 +819,26 @@ def delete_extra_video(request, slug, video_id):
     messages.success(request, "Video deleted successfully!")
     return redirect(request.META.get("HTTP_REFERER", "manage_store"), slug=slug)
 def product_detail(request, slug):
+    # -------------------------------
+    # Optional: detect subdomain for live hosts
+    # -------------------------------
+    host = request.get_host()
+    store = None
+    if "localhost" not in host and "127.0.0.1" not in host:
+        subdomain = getattr(request, "subdomain", None)
+        if subdomain:
+            store = get_object_or_404(Store, slug=subdomain)
+
+    # -------------------------------
+    # Load product
+    # -------------------------------
     product = get_object_or_404(Item, slug=slug)
-    store = product.store
+    if store and product.store != store:
+        # product doesn't belong to subdomain store → 404
+        raise Http404("Product not found in this store")
+    else:
+        store = product.store
+
     extra_files = StoreImage.objects.filter(store=store, name=product.name)
     product_media = ProductMedia.objects.filter(product=product)
     images, videos, youtube_videos = [], [], []
@@ -893,7 +912,7 @@ def product_detail(request, slug):
                 return item.image.url
             except Exception:
                 pass
-        extra = StoreImage.objects.filter(store=item.store, name=item.name).first()
+        extra = StoreImage.objects.filter(store=store, name=item.name).first()
         if extra:
             if extra.image_url:
                 return extra.image_url
@@ -940,6 +959,7 @@ def product_detail(request, slug):
     }
 
     return render(request, 'store/product_detail.html', context)
+
 
 
 # -------------------------
