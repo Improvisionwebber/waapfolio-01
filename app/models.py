@@ -26,6 +26,13 @@ from django.urls import reverse
 from django.db import models
 from django.contrib.auth.models import User
 
+from django.db import models
+from django.contrib.auth.models import User
+from django.urls import reverse
+from django.conf import settings
+from django.utils.text import slugify
+
+
 class Store(models.Model):
     brand_name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
@@ -39,6 +46,7 @@ class Store(models.Model):
     dob = models.DateField(blank=True, null=True)
     address = models.CharField(max_length=255, blank=True, null=True)
     total_orders = models.PositiveIntegerField(default=0)
+
     BUSINESS_CHOICES = [
         ('retail', 'Retail'),
         ('services', 'Services'),
@@ -47,22 +55,32 @@ class Store(models.Model):
         ('tech', 'Technology'),
         ('other', 'Other'),
     ]
-    business_type = models.CharField(max_length=50, choices=BUSINESS_CHOICES, blank=True, null=True)
+    business_type = models.CharField(
+        max_length=50, choices=BUSINESS_CHOICES, blank=True, null=True
+    )
+
     background_color = models.CharField(
         max_length=20,
         default="#ffffff",
         help_text="Hex color (e.g. #F5F5F5)"
     )
+
     whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
     facebook_link = models.URLField(blank=True, null=True)
     tiktok_link = models.URLField(blank=True, null=True)
     depop_link = models.URLField(blank=True, null=True)
-    order_system = models.CharField(max_length=20, choices=[
-        ('whatsapp', 'WhatsApp'),
-        ('facebook', 'Facebook'),
-        ('tiktok', 'TikTok'),
-        ('depop', 'Depop'),
-    ], default='whatsapp')
+
+    order_system = models.CharField(
+        max_length=20,
+        choices=[
+            ('whatsapp', 'WhatsApp'),
+            ('facebook', 'Facebook'),
+            ('tiktok', 'TikTok'),
+            ('depop', 'Depop'),
+        ],
+        default='whatsapp'
+    )
+
     def save(self, *args, **kwargs):
         # ✅ Update slug if brand_name changed
         if not self.slug or self.brand_name_changed():
@@ -77,15 +95,21 @@ class Store(models.Model):
         if not old:
             return True
         return old.brand_name != self.brand_name
-    def get_absolute_url(self):
-        return reverse('view_store', kwargs={'slug': self.slug})
 
     def get_absolute_url(self):
+        """
+        Dev (localhost):
+            /store/slug/
+        Production:
+            https://slug.waapfolio.com/
+        """
+        if settings.DEBUG:
+            return reverse('view_store', kwargs={'slug': self.slug})
+
         return f"https://{self.slug}.waapfolio.com/"
 
-    
     def get_store_url(self):
-        return self.get_absolute_url()  # fixed typo: self.store → self
+        return self.get_absolute_url()
 
     def __str__(self):
         return self.brand_name
@@ -97,6 +121,7 @@ class Store(models.Model):
             return Store.objects.get(owner=user)
         except Store.DoesNotExist:
             return None
+
 
 
 # Store Image

@@ -16,7 +16,7 @@
           <a href="{% url 'register' %}" class="btn btn-success px-4 py-2">Sign Up</a>
         {% else %}
           {% if store %}
-            <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4 py-2">Visit My Store</a>
+            <a href="{{ store.get_absolute_url }}" class="btn btn-outline-primary px-4 py-2">Visit My Store</a>
           {% else %}
             <a href="{% url 'create_store' %}" class="btn btn-success px-4 py-2">Create Store</a>
           {% endif %}

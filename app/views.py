@@ -71,31 +71,31 @@ class RegistrationForm(UserCreationForm):
 #                 request.session["active_store_id"] = store.id
 
 #     return render(request, "home.html", {"store": store, "user_stores": stores})
+from django.shortcuts import render
+from app.models import Store, Item  # adjust Item if needed
+
+
 def home(request):
-    print("HOST:", request.get_host())
-    print("SUBDOMAIN:", getattr(request, "subdomain", None))
+
     store = None
     stores = []
 
-    # 🔥 Detect subdomain only if not localhost
-    host = request.get_host()  # e.g., '127.0.0.1:8000' or 'ekeson-ventures.waapfolio.com'
-    subdomain = None
-    if "localhost" not in host and "127.0.0.1" not in host:
-        parts = host.split(".")
-        if len(parts) > 2:  # e.g., subdomain.domain.com
-            subdomain = parts[0]
+    # ----------------------------------
+    # 🔥 SUBDOMAIN STORE HANDLING (NEW)
+    # ----------------------------------
+    if hasattr(request, "store") and request.store:
+        store = request.store
+        items = Item.objects.filter(store=store, is_active=True)
 
-    # 🔥 If subdomain exists, try to load store
-    if subdomain:
-        try:
-            return view_store(request, slug=subdomain)
-        except Store.DoesNotExist:
-            # Subdomain not found, ignore and fallback to normal home
-            subdomain = None
+        return render(request, "store/view_store.html", {
+            "store": store,
+            "items": items,
+            "active_store": store,
+        })
 
-    # ------------------------
-    # Normal home logic
-    # ------------------------
+    # ----------------------------------
+    # NORMAL HOME LOGIC (UNCHANGED)
+    # ----------------------------------
     if request.user.is_authenticated:
         stores = Store.objects.filter(owner=request.user).order_by("id")
 
@@ -110,7 +110,10 @@ def home(request):
             if store:
                 request.session["active_store_id"] = store.id
 
-    return render(request, "home.html", {"store": store, "user_stores": stores})
+    return render(request, "home.html", {
+        "store": store,
+        "user_stores": stores
+    })
 
 
 def about(request):
