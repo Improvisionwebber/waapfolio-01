@@ -2,7 +2,6 @@ from django.conf import settings
 from django.http import Http404
 from .models import Store
 
-
 class StoreSubdomainMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
@@ -13,34 +12,32 @@ class StoreSubdomainMiddleware:
         host = request.get_host().split(':')[0]
 
         # -----------------------------
-        # 1. Ignore localhost completely
+        # Ignore localhost completely
         # -----------------------------
         if settings.DEBUG:
             return self.get_response(request)
 
         # -----------------------------
-        # 2. Ignore main domain
+        # Ignore main domain
         # -----------------------------
-        if host == "waapfolio.com" or host == "www.waapfolio.com":
+        if host in ["waapfolio.com", "www.waapfolio.com"]:
             return self.get_response(request)
 
         # -----------------------------
-        # 3. Extract subdomain
+        # Extract subdomain
         # -----------------------------
         parts = host.split('.')
-
-        # Expecting: slug.waapfolio.com
         if len(parts) < 3:
             return self.get_response(request)
 
         subdomain = parts[0]
 
         # -----------------------------
-        # 4. Load store safely
+        # Load store safely (fail gracefully)
         # -----------------------------
         try:
             request.store = Store.objects.get(slug=subdomain)
         except Store.DoesNotExist:
-            raise Http404("Store not found")
+            request.store = None  # ← no 404, fail silently
 
         return self.get_response(request)

@@ -479,14 +479,17 @@ def view_store(request, slug):
     # -------------------------------
     host = request.get_host()
     if "localhost" not in host and "127.0.0.1" not in host:
-        subdomain = getattr(request, "subdomain", None)
-        if subdomain and subdomain != slug:
-            slug = subdomain  # override slug if subdomain detected
+        subdomain = getattr(request, "store", None)
+        if subdomain:
+            slug = subdomain.slug  # use store from middleware if set
 
     # -------------------------------
-    # Load store
+    # Load store (fix: prefer middleware store)
     # -------------------------------
-    store = get_object_or_404(Store, slug=slug)
+    store = getattr(request, "store", None)
+    if not store:
+        store = get_object_or_404(Store, slug=slug)
+
     items = Item.objects.filter(store=store)
 
     # -------------------------------
@@ -503,11 +506,10 @@ def view_store(request, slug):
             items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
 
     full_url = request.build_absolute_uri()
-    whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
+    whatsapp_number = store.whatsapp_number or ""
+    whatsapp_link = f"https://wa.me/{whatsapp_number}" if whatsapp_number else ""
 
     # -------------------------------
-  
-
     session_key = request.session.session_key
     if not session_key:
         request.session.create()
@@ -604,6 +606,7 @@ def view_store(request, slug):
         'user_has_store': user_has_store,
         'og_image': og_image,
     })
+
 
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
