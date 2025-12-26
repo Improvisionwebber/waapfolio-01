@@ -475,7 +475,7 @@ def create_store(request, id=0):
 #         'user_has_store': user_has_store,
 #     })
 import logging, traceback
-from django.http import HttpResponse
+from django.http import HttpResponse, Http404
 from django.shortcuts import get_object_or_404, render
 from django.db.models import Q
 from django.templatetags.static import static
@@ -483,28 +483,22 @@ from django.urls import reverse
 
 logger = logging.getLogger(__name__)
 
-def view_store(request, slug):
+def view_store(request, slug=None):
     try:
         # -------------------------------
-        # Optional: detect subdomain for live hosts
-        # -------------------------------
-        host = request.get_host()
-        if "localhost" not in host and "127.0.0.1" not in host:
-            subdomain_store = getattr(request, "store", None)
-            if subdomain_store:
-                slug = subdomain_store.slug  # use store from middleware if set
-
-        # -------------------------------
-        # Load store (prefer middleware store)
+        # Use store from middleware if set
         # -------------------------------
         store = getattr(request, "store", None)
         if not store:
-            store = get_object_or_404(Store, slug=slug)
+            if slug:
+                store = get_object_or_404(Store, slug=slug)
+            else:
+                raise Http404("Store not found")
 
         # -------------------------------
         # Prevent NoneType errors for related fields
         # -------------------------------
-        items = Item.objects.filter(store=store) if hasattr(store, 'id') else Item.objects.none()
+        items = Item.objects.filter(store=store)
 
         # -------------------------------
         # Search logic
@@ -513,6 +507,7 @@ def view_store(request, slug):
         if query:
             all_names = list(items.values_list("name", flat=True))
             if all_names:
+                from fuzzywuzzy import process
                 matches = process.extract(query, all_names, limit=15, score_cutoff=60)
                 matched_names = [m[0] for m in matches]
                 items = items.filter(name__in=matched_names)
@@ -523,6 +518,8 @@ def view_store(request, slug):
         whatsapp_number = getattr(store, 'whatsapp_number', '') or ""
         whatsapp_link = f"https://wa.me/{whatsapp_number}" if whatsapp_number else ""
 
+        # -------------------------------
+        # Session & views tracking
         # -------------------------------
         session_key = request.session.session_key
         if not session_key:
@@ -630,7 +627,6 @@ def view_store(request, slug):
     except Exception:
         logger.error("Error in view_store:\n%s", traceback.format_exc())
         return HttpResponse("Something went wrong. Check server logs for details.", status=500)
-
 
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)

@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG = False         
+DEBUG = True             
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -17,6 +17,7 @@ ALLOWED_HOSTS = [
     "www.waapfolio.com",
     '.waapfolio.com',  
 ]
+
 CSRF_TRUSTED_ORIGINS = [
     "https://waapfolio.com",
     "https://www.waapfolio.com",
