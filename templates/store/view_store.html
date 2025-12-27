@@ -57,7 +57,7 @@ body {
 
 /* ---------- HEADER ---------- */
 .store-header {
-  padding: 60px 0;
+  padding: 0;
   text-align: center;
   border-radius: 20px;
 }
@@ -581,7 +581,7 @@ body.dark .store-address {
 
 <!-- ---------- COMPANY TOP SECTION (SHARP UI STYLE) ---------- -->
 <!-- Right above your section tag -->
-<section class="company-top text-center bg-white shadow-sm  py-5 px-3 position-relative my-4">
+<section class="company-top text-center bg-white shadow-sm py-5 px-3 position-relative" style="margin:0;">
 
   <!-- Hero background -->
   {% if store.cover_image or store.brand_logo %}
@@ -590,7 +590,7 @@ body.dark .store-address {
   {% endif %}
 
   <!-- ---------- TOP RIGHT MENU ---------- -->
-<div class="dropdown position-absolute top-0 end-0 m-3">
+  <div class="dropdown position-absolute top-0 end-0 m-3">
   <button class="btn btn-light rounded-circle shadow-sm" type="button" id="storeMenu" data-bs-toggle="dropdown" aria-expanded="false">
     <i class="bi bi-three-dots-vertical fs-4 text-success"></i>
   </button>
@@ -778,14 +778,14 @@ function copyProLink() {
 
     {% if items_meta or items %}
       <div class="row g-4 justify-content-center">
-        {% for meta in items_meta|default:items %}
-          {% if meta.item %}{% with item=meta.item %}{% else %}{% with item=meta %}{% endif %}
+        {% for meta in items_meta %}
+          {% with item=meta.item %}
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm">
               <a href="{{ item.get_absolute_url }}">
-                <img src="{% if meta.cover_url %}{{ meta.cover_url }}{% else %}{{ item.image_url }}{% endif %}" class="card-img-top" alt="{{ item.name }}">
+                <img src="{{ meta.cover_url }}" class="card-img-top " alt="{{ item.name }}">
               </a>
-              <div class="card-body text-center">
+              <div class="card-body text-center ">
                 <h6>{{ item.name }}</h6>
                 {% if item.price %}
                   <p class="card-text">
@@ -798,7 +798,7 @@ function copyProLink() {
                   <button class="btn-like" data-item-id="{{ item.id }}">
                     <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
                   </button>
-                  <span id="likes-count-{{ item.id }}">{{ meta.likes_count|default:0 }}</span>
+                  <span id="likes-count-{{ item.id }}">{{ meta.likes_count }}</span>
                   <div class="d-flex align-items-center gap-1 text-success">
                     <i class="bi bi-eye-fill"></i>
                     <span>{{ item.views }}</span>
@@ -849,7 +849,6 @@ function copyProLink() {
     {% endif %}
   </div>
 </section>
-
 
 
 
