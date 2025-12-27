@@ -491,14 +491,17 @@ logger = logging.getLogger(__name__)
 def view_store(request, slug=None):
     try:
         # -------------------------------
-        # Use store from middleware if set
+        # Get store: from middleware, slug, or subdomain
         # -------------------------------
         store = getattr(request, "store", None)
         if not store:
             if slug:
                 store = get_object_or_404(Store, slug=slug)
             else:
-                raise Http404("Store not found")
+                # Attempt subdomain detection
+                host = request.get_host().split(':')[0]  # remove port if present
+                subdomain = host.split('.')[0]
+                store = get_object_or_404(Store, slug=subdomain)
 
         # -------------------------------
         # Prevent NoneType errors for related fields
@@ -603,6 +606,9 @@ def view_store(request, slug=None):
                 'user_liked': getattr(request.user, 'is_authenticated', False) and item.likes.filter(id=request.user.id).exists(),
             })
 
+        # -------------------------------
+        # Gallery & user check
+        # -------------------------------
         gallery_images = getattr(store, 'images', Item.objects.none()).filter(item__isnull=True)
         user_has_store = getattr(request.user, 'is_authenticated', False) and Store.objects.filter(owner=request.user).exists()
 
