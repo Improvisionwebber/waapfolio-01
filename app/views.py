@@ -1381,3 +1381,13 @@ def delete_store(request, store_id):
         return JsonResponse({"status": "success"})
 
     return JsonResponse({"status": "error", "message": "Invalid method"}, status=400)
+def root_dispatch(request):
+    """
+    Handles homepage:
+    - Subdomain → store homepage
+    - Main domain → normal home page
+    """
+    if hasattr(request, "store") and request.store:
+        return view_store(request)
+
+    return home(request)

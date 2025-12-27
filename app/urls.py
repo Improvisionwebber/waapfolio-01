@@ -17,8 +17,8 @@ urlpatterns = [
     # -------------------------
     # Public Pages
     # -------------------------
-    path('', views.view_store, name='subdomain_store_home'),
-    path('', views.home, name='home'),
+    path('', views.root_dispatch, name='home'),
+
     path('about/', views.about, name='about'),
     path('profile/', views.profile, name='profile'),
     path('problem-solving/', views.problem_solving, name='problem_solving'),
