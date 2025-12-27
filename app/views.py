@@ -516,7 +516,7 @@ def view_store(request, slug=None):
         # -------------------------------
         # Products (all items for the store)
         # -------------------------------
-        items_qs = Item.objects.filter(store=store, is_active=True).select_related()
+        items_qs = Item.objects.filter(store=store).select_related()
 
 
         # -------------------------------
