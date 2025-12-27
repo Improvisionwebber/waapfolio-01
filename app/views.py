@@ -74,10 +74,9 @@ class RegistrationForm(UserCreationForm):
 #     return render(request, "home.html", {"store": store, "user_stores": stores})
 from django.shortcuts import render
 from app.models import Store, Item  # adjust Item if needed
-
+from django.conf import settings
 
 def home(request):
-
     store = None
     stores = []
 
@@ -86,7 +85,12 @@ def home(request):
     # ----------------------------------
     if hasattr(request, "store") and request.store:
         store = request.store
-        items = Item.objects.filter(store=store, is_active=True)
+        # Make filter safe if 'is_active' doesn't exist
+        item_filters = {"store": store}
+        if "is_active" in [f.name for f in Item._meta.get_fields()]:
+            item_filters["is_active"] = True
+
+        items = Item.objects.filter(**item_filters)
 
         return render(request, "store/view_store.html", {
             "store": store,
@@ -115,6 +119,7 @@ def home(request):
         "store": store,
         "user_stores": stores
     })
+
 
 
 def about(request):
