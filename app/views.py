@@ -479,37 +479,47 @@ def create_store(request, id=0):
 #         'gallery_images': gallery_images,
 #         'user_has_store': user_has_store,
 #     })
-import logging, traceback
-from django.http import HttpResponse, Http404
-from django.shortcuts import get_object_or_404, render
+import logging
+import traceback
+from django.shortcuts import render, get_object_or_404
+from django.http import HttpResponse
 from django.db.models import Q
 from django.templatetags.static import static
-from django.urls import reverse
+from types import SimpleNamespace
+from .models import Store, Item, ItemView
 
 logger = logging.getLogger(__name__)
+
 def view_store(request, slug=None):
     try:
         # -------------------------------
-        # Resolve store
+        # Resolve store (subdomain + normal path)
         # -------------------------------
-        store = getattr(request, "store", None)
+        store = None
+
+        # Subdomain resolution (works in production)
+        if hasattr(request, "store") and request.store:
+            # Re-fetch from DB to ensure FK matches
+            store = Store.objects.filter(slug=request.store.slug).first()
+
+        # Normal path fallback
+        if not store and slug:
+            store = get_object_or_404(Store, slug=slug)
+
+        # Dev fallback (if testing on localhost / 127.0.0.1)
+        if not store and request.get_host() in ["127.0.0.1", "localhost"]:
+            store = Store.objects.first()  # pick first store for testing
 
         if not store:
-            if slug:
-                store = get_object_or_404(Store, slug=slug)
-            else:
-                raise Http404("Store not found")
+            raise Http404("Store not found")
 
         # -------------------------------
-        # Products (IMPORTANT FIX)
+        # Products (all items for the store)
         # -------------------------------
-        items_qs = Item.objects.filter(
-            store=store,
-            is_active=True
-        ).select_related()
+        items_qs = Item.objects.filter(store=store).select_related()
 
         # -------------------------------
-        # Search
+        # Search filter
         # -------------------------------
         query = request.GET.get("q")
         if query:
@@ -523,11 +533,10 @@ def view_store(request, slug=None):
         # -------------------------------
         if not request.session.session_key:
             request.session.create()
-
         session_key = request.session.session_key
 
         # -------------------------------
-        # Views tracking
+        # Store views tracking
         # -------------------------------
         if request.user != store.owner:
             viewed_key = f"viewed_store_{store.id}"
@@ -547,14 +556,11 @@ def view_store(request, slug=None):
             return static("images/no-image.png")
 
         # -------------------------------
-        # Build items_meta (FIX)
+        # Build items_meta
         # -------------------------------
         items_meta = []
         for item in items_qs:
-            if not ItemView.objects.filter(
-                item=item,
-                session_key=session_key
-            ).exists():
+            if not ItemView.objects.filter(item=item, session_key=session_key).exists():
                 item.views += 1
                 item.save(update_fields=["views"])
                 ItemView.objects.create(
@@ -577,29 +583,21 @@ def view_store(request, slug=None):
         # Share / meta
         # -------------------------------
         full_url = request.build_absolute_uri()
-        whatsapp_link = (
-            f"https://wa.me/{store.whatsapp_number}"
-            if store.whatsapp_number else ""
-        )
-
-        og_image = (
-            request.build_absolute_uri(items_meta[0]["cover_url"])
-            if items_meta else request.build_absolute_uri(
-                static("images/logo.png")
-            )
-        )
+        whatsapp_link = f"https://wa.me/{store.whatsapp_number}" if store.whatsapp_number else ""
+        og_image = request.build_absolute_uri(items_meta[0]["cover_url"]) if items_meta else request.build_absolute_uri(static("images/logo.png"))
 
         return render(request, "store/view_store.html", {
             "store": store,
-            "items_meta": items_meta,   # ✅ ONLY THIS
+            "items_meta": items_meta,
             "full_url": full_url,
             "whatsapp_link": whatsapp_link,
             "og_image": og_image,
         })
 
-    except Exception as e:
+    except Exception:
         logger.error(traceback.format_exc())
         return HttpResponse("Server error", status=500)
+
 
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
