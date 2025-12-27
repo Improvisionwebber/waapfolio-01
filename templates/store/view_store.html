@@ -777,38 +777,63 @@ function copyProLink() {
 <section class="pt-3 pb-5">
   <div class="container">
 
-    {% if items_meta or items %}
+    {% if items_meta %}
       <div class="row g-4 justify-content-center">
+
         {% for meta in items_meta %}
           {% with item=meta.item %}
           <div class="col-6 col-md-4 col-lg-3">
             <div class="card h-100 shadow-sm">
+
               <a href="{{ item.get_absolute_url }}">
-                <img src="{{ meta.cover_url }}" class="card-img-top " alt="{{ item.name }}">
+                <img
+                  src="{{ meta.cover_url }}"
+                  class="card-img-top"
+                  alt="{{ item.name }}"
+                >
               </a>
-              <div class="card-body text-center ">
+
+              <div class="card-body text-center">
                 <h6>{{ item.name }}</h6>
+
                 {% if item.price %}
                   <p class="card-text">
-                    {% if item.currency == "NGN" %}₦{% elif item.currency == "USD" %}${% elif item.currency == "EUR" %}€{% elif item.currency == "GBP" %}£{% elif item.currency == "GHS" %}₵{% elif item.currency == "MWK" %}MK{% endif %}
+                    {% if item.currency == "NGN" %}₦
+                    {% elif item.currency == "USD" %}$
+                    {% elif item.currency == "EUR" %}€
+                    {% elif item.currency == "GBP" %}£
+                    {% elif item.currency == "GHS" %}₵
+                    {% elif item.currency == "MWK" %}MK
+                    {% endif %}
                     {{ item.price|intcomma }}
                   </p>
                 {% endif %}
 
-                <div class="card-actions mt-2">
+                <div class="card-actions mt-2 d-flex justify-content-center align-items-center gap-2">
                   <button class="btn-like" data-item-id="{{ item.id }}">
                     <i class="bi {% if meta.user_liked %}bi-heart-fill liked-icon{% else %}bi-heart not-liked-icon{% endif %}"></i>
                   </button>
-                  <span id="likes-count-{{ item.id }}">{{ meta.likes_count }}</span>
+
+                  <span id="likes-count-{{ item.id }}">
+                    {{ meta.likes_count|default:0 }}
+                  </span>
+
                   <div class="d-flex align-items-center gap-1 text-success">
                     <i class="bi bi-eye-fill"></i>
                     <span>{{ item.views }}</span>
                   </div>
+
                   <button onclick="shareProduct('{{ item.get_absolute_url }}', '{{ item.name|escapejs }}')">
                     <i class="bi bi-share-fill text-success"></i>
                   </button>
                 </div>
-                <a href="{{ item.get_absolute_url }}" class="btn btn-outline-success w-100 view-details">Details</a>
+
+                <a
+                  href="{{ item.get_absolute_url }}"
+                  class="btn btn-outline-success w-100 view-details mt-2"
+                >
+                  Details
+                </a>
               </div>
             </div>
           </div>
@@ -816,40 +841,49 @@ function copyProLink() {
         {% endfor %}
 
         {% if request.user.is_authenticated and request.user == store.owner %}
-        <!-- Show Add Product card alongside existing products -->
-        <div class="col-6 col-md-4 col-lg-3">
-          <a href="{% url 'manage_store' store.slug %}" class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card">
-            <div class="text-center">
-              <i class="bi bi-plus-circle display-3"></i>
-              <h6 class="mt-2">Add New Product or Service</h6>
-            </div>
-          </a>
-        </div>
+          <div class="col-6 col-md-4 col-lg-3">
+            <a
+              href="{% url 'manage_store' store.slug %}"
+              class="card h-100 shadow-sm d-flex justify-content-center align-items-center text-success add-card"
+            >
+              <div class="text-center">
+                <i class="bi bi-plus-circle display-3"></i>
+                <h6 class="mt-2">Add New Product or Service</h6>
+              </div>
+            </a>
+          </div>
         {% endif %}
-      </div>
-    {% else %}
 
+      </div>
+
+    {% else %}
       <div class="text-center my-5">
+
         {% if request.user.is_authenticated and request.user == store.owner %}
-          <!-- ✅ If owner and no products, show Add Product card only -->
-          <a href="{% url 'manage_store' store.slug %}" class="card shadow-sm d-inline-flex justify-content-center align-items-center text-success add-card" style="width:220px; height:260px;">
+          <a
+            href="{% url 'manage_store' store.slug %}"
+            class="card shadow-sm d-inline-flex justify-content-center align-items-center text-success add-card"
+            style="width:220px; height:260px;"
+          >
             <div class="text-center">
               <i class="bi bi-plus-circle display-3"></i>
               <h6 class="mt-2">Add Your First Product</h6>
             </div>
           </a>
         {% else %}
-          <!-- ✅ If not owner, just show "No products found" -->
           <i class="bi bi-search fs-3 d-block mb-2"></i>
           No products found
           {% if request.GET.q %}
             for "<strong>{{ request.GET.q }}</strong>"
           {% endif %}
         {% endif %}
+
       </div>
     {% endif %}
+
   </div>
 </section>
+
 
 
 

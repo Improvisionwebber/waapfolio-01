@@ -6,9 +6,9 @@
 
 <div class="container py-5">
 
-  <a href="{% url 'view_store' product.store.slug %}" class="text-decoration-none text-dark mb-3 d-inline-block">
+  {% comment %} <a href="{% url 'view_store' product.store.slug %}" class="text-decoration-none text-dark mb-3 d-inline-block">
     <i class="bi bi-arrow-left"></i> Back to Store
-  </a>
+  </a> {% endcomment %}
 
   <h3 class="text-center mb-4 fw-bold">{{ product.name }}</h3>
 

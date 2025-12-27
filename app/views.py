@@ -487,157 +487,119 @@ from django.templatetags.static import static
 from django.urls import reverse
 
 logger = logging.getLogger(__name__)
-
 def view_store(request, slug=None):
     try:
         # -------------------------------
-        # Get store: from middleware, slug, or subdomain
+        # Resolve store
         # -------------------------------
         store = getattr(request, "store", None)
+
         if not store:
             if slug:
                 store = get_object_or_404(Store, slug=slug)
             else:
-                # Attempt subdomain detection
-                host = request.get_host().split(':')[0]  # remove port if present
-                subdomain = host.split('.')[0]
-                store = get_object_or_404(Store, slug=subdomain)
+                raise Http404("Store not found")
 
         # -------------------------------
-        # Prevent NoneType errors for related fields
+        # Products (IMPORTANT FIX)
         # -------------------------------
-        items = Item.objects.filter(store=store)
+        items_qs = Item.objects.filter(
+            store=store,
+            is_active=True
+        ).select_related()
 
         # -------------------------------
-        # Search logic
+        # Search
         # -------------------------------
         query = request.GET.get("q")
         if query:
-            all_names = list(items.values_list("name", flat=True))
-            if all_names:
-                from fuzzywuzzy import process
-                matches = process.extract(query, all_names, limit=15, score_cutoff=60)
-                matched_names = [m[0] for m in matches]
-                items = items.filter(name__in=matched_names)
-            if not items.exists():
-                items = items.filter(Q(name__icontains=query) | Q(description__icontains=query))
-
-        full_url = request.build_absolute_uri()
-        whatsapp_number = getattr(store, 'whatsapp_number', '') or ""
-        whatsapp_link = f"https://wa.me/{whatsapp_number}" if whatsapp_number else ""
-
-        # -------------------------------
-        # Session & views tracking
-        # -------------------------------
-        session_key = request.session.session_key
-        if not session_key:
-            request.session.create()
-            session_key = request.session.session_key
-
-        store_viewed_key = f"viewed_store_{store.id}"
-        if not request.session.get(store_viewed_key) and getattr(request.user, 'id', None) != getattr(store.owner, 'id', None):
-            store.total_views += 1
-            store.save()
-            viewer_name = request.user.username if getattr(request.user, 'is_authenticated', False) else "Someone"
-            Notification.objects.create(
-                user=store.owner,
-                message=f"{viewer_name} just viewed your store!",
-                link=request.build_absolute_uri()
+            items_qs = items_qs.filter(
+                Q(name__icontains=query) |
+                Q(description__icontains=query)
             )
-            request.session[store_viewed_key] = True
 
-        for item in items:
-            view_filter = Q(session_key=session_key)
-            if getattr(request.user, 'is_authenticated', False):
-                view_filter |= Q(user=request.user)
+        # -------------------------------
+        # Session
+        # -------------------------------
+        if not request.session.session_key:
+            request.session.create()
 
-            if not ItemView.objects.filter(item=item).filter(view_filter).exists():
+        session_key = request.session.session_key
+
+        # -------------------------------
+        # Views tracking
+        # -------------------------------
+        if request.user != store.owner:
+            viewed_key = f"viewed_store_{store.id}"
+            if not request.session.get(viewed_key):
+                store.total_views += 1
+                store.save(update_fields=["total_views"])
+                request.session[viewed_key] = True
+
+        # -------------------------------
+        # Helper: image
+        # -------------------------------
+        def get_cover(item):
+            if item.image_url:
+                return item.image_url
+            if item.image:
+                return item.image.url
+            return static("images/no-image.png")
+
+        # -------------------------------
+        # Build items_meta (FIX)
+        # -------------------------------
+        items_meta = []
+        for item in items_qs:
+            if not ItemView.objects.filter(
+                item=item,
+                session_key=session_key
+            ).exists():
                 item.views += 1
-                item.save()
+                item.save(update_fields=["views"])
                 ItemView.objects.create(
                     item=item,
-                    user=request.user if getattr(request.user, 'is_authenticated', False) else None,
+                    user=request.user if request.user.is_authenticated else None,
                     session_key=session_key
                 )
 
-        # -------------------------------
-        # Helper: get item cover image safely
-        # -------------------------------
-        def get_cover_url(item):
-            try:
-                if getattr(item, 'image_url', None):
-                    return item.image_url
-                if getattr(item, 'image', None):
-                    return item.image.url
-            except Exception:
-                logger.warning(f"Failed to get image url for item: {getattr(item, 'id', 'unknown')}")
-            extra = StoreImage.objects.filter(store=store, name=getattr(item, 'name', '')).first()
-            if extra:
-                if getattr(extra, 'image_url', None):
-                    return extra.image_url
-                if getattr(extra, 'file', None):
-                    try:
-                        return extra.file.url
-                    except Exception:
-                        pass
-            pm = ProductMedia.objects.filter(product=item).first()
-            if pm:
-                if getattr(pm, 'file', None):
-                    return pm.file.url
-                if getattr(pm, 'youtube_id', None):
-                    return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
-            return static('images/no-image.png')
-
-        # -------------------------------
-        # Build items meta
-        # -------------------------------
-        items_meta = []
-        for item in items:
-            try:
-                product_path = reverse('product_detail', kwargs={'slug': item.slug})
-                absolute_product_url = request.build_absolute_uri(product_path)
-            except Exception:
-                absolute_product_url = "#"
             items_meta.append({
-                'item': item,
-                'cover_url': get_cover_url(item),
-                'product_url': absolute_product_url,
-                'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
-                'user_liked': getattr(request.user, 'is_authenticated', False) and item.likes.filter(id=request.user.id).exists(),
+                "item": item,
+                "cover_url": get_cover(item),
+                "likes_count": item.likes.count(),
+                "user_liked": (
+                    request.user.is_authenticated and
+                    item.likes.filter(id=request.user.id).exists()
+                )
             })
 
         # -------------------------------
-        # Gallery & user check
+        # Share / meta
         # -------------------------------
-        gallery_images = getattr(store, 'images', Item.objects.none()).filter(item__isnull=True)
-        user_has_store = getattr(request.user, 'is_authenticated', False) and Store.objects.filter(owner=request.user).exists()
+        full_url = request.build_absolute_uri()
+        whatsapp_link = (
+            f"https://wa.me/{store.whatsapp_number}"
+            if store.whatsapp_number else ""
+        )
 
-        # -------------------------------
-        # Determine OG image for sharing
-        # -------------------------------
-        if items_meta:
-            og_image = request.build_absolute_uri(items_meta[0]['cover_url'])
-        elif getattr(store, 'brand_logo', None):
-            try:
-                og_image = request.build_absolute_uri(store.brand_logo.url)
-            except Exception:
-                og_image = static('images/logo.png')
-        else:
-            og_image = request.build_absolute_uri(static('images/logo.png'))
+        og_image = (
+            request.build_absolute_uri(items_meta[0]["cover_url"])
+            if items_meta else request.build_absolute_uri(
+                static("images/logo.png")
+            )
+        )
 
-        return render(request, 'store/view_store.html', {
-            'store': store,
-            'items_meta': items_meta,
-            'full_url': full_url,
-            'whatsapp_link': whatsapp_link,
-            'gallery_images': gallery_images,
-            'user_has_store': user_has_store,
-            'og_image': og_image,
+        return render(request, "store/view_store.html", {
+            "store": store,
+            "items_meta": items_meta,   # ✅ ONLY THIS
+            "full_url": full_url,
+            "whatsapp_link": whatsapp_link,
+            "og_image": og_image,
         })
 
-    except Exception:
-        logger.error("Error in view_store:\n%s", traceback.format_exc())
-        return HttpResponse("Something went wrong. Check server logs for details.", status=500)
+    except Exception as e:
+        logger.error(traceback.format_exc())
+        return HttpResponse("Server error", status=500)
 
 # -------------------------
 # Product Management (Images handled here, Videos handled via frontend → YouTube)
