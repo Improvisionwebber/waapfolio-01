@@ -176,7 +176,7 @@ body.dark #loadingOverlay .loading-text {
 {% endif %}
 
 <div class="d-flex justify-content-end mb-4 pd-4 outline-dark">
-  <a href="{% url 'view_store' store.slug %}" class="btn btn-success pt-3 mt-3">
+  <a href="{% url store.get_absolute_url %}" class="btn btn-success pt-3 mt-3">
     <i class="bi bi-box-arrow-up-right"></i> Visit Store Page
   </a>
 </div>
