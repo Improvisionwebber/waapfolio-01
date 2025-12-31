@@ -628,6 +628,10 @@ def manage_store(request, slug, item_id=None):
 
         # ---------------------- EXISTING STORE LOGIC ----------------------
         store = get_object_or_404(Store, slug=slug, owner=request.user)
+        # ---------------------- SUBDOMAIN ENFORCEMENT ----------------------
+        if hasattr(request, "store"):
+            if request.store.slug != store.slug:
+                return redirect(store.get_absolute_url())
 
         if item_id:
             item = get_object_or_404(Item, id=item_id, store=store)
