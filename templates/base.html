@@ -3,999 +3,934 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="icon" type="image/x-icon" href="{% static "images/logo-bg.png" %}">
+    <link rel="icon" type="image/x-icon" href="{% static 'images/logo-bg.png' %}">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WAAPFOLIO {% block title %}{% endblock title %}</title>
-     {% block head %}{% endblock head %}
+    {% block head %}{% endblock head %}
+    
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
     {% block meta %}
     <!-- Open Graph / Social Meta Tags -->
-    <meta property="og:title" content="{{ store.brand_name }} | WaapFolio" />
-    <meta property="og:description" content="{{ store.Bio|truncatewords:20 }}" />
-    <meta property="og:image" content="{% if store.brand_logo %}{{ store.brand_logo.url }}{% elif store.brand_logo_url %}{{ store.brand_logo_url }}{% else %}{% static 'images/logo.png' %}{% endif %}" />
+    <meta property="og:title" content="{{ store.brand_name|default:'Waapfolio' }} | WaapFolio" />
+    <meta property="og:description" content="{{ store.Bio|default:'Build your dream online store'|truncatewords:20 }}" />
+    <meta property="og:image" content="{% if store.brand_logo %}{{ store.brand_logo.url }}{% elif store.brand_logo_url %}{{ store.brand_logo_url }}{% else %}{% static 'images/logo-bg.png' %}{% endif %}" />
     <meta property="og:url" content="{{ request.build_absolute_uri }}" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="WaapFolio" />
-
-    <!-- Optional Extra SEO Boost -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ store.brand_name }} | WaapFolio" />
-    <meta name="twitter:description" content="{{ store.Bio|truncatewords:20 }}" />
-    <meta name="twitter:image" content="{% if store.brand_logo %}{{ store.brand_logo.url }}{% elif store.brand_logo_url %}{{ store.brand_logo_url }}{% else %}{% static 'images/logo.png' %}{% endif %}" />
-
+    <meta name="twitter:title" content="{{ store.brand_name|default:'Waapfolio' }} | WaapFolio" />
+    <meta name="twitter:description" content="{{ store.Bio|default:'Build your dream online store'|truncatewords:20 }}" />
+    <meta name="twitter:image" content="{% if store.brand_logo %}{{ store.brand_logo.url }}{% elif store.brand_logo_url %}{{ store.brand_logo_url }}{% else %}{% static 'images/logo-bg.png' %}{% endif %}" />
     <meta name="author" content="WaapFolio Team" />
     <meta name="application-name" content="WaapFolio" />
-    <meta name="theme-color" content="#111827" />
-
+    <meta name="theme-color" content="#00D26A" />
     {% endblock %}
 
+    <style>
+        /* ================= CSS VARIABLES ================= */
+        :root {
+            --primary: #00D26A;
+            --primary-glow: rgba(0, 210, 106, 0.4);
+            --primary-dark: #00a854;
+            --secondary: #1A1A2E;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --text-muted: #6B6B7B;
+            --bg-dark: #0A0A14;
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --gradient-primary: linear-gradient(135deg, #00D26A 0%, #00FFA3 100%);
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            --mobile-bottom-nav-height: 60px;
+        }
 
-  <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-body.dark {
-  background-color: #121212 !important;
-  color: #eee !important;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  transition: background-color 0.3s, color 0.3s;
-}
+        body {
+            font-family: 'Inter', 'Segoe UI', sans-serif;
+            background: #f8f9fa;
+            color: #333;
+            padding-top: 80px;
+            min-height: 100vh;
+        }
 
-/* Text colors for headings */
-body.dark h1,
-body.dark h2,
-body.dark h3,
-body.dark h4,
-body.dark h5,
-body.dark h6 {
-  color: #eee !important;
-}
+        /* ================= NAVBAR ================= */
+        .waap-navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 0.8rem 2rem;
+            backdrop-filter: blur(20px);
+            background: rgba(255, 255, 255, 0.95);
+            border-bottom: 1px solid rgba(0, 210, 106, 0.2);
+            transition: var(--transition-smooth);
+        }
 
-/* Paragraphs */
-body.dark p {
-  color: #eee !important;
-}
+        .waap-navbar.scrolled {
+            background: rgba(255, 255, 255, 0.98);
+            box-shadow: 0 4px 30px rgba(0, 210, 106, 0.15);
+        }
 
-/* Muted and primary text */
-body.dark p.text-muted {
-  color: #bbb !important;
-}
-body.dark p.text-primary {
-  color: #9ccaff !important; /* lighter blue for contrast */
-}
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
 
-/* Links */
-body.dark a.text-dark,
-body.dark a.text-decoration-none {
-  color: #8cc4ff !important;
-}
-body.dark a.text-decoration-none:hover {
-  color: #b3d1ff !important;
-}
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
 
-/* Buttons */
-body.dark a.btn-primary,
-body.dark a.btn-success,
-body.dark .btn-primary,
-body.dark .btn-success {
-  color: #fff !important;
-  border-color: transparent !important;
-}
-body.dark .btn-success {
-  background-color: #198754 !important; /* keep green */
-}
-body.dark .btn-primary {
-  background-color: #007bff !important; /* blue */
-}
+        .nav-logo img {
+            height: 45px;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+            transition: var(--transition-smooth);
+        }
 
-/* Containers */
-body.dark .container {
-  background-color: #1e1e1e !important;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 8px rgba(255 255 255 / 0.1);
-  padding: 1.5rem;
-  color: #eee !important;
-}
+        .nav-logo:hover img {
+            transform: scale(1.1) rotate(5deg);
+        }
 
-/* Override all text inside container */
-body.dark .container *,
-body.dark .container p,
-body.dark .container li {
-  color: #eee !important;
-}
+        .nav-logo span {
+            font-size: 1.6rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-/* Lists */
-body.dark ol,
-body.dark ul {
-  padding-left: 1.5rem;
-}
-body.dark li {
-  margin-bottom: 0.5rem;
-  color: #eee !important;
-}
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
 
-/* Cards */
-body.dark .card {
-  background-color: #1e1e1e !important;
-  color: #eee !important;
-  box-shadow: 0 0 10px rgba(255 255 255 / 0.1) !important;
-}
-body.dark .card-text,
-body.dark .card-title {
-  color: #eee !important;
-}
-body.dark .card img {
-  border: 1px solid #333;
-  border-radius: 8px;
-}
+        .nav-links a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-weight: 500;
+            position: relative;
+            transition: var(--transition-smooth);
+            padding: 0.5rem 0;
+        }
 
-/* Hero text */
-body.dark .hero-txt,
-body.dark .hero-txt1,
-body.dark .hero-txt2 {
-  color: #eee !important;
-}
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: var(--transition-smooth);
+        }
 
-/* Accordion */
-body.dark .accordion-button {
-  background-color: #1e1e1e !important;
-  color: #eee !important;
-  border-color: #333 !important;
-}
-body.dark .accordion-button:not(.collapsed) {
-  background-color: #2a2a2a !important;
-  color: #fff !important;
-}
-body.dark .accordion-collapse {
-  background-color: #1e1e1e !important;
-  color: #eee !important;
-}
+        .nav-links a:hover {
+            color: var(--primary);
+        }
 
-/* Offcanvas bottom menu */
-body.dark .offcanvas.offcanvas-bottom {
-  background-color: #121212 !important;
-  color: #eee !important;
-  border-top: 1px solid #333;
-}
-body.dark .offcanvas.offcanvas-bottom .offcanvas-header {
-  border-bottom: 1px solid #333;
-}
-body.dark .offcanvas.offcanvas-bottom .offcanvas-title {
-  color: #4da6ff !important;
-}
-body.dark .offcanvas.offcanvas-bottom .btn-close {
-  filter: invert(1);
-}
-body.dark .offcanvas.offcanvas-bottom .list-group-item {
-  background-color: transparent !important;
-  color: #eee !important;
-  border: none;
-}
-body.dark .offcanvas.offcanvas-bottom .list-group-item:hover {
-  background-color: #222 !important;
-  color: #fff !important;
-}
+        .nav-links a:hover::after {
+            width: 100%;
+        }
 
-/* Buttons with outline */
-body.dark .btn-outline-primary {
-  color: #4da6ff !important;
-  border-color: #4da6ff !important;
-}
-body.dark .btn-outline-primary:hover {
-  background-color: #4da6ff !important;
-  color: #fff !important;
-}
-body.dark .btn-outline-success {
-  color: #4caf50 !important;
-  border-color: #4caf50 !important;
-}
-body.dark .btn-outline-success:hover {
-  background-color: #4caf50 !important;
-  color: #fff !important;
-}
-/* Only affects this testimonial in dark mode */
-body.dark .testimonial-green p,
-body.dark .testimonial-green strong {
-  color: #28a745 !important; /* green for dark mode */
-}
-/* Dark mode navbar */
-body.dark .navbar,
-body.dark .navbar-collapse,
-body.dark .offcanvas {
-  background-color: #121212 !important; /* very dark background */
-  color: #eee !important;
-}
+        .nav-cta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
 
-/* Navbar links */
-body.dark .navbar a,
-body.dark .navbar .nav-link {
-  color: #eee !important;
-}
+        /* Buttons */
+        .btn-waap {
+            padding: 0.7rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+        }
 
-body.dark .navbar a:hover,
-body.dark .navbar .nav-link:hover {
-  color: #f8f8f9ff !important; /* optional highlight on hover */
-}
+        .btn-waap-primary {
+            background: var(--gradient-primary);
+            color: var(--secondary);
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
 
-/* Navbar toggler button */
-body.dark .navbar-toggler {
-  border-color: #eee !important;
-}
+        .btn-waap-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--primary-glow);
+            color: var(--secondary);
+        }
 
-body.dark .navbar-toggler-icon {
-  filter: invert(1); /* makes hamburger icon visible in dark mode */
-}
-body {
-    margin-bottom: 100px; /* same as your mobile nav height */
-} 
-/* Kill the "Currently: ..." text and link, keep the file input */
-p:has(> a[href*="/media/"]) {
-    font-size: 0; /* hide the text */
-}
+        .btn-waap-secondary {
+            background: transparent;
+            color: var(--secondary);
+            border: 2px solid var(--primary);
+        }
 
-p:has(> a[href*="/media/"]) a {
-    display: none !important; /* hide the link */
-}
+        .btn-waap-secondary:hover {
+            background: var(--primary);
+            color: white;
+        }
 
-p:has(> a[href*="/media/"])::before {
-    content: ""; /* remove 'Currently:' completely */
-}
+        /* Mobile Menu Button */
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
 
-/* Mobile bottom nav dark mode */
-body.dark .mobile-bottom-nav {
-  background: #1e1e1e !important;  /* dark background */
-  border-top: 1px solid #333;
-}
+        .mobile-menu-btn span {
+            width: 28px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 3px;
+            transition: var(--transition-smooth);
+        }
 
-body.dark .mobile-bottom-nav a {
-  color: #eee !important;
-}
+        .mobile-menu-btn.active span:nth-child(1) {
+            transform: rotate(45deg) translate(6px, 6px);
+        }
 
-body.dark .mobile-bottom-nav a:hover {
-  color: #4da6ff !important; /* highlight hover */
-}
-/* --- DARK MODE FIXES --- */
+        .mobile-menu-btn.active span:nth-child(2) {
+            opacity: 0;
+        }
 
-/* socials pill */
-body.dark .social-pill {
-  background: #2a2a2a !important;
-  border: 1px solid #444 !important;
-  color: #fff !important;
-}
-body.dark .social-pill:hover {
-  background: #007bff !important;
-  border-color: #007bff !important;
-  color: #fff !important;
-}
+        .mobile-menu-btn.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(6px, -6px);
+        }
 
-/* WhatsApp share + Contact Seller buttons */
-body.dark .btn-success,
-body.dark .btn-outline-success {
-  background-color: #2a2a2a !important;
-  color: #4caf50 !important; /* WhatsApp green */
-  border: 1px solid #4caf50 !important;
-}
-body.dark .btn-success:hover,
-body.dark .btn-outline-success:hover {
-  background-color: #4caf50 !important;
-  color: #fff !important;
-}
+        /* Mobile Menu */
+        .mobile-menu {
+            display: none;
+            position: fixed;
+            top: 75px;
+            left: 0;
+            right: 0;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            padding: 2rem;
+            border-bottom: 2px solid var(--primary);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            z-index: 999;
+        }
 
-/* kebab (3-dot) dropdown menu button */
-body.dark .dropdown .btn-light {
-  background-color: #2a2a2a !important;
-  border: 1px solid #444 !important;
-}
-body.dark .dropdown .btn-light i {
-  color: #fff !important;
-}
+        .mobile-menu.active {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
 
-/* dropdown menu container */
-body.dark .dropdown-menu {
-  background-color: #1e1e1e !important;
-  border: 1px solid #333 !important;
-}
-body.dark .dropdown-menu .dropdown-item {
-  color: #eee !important;
-}
-body.dark .dropdown-menu .dropdown-item:hover {
-  background-color: #2a2a2a !important;
-  color: #fff !important;
-}
-/* --- DARK MODE FIXES --- */
-body.dark .card {
-  background: #1e1e1e;
-  border: 1px solid #333;
-}
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
 
-body.dark .card-body h6,
-body.dark .card-body p,
-body.dark .card-actions span {
-  color: #eee !important;
-}
+        .mobile-menu ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-/* buttons inside product cards */
-body.dark .card-actions button {
-  background-color: #2a2a2a !important;
-  border: 1px solid #444 !important;
-}
-body.dark .card-actions button:hover {
-  background-color: #3a3a3a !important;
-  box-shadow: 0 5px 15px rgba(0,255,0,0.2);
-}
+        .mobile-menu li {
+            margin-bottom: 1rem;
+        }
 
-/* icons inside the buttons */
-body.dark .card-actions i {
-  color: #00cc00 !important;  /* WhatsApp green or your accent */
-}
-/* 🌙 Dark mode for Add Product form */
-body.dark form.form {
-  background: #1c1c1c !important;
-  color: #f1f1f1 !important;
-}
+        .mobile-menu a {
+            color: var(--secondary);
+            text-decoration: none;
+            font-size: 1.1rem;
+            font-weight: 500;
+            display: block;
+            padding: 0.8rem 1rem;
+            border-radius: 10px;
+            transition: var(--transition-smooth);
+        }
 
-body.dark form.form label,
-body.dark form.form h4,
-body.dark form.form h2,
-body.dark form.form h5 {
-  color: #f1f1f1 !important;
-}
+        .mobile-menu a:hover {
+            background: var(--primary);
+            color: white;
+        }
 
-body.dark .form-control,
-body.dark .form-select {
-  background: #2a2a2a !important;
-  color: #f1f1f1 !important;
-  border: 1px solid #444 !important;
-}
+        .mobile-menu-cta {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #eee;
+        }
 
-body.dark .form-control::placeholder {
-  color: #aaa !important;
-}
+        /* ================= MAIN CONTENT ================= */
+        .main-content {
+            min-height: calc(100vh - 400px);
+            padding-bottom: 2rem;
+        }
 
-body.dark .extra-img-card {
-  background: #2a2a2a !important;
-}
-body.dark .container {
-  background-color: #1e1e1e !important;
-  border-radius: 0.5rem;
-  box-shadow: 0 4px 8px rgba(255 255 255 / 0.1);
-  padding: 1.5rem;
-  color: #eee !important;
-}
-body.dark .container {
-  background-color: #1e1e1e !important;
-  color: #eee !important;
-}
-/* 🌙 Dark mode modals */
-body.dark .modal-content {
-  --bs-modal-bg: #1e1e1e;
-  --bs-modal-color: #eee;
-  --bs-modal-border-color: #333;
-  --bs-modal-header-border-color: #333;
-  --bs-modal-footer-border-color: #333;
+        /* ================= FOOTER ================= */
+        .waap-footer {
+            background: var(--secondary);
+            padding: 4rem 2rem 2rem;
+            border-top: 3px solid var(--primary);
+            margin-top: auto;
+        }
 
-  background-color: var(--bs-modal-bg) !important;
-  color: var(--bs-modal-color) !important;
-  border-color: var(--bs-modal-border-color) !important;
-}
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
 
-body.dark .modal-header,
-body.dark .modal-footer {
-  background-color: #1e1e1e !important;
-  border-color: #333 !important;
-}
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
 
-body.dark .modal-title {
-  color: #eee !important;
-}
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
 
-body.dark .btn-close {
-  filter: invert(1);
-  opacity: .85;
-}
-/* 🌙 Dark mode for Notifications */
-body.dark .list-group-item {
-  background-color: #1e1e1e !important;
-  color: #4caf50 !important; /* green text */
-  border: 1px solid #333 !important;
-}
+        .footer-logo img {
+            height: 45px;
+        }
 
-body.dark .list-group-item p {
-  color: #4caf50 !important; /* notification message in green */
-}
+        .footer-logo span {
+            font-size: 1.5rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
 
-body.dark .list-group-item span {
-  color: #9ccaff !important; /* keep time ago in light blue for contrast */
-}
+        .footer-brand p {
+            color: var(--text-secondary);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
 
-.action-buttons form,
-.action-buttons a {
-  display: inline-flex;
-  align-items: center;
-}
+        .footer-social {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+        }
 
-.action-buttons {
-  display: flex;
-  justify-content: flex-end; /* or space-between depending on layout */
-  align-items: center;
-}
-/* On desktop, push kebab dropdown below header */
-@media (min-width: 992px) {
-  .navbar .dropdown {
-    position: relative;
-    top: 80px; /* adjust to match your header height */
-  }
-}
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            font-size: 1.2rem;
+        }
 
+        .social-icon:hover {
+            background: var(--primary);
+            color: var(--secondary);
+            transform: translateY(-3px);
+        }
 
-    /* ---------- Global Loader ---------- */
-    .global-loader {
-      position: fixed;
-      inset: 0;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      background: rgba(0,0,0,0.25);
-      z-index: 9999;
-    }
-    .spinner {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      border: 6px solid rgba(0,0,0,0.1);
-      border-top-color: #11b981;
-      animation: spin 0.9s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    {% comment %} .search-float-btn {
-  position: fixed;
-  bottom: 120px; /* move up from bottom nav */
-  right: 20px;
-  width: 55px;
-  height: 55px;
-  font-size: 22px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 1050;
-} {% endcomment %}
-/* ---------- SAFE SPACING FOR FIXED MOBILE NAV ---------- */
-/* tweak these values if your nav height differs */
-:root{
-  --mobile-bottom-nav-height: 40px; /* height of your mobile-bottom-nav */
-  --mobile-top-nav-height: 0px;     /* set >0 if you have a fixed top nav */
-}
+        .social-icon.whatsapp:hover { background: #25D366; color: white; }
+        .social-icon.instagram:hover { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); color: white; }
+        .social-icon.telegram:hover { background: #0088cc; color: white; }
+        .social-icon.tiktok:hover { background: #000; color: white; }
+        .social-icon.youtube:hover { background: #FF0000; color: white; }
 
-/* on small screens ensure extra padding so nothing sits under fixed bottom nav */
-@media (max-width: 767px) {
-  /* ensure the whole page leaves room for bottom nav + safe area */
-  html, body {
-    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
-    /* for scroll-to-anchor behaviour */
-    scroll-padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
-  }
+        .footer-column h4 {
+            color: var(--text-primary);
+            margin-bottom: 1.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+        }
 
-  /* give main containers an extra bottom buffer too */
-  .container, .main-content, main {
-    padding-bottom: calc(var(--mobile-bottom-nav-height) + 1rem);
-    margin-bottom: 0; /* avoid double margins */
-  }
+        .footer-links {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
 
-  /* push floating search button above bottom nav */
-  {% comment %} .search-float-btn {
-    bottom: calc(var(--mobile-bottom-nav-height) + 60px);
-  } {% endcomment %}
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
 
-  /* small visual polish */
-  .mobile-bottom-nav {
-    height: var(--mobile-bottom-nav-height);
-    padding-top: 6px;
-    padding-bottom: calc(6px + env(safe-area-inset-bottom));
-    box-shadow: 0 -6px 18px rgba(0,0,0,0.08);
-    z-index: 1060; /* keep above most things */
-  }
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+            display: inline-block;
+        }
 
-  /* ensure last rows of grid have breathing room */
-  .row.g-3, .search-results-row {
-    margin-bottom: calc(var(--mobile-bottom-nav-height) + 1rem);
-    padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom));
-  }
-}
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 8px;
+        }
 
-/* Desktop: smaller bottom padding (if needed) */
-@media (min-width: 768px) {
-  html, body {
-    padding-bottom: 24px;
-    scroll-padding-top: 12px;
-  }
-}
+        .footer-bottom {
+            border-top: 1px solid var(--border-glass);
+            padding-top: 2rem;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
 
-/* Card consistent sizing (already added earlier but keep here centrally) */
-.card.flex-fill.h-100 {
-  display: flex;
-  flex-direction: column;
-  min-height: 100%;
-}
-.card-img-top {
-  height: 150px;
-  object-fit: contain;
-  padding: 10px;
-}
+        .footer-bottom p {
+            color: var(--text-muted);
+            margin: 0;
+        }
 
-/* Optional helper class: add to pages that need extra space */
-.add-bottom-safe {
-  padding-bottom: calc(var(--mobile-bottom-nav-height) + env(safe-area-inset-bottom)) !important;
-}
-.waap-footer {
-  background: #f8f9fa;
-  border-top: 2px solid #198754; /* your green accent */
-}
-.waap-footer a:hover {
-  color: #198754 !important;
-}
-body.dark .waap-footer {
-  background: #1e1e1e !important;
-  border-top: 2px solid #198754 !important;
-}
-body.dark .waap-footer h6,
-body.dark .waap-footer p,
-body.dark .waap-footer a,
-body.dark .waap-footer small {
-  color: #eee !important;
-}
-/* Fix floating search button z-index */
-.fab-container {
-  z-index: 9999 !important; /* Increase z-index */
-  position: fixed !important;
-}
+        .footer-bottom-links {
+            display: flex;
+            gap: 2rem;
+        }
 
-/* Ensure carousel doesn't overlap */
-.featured-swiper-container,
-.featuredSwiper,
-.swiper {
-  position: relative;
-  z-index: 1 !important; /* Lower than floating button */
-}
+        .footer-bottom-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: var(--transition-smooth);
+        }
 
-/* Make sure nothing in the viewstore overlaps */
-.hero-banner, 
-.company-top,
-.featured-swiper-container {
-  z-index: 1;
-}
-/* Sidebar styles */
-.sidebar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 250px;
-    background: #ffffff;
-    padding-top: 1rem;
-    transition: transform 0.3s ease;
-    z-index: 1040;
-}
+        .footer-bottom-links a:hover {
+            color: var(--primary);
+        }
 
-.sidebar .nav-link {
-    padding: 0.75rem 1rem;
-    font-weight: 500;
-}
+        /* ================= MOBILE BOTTOM NAV ================= */
+        .mobile-bottom-nav {
+            display: none;
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: white;
+            border-top: 2px solid var(--primary);
+            padding: 0.5rem 1rem;
+            z-index: 1000;
+            box-shadow: 0 -5px 20px rgba(0, 0, 0, 0.1);
+        }
 
-.sidebar .nav-link:hover {
-    background-color: #e9ecef;
-    color: #198754;
-}
-.top-bar {
-    background-color: #ffffff;
-    border-bottom: 1px solid #dee2e6;
-}
-/* Collapsed sidebar for mobile */
-.sidebar.collapsed {
-    transform: translateX(-100%);
-}
+        .mobile-bottom-nav-inner {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            max-width: 500px;
+            margin: 0 auto;
+        }
 
-/* Push page content */
-body.with-sidebar {
-    margin-left: 250px; /* same width as sidebar */
-}
+        .mobile-nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-decoration: none;
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            padding: 0.5rem;
+            transition: var(--transition-smooth);
+        }
 
-@media (max-width: 767px) {
-    body.with-sidebar {
-        margin-left: 0;
-    }
-}
-#sidebarToggle {
-    color: #fff; /* white hamburger */
-    font-size: 1.5rem;
-    border: none;
-    background: #198754; /* or transparent */
-}
+        .mobile-nav-item i {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+        }
 
-/* Sidebar close button ✖ always red */
-#sidebarClose {
-    color: red !important;        /* force red */
-    font-size: 1.2rem;
-    border: none;
-    background: transparent;
-}
+        .mobile-nav-item:hover,
+        .mobile-nav-item.active {
+            color: var(--primary);
+        }
 
-#sidebarClose:hover {
-    color: darkred !important;    /* optional hover effect */
-}
+        /* ================= GLOBAL LOADER ================= */
+        .global-loader {
+            position: fixed;
+            inset: 0;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: 9999;
+        }
 
-.top-bar {
-    position: sticky;
-    top: 0;
-    width: 100%;
-    z-index: 100; /* lower than sidebar */
-}
+        .global-loader.active {
+            display: flex;
+        }
 
-.sidebar {
-    z-index: 200; /* higher than top bar */
-}
-  </style>
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 5px solid rgba(255, 255, 255, 0.3);
+            border-top-color: var(--primary);
+            animation: spin 0.9s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ================= DARK MODE ================= */
+        body.dark {
+            background: var(--bg-dark);
+            color: var(--text-primary);
+        }
+
+        body.dark .waap-navbar {
+            background: rgba(10, 10, 20, 0.95);
+            border-bottom-color: var(--primary);
+        }
+
+        body.dark .nav-links a {
+            color: var(--text-secondary);
+        }
+
+        body.dark .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        body.dark .mobile-menu {
+            background: rgba(26, 26, 46, 0.98);
+        }
+
+        body.dark .mobile-menu a {
+            color: var(--text-primary);
+        }
+
+        body.dark .mobile-bottom-nav {
+            background: var(--secondary);
+        }
+
+        body.dark .container {
+            background: rgba(30, 30, 30, 0.9);
+            color: var(--text-primary);
+        }
+
+        body.dark .card {
+            background: rgba(30, 30, 30, 0.95);
+            border-color: var(--border-glass);
+            color: var(--text-primary);
+        }
+
+        body.dark .form-control,
+        body.dark .form-select {
+            background: rgba(40, 40, 40, 0.9);
+            color: var(--text-primary);
+            border-color: var(--border-glass);
+        }
+
+        body.dark .modal-content {
+            background: var(--secondary);
+            color: var(--text-primary);
+        }
+
+        body.dark .btn-close {
+            filter: invert(1);
+        }
+
+        /* ================= RESPONSIVE ================= */
+        @media (max-width: 992px) {
+            .nav-links,
+            .nav-cta {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr 1fr;
+                gap: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding-top: 70px;
+                padding-bottom: calc(var(--mobile-bottom-nav-height) + 20px);
+            }
+
+            .waap-navbar {
+                padding: 0.6rem 1rem;
+            }
+
+            .nav-logo img {
+                height: 38px;
+            }
+
+            .nav-logo span {
+                font-size: 1.3rem;
+            }
+
+            .mobile-bottom-nav {
+                display: block;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .footer-logo,
+            .footer-social {
+                justify-content: center;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .footer-bottom-links {
+                justify-content: center;
+            }
+
+            .waap-footer {
+                padding-bottom: calc(var(--mobile-bottom-nav-height) + 2rem);
+            }
+        }
+
+        /* ================= UTILITY CLASSES ================= */
+        .text-gradient {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glow-effect {
+            box-shadow: 0 0 30px var(--primary-glow);
+        }
+/* Loading Animation */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            animation: loaderPulse 1.5s infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .loader-text {
+            margin-top: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        {% block extra_styles %}{% endblock extra_styles %}
+    </style>
 </head>
 <body>
-<div class="page-wrapper d-flex flex-column min-vh-100">
-{% if messages %}
-  <div class="messages">
-    {% for message in messages %}
-      {% if 'error' in message.tags %}
-        <p class="text-danger">{{ message }}</p>
-      {% endif %}
-    {% endfor %}
-  </div>
-{% endif %}
-<header id="topBar" class="top-bar d-flex align-items-center p-2 d-lg-none">
-    <button id="sidebarToggle" class="btn btn-success me-2">
-        ☰
-    </button>
-    <span class="fw-bold fs-5 text-success">WAAPFOLIO</span>
-</header>
+    <!-- Loader -->
+    <div class="loader" id="loader">
+        <div class="loader-content">
+            <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio" class="loader-logo">
+            <div class="loader-text">Waapfolio</div>
+        </div>
+    </div>
 
+    <!-- Messages -->
+    {% if messages %}
+    <div class="position-fixed top-0 end-0 p-3" style="z-index: 9999; margin-top: 80px;">
+        {% for message in messages %}
+        <div class="alert alert-{% if 'error' in message.tags %}danger{% elif 'success' in message.tags %}success{% else %}info{% endif %} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
 
-  <!-- ---------- Global Loader Overlay ---------- -->
-  <div id="globalLoader" class="global-loader">
-    <div class="spinner"></div>
-  </div>
-
-
-
-  <div class="waap-footer bg-dark d-none d-md-block">
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid py-2">
-            <!-- Logo + Brand -->
-            <a class="navbar-brand d-flex align-items-center text-success me-3" href="{% url 'home' %}">
-                <img src="{% static 'images/logo-bg.png' %}" alt="Logo" width="32" height="32" class="me-2">
-                WAAPFOLIO
+    <!-- Navbar -->
+    <nav class="waap-navbar" id="navbar">
+        <div class="nav-container">
+            <a href="{% url 'home' %}" class="nav-logo">
+                <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio Logo">
+                <span>WAAPFOLIO</span>
             </a>
 
-            <!-- Toggler for mobile -->
-            <button class="navbar-toggler border-success" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
+            <ul class="nav-links">
+               <li><a href="{% url 'about' %}">About Us </a></li>
+                <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
+               
+                {% if active_store %}
+                <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
+                {% endif %}
+                {% comment %} <li><a href="/marketplace">Marketplace</a></li> {% endcomment %}
+                <li><a href="/pricing">Pricing</a></li>
+                <li><a href="/templates">Templates</a></li>
+                <li><a href="/referral">Referral</a></li>
+            </ul>
 
-            <!-- Links -->
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto align-items-center">
-                    <li class="nav-item">
-                        <a class="nav-link text-white" aria-current="page" href="{% url 'home' %}">Home</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'about' %}">About</a>
-                    </li>
-                    {% if active_store %}
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{{ active_store.get_absolute_url }}">Store</a>
-                    </li>
-                    {% endif %}
-                    {% if request.user.is_authenticated %}
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'profile' %}">Settings</a>
-                    </li>
-                    {% endif %}
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="{% url 'marketplace' %}">Marketplace</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link text-white" href="#" data-bs-toggle="modal" data-bs-target="#moreModal">More</a>
-                    </li>
-                </ul>
+            <div class="nav-cta">
+                {% if request.user.is_authenticated %}
+                <a href="/settings" class="btn-waap btn-waap-secondary">
+                    <i class="bi bi-gear"></i> Settings
+                </a>
+                <a href="/logout" class="btn-waap btn-waap-primary">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </a>
+                {% else %}
+                <a href="{% url 'login' %}" class="btn-waap btn-waap-secondary">Login</a>
+                <a href="{% url 'register' %}" class="btn-waap btn-waap-primary">Get Started</a>
+                {% endif %}
             </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
         </div>
     </nav>
-</div>
 
-
-
-    {% block body %}{% endblock body %}
-<!-- Floating Search Button -->
-<div class="position-fixed bottom-0 end-0 p-4">
-  <div class="fab-container">
-    <!-- Main FAB -->
-    <button id="mainFab" class="btn btn-success rounded-circle shadow-lg fab-main">
-      🔍
-    </button>
-
-    <!-- Expanding options -->
-    <div class="fab-options">
-      <a href="{% url 'store_search' %}" 
-         class="btn btn-light shadow-sm d-flex align-items-center gap-2 fab-option px-3 py-2 rounded-pill">
-        <span class="fs-6 text-success fw-semibold">🏬 Stores</span>
-      </a>
-      <a href="{% url 'product_search' %}" 
-         class="btn btn-light shadow-sm d-flex align-items-center gap-2 fab-option px-3 py-2 rounded-pill">
-        <span class="fs-6 text-success fw-semibold">🛍 Products</span>
-      </a>
-    </div>
-  </div>
-</div>
-
-<style>
-  /* Container */
-  .fab-container {
-  position: fixed !important;
-  bottom: calc(var(--mobile-bottom-nav-height) + 70px); /* stays above mobile nav */
-  right: 20px;
-  z-index: 1100;
-  }
-
-  /* Main FAB */
-  .fab-main {
-    width: 60px;
-    height: 60px;
-    font-size: 24px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.3s ease;
-  }
-
-  /* Options (hidden by default) */
-  .fab-options {
-    position: absolute;
-    bottom: 70px;
-    right: 0;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-    opacity: 0;
-    transform: translateY(20px);
-    pointer-events: none;
-    transition: all 0.3s ease;
-  }
-
-  /* Each option */
-  .fab-option {
-    border-radius: 50px;
-    padding: 8px 16px;
-    font-size: 15px;
-    transition: background 0.2s;
-  }
-  .fab-option:hover {
-    background: #e8f5e9;
-  }
-
-  /* When active */
-  .fab-container.active .fab-options {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-  }
-  .fab-container.active .fab-main {
-    transform: rotate(45deg);
-  }
-  html, body {
-  height: 100%;
-}
-
-.page-wrapper {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh; /* full viewport height */
-}
-
-.waap-footer {
-  margin-top: auto; /* pushes footer to bottom */
-}
-
-</style>
-
-<script>
-  // Toggle FAB expansion
-  document.addEventListener("DOMContentLoaded", () => {
-    const fabContainer = document.querySelector(".fab-container");
-    const mainFab = document.getElementById("mainFab");
-
-    mainFab.addEventListener("click", () => {
-      fabContainer.classList.toggle("active");
-    });
-  });
-</script>
-
-
-<!-- Sidebar -->
-<nav id="sidebar" class="sidebar  collapsed">
-    <div class="sidebar-header p-3 d-flex align-items-center">
-        <span class="d-flex align-items-center text-success me-auto">
-            <img src="{% static 'images/logo-bg.png' %}" width="32" height="32" class="me-2">
-            <a href="{% url 'home' %}" class="text-success text-decoration-none fw-bold">WAAPFOLIO</a>
-        </span>
-        <button id="sidebarClose" class="btn btn-light btn-sm ms-2">✖</button>
-    </div>
-
-    <ul class="list-unstyled nav flex-column p-2">
-        <li class="nav-item"><a href="{% url 'home' %}" class="nav-link text-dark">Home</a></li>
-        <li class="nav-item"><a href="{% url 'about' %}" class="nav-link text-dark">About</a></li>
-        {% if active_store %}
-        <li class="nav-item"><a href="{{ active_store.get_absolute_url }}" class="nav-link text-dark">Store</a></li>
-        {% endif %}
-        <li class="nav-item"><a href="{% url 'marketplace' %}" class="nav-link text-dark">Marketplace</a></li>
-        {% if request.user.is_authenticated %}
-        <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link text-dark">Settings</a></li>
-        {% endif %}
-        <li class="nav-item"><a href="#" data-bs-toggle="modal" data-bs-target="#moreModal" class="nav-link text-dark">More</a></li>
-    </ul>
-</nav>
-
-
-<!-- More Modal -->
-<div class="modal fade" id="moreModal" tabindex="-1" aria-labelledby="moreModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="moreModalLabel">More Options</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body d-flex flex-column gap-2">
-                <a href="{% url 'problem_solving' %}" class="btn btn-outline-success w-100">✅ Problem it Solves</a>
-                <a href="{% url 'faqs' %}" class="btn btn-outline-success w-100">❓ FAQs</a>
-                <a href="{% url 'money' %}" class="btn btn-outline-success w-100">⚡ 100K Blueprint</a>
-            </div>
+    <!-- Mobile Menu -->
+    <div class="mobile-menu" id="mobileMenu">
+        <ul>
+            <li><a href="/"><i class="bi bi-house me-2"></i> Home</a></li>
+            <li><a href="/about"><i class="bi bi-info-circle me-2"></i> About</a></li>
+            {% if active_store %}
+            <li><a href="/store"><i class="bi bi-shop me-2"></i> Store</a></li>
+            {% endif %}
+            <li><a href="/marketplace"><i class="bi bi-grid me-2"></i> Marketplace</a></li>
+            <li><a href="/templates"><i class="bi bi-palette me-2"></i> Templates</a></li>
+            <li><a href="/referral"><i class="bi bi-gift me-2"></i> Referral</a></li>
+            {% if request.user.is_authenticated %}
+            <li><a href="/settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
+            {% endif %}
+        </ul>
+        <div class="mobile-menu-cta">
+            {% if request.user.is_authenticated %}
+            <a href="/logout" class="btn-waap btn-waap-primary w-100 justify-content-center">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </a>
+            {% else %}
+            <a href="/login" class="btn-waap btn-waap-secondary w-100 justify-content-center">Login</a>
+            <a href="/signup" class="btn-waap btn-waap-primary w-100 justify-content-center">Get Started</a>
+            {% endif %}
         </div>
     </div>
-</div>
 
-</div>
-<!-- Desktop Footer -->
-<footer class="waap-footer bg-dark text-light py-3">
-  <div class="container">
-    <div class="row gy-3">
-      <!-- Brand -->
-      <div class="col-md-4 text-center text-md-start">
-        <h5 class="fw-bold text-success mb-1">WAAPFOLIO</h5>
-        <p class="small text-light mb-0">
-          Showcase your products beautifully and connect directly on WhatsApp.
-        </p>
-      </div>
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block body %}{% endblock body %}
+    </main>
 
-      <!-- Quick Links -->
-      <div class="col-6 col-md-2 text-center text-md-start">
-        <h6 class="fw-semibold mb-1">Quick Links</h6>
-        <ul class="list-unstyled small mb-0">
-          <li><a href="{% url 'home' %}" class="text-light text-decoration-none">Home</a></li>
-          <li><a href="{% url 'about' %}" class="text-light text-decoration-none">About</a></li>
-          <li><a href="{% url 'problem_solving' %}" class="text-light text-decoration-none">Problem it Solves</a></li>
-          <li><a href="{% url 'faqs' %}" class="text-light text-decoration-none">FAQs</a></li>
-        </ul>
-      </div>
+    <!-- Footer -->
+    <footer class="waap-footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio">
+                        <span>Waapfolio</span>
+                    </div>
+                    <p>Build your dream online store, share your referral link, and turn your skills into cash — all from your phone or laptop.</p>
+                    <div class="footer-social">
+                        <a href="https://wa.me/2349161453058" class="social-icon whatsapp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <a href="https://instagram.com/waapfolio" class="social-icon instagram" title="Instagram"><i class="bi bi-instagram"></i></a>
+                        <a href="https://t.me/waapfolio" class="social-icon telegram" title="Telegram"><i class="bi bi-telegram"></i></a>
+                        <a href="https://tiktok.com/@waapfolio" class="social-icon tiktok" title="TikTok"><i class="bi bi-tiktok"></i></a>
+                        <a href="https://youtube.com/@waapfolio" class="social-icon youtube" title="YouTube"><i class="bi bi-youtube"></i></a>
+                    </div>
+                </div>
 
-      <!-- Resources -->
-      <div class="col-6 col-md-3 text-center text-md-start">
-        <h6 class="fw-semibold mb-1">Resources</h6>
-        <ul class="list-unstyled small mb-0">
-          <li><a href="{% url 'money' %}" class="text-light text-decoration-none">100K Blueprint</a></li>
-          <li><a href="{% url 'privacy' %}" class="text-light text-decoration-none">Privacy & Terms</a></li>
-        </ul>
-      </div>
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="/templates">Templates</a></li>
+                        <li><a href="/pricing">Pricing</a></li>
+                        {% comment %} <li><a href="/integrations">Integrations</a></li> {% endcomment %}
+                    </ul>
+                </div>
 
-      <!-- Contact / Socials -->
-      <div class="col-md-3 text-center text-md-start">
-        <h6 class="fw-semibold mb-1">Get in Touch</h6>
-        <p class="small mb-0"><i class="bi bi-envelope-fill text-success"></i> waapfolioorg@gmail.com</p>
-        <p class="small mb-1"><i class="bi bi-telephone-fill text-success"></i> +234 9161453058</p>
-        <div class="d-flex justify-content-center justify-content-md-start gap-2 flex-wrap">
-          <a href="https://wa.me/2349161453058" class="text-success fs-5"><i class="bi bi-whatsapp"></i></a>
-          <a href="https://www.facebook.com/profile.php?id=61579309809005" class="text-light fs-5"><i class="bi bi-facebook"></i></a>
-          <a href="https://x.com/Bigemmy77?t=VTxSLNqqA6S2YmrO8lA7YQ&s=09" class="text-light fs-5"><i class="bi bi-twitter-x"></i></a>
-          <a href="https://www.instagram.com/waapfolio/" class="text-warning fs-5"><i class="bi bi-instagram"></i></a>
-          <a href="https://www.tiktok.com/@waapfolio" class="text-light fs-5"><i class="bi bi-tiktok"></i></a>
-          <a href="https://www.youtube.com/@waapfolio" class="text-light fs-5"><i class="bi bi-youtube"></i></a>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'faqs' %}">Faqs</a></li>
+                        <li><a href="{% url 'money' %}">Business Models </a></li>
+                         <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
+                        {% comment %} <li><a href="/blog">Blog</a></li>
+                        <li><a href="/community">Community</a></li> {% endcomment %}
+                    </ul>
+                </div>
+
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="{% url 'home' %}">Home</a></li>
+                        <li><a href="{% url 'about' %}">About Us</a></li>
+                        {% comment %} <li><a href="/careers">Careers</a></li> {% endcomment %}
+                        <li><a href="{% url 'contact' %}">Contact</a></li>
+                        {% comment %} <li><a href="/press">Press Kit</a></li> {% endcomment %}
+                    </ul>
+                </div>
+            </div>
+
+            <div class="footer-bottom">
+                <p>© {% now "Y" %} Waapfolio. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="{% url 'privacy' %}">Privacy Policy</a>
+                    {% comment %} <a href="/terms">Terms of Service</a>
+                    <a href="/cookies">Cookie Policy</a> {% endcomment %}
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
+    </footer>
 
-    <hr class="bg-secondary my-2">
-    <div class="text-center small text-light mb-0">
-      © <span id="year"></span> Waapfolio. All rights reserved.
-    </div>
-  </div>
+    <!-- Mobile Bottom Nav -->
+    <nav class="mobile-bottom-nav">
+        <div class="mobile-bottom-nav-inner">
+            <a href="/" class="mobile-nav-item">
+                <i class="bi bi-house"></i>
+                <span>Home</span>
+            </a>
+            <a href="/marketplace" class="mobile-nav-item">
+                <i class="bi bi-grid"></i>
+                <span>Explore</span>
+            </a>
+            {% if active_store %}
+            <a href="/store" class="mobile-nav-item">
+                <i class="bi bi-shop"></i>
+                <span>Store</span>
+            </a>
+            {% endif %}
+            <a href="/referral" class="mobile-nav-item">
+                <i class="bi bi-gift"></i>
+                <span>Earn</span>
+            </a>
+            {% if request.user.is_authenticated %}
+            <a href="/settings" class="mobile-nav-item">
+                <i class="bi bi-person"></i>
+                <span>Account</span>
+            </a>
+            {% else %}
+            <a href="/login" class="mobile-nav-item">
+                <i class="bi bi-box-arrow-in-right"></i>
+                <span>Login</span>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
 
-  <script>
-    document.getElementById('year').textContent = new Date().getFullYear();
-  </script>
-</footer>
-
-
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
-
-
-
-    <!-- JS -->
-       <script>
-    // Apply dark mode class on body if user saved it before
-    if (localStorage.getItem('darkMode') === 'enabled') {
-      document.body.classList.add('dark');
-    }
-  </script>
-  <!-- ---------- Loader Script ---------- -->
-  <script>
-    const loader = document.getElementById("globalLoader");
-
-    function showLoader() {
-      loader.style.display = "flex";
-    }
-    function hideLoader() {
-      loader.style.display = "none";
-    }
-
-    // Show loader on all form submits
-    document.addEventListener("submit", function(e) {
-      if (e.target.closest(".no-global-loader")) return; // 🚫 skip these forms
-      showLoader();
-    });
-
-
-    // Show loader on all links/buttons with data-loading
-    document.addEventListener("click", function(e) {
-      const t = e.target.closest("[data-loading]");
-      if (t) {
-        showLoader();
-      }
-    });
-
-    // Optional: intercept all fetch() globally
-    const realFetch = window.fetch;
-    window.fetch = async (...args) => {
-      showLoader();
-      try {
-        return await realFetch(...args);
-      } finally {
-        hideLoader();
-      }
-    };
-
-    // Hide loader on Escape (for debugging)
-    window.addEventListener("keydown", e => {
-      if (e.key === "Escape") hideLoader();
-    });
-document.addEventListener("DOMContentLoaded", () => {
-    const sidebar = document.getElementById("sidebar");
-    const toggleBtn = document.getElementById("sidebarToggle");
-    const closeBtn = document.getElementById("sidebarClose");
-
-    // Toggle sidebar when hamburger is clicked
-    toggleBtn?.addEventListener("click", () => {
-        sidebar.classList.toggle("collapsed");
-    });
-
-    // Close sidebar when close button is clicked
-    closeBtn?.addEventListener("click", () => {
-        sidebar.classList.add("collapsed");
-    });
-});
-
-
-</script>
-
-  </script>
+    <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="{% static 'js/bootstrap.js' %}"></script>
     <script src="{% static 'js/bootstrap.bundle.js' %}"></script>
+
+    <script>
+       // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+        // Mobile Menu Toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+            mobileMenu.classList.toggle('active');
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+                mobileMenuBtn.classList.remove('active');
+                mobileMenu.classList.remove('active');
+            }
+        });
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Global Loader
+        function showLoader() {
+            document.getElementById('globalLoader').classList.add('active');
+        }
+
+        function hideLoader() {
+            document.getElementById('globalLoader').classList.remove('active');
+        }
+
+        // Auto-hide alerts after 5 seconds
+        setTimeout(() => {
+            document.querySelectorAll('.alert').forEach(alert => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300);
+            });
+        }, 5000);
+    </script>
+
+    {% block extra_scripts %}{% endblock extra_scripts %}
 </body>
 </html>

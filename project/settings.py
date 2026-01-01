@@ -9,7 +9,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG =False
+DEBUG =True 
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
@@ -173,7 +173,7 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Authentication redirects
 LOGOUT_REDIRECT_URL = '/'
-LOGIN_REDIRECT_URL = 'marketplace'
+LOGIN_REDIRECT_URL = 'home'
 
 # Media
 MEDIA_URL = '/media/'

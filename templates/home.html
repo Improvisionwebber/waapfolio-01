@@ -1,33 +1,142 @@
-{% extends "base.html" %}
+ {% extends "base.html" %}
 {% load static %}
 {% block body %}
-
+{% comment %} <style>
 <!-- Hero Section -->
-<div class="container py-5 fade-in">
-  <div class="row align-items-center">
-    <div class="col-lg-6 text-lg-start mb-4 mb-lg-0">
-      <h1 class="display-5 fw-bold text-dark">
-        <span id="typed-text"></span><br>
-        <span class="text-primary">WAAPFOLIO IS HERE</span>
-      </h1>
+/* HERO SECTION */
+.hero-section {
+  background: #ecfdf5;
+  padding: 5rem 0;
+  overflow: hidden;
+}
 
-      <div class="d-flex gap-2 flex-wrap mt-3 justify-content-center justify-content-lg-start">
+.hero-logo {
+  width: 60px;
+}
+
+.hero-title {
+  font-size: 2.7rem;
+  font-weight: 800;
+  line-height: 1.2;
+  color: #064e3b;
+}
+
+.hero-title .highlight {
+  color: #059669;
+}
+
+.hero-subtext {
+  margin-top: 1rem;
+  color: #475569;
+  font-size: 1.05rem;
+  max-width: 520px;
+}
+
+.hero-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 1.8rem;
+}
+
+.btn-google {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: #059669;
+  color: #fff;
+  padding: 12px 18px;
+  border-radius: 10px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.btn-google img {
+  width: 18px;
+}
+
+.btn-google:hover {
+  background: #047857;
+}
+
+.hero-stats {
+  margin-top: 1.5rem;
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  font-size: 0.9rem;
+  color: #065f46;
+}
+
+.hero-image {
+  max-width: 100%;
+  border-radius: 18px;
+  box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+}
+
+/* MOBILE */
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2rem;
+  }
+}
+</style>
+<!-- Hero Section -->
+<section class="hero-section fade-in">
+  <div class="container">
+    <div class="row align-items-center g-4">
+
+      <!-- LEFT CONTENT -->
+      <div class="col-lg-6 text-center text-lg-start">
+        <img src="{% static 'images/logo.jpg' %}" class="hero-logo mb-3" alt="Waapfolio Logo">
+
+        <h1 class="hero-title">
+          Start Your Online Store in 5 Minutes
+          <br>
+          <span class="highlight">& Earn Referral Income</span>
+        </h1>
+
+        <p class="hero-subtext">
+          Build your dream online store, share your referral link, and turn your skills into cash —
+          all from your phone or laptop. Manage orders via WhatsApp, Telegram & more.
+        </p>
+
         {% if not user.is_authenticated %}
-          <a href="{% url 'register' %}" class="btn btn-success px-4 py-2">Sign Up</a>
+        <div class="hero-actions">
+          <a href="#" class="btn btn-google">
+            <img src="https://www.svgrepo.com/show/475656/google-color.svg">
+            Sign Up with Google
+          </a>
+
+          <a href="{% url 'register' %}" class="btn btn-outline-success">
+            Sign Up with Email
+          </a>
+        </div>
         {% else %}
           {% if store %}
-            <a href="{{ store.get_absolute_url }}" class="btn btn-outline-primary px-4 py-2">Visit My Store</a>
+            <a href="{{ store.get_absolute_url }}" class="btn btn-success px-4 py-2">Visit My Store</a>
           {% else %}
             <a href="{% url 'create_store' %}" class="btn btn-success px-4 py-2">Create Store</a>
           {% endif %}
         {% endif %}
+
+        <!-- TRUST STATS -->
+        <div class="hero-stats">
+          <span>🌍 150+ Countries</span>
+          <span>🏪 5,000+ Stores</span>
+          <span>💸 $100K+ Paid</span>
+        </div>
       </div>
-    </div>
-    <div class="col-lg-6 text-center">
-      <img src="{% static 'images/logo.jpg' %}" class="img-fluid rounded-4 shadow-sm" alt="Waapfolio Hero">
+
+      <!-- RIGHT IMAGE -->
+      <div class="col-lg-6 text-center">
+        <img src="{% static 'images/hero-main.jpg' %}" class="hero-image" alt="Waapfolio Dashboard">
+      </div>
+
     </div>
   </div>
-</div>
+</section>
+
 
 <!-- About Section -->
 <div class="container text-center py-4 fade-in">
@@ -190,4 +299,2980 @@
   });
 </script>
 
+{% endblock %} {% endcomment %} 
+
+    <style>
+        :root {
+            --primary: #00D26A;
+            --primary-dark: #00B85C;
+            --primary-light: #4AE89A;
+            --primary-glow: rgba(0, 210, 106, 0.4);
+            --secondary: #1A1A2E;
+            --secondary-light: #252542;
+            --accent: #00FFA3;
+            --accent-purple: #7B2CBF;
+            --accent-blue: #00D4FF;
+            --text-primary: #FFFFFF;
+            --text-secondary: #A0A0B0;
+            --text-muted: #6B6B7B;
+            --bg-dark: #0A0A14;
+            --bg-card: rgba(26, 26, 46, 0.8);
+            --bg-glass: rgba(255, 255, 255, 0.05);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+            --gradient-dark: linear-gradient(180deg, #0A0A14 0%, #1A1A2E 100%);
+            --gradient-card: linear-gradient(145deg, rgba(26, 26, 46, 0.9) 0%, rgba(10, 10, 20, 0.9) 100%);
+            --shadow-glow: 0 0 40px var(--primary-glow);
+            --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.4);
+            --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--bg-dark);
+            color: var(--text-primary);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--primary);
+            border-radius: 10px;
+        }
+
+        /* Animated Background Particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--primary);
+            border-radius: 50%;
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
+        }
+
+        /* Navigation */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            padding: 1rem 2rem;
+            transition: var(--transition-smooth);
+            backdrop-filter: blur(20px);
+            background: transparent;
+        }
+
+        .navbar.scrolled {
+            background: rgba(10, 10, 20, 0.95);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+        }
+
+        .nav-logo img {
+            height: 45px;
+            width: auto;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+            transition: var(--transition-smooth);
+        }
+
+        .nav-logo:hover img {
+            transform: scale(1.1) rotate(5deg);
+            filter: drop-shadow(0 0 20px var(--primary-glow));
+        }
+
+        .nav-logo span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            position: relative;
+            transition: var(--transition-smooth);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--gradient-primary);
+            transition: var(--transition-smooth);
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.8rem 1.8rem;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            border: none;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            color: var(--secondary);
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px var(--primary-glow);
+        }
+
+        .btn-secondary {
+            background: var(--bg-glass);
+            color: var(--text-primary);
+            border: 1px solid var(--border-glass);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary);
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .mobile-menu-btn span {
+            width: 25px;
+            height: 3px;
+            background: var(--primary);
+            border-radius: 2px;
+            transition: var(--transition-smooth);
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8rem 2rem 4rem;
+            overflow: hidden;
+        }
+
+        .hero-video-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+
+        .hero-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .hero-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(180deg, rgba(10, 10, 20, 0.7) 0%, rgba(10, 10, 20, 0.9) 50%, var(--bg-dark) 100%);
+            z-index: -1;
+        }
+
+        .hero-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-text {
+            animation: slideInLeft 1s ease-out;
+        }
+
+        @keyframes slideInLeft {
+            from { opacity: 0; transform: translateX(-50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 0.5rem 1rem;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--primary);
+            margin-bottom: 1.5rem;
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-badge .pulse {
+            width: 8px;
+            height: 8px;
+            background: var(--primary);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.5); }
+        }
+
+        .hero h1 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero-subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .hero-cta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 3rem;
+        }
+
+        .btn-google {
+            background: #fff;
+            color: #333;
+        }
+
+        .btn-google:hover {
+            background: #f5f5f5;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.2);
+        }
+
+        .hero-stats {
+            display: flex;
+            gap: 3rem;
+        }
+
+        .stat-item {
+            text-align: left;
+        }
+
+        .stat-number {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            color: var(--text-muted);
+        }
+
+        .hero-visual {
+            position: relative;
+            animation: slideInRight 1s ease-out;
+        }
+
+        @keyframes slideInRight {
+            from { opacity: 0; transform: translateX(50px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        .phone-mockup {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        .phone-frame {
+            background: var(--gradient-card);
+            border: 2px solid var(--border-glass);
+            border-radius: 40px;
+            padding: 15px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            transition: var(--transition-smooth);
+        }
+
+        .phone-frame:hover {
+            transform: perspective(1000px) rotateY(-5deg) rotateX(5deg);
+            box-shadow: var(--shadow-card), 0 0 60px var(--primary-glow);
+        }
+
+        .phone-screen {
+            background: linear-gradient(145deg, #1a1a2e, #0f0f1a);
+            border-radius: 28px;
+            overflow: hidden;
+            aspect-ratio: 9/16;
+            position: relative;
+        }
+
+        .phone-header {
+            background: var(--primary);
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .phone-header img {
+            width: 30px;
+            height: 30px;
+            border-radius: 8px;
+        }
+
+        .phone-header span {
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .phone-content {
+            padding: 1rem;
+        }
+
+        .store-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .store-card-img {
+            width: 100%;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+        }
+
+        .store-card-title {
+            font-weight: 600;
+            margin-bottom: 0.3rem;
+        }
+
+        .store-card-price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .floating-elements {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .floating-icon {
+            position: absolute;
+            background: var(--bg-glass);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: floatBounce 3s ease-in-out infinite;
+            box-shadow: var(--shadow-card);
+        }
+
+        .floating-icon.referral {
+            top: 10%;
+            right: -20%;
+            animation-delay: 0s;
+        }
+
+        .floating-icon.earnings {
+            bottom: 30%;
+            left: -15%;
+            animation-delay: 1s;
+        }
+
+        .floating-icon.orders {
+            bottom: 10%;
+            right: -10%;
+            animation-delay: 2s;
+        }
+
+        @keyframes floatBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-15px); }
+        }
+
+        .floating-icon i {
+            font-size: 1.5rem;
+            color: var(--primary);
+        }
+
+        .floating-icon .text {
+            font-size: 0.8rem;
+        }
+
+        .floating-icon .value {
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Social Platforms Section */
+        .social-platforms {
+            padding: 6rem 2rem;
+            background: var(--gradient-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .section-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 4rem;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            background: rgba(0, 210, 106, 0.1);
+            border: 1px solid rgba(0, 210, 106, 0.3);
+            border-radius: 50px;
+            color: var(--primary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 1rem;
+        }
+
+        .section-title .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .section-subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .platforms-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .platform-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 2.5rem 2rem;
+            text-align: center;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .platform-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--platform-color, var(--primary));
+            transform: scaleX(0);
+            transition: var(--transition-smooth);
+        }
+
+        .platform-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .platform-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-card), 0 0 40px rgba(var(--platform-rgb, 0, 210, 106), 0.2);
+            border-color: var(--platform-color, var(--primary));
+        }
+
+        .platform-card.whatsapp { --platform-color: #25D366; --platform-rgb: 37, 211, 102; }
+        .platform-card.instagram { --platform-color: #E4405F; --platform-rgb: 228, 64, 95; }
+        .platform-card.tiktok { --platform-color: #00F2EA; --platform-rgb: 0, 242, 234; }
+        .platform-card.telegram { --platform-color: #0088CC; --platform-rgb: 0, 136, 204; }
+
+        .platform-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--bg-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2.5rem;
+            transition: var(--transition-smooth);
+        }
+
+        .platform-card.whatsapp .platform-icon { color: #25D366; }
+        .platform-card.instagram .platform-icon { color: #E4405F; }
+        .platform-card.tiktok .platform-icon { color: #00F2EA; }
+        .platform-card.telegram .platform-icon { color: #0088CC; }
+
+        .platform-card:hover .platform-icon {
+            transform: scale(1.1) rotate(10deg);
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .platform-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .platform-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+        }
+
+        /* Benefits Section */
+        .benefits {
+            padding: 8rem 2rem;
+            background: var(--bg-dark);
+            position: relative;
+        }
+
+        .benefits-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .benefit-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: var(--transition-smooth);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .benefit-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .benefit-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            border-color: var(--primary);
+        }
+
+        .benefit-card:hover::after {
+            opacity: 1;
+        }
+
+        .benefit-icon {
+            width: 70px;
+            height: 70px;
+            background: rgba(0, 210, 106, 0.1);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            transition: var(--transition-smooth);
+        }
+
+        .benefit-card:hover .benefit-icon {
+            background: var(--primary);
+            transform: rotate(-10deg) scale(1.1);
+        }
+
+        .benefit-card:hover .benefit-icon i {
+            color: var(--secondary);
+        }
+
+        .benefit-icon i {
+            color: var(--primary);
+            transition: var(--transition-smooth);
+        }
+
+        .benefit-card h3 {
+            font-size: 1.3rem;
+            margin-bottom: 0.8rem;
+            font-weight: 700;
+        }
+
+        .benefit-card p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+        }
+
+        /* How It Works */
+        .how-it-works {
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--secondary) 50%, var(--bg-dark) 100%);
+            position: relative;
+        }
+
+        .steps-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            position: relative;
+            margin-top: 4rem;
+        }
+
+        .steps-line {
+            position: absolute;
+            top: 60px;
+            left: 15%;
+            right: 15%;
+            height: 4px;
+            background: var(--border-glass);
+            z-index: 0;
+        }
+
+        .steps-line-progress {
+            height: 100%;
+            background: var(--gradient-primary);
+            width: 0;
+            transition: width 1s ease-out;
+        }
+
+        .step-card {
+            flex: 1;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            padding: 0 1rem;
+        }
+
+        .step-number {
+            width: 120px;
+            height: 120px;
+            background: var(--gradient-card);
+            border: 3px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 2rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--primary);
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .step-card:hover .step-number {
+            transform: scale(1.1);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .step-icon {
+            position: absolute;
+            bottom: -10px;
+            right: -10px;
+            width: 50px;
+            height: 50px;
+            background: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            color: var(--secondary);
+            box-shadow: 0 4px 15px var(--primary-glow);
+        }
+
+        .step-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+            font-weight: 700;
+        }
+
+        .step-card p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            line-height: 1.7;
+        }
+
+        /* Templates Gallery */
+        .templates {
+            padding: 8rem 2rem;
+            background: var(--bg-dark);
+            overflow: hidden;
+        }
+
+        .templates-carousel {
+            display: flex;
+            gap: 2rem;
+            animation: scroll 30s linear infinite;
+            width: max-content;
+        }
+
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+
+        .template-card {
+            width: 320px;
+            flex-shrink: 0;
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: var(--transition-smooth);
+        }
+
+        .template-card:hover {
+            transform: scale(1.05);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .template-preview {
+            height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .template-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: var(--transition-smooth);
+        }
+
+        .template-card:hover .template-preview img {
+            transform: scale(1.1);
+        }
+
+        .template-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(180deg, transparent 50%, rgba(0, 0, 0, 0.8) 100%);
+            display: flex;
+            align-items: flex-end;
+            padding: 1rem;
+            opacity: 0;
+            transition: var(--transition-smooth);
+        }
+
+        .template-card:hover .template-overlay {
+            opacity: 1;
+        }
+
+        .template-overlay .btn {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .template-info {
+            padding: 1.5rem;
+        }
+
+        .template-category {
+            font-size: 0.8rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .template-name {
+            font-size: 1.2rem;
+            font-weight: 600;
+        }
+
+        /* Order Chat System */
+        .order-chat {
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--secondary-light) 100%);
+        }
+
+        .chat-demo-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .chat-features {
+            display: grid;
+            gap: 1.5rem;
+        }
+
+        .chat-feature {
+            display: flex;
+            gap: 1.5rem;
+            padding: 1.5rem;
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            transition: var(--transition-smooth);
+        }
+
+        .chat-feature:hover {
+            transform: translateX(10px);
+            border-color: var(--primary);
+        }
+
+        .chat-feature-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(0, 210, 106, 0.1);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            flex-shrink: 0;
+        }
+
+        .chat-feature-icon i {
+            color: var(--primary);
+        }
+
+        .chat-feature h4 {
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+
+        .chat-feature p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .chat-mockup {
+            background: var(--gradient-card);
+            border: 2px solid var(--border-glass);
+            border-radius: 30px;
+            padding: 1.5rem;
+            max-width: 400px;
+            margin: 0 auto;
+            box-shadow: var(--shadow-card);
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-glass);
+            margin-bottom: 1rem;
+        }
+
+        .chat-avatar {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .chat-avatar i {
+            color: var(--secondary);
+            font-size: 1.2rem;
+        }
+
+        .chat-user-info h4 {
+            font-size: 1rem;
+        }
+
+        .chat-user-info span {
+            font-size: 0.8rem;
+            color: var(--primary);
+        }
+
+        .chat-messages {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            height: 300px;
+            overflow-y: auto;
+        }
+
+        .chat-message {
+            max-width: 80%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 16px;
+            font-size: 0.9rem;
+            animation: messageSlide 0.5s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .chat-message.customer {
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            align-self: flex-start;
+            border-bottom-left-radius: 4px;
+        }
+
+        .chat-message.seller {
+            background: var(--primary);
+            color: var(--secondary);
+            align-self: flex-end;
+            border-bottom-right-radius: 4px;
+        }
+
+        .chat-message.order-card {
+            background: var(--bg-glass);
+            border: 1px solid var(--primary);
+            max-width: 90%;
+        }
+
+        .order-details {
+            display: flex;
+            gap: 12px;
+        }
+
+        .order-img {
+            width: 60px;
+            height: 60px;
+            background: var(--gradient-primary);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .order-info h5 {
+            font-size: 0.9rem;
+            margin-bottom: 0.2rem;
+        }
+
+        .order-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .order-info .price {
+            color: var(--primary);
+            font-weight: 700;
+        }
+
+        .chat-input {
+            display: flex;
+            gap: 10px;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .chat-input input {
+            flex: 1;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 50px;
+            padding: 0.8rem 1.2rem;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+        }
+
+        .chat-input input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .chat-input button {
+            width: 45px;
+            height: 45px;
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .chat-input button:hover {
+            transform: scale(1.1);
+        }
+
+        .chat-input button i {
+            color: var(--secondary);
+        }
+
+        /* Referral Section */
+        .referral {
+            padding: 8rem 2rem;
+            background: var(--bg-dark);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .referral-bg-element {
+            position: absolute;
+            width: 600px;
+            height: 600px;
+            border-radius: 50%;
+            background: radial-gradient(circle, var(--primary-glow), transparent 70%);
+            opacity: 0.3;
+            top: -200px;
+            right: -200px;
+        }
+
+        .referral-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 4rem;
+            align-items: center;
+        }
+
+        .referral-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+        }
+
+        .referral-stat {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition-smooth);
+        }
+
+        .referral-stat:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .referral-stat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .referral-stat h4 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 0.3rem;
+        }
+
+        .referral-stat p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .referral-progress {
+            grid-column: span 2;
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 2rem;
+        }
+
+        .progress-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 1rem;
+        }
+
+        .progress-bar {
+            height: 12px;
+            background: var(--bg-glass);
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+            width: 65%;
+            transition: width 1s ease-out;
+            position: relative;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 20px;
+            height: 20px;
+            background: var(--primary);
+            border-radius: 50%;
+            box-shadow: 0 0 15px var(--primary);
+        }
+
+        .milestones {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 1rem;
+        }
+
+        .milestone {
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .milestone.active {
+            color: var(--primary);
+        }
+
+        /* Earth Globe Section */
+        .global-reach {
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--secondary) 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .globe-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            margin-top: 4rem;
+        }
+
+        .earth-globe {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(145deg, #1a472a, #0d261a);
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 
+                inset -30px -30px 60px rgba(0, 0, 0, 0.5),
+                inset 30px 30px 60px rgba(0, 210, 106, 0.1),
+                0 0 100px var(--primary-glow);
+            animation: rotateGlobe 30s linear infinite;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .earth-globe:hover {
+            transform: scale(1.05);
+            box-shadow: 
+                inset -30px -30px 60px rgba(0, 0, 0, 0.5),
+                inset 30px 30px 60px rgba(0, 210, 106, 0.2),
+                0 0 150px var(--primary-glow);
+        }
+
+        @keyframes rotateGlobe {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .globe-grid {
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            overflow: hidden;
+        }
+
+        .grid-line {
+            position: absolute;
+            border: 1px solid rgba(0, 210, 106, 0.2);
+            border-radius: 50%;
+        }
+
+        .grid-line.horizontal {
+            width: 100%;
+            left: 0;
+        }
+
+        .grid-line.vertical {
+            width: 80%;
+            height: 100%;
+            left: 10%;
+        }
+
+        .continent {
+            position: absolute;
+            background: var(--primary);
+            opacity: 0.3;
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+        }
+
+        .continent-1 { width: 80px; height: 60px; top: 25%; left: 20%; }
+        .continent-2 { width: 100px; height: 80px; top: 35%; left: 50%; }
+        .continent-3 { width: 60px; height: 40px; top: 55%; left: 30%; }
+        .continent-4 { width: 70px; height: 50px; top: 45%; left: 65%; }
+
+        .store-pins {
+            position: absolute;
+            inset: 0;
+        }
+
+        .store-pin {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            background: var(--accent);
+            border-radius: 50%;
+            box-shadow: 0 0 10px var(--accent);
+            animation: pinPulse 2s infinite;
+            cursor: pointer;
+            transition: var(--transition-smooth);
+        }
+
+        .store-pin:hover {
+            transform: scale(1.5);
+        }
+
+        @keyframes pinPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.2); }
+        }
+
+        .store-pin:nth-child(1) { top: 30%; left: 25%; animation-delay: 0s; }
+        .store-pin:nth-child(2) { top: 40%; left: 55%; animation-delay: 0.5s; }
+        .store-pin:nth-child(3) { top: 50%; left: 35%; animation-delay: 1s; }
+        .store-pin:nth-child(4) { top: 35%; left: 70%; animation-delay: 1.5s; }
+        .store-pin:nth-child(5) { top: 60%; left: 45%; animation-delay: 2s; }
+        .store-pin:nth-child(6) { top: 25%; left: 60%; animation-delay: 0.3s; }
+        .store-pin:nth-child(7) { top: 55%; left: 65%; animation-delay: 0.8s; }
+        .store-pin:nth-child(8) { top: 45%; left: 20%; animation-delay: 1.3s; }
+
+        .globe-stores-popup {
+            position: absolute;
+            background: var(--gradient-card);
+            border: 1px solid var(--primary);
+            border-radius: 16px;
+            padding: 1.5rem;
+            width: 280px;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition-smooth);
+            z-index: 10;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .earth-globe:hover + .globe-stores-popup,
+        .globe-stores-popup:hover {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .globe-stores-popup h4 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+            color: var(--primary);
+        }
+
+        .popup-store {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.8rem;
+            background: var(--bg-glass);
+            border-radius: 12px;
+            margin-bottom: 0.5rem;
+        }
+
+        .popup-store-img {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-primary);
+            border-radius: 10px;
+        }
+
+        .popup-store-info h5 {
+            font-size: 0.9rem;
+        }
+
+        .popup-store-info span {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Testimonials */
+        .testimonials {
+            padding: 8rem 2rem;
+            background: var(--bg-dark);
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+        }
+
+        .testimonial-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 24px;
+            padding: 2.5rem;
+            transition: var(--transition-smooth);
+            position: relative;
+        }
+
+        .testimonial-card::before {
+            content: '"';
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 6rem;
+            color: var(--primary);
+            opacity: 0.1;
+            font-family: serif;
+            line-height: 1;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .testimonial-stars {
+            color: #FFD700;
+            margin-bottom: 1rem;
+        }
+
+        .testimonial-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            margin-bottom: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .author-avatar {
+            width: 55px;
+            height: 55px;
+            background: var(--gradient-primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .author-info h4 {
+            font-size: 1rem;
+            font-weight: 600;
+        }
+
+        .author-info span {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+
+        /* Mentorship Section */
+        .mentorship {
+            padding: 8rem 2rem;
+            background: linear-gradient(180deg, var(--bg-dark) 0%, var(--secondary-light) 100%);
+        }
+
+        .mentorship-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+        }
+
+        .mentorship-card {
+            background: var(--gradient-card);
+            border: 1px solid var(--border-glass);
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            transition: var(--transition-smooth);
+            cursor: pointer;
+        }
+
+        .mentorship-card:hover {
+            transform: translateY(-10px) rotate(2deg);
+            border-color: var(--primary);
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+        }
+
+        .mentorship-icon {
+            width: 80px;
+            height: 80px;
+            background: rgba(0, 210, 106, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            transition: var(--transition-smooth);
+        }
+
+        .mentorship-card:hover .mentorship-icon {
+            background: var(--gradient-primary);
+            transform: rotate(-10deg);
+        }
+
+        .mentorship-card:hover .mentorship-icon i {
+            color: var(--secondary);
+        }
+
+        .mentorship-icon i {
+            color: var(--primary);
+            transition: var(--transition-smooth);
+        }
+
+        .mentorship-card h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .mentorship-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Final CTA */
+        .final-cta {
+            padding: 10rem 2rem;
+            background: linear-gradient(180deg, var(--secondary-light) 0%, var(--bg-dark) 100%);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .cta-bg-shapes {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+        }
+
+        .cta-shape {
+            position: absolute;
+            background: var(--gradient-primary);
+            opacity: 0.05;
+            border-radius: 50%;
+        }
+
+        .cta-shape-1 {
+            width: 500px;
+            height: 500px;
+            top: -200px;
+            left: -200px;
+        }
+
+        .cta-shape-2 {
+            width: 400px;
+            height: 400px;
+            bottom: -150px;
+            right: -150px;
+        }
+
+        .cta-shape-3 {
+            width: 300px;
+            height: 300px;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .final-cta h2 {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 4rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .final-cta h2 .highlight {
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .final-cta p {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            max-width: 600px;
+            margin: 0 auto 3rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .btn-xl {
+            padding: 1.2rem 3rem;
+            font-size: 1.1rem;
+        }
+
+        /* Footer */
+        .footer {
+            background: var(--secondary);
+            padding: 4rem 2rem 2rem;
+            border-top: 1px solid var(--border-glass);
+        }
+
+        .footer-container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .footer-top {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 4rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-brand {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .footer-logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-logo img {
+            height: 40px;
+        }
+
+        .footer-logo span {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .footer-brand p {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.7;
+            margin-bottom: 1.5rem;
+        }
+
+        .footer-social {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .social-icon {
+            width: 45px;
+            height: 45px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border-glass);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            transition: var(--transition-smooth);
+            text-decoration: none;
+        }
+
+        .social-icon:hover {
+            background: var(--primary);
+            color: var(--secondary);
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .footer-column h4 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-primary);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.95rem;
+            transition: var(--transition-smooth);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+            padding-left: 5px;
+        }
+
+        .footer-bottom {
+            padding-top: 2rem;
+            border-top: 1px solid var(--border-glass);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .footer-bottom p {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 2rem;
+        }
+
+        .footer-bottom-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition-smooth);
+        }
+
+        .footer-bottom-links a:hover {
+            color: var(--primary);
+        }
+
+        /* Mobile Responsive */
+        @media (max-width: 1200px) {
+            .benefits-grid,
+            .platforms-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .mentorship-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 992px) {
+            .nav-links {
+                display: none;
+            }
+
+            .mobile-menu-btn {
+                display: flex;
+            }
+
+            .hero-content {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-text {
+                order: 1;
+            }
+
+            .hero-visual {
+                order: 2;
+            }
+
+            .hero h1 {
+                font-size: 3rem;
+            }
+
+            .hero-subtitle {
+                margin: 0 auto 2rem;
+            }
+
+            .hero-cta {
+                justify-content: center;
+            }
+
+            .hero-stats {
+                justify-content: center;
+            }
+
+            .steps-container {
+                flex-direction: column;
+                gap: 3rem;
+            }
+
+            .steps-line {
+                display: none;
+            }
+
+            .chat-demo-container,
+            .referral-content {
+                grid-template-columns: 1fr;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .referral-stats {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .referral-progress {
+                grid-column: span 2;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .benefits-grid,
+            .platforms-grid,
+            .mentorship-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .final-cta h2 {
+                font-size: 2.5rem;
+            }
+
+            .footer-top {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .earth-globe {
+                width: 280px;
+                height: 280px;
+            }
+
+            .referral-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .referral-progress {
+                grid-column: span 1;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero {
+                padding: 6rem 1rem 3rem;
+            }
+
+            .hero h1 {
+                font-size: 2rem;
+            }
+
+            .hero-cta {
+                flex-direction: column;
+            }
+
+            .hero-stats {
+                flex-direction: column;
+                gap: 1.5rem;
+            }
+
+            .stat-item {
+                text-align: center;
+            }
+
+            .floating-elements {
+                display: none;
+            }
+
+            .nav-cta {
+                display: none;
+            }
+        }
+
+        /* Loading Animation */
+        .loader {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-dark);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+
+        .loader.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loader-content {
+            text-align: center;
+        }
+
+        .loader-logo {
+            width: 80px;
+            height: 80px;
+            animation: loaderPulse 1.5s infinite;
+        }
+
+        @keyframes loaderPulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.7; }
+        }
+
+        .loader-text {
+            margin-top: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.5rem;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Particles Background -->
+    <div class="particles" id="particles"></div>
+{% comment %} 
+    <!-- Navigation -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-container">
+            <a href="#" class="nav-logo">
+                <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio Logo">
+                <span>Waapfolio</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="{% url 'about' %}">About Us</a></li>
+                <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
+                {% if active_store %}
+                <li class="nav-item"><a href="{{ active_store.get_absolute_url }}" >Store</a></li>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'profile' %}">Settings</a></li>
+                {% endif %}
+                <li><a href="#templates">Templates</a></li>
+                <li><a href="#referral">Referral</a></li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link text-dark">Settings</a></li>
+                {% endif %}
+            </ul>
+            <div class="nav-cta">
+                <a href="{% url 'login' %}" class="btn btn-secondary">Login</a>
+                <a href="{% url 'register' %}" class="btn btn-primary">Get Started</a>
+            </div>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav> {% endcomment %}
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-video-container">
+            <video class="hero-video" autoplay muted loop playsinline>
+                <source src="https://assets.mixkit.co/videos/preview/mixkit-digital-animation-of-futuristic-devices-99786-large.mp4" type="video/mp4">
+            </video>
+        </div>
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+            <div class="hero-text">
+                <div class="hero-badge">
+                    <span class="pulse"></span>
+                    Now with Instant Order Chat System
+                </div>
+                <h1>Start Your Online Store in <span class="highlight">5 Minutes</span> & Earn <span class="highlight">Referral Income</span></h1>
+                <p class="hero-subtitle">Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
+                <div class="hero-cta">
+                    <a href="#" class="btn btn-google btn-primary">
+                        <i class="fab fa-google"></i>
+                        Sign Up with Google
+                    </a>
+                    <a href="#" class="btn btn-secondary">
+                        <i class="fas fa-envelope"></i>
+                        Sign Up with Email
+                    </a>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="50000">0</div>
+                        <div class="stat-label">Active Stores</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="125000">0</div>
+                        <div class="stat-label">Products Sold</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-number" data-count="5">$0</div>
+                        <div class="stat-label">Per Referral</div>
+                    </div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="phone-mockup">
+                    <div class="phone-frame">
+                        <div class="phone-screen">
+                            <div class="phone-header">
+                                <img src="{% static 'images/logo-bg.png' %}" alt="Store">
+                                <span>My Waapfolio Store</span>
+                            </div>
+                            <div class="phone-content">
+                                <div class="store-card">
+                                    <div class="store-card-img">👟</div>
+                                    <div class="store-card-title">Premium Sneakers</div>
+                                    <div class="store-card-price">$129.99</div>
+                                </div>
+                                <div class="store-card">
+                                    <div class="store-card-img">👜</div>
+                                    <div class="store-card-title">Designer Bag</div>
+                                    <div class="store-card-price">$89.99</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-elements">
+                        <div class="floating-icon referral">
+                            <i class="fas fa-link"></i>
+                            <div class="text">
+                                <div>Referrals</div>
+                                <div class="value">+$25</div>
+                            </div>
+                        </div>
+                        <div class="floating-icon earnings">
+                            <i class="fas fa-chart-line"></i>
+                            <div class="text">
+                                <div>Earnings</div>
+                                <div class="value">$1,250</div>
+                            </div>
+                        </div>
+                        <div class="floating-icon orders">
+                            <i class="fas fa-shopping-bag"></i>
+                            <div class="text">
+                                <div>Orders</div>
+                                <div class="value">48</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Social Platforms Section -->
+    <section class="social-platforms" id="features">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Multi-Platform Integration</div>
+                <h2 class="section-title">Sell Everywhere Your <span class="highlight">Customers Are</span></h2>
+                <p class="section-subtitle">Connect your store to the world's most popular platforms and reach millions of potential customers.</p>
+            </div>
+            <div class="platforms-grid">
+                <div class="platform-card whatsapp">
+                    <div class="platform-icon">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <h3>WhatsApp</h3>
+                    <p>Direct order chat with customers via WhatsApp integration</p>
+                </div>
+                <div class="platform-card instagram">
+                    <div class="platform-icon">
+                        <i class="fab fa-instagram"></i>
+                    </div>
+                    <h3>Instagram</h3>
+                    <p>Showcase products with shoppable Instagram feeds</p>
+                </div>
+                <div class="platform-card tiktok">
+                    <div class="platform-icon">
+                        <i class="fab fa-tiktok"></i>
+                    </div>
+                    <h3>TikTok</h3>
+                    <p>Drive viral sales through TikTok shop integration</p>
+                </div>
+                <div class="platform-card telegram">
+                    <div class="platform-icon">
+                        <i class="fab fa-telegram"></i>
+                    </div>
+                    <h3>Telegram</h3>
+                    <p>Automated order notifications and customer support</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Benefits Section -->
+    <section class="benefits">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Why Choose Waapfolio</div>
+                <h2 class="section-title">The Easiest Way to <span class="highlight">Sell Online & Make Money</span></h2>
+                <p class="section-subtitle">Everything you need to start, run, and grow your online business in one powerful platform.</p>
+            </div>
+            <div class="benefits-grid">
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-bolt"></i>
+                    </div>
+                    <h3>Fast & Simple Setup</h3>
+                    <p>Create a fully functional store in under 5 minutes, no coding required. Just pick, customize, and publish.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-money-bill-wave"></i>
+                    </div>
+                    <h3>Referral Income</h3>
+                    <p>Earn $5 for every new paying user who joins using your link. Track your rewards in real-time on your dashboard.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>100+ Templates</h3>
+                    <p>Choose from over 100 professional templates, fully customizable for any niche from fashion to digital products.</p>
+                </div>
+                <div class="benefit-card">
+                    <div class="benefit-icon">
+                        <i class="fas fa-graduation-cap"></i>
+                    </div>
+                    <h3>Mentorship & Tips</h3>
+                    <p>Access mini mentorship guides and expert tips to scale your online business and maximize your earnings.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- How It Works -->
+    <section class="how-it-works" id="how-it-works">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Simple Process</div>
+                <h2 class="section-title">Getting Started is as <span class="highlight">Easy as 1-2-3</span></h2>
+                <p class="section-subtitle">Launch your online store and start earning in just three simple steps.</p>
+            </div>
+            <div class="steps-container">
+                <div class="steps-line">
+                    <div class="steps-line-progress" id="stepsProgress"></div>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">
+                        1
+                        <div class="step-icon">
+                            <i class="fab fa-google"></i>
+                        </div>
+                    </div>
+                    <h3>Sign Up</h3>
+                    <p>Use Google Sign-In for instant access, or register via email with OTP verification. It takes less than 30 seconds.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">
+                        2
+                        <div class="step-icon">
+                            <i class="fas fa-store"></i>
+                        </div>
+                    </div>
+                    <h3>Create Your Store</h3>
+                    <p>Pick a template, customize your store with your brand, upload product images, and publish live instantly.</p>
+                </div>
+                <div class="step-card">
+                    <div class="step-number">
+                        3
+                        <div class="step-icon">
+                            <i class="fas fa-share-alt"></i>
+                        </div>
+                    </div>
+                    <h3>Share & Earn</h3>
+                    <p>Share your referral link anywhere, earn $5 per new paying user, and grow your passive income daily.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Templates Gallery -->
+    <section class="templates" id="templates">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Template Gallery</div>
+                <h2 class="section-title">Stunning Templates for <span class="highlight">Every Niche</span></h2>
+                <p class="section-subtitle">From fashion and digital products to social sellers and creatives, Waapfolio has a template for every business.</p>
+            </div>
+        </div>
+        <div class="templates-carousel" id="templatesCarousel">
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400" alt="Fashion Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Fashion</div>
+                    <div class="template-name">Luxe Fashion Boutique</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400" alt="Tech Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Electronics</div>
+                    <div class="template-name">Tech Hub Pro</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400" alt="Food Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Food & Beverage</div>
+                    <div class="template-name">Gourmet Delights</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" alt="Minimal Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Lifestyle</div>
+                    <div class="template-name">Minimal Vibes</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Sneaker Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Footwear</div>
+                    <div class="template-name">Sneaker Culture</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400" alt="Beauty Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Beauty</div>
+                    <div class="template-name">Glow Cosmetics</div>
+                </div>
+            </div>
+            <!-- Duplicate for seamless loop -->
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400" alt="Fashion Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Fashion</div>
+                    <div class="template-name">Luxe Fashion Boutique</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400" alt="Tech Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Electronics</div>
+                    <div class="template-name">Tech Hub Pro</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1555529669-e69e7aa0ba9a?w=400" alt="Food Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Food & Beverage</div>
+                    <div class="template-name">Gourmet Delights</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" alt="Minimal Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Lifestyle</div>
+                    <div class="template-name">Minimal Vibes</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" alt="Sneaker Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Footwear</div>
+                    <div class="template-name">Sneaker Culture</div>
+                </div>
+            </div>
+            <div class="template-card">
+                <div class="template-preview">
+                    <img src="https://images.unsplash.com/photo-1586495777744-4413f21062fa?w=400" alt="Beauty Store">
+                    <div class="template-overlay">
+                        <a href="#" class="btn btn-primary">Preview Template</a>
+                    </div>
+                </div>
+                <div class="template-info">
+                    <div class="template-category">Beauty</div>
+                    <div class="template-name">Glow Cosmetics</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Order Chat System -->
+    <section class="order-chat">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Card Order Chat</div>
+                <h2 class="section-title">Built-in <span class="highlight">Order Chat System</span></h2>
+                <p class="section-subtitle">Seamlessly communicate with customers, confirm orders, and close sales directly through our integrated chat.</p>
+            </div>
+            <div class="chat-demo-container">
+                <div class="chat-features">
+                    <div class="chat-feature">
+                        <div class="chat-feature-icon">
+                            <i class="fas fa-comments"></i>
+                        </div>
+                        <div>
+                            <h4>Real-time Messaging</h4>
+                            <p>Instant communication with customers for faster order confirmation and support.</p>
+                        </div>
+                    </div>
+                    <div class="chat-feature">
+                        <div class="chat-feature-icon">
+                            <i class="fas fa-credit-card"></i>
+                        </div>
+                        <div>
+                            <h4>Card Order Cards</h4>
+                            <p>Beautiful product cards within chat for easy order placement and tracking.</p>
+                        </div>
+                    </div>
+                    <div class="chat-feature">
+                        <div class="chat-feature-icon">
+                            <i class="fas fa-bell"></i>
+                        </div>
+                        <div>
+                            <h4>Instant Notifications</h4>
+                            <p>Never miss an order with push notifications across all your devices.</p>
+                        </div>
+                    </div>
+                    <div class="chat-feature">
+                        <div class="chat-feature-icon">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div>
+                            <h4>Smart Auto-Replies</h4>
+                            <p>Set up automated responses for common questions and order inquiries.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="chat-mockup">
+                    <div class="chat-header">
+                        <div class="chat-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="chat-user-info">
+                            <h4>Sarah Johnson</h4>
+                            <span>Online now</span>
+                        </div>
+                    </div>
+                    <div class="chat-messages">
+                        <div class="chat-message customer">
+                            Hi! I'm interested in the Premium Sneakers 👟
+                        </div>
+                        <div class="chat-message seller">
+                            Hello Sarah! Great choice! Here are the details:
+                        </div>
+                        <div class="chat-message order-card">
+                            <div class="order-details">
+                                <div class="order-img">👟</div>
+                                <div class="order-info">
+                                    <h5>Premium Sneakers</h5>
+                                    <p>Size: US 8 • White/Green</p>
+                                    <p class="price">$129.99</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="chat-message customer">
+                            Perfect! How do I order?
+                        </div>
+                        <div class="chat-message seller">
+                            Just tap "Order Now" and complete payment! 🎉
+                        </div>
+                    </div>
+                    <div class="chat-input">
+                        <input type="text" placeholder="Type a message...">
+                        <button>
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Referral Section -->
+    <section class="referral" id="referral">
+        <div class="referral-bg-element"></div>
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Earn While You Sleep</div>
+                <h2 class="section-title">Your Referral Link = <span class="highlight">Real Income</span></h2>
+                <p class="section-subtitle">Every new paying user who joins through your link earns you $5. Track clicks, referrals, and earnings in your dashboard.</p>
+            </div>
+            <div class="referral-content">
+                <div class="referral-stats">
+                    <div class="referral-stat">
+                        <div class="referral-stat-icon">💰</div>
+                        <h4>$5</h4>
+                        <p>Per Referral</p>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="referral-stat-icon">📊</div>
+                        <h4>Real-time</h4>
+                        <p>Dashboard Tracking</p>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="referral-stat-icon">🎯</div>
+                        <h4>Unlimited</h4>
+                        <p>Earning Potential</p>
+                    </div>
+                    <div class="referral-stat">
+                        <div class="referral-stat-icon">💸</div>
+                        <h4>Instant</h4>
+                        <p>Payouts Available</p>
+                    </div>
+                    <div class="referral-progress">
+                        <div class="progress-header">
+                            <span>Your Referral Progress</span>
+                            <span>13/20 to next reward</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill"></div>
+                        </div>
+                        <div class="milestones">
+                            <div class="milestone active">5 refs<br><small>$25</small></div>
+                            <div class="milestone active">10 refs<br><small>$50</small></div>
+                            <div class="milestone active">13 refs<br><small>$65</small></div>
+                            <div class="milestone">20 refs<br><small>$100 🎁</small></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-header" style="text-align: left; margin-top: 2rem;">
+                    <h3>How to maximize your referral earnings:</h3>
+                    <ul style="color: var(--text-secondary); margin-top: 1rem; padding-left: 1.5rem;">
+                        <li style="margin-bottom: 0.5rem;">Share your unique link on social media</li>
+                        <li style="margin-bottom: 0.5rem;">Create content showcasing your Waapfolio store</li>
+                        <li style="margin-bottom: 0.5rem;">Help others set up their first store</li>
+                        <li style="margin-bottom: 0.5rem;">Join our affiliate community for tips & tricks</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Global Reach Section with Earth Globe -->
+    <section class="global-reach">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Worldwide Presence</div>
+                <h2 class="section-title">Waapfolio Stores <span class="highlight">Around the Globe</span></h2>
+                <p class="section-subtitle">Join thousands of entrepreneurs worldwide who are building their online empires with Waapfolio.</p>
+            </div>
+            <div class="globe-container">
+                <div class="earth-globe" id="earthGlobe">
+                    <div class="globe-grid">
+                        <div class="grid-line horizontal" style="top: 20%;"></div>
+                        <div class="grid-line horizontal" style="top: 40%;"></div>
+                        <div class="grid-line horizontal" style="top: 60%;"></div>
+                        <div class="grid-line horizontal" style="top: 80%;"></div>
+                        <div class="grid-line vertical"></div>
+                    </div>
+                    <div class="continent continent-1"></div>
+                    <div class="continent continent-2"></div>
+                    <div class="continent continent-3"></div>
+                    <div class="continent continent-4"></div>
+                    <div class="store-pins">
+                        <div class="store-pin" title="Fashion Store - NYC"></div>
+                        <div class="store-pin" title="Tech Store - London"></div>
+                        <div class="store-pin" title="Beauty Store - Paris"></div>
+                        <div class="store-pin" title="Sneaker Store - Tokyo"></div>
+                        <div class="store-pin" title="Food Store - Dubai"></div>
+                        <div class="store-pin" title="Lifestyle Store - Sydney"></div>
+                        <div class="store-pin" title="Art Store - Berlin"></div>
+                        <div class="store-pin" title="Music Store - Lagos"></div>
+                    </div>
+                </div>
+                <div class="globe-stores-popup">
+                    <h4>🌍 Active Waapfolio Stores</h4>
+                    <div class="popup-store">
+                        <div class="popup-store-img"></div>
+                        <div class="popup-store-info">
+                            <h5>Urban Fashion NYC</h5>
+                            <span>New York, USA</span>
+                        </div>
+                    </div>
+                    <div class="popup-store">
+                        <div class="popup-store-img"></div>
+                        <div class="popup-store-info">
+                            <h5>TechGear London</h5>
+                            <span>London, UK</span>
+                        </div>
+                    </div>
+                    <div class="popup-store">
+                        <div class="popup-store-img"></div>
+                        <div class="popup-store-info">
+                            <h5>Beauty Essentials</h5>
+                            <span>Paris, France</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section class="testimonials" id="testimonials">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Social Proof</div>
+                <h2 class="section-title">What Our <span class="highlight">Users Say</span></h2>
+                <p class="section-subtitle">Join thousands of satisfied entrepreneurs who've transformed their businesses with Waapfolio.</p>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"I started my store in 10 minutes and already made my first referral income! The templates are beautiful and the setup was so easy. Waapfolio changed my life!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">MT</div>
+                        <div class="author-info">
+                            <h4>Mia Thompson</h4>
+                            <span>Fashion Entrepreneur, USA</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"The templates are insane! My store looks professional and modern. The order chat system makes it so easy to communicate with customers. Highly recommend!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AR</div>
+                        <div class="author-info">
+                            <h4>Alex Rodriguez</h4>
+                            <span>Tech Store Owner, UK</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card">
+                    <div class="testimonial-stars">
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <p class="testimonial-text">"Waapfolio's referral program is a game changer. I love tracking my earnings in real-time. Made $250 last month just from referrals alone!"</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JS</div>
+                        <div class="author-info">
+                            <h4>Jordan Smith</h4>
+                            <span>Digital Marketer, Canada</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mentorship Section -->
+    <section class="mentorship">
+        <div class="section-container">
+            <div class="section-header">
+                <div class="section-tag">Learn & Grow</div>
+                <h2 class="section-title">Learn While <span class="highlight">You Earn</span></h2>
+                <p class="section-subtitle">Access bite-sized mentorship guides and tips to scale your online store. From marketing to design, we've got you covered.</p>
+            </div>
+            <div class="mentorship-grid">
+                <div class="mentorship-card">
+                    <div class="mentorship-icon">
+                        <i class="fas fa-bullhorn"></i>
+                    </div>
+                    <h3>Marketing</h3>
+                    <p>Learn proven strategies to promote your store and attract customers.</p>
+                </div>
+                <div class="mentorship-card">
+                    <div class="mentorship-icon">
+                        <i class="fas fa-paint-brush"></i>
+                    </div>
+                    <h3>Design</h3>
+                    <p>Master the art of creating stunning product listings that convert.</p>
+                </div>
+                <div class="mentorship-card">
+                    <div class="mentorship-icon">
+                        <i class="fas fa-chart-bar"></i>
+                    </div>
+                    <h3>Analytics</h3>
+                    <p>Understand your data and make informed decisions to grow sales.</p>
+                </div>
+                <div class="mentorship-card">
+                    <div class="mentorship-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3>Social Growth</h3>
+                    <p>Build a loyal following and turn followers into paying customers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Final CTA -->
+    <section class="final-cta">
+        <div class="cta-bg-shapes">
+            <div class="cta-shape cta-shape-1"></div>
+            <div class="cta-shape cta-shape-2"></div>
+            <div class="cta-shape cta-shape-3"></div>
+        </div>
+        <div class="section-container">
+            <h2>Start Your Store & <span class="highlight">Earn Today</span></h2>
+            <p>Join 50,000+ entrepreneurs who are building their online empires with Waapfolio. Your success story starts now.</p>
+            <div class="cta-buttons">
+                <a href="#" class="btn btn-google btn-primary btn-xl">
+                    <i class="fab fa-google"></i>
+                    Sign Up with Google
+                </a>
+                <a href="#" class="btn btn-secondary btn-xl">
+                    <i class="fas fa-envelope"></i>
+                    Sign Up with Email
+                </a>
+            </div>
+        </div>
+    </section>
+{% comment %} 
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-container">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio">
+                        <span>Waapfolio</span>
+                    </div>
+                    <p>Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-icon"><i class="fab fa-whatsapp"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-tiktok"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-telegram"></i></a>
+                        <a href="#" class="social-icon"><i class="fab fa-youtube"></i></a>
+                    </div>
+                </div>
+                <div class="footer-column">
+                    <h4>Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Features</a></li>
+                        <li><a href="#">Templates</a></li>
+                        <li><a href="#">Pricing</a></li>
+                        <li><a href="#">Integrations</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">Help Center</a></li>
+                        <li><a href="#">Tutorials</a></li>
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Community</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h4>Company</h4>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Press Kit</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>© 2026 Waapfolio. All rights reserved.</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer> {% endcomment %}
+
+    <script>
+        // Loader
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loader').classList.add('hidden');
+            }, 1500);
+        });
+
+        // Particles
+        function createParticles() {
+            const container = document.getElementById('particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 15 + 's';
+                particle.style.animationDuration = (15 + Math.random() * 10) + 's';
+                container.appendChild(particle);
+            }
+        }
+        createParticles();
+
+        // Navbar scroll effect
+        window.addEventListener('scroll', () => {
+            const navbar = document.getElementById('navbar');
+            if (window.scrollY > 50) {
+                navbar.classList.add('scrolled');
+            } else {
+                navbar.classList.remove('scrolled');
+            }
+        });
+
+        // Counter animation
+        function animateCounters() {
+            const counters = document.querySelectorAll('.stat-number');
+            counters.forEach(counter => {
+                const target = parseInt(counter.getAttribute('data-count'));
+                const duration = 2000;
+                const step = target / (duration / 16);
+                let current = 0;
+                
+                const update = () => {
+                    current += step;
+                    if (current < target) {
+                        if (counter.textContent.includes('$')) {
+                            counter.textContent = '$' + Math.floor(current);
+                        } else {
+                            counter.textContent = Math.floor(current).toLocaleString();
+                        }
+                        requestAnimationFrame(update);
+                    } else {
+                        if (counter.textContent.includes('$')) {
+                            counter.textContent = '$' + target;
+                        } else {
+                            counter.textContent = target.toLocaleString() + '+';
+                        }
+                    }
+                };
+                update();
+            });
+        }
+
+        // Intersection Observer for animations
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    if (entry.target.classList.contains('hero')) {
+                        animateCounters();
+                    }
+                    if (entry.target.classList.contains('how-it-works')) {
+                        document.getElementById('stepsProgress').style.width = '100%';
+                    }
+                }
+            });
+        }, { threshold: 0.3 });
+
+        observer.observe(document.querySelector('.hero'));
+        observer.observe(document.querySelector('.how-it-works'));
+
+        // Mobile menu toggle
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+        mobileMenuBtn.addEventListener('click', () => {
+            mobileMenuBtn.classList.toggle('active');
+        });
+
+        // Smooth scroll for nav links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function(e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Chat message animation
+        function animateChatMessages() {
+            const messages = document.querySelectorAll('.chat-message');
+            messages.forEach((msg, index) => {
+                msg.style.animationDelay = (index * 0.5) + 's';
+            });
+        }
+
+        // Earth globe hover effect
+        const earthGlobe = document.getElementById('earthGlobe');
+        earthGlobe.addEventListener('mouseenter', () => {
+            earthGlobe.style.animationPlayState = 'paused';
+        });
+        earthGlobe.addEventListener('mouseleave', () => {
+            earthGlobe.style.animationPlayState = 'running';
+        });
+
+        // Template carousel pause on hover
+        const carousel = document.getElementById('templatesCarousel');
+        carousel.addEventListener('mouseenter', () => {
+            carousel.style.animationPlayState = 'paused';
+        });
+        carousel.addEventListener('mouseleave', () => {
+            carousel.style.animationPlayState = 'running';
+        });
+
+        // Add confetti effect on referral stat hover
+        document.querySelectorAll('.referral-stat').forEach(stat => {
+            stat.addEventListener('mouseenter', () => {
+                stat.style.transform = 'translateY(-5px) scale(1.02)';
+            });
+            stat.addEventListener('mouseleave', () => {
+                stat.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+
+        // Progress bar animation on scroll
+        const progressObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    const progressFill = entry.target.querySelector('.progress-fill');
+                    if (progressFill) {
+                        progressFill.style.width = '65%';
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        const referralProgress = document.querySelector('.referral-progress');
+        if (referralProgress) {
+            progressObserver.observe(referralProgress);
+        }
+
+        // Add tilt effect to phone mockup
+        const phoneMockup = document.querySelector('.phone-frame');
+        if (phoneMockup) {
+            phoneMockup.addEventListener('mousemove', (e) => {
+                const rect = phoneMockup.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
+                phoneMockup.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            });
+            phoneMockup.addEventListener('mouseleave', () => {
+                phoneMockup.style.transform = 'perspective(1000px) rotateX(0) rotateY(0)';
+            });
+        }
+    </script>
 {% endblock %}
