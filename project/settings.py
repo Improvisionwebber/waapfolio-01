@@ -42,7 +42,22 @@ INSTALLED_APPS = [
     "django.contrib.sites",
     "django.contrib.sitemaps",
     'app',
+    'social_django',
 ]
+AUTHENTICATION_BACKENDS = (
+    'social_core.backends.google.GoogleOAuth2',  # Google login
+    'django.contrib.auth.backends.ModelBackend', # default
+)
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("YOUTUBE_CLIENT_ID")
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("YOUTUBE_CLIENT_SECRET")
+
+# Optional: automatically create user on first login
+SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
+SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
+# Allow cookies on localhost
+SESSION_COOKIE_SECURE = False  # don’t require HTTPS
+CSRF_COOKIE_SECURE = False     # don’t require HTTPS
+SESSION_COOKIE_SAMESITE = 'Lax'
 SITE_ID = 1
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -105,6 +120,8 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'app.context_processors.user_store',
+                'social_django.context_processors.backends',
+                'social_django.context_processors.login_redirect',
             ],
         },
     },

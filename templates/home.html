@@ -2348,11 +2348,11 @@
                 <h1>Start Your Online Store in <span class="highlight">5 Minutes</span> & Earn <span class="highlight">Referral Income</span></h1>
                 <p class="hero-subtitle">Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
                 <div class="hero-cta">
-                    <a href="#" class="btn btn-google btn-primary">
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google btn-primary">
                         <i class="fab fa-google"></i>
                         Sign Up with Google
                     </a>
-                    <a href="#" class="btn btn-secondary">
+                    <a href="{% url 'register' %}" class="btn btn-secondary">
                         <i class="fas fa-envelope"></i>
                         Sign Up with Email
                     </a>

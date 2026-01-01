@@ -5072,3 +5072,96 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
 django.db.utils.OperationalError: (2002, "Can't connect to server on '198.251.89.201' (138)")
 "GET /marketplace HTTP/1.1" 500 227579
+Internal Server Error: /auth/complete/google-oauth2/
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\utils.py", line 44, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\views.py", line 33, in complete
+    return do_complete(
+        request.backend,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\actions.py", line 65, in do_complete
+    user = backend.complete(*args, user=user, redirect_name=redirect_name, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\base.py", line 61, in complete
+    return self.auth_complete(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\utils.py", line 250, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 470, in auth_complete
+    state = self.validate_state()
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 120, in validate_state
+    raise AuthStateMissing(self, "state")
+social_core.exceptions.AuthStateMissing: Session value state missing.
+"GET /auth/complete/google-oauth2/?state=MzUVKcBrvNuR23UZrroxVAcKOqGJZjrb&code=4%2F0ATX87lNPCnNtCc9HnHimVj30YNtQKjDYdPXeiAAUA9klfzA2qYNYCHlW5_TGjer8NRR6lQ&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=consent HTTP/1.1" 500 113946
+Internal Server Error: /auth/complete/google-oauth2/
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\utils.py", line 44, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\views.py", line 33, in complete
+    return do_complete(
+        request.backend,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\actions.py", line 65, in do_complete
+    user = backend.complete(*args, user=user, redirect_name=redirect_name, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\base.py", line 61, in complete
+    return self.auth_complete(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\utils.py", line 250, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 470, in auth_complete
+    state = self.validate_state()
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 120, in validate_state
+    raise AuthStateMissing(self, "state")
+social_core.exceptions.AuthStateMissing: Session value state missing.
+"GET /auth/complete/google-oauth2/?state=MzUVKcBrvNuR23UZrroxVAcKOqGJZjrb&code=4%2F0ATX87lNAWDT04_YqvF2iYS05ww4Ld9PM_x0f2jG0-ThUUywlM1ai206JiQh6v_rHmLHeNw&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=consent HTTP/1.1" 500 113948
+Internal Server Error: /auth/complete/google-oauth2/
+Traceback (most recent call last):
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\cache.py", line 80, in _view_wrapper
+    response = view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\utils.py", line 44, in wrapper
+    return func(request, backend, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_django\views.py", line 33, in complete
+    return do_complete(
+        request.backend,
+    ...<5 lines>...
+        **kwargs,
+    )
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\actions.py", line 65, in do_complete
+    user = backend.complete(*args, user=user, redirect_name=redirect_name, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\base.py", line 61, in complete
+    return self.auth_complete(*args, **kwargs)
+           ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\utils.py", line 250, in wrapper
+    return func(*args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 470, in auth_complete
+    state = self.validate_state()
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\venv\Lib\site-packages\social_core\backends\oauth.py", line 120, in validate_state
+    raise AuthStateMissing(self, "state")
+social_core.exceptions.AuthStateMissing: Session value state missing.
+"GET /auth/complete/google-oauth2/?state=UuyMRHM8jGC3wLesKguqKEwFmqQqeZDq&code=4%2F0ATX87lOM8tjLzOa20YxwpPLC1RKf8iPPIg1K1F50tUw_nYtAWT3vVOUHe79BbmOyVJJhdA&scope=email+profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile+https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email+openid&authuser=0&prompt=consent HTTP/1.1" 500 113948
