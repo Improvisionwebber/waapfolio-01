@@ -747,19 +747,21 @@
 
      <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
-        <ul>
-            <li><a href="/"><i class="bi bi-house me-2"></i> Home</a></li>
-            <li><a href="/about"><i class="bi bi-info-circle me-2"></i> About</a></li>
-            {% if active_store %}
-            <li><a href="/store"><i class="bi bi-shop me-2"></i> Store</a></li>
-            {% endif %}
-            <li><a href="/marketplace"><i class="bi bi-grid me-2"></i> Marketplace</a></li>
-            <li><a href="/templates"><i class="bi bi-palette me-2"></i> Templates</a></li>
-            <li><a href="/referral"><i class="bi bi-gift me-2"></i> Referral</a></li>
-            {% if request.user.is_authenticated %}
-            <li><a href="/settings"><i class="bi bi-gear me-2"></i> Settings</a></li>
-            {% endif %}
-        </ul>
+            <ul class="nav-links">
+                <li><a href="{% url 'about' %}">About Us</a></li>
+                <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
+                {% if active_store %}
+                <li class="nav-item"><a href="{{ active_store.get_absolute_url }}" >Store</a></li>
+                {% endif %}
+                {% if request.user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'profile' %}">Settings</a></li>
+                {% endif %}
+                <li><a href="#templates">Templates</a></li>
+                <li><a href="#referral">Referral</a></li>
+                {% if request.user.is_authenticated %}
+                <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link text-dark">Settings</a></li>
+                {% endif %}
+            </ul>
         <div class="mobile-menu-cta">
             {% if request.user.is_authenticated %}
             <a href="/logout" class="btn-waap btn-waap-primary w-100 justify-content-center">

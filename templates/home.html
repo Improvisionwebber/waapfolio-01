@@ -2347,7 +2347,13 @@
                 </div>
                 <h1>Start Your Online Store in <span class="highlight">5 Minutes</span> & Earn <span class="highlight">Referral Income</span></h1>
                 <p class="hero-subtitle">Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
-                <div class="hero-cta">
+            <div class="hero-cta">
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_store' store.slug %}" class="btn btn-primary">
+                        <i class="fas fa-rocket"></i>
+                        Create your Website Now Easily
+                    </a>
+                {% else %}
                     <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google btn-primary">
                         <i class="fab fa-google"></i>
                         Sign Up with Google
@@ -2356,7 +2362,9 @@
                         <i class="fas fa-envelope"></i>
                         Sign Up with Email
                     </a>
-                </div>
+                {% endif %}
+            </div>
+
                 <div class="hero-stats">
                     <div class="stat-item">
                         <div class="stat-number" data-count="50000">0</div>
@@ -3184,13 +3192,13 @@
         observer.observe(document.querySelector('.hero'));
         observer.observe(document.querySelector('.how-it-works'));
 
-        // Mobile menu toggle
+        {% comment %} // Mobile menu toggle
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         mobileMenuBtn.addEventListener('click', () => {
             mobileMenuBtn.classList.toggle('active');
-        });
+        }); {% endcomment %}
 
-        // Smooth scroll for nav links
+        {% comment %} // Smooth scroll for nav links
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function(e) {
                 e.preventDefault();
@@ -3202,7 +3210,7 @@
                     });
                 }
             });
-        });
+        }); {% endcomment %}
 
         // Chat message animation
         function animateChatMessages() {
