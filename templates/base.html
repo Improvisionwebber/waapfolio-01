@@ -562,6 +562,11 @@
         body.dark .btn-close {
             filter: invert(1);
         }
+      body {
+          font-family: 'Plus Jakarta   Sans', sans-serif;
+          background: var(--bg-dark);
+
+      }
 
         /* ================= RESPONSIVE ================= */
         @media (max-width: 992px) {
@@ -678,6 +683,7 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
+        
         {% block extra_styles %}{% endblock extra_styles %}
     </style>
 </head>
@@ -745,34 +751,36 @@
         </div>
     </nav>
 
-     <!-- Mobile Menu -->
+    <!-- Mobile Menu -->
     <div class="mobile-menu" id="mobileMenu">
-            <ul class="nav-links">
-                <li><a href="{% url 'about' %}">About Us</a></li>
-                <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
-                {% if active_store %}
-                <li class="nav-item"><a href="{{ active_store.get_absolute_url }}" >Store</a></li>
-                {% endif %}
-                {% if request.user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'profile' %}">Settings</a></li>
-                {% endif %}
-                <li><a href="#templates">Templates</a></li>
-                <li><a href="#referral">Referral</a></li>
-                {% if request.user.is_authenticated %}
-                <li class="nav-item"><a href="{% url 'profile' %}" class="nav-link text-dark">Settings</a></li>
-                {% endif %}
-            </ul>
+        <ul class="mobile-nav-links">
+            <li><a href="{% url 'about' %}">About Us</a></li>
+            <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
+
+            {% if active_store %}
+            <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
+            {% endif %}
+
+            <li><a href="#templates">Templates</a></li>
+            <li><a href="#referral">Referral</a></li>
+
+            {% if request.user.is_authenticated %}
+            <li><a href="{% url 'profile' %}">Settings</a></li>
+            {% endif %}
+        </ul>
+
         <div class="mobile-menu-cta">
             {% if request.user.is_authenticated %}
-            <a href="/logout" class="btn-waap btn-waap-primary w-100 justify-content-center">
+            <a href="{% url 'logout' %}" class="btn-waap btn-waap-primary w-100">
                 <i class="bi bi-box-arrow-right"></i> Logout
             </a>
             {% else %}
-            <a href="/login" class="btn-waap btn-waap-secondary w-100 justify-content-center">Login</a>
-            <a href="/signup" class="btn-waap btn-waap-primary w-100 justify-content-center">Get Started</a>
+            <a href="{% url 'login' %}" class="btn-waap btn-waap-secondary w-100">Login</a>
+            <a href="{% url 'register' %}" class="btn-waap btn-waap-primary w-100">Get Started</a>
             {% endif %}
         </div>
     </div>
+
 
     <!-- Main Content -->
     <main class="main-content">
@@ -788,7 +796,7 @@
                         <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio">
                         <span>Waapfolio</span>
                     </div>
-                    <p>Build your dream online store, share your referral link, and turn your skills into cash — all from your phone or laptop.</p>
+                    <p>Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
                     <div class="footer-social">
                         <a href="https://wa.me/2349161453058" class="social-icon whatsapp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
                         <a href="https://instagram.com/waapfolio" class="social-icon instagram" title="Instagram"><i class="bi bi-instagram"></i></a>

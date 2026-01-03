@@ -3043,16 +3043,24 @@
         <div class="section-container">
             <h2>Start Your Store & <span class="highlight">Earn Today</span></h2>
             <p>Join 50,000+ entrepreneurs who are building their online empires with Waapfolio. Your success story starts now.</p>
-            <div class="cta-buttons">
-                <a href="#" class="btn btn-google btn-primary btn-xl">
+        <div class="cta-buttons">
+            {% if user.is_authenticated %}
+                <a href="{% url 'create_store' %}" class="btn btn-primary btn-xl">
+                    <i class="fas fa-globe"></i>
+                    Create Your Website Now Easily
+                </a>
+            {% else %}
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google btn-primary btn-xl">
                     <i class="fab fa-google"></i>
                     Sign Up with Google
                 </a>
-                <a href="#" class="btn btn-secondary btn-xl">
+                <a href="{% url 'register' %}" class="btn btn-secondary btn-xl">
                     <i class="fas fa-envelope"></i>
                     Sign Up with Email
                 </a>
-            </div>
+            {% endif %}
+        </div>
+
         </div>
     </section>
 {% comment %} 

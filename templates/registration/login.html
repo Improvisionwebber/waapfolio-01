@@ -1,107 +1,723 @@
 {% extends "base.html" %}
-{% load static %}
-{% load widget_tweaks %}
 
-{% block title %}LOGIN PAGE{% endblock title %}
+{% load static %}
+
+{% block title %}Login - Waapfolio{% endblock title %}
+
+{% block meta %}
+<meta name="description" content="Login to your Waapfolio account. Access your store, manage products, and grow your social commerce business.">
+{% endblock meta %}
+
+{% block extra_styles %}
+<!-- Google Fonts -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<!-- Font Awesome -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+
+
+    /* Floating dots background */
+    .floating-dots {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        overflow: hidden;
+    }
+
+    .dot {
+        position: absolute;
+        width: 8px;
+        height: 8px;
+        background: rgba(5, 150, 105, 0.15);
+        border-radius: 50%;
+        animation: floatDot 20s infinite ease-in-out;
+    }
+
+    .dot:nth-child(1) { top: 10%; left: 10%; animation-delay: 0s; }
+    .dot:nth-child(2) { top: 20%; left: 80%; animation-delay: 2s; }
+    .dot:nth-child(3) { top: 60%; left: 20%; animation-delay: 4s; }
+    .dot:nth-child(4) { top: 80%; left: 70%; animation-delay: 6s; }
+    .dot:nth-child(5) { top: 40%; left: 90%; animation-delay: 8s; }
+    .dot:nth-child(6) { top: 70%; left: 40%; animation-delay: 10s; }
+    .dot:nth-child(7) { top: 30%; left: 50%; animation-delay: 12s; }
+    .dot:nth-child(8) { top: 90%; left: 15%; animation-delay: 14s; }
+
+    @keyframes floatDot {
+        0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+        25% { transform: translateY(-30px) translateX(10px); opacity: 0.6; }
+        50% { transform: translateY(-10px) translateX(-10px); opacity: 0.4; }
+        75% { transform: translateY(-40px) translateX(5px); opacity: 0.5; }
+    }
+
+    .login-container {
+        display: flex;
+        width: 100%;
+        max-width: 1000px;
+        background: #ffffff;
+        border-radius: 24px;
+        box-shadow: 0 25px 80px rgba(5, 150, 105, 0.15), 0 10px 30px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+    }
+
+    /* Left side - Benefits */
+    .login-benefits {
+        flex: 1;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-benefits::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        right: -50%;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .login-benefits::after {
+        content: '';
+        position: absolute;
+        bottom: -30%;
+        left: -30%;
+        width: 80%;
+        height: 80%;
+        background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+        pointer-events: none;
+    }
+
+    .benefits-content {
+        position: relative;
+        z-index: 1;
+    }
+
+    .benefits-logo {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: 800;
+        color: #ffffff;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .benefits-logo i {
+        font-size: 1.8rem;
+    }
+
+    .benefits-title {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #ffffff;
+        line-height: 1.3;
+        margin-bottom: 30px;
+    }
+
+    .benefits-list {
+        list-style: none;
+        margin-bottom: 40px;
+    }
+
+    .benefits-list li {
+        display: flex;
+        align-items: flex-start;
+        gap: 15px;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 1rem;
+        margin-bottom: 20px;
+        line-height: 1.5;
+    }
+
+    .benefits-list li i {
+        color: #a7f3d0;
+        font-size: 1.1rem;
+        margin-top: 3px;
+        flex-shrink: 0;
+    }
+
+    .benefits-stats {
+        display: flex;
+        gap: 30px;
+        padding-top: 30px;
+        border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .stat-item {
+        text-align: center;
+    }
+
+    .stat-number {
+        font-family: 'Space Grotesk', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #ffffff;
+    }
+
+    .stat-label {
+        font-size: 0.85rem;
+        color: rgba(255, 255, 255, 0.8);
+        margin-top: 5px;
+    }
+
+    /* Right side - Form */
+    .login-form-section {
+        flex: 1;
+        padding: 60px 50px;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .form-header {
+        text-align: center;
+        margin-bottom: 35px;
+    }
+
+    .form-header h1 {
+        font-family: 'Plus Jakarta Sans', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: #1a1a2e;
+        margin-bottom: 10px;
+    }
+
+    .form-header p {
+        color: #64748b;
+        font-size: 1rem;
+    }
+
+    /* Google Sign In Button */
+    .google-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        width: 100%;
+        padding: 14px 24px;
+        background: #ffffff;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #1a1a2e;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 25px;
+        text-decoration: none;
+    }
+
+    .google-btn:hover {
+        border-color: #059669;
+        background: #f8fafc;
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(5, 150, 105, 0.1);
+    }
+
+    .google-btn img {
+        width: 22px;
+        height: 22px;
+    }
+
+    /* Divider */
+    .divider {
+        display: flex;
+        align-items: center;
+        margin-bottom: 25px;
+    }
+
+    .divider::before,
+    .divider::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #e2e8f0;
+    }
+
+    .divider span {
+        padding: 0 20px;
+        color: #94a3b8;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    /* Form Styles */
+    .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .form-group label {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 14px 18px;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        font-size: 1rem;
+        font-family: 'Inter', sans-serif;
+        color: #1a1a2e;
+        background: #f8fafc;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: #059669;
+        background: #ffffff;
+        box-shadow: 0 0 0 4px rgba(5, 150, 105, 0.1);
+    }
+
+    .form-group input::placeholder {
+        color: #94a3b8;
+    }
+
+    .password-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .password-wrapper input {
+        flex: 1;
+        padding-right: 50px;
+    }
+
+    .toggle-password {
+        position: absolute;
+        right: 16px;
+        cursor: pointer;
+        user-select: none;
+        color: #94a3b8;
+        font-size: 1.1rem;
+        transition: color 0.3s ease;
+    }
+
+    .toggle-password:hover {
+        color: #059669;
+    }
+
+    /* Remember me & Forgot password */
+    .form-options {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: -5px;
+    }
+
+    .remember-me {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+    }
+
+    .remember-me input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        accent-color: #059669;
+        cursor: pointer;
+    }
+
+    .remember-me span {
+        font-size: 0.9rem;
+        color: #64748b;
+    }
+
+    .forgot-password {
+        font-size: 0.9rem;
+        color: #059669;
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.3s ease;
+    }
+
+    .forgot-password:hover {
+        color: #047857;
+        text-decoration: underline;
+    }
+
+    /* Error Messages */
+    .error-messages {
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        border-radius: 8px;
+        padding: 12px 16px;
+        margin-bottom: 20px;
+    }
+
+    .error-messages .error {
+        color: #dc2626;
+        font-size: 0.9rem;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .error-messages .error::before {
+        content: '\f071';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.85rem;
+    }
+
+    .field-error {
+        color: #dc2626;
+        font-size: 0.85rem;
+        margin-top: 5px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .field-error::before {
+        content: '\f06a';
+        font-family: 'Font Awesome 6 Free';
+        font-weight: 900;
+        font-size: 0.8rem;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+        width: 100%;
+        padding: 16px 24px;
+        background: linear-gradient(135deg, #059669 0%, #047857 100%);
+        border: none;
+        border-radius: 12px;
+        font-family: 'Inter', sans-serif;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #ffffff;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-top: 10px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-btn::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        transition: left 0.5s ease;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 30px rgba(5, 150, 105, 0.3);
+    }
+
+    .submit-btn:hover::before {
+        left: 100%;
+    }
+
+    .submit-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Register Link */
+    .register-link {
+        text-align: center;
+        margin-top: 25px;
+        padding-top: 25px;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .register-link p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .register-link a {
+        color: #059669;
+        font-weight: 600;
+        text-decoration: none;
+        transition: color 0.3s ease;
+    }
+
+    .register-link a:hover {
+        color: #047857;
+        text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 900px) {
+        .login-container {
+            flex-direction: column;
+            max-width: 500px;
+        }
+
+        .login-benefits {
+            padding: 40px 30px;
+        }
+
+        .benefits-title {
+            font-size: 1.6rem;
+        }
+
+        .benefits-stats {
+            justify-content: center;
+        }
+
+        .login-form-section {
+            padding: 40px 30px;
+        }
+    }
+
+    @media (max-width: 480px) {
+        body {
+            padding: 15px;
+        }
+
+        .login-container {
+            border-radius: 20px;
+        }
+
+        .login-benefits {
+            padding: 30px 25px;
+        }
+
+        .benefits-logo {
+            font-size: 1.6rem;
+            margin-bottom: 25px;
+        }
+
+        .benefits-title {
+            font-size: 1.4rem;
+            margin-bottom: 20px;
+        }
+
+        .benefits-list li {
+            font-size: 0.9rem;
+            margin-bottom: 15px;
+        }
+
+        .benefits-stats {
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stat-number {
+            font-size: 1.4rem;
+        }
+
+        .login-form-section {
+            padding: 30px 25px;
+        }
+
+        .form-header h1 {
+            font-size: 1.6rem;
+        }
+
+        .form-options {
+            flex-direction: column;
+            gap: 12px;
+            align-items: flex-start;
+        }
+    }
+    .center-body {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+</style>
+{% endblock extra_styles %}
 
 {% block body %}
+<!-- Floating Dots Background -->
+<div class="center-body">
+<div class="floating-dots">
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+</div>
 
-<div class="d-flex justify-content-center align-items-center" style="min-height: 100vh; background-color: #f7f7f7;">
-  <form id="loginForm" action="{% url 'login' %}" method="post" class="form p-4 rounded shadow no-global-loader" style="background: white; width: 100%; max-width: 400px;">
-    {% csrf_token %}
-    <h2 class="text-center mb-4">Login</h2>
-
-    <!-- Username -->
-    <div class="mb-3">
-        {{ form.username.label_tag }}
-        {{ form.username|add_class:"form-control form-control-lg" }}
-    </div>
-
-    <!-- Password -->
-    <div class="mb-3">
-        {{ form.password.label_tag }}
-        <div class="position-relative">
-            {{ form.password|add_class:"form-control form-control-lg" }}
-            <span id="togglePasswordLogin" class="toggle-password">
-                <i class="fa-solid fa-eye"></i>
-            </span>
+<div class="login-container">
+    <!-- Left Side - Benefits -->
+    <div class="login-benefits">
+        <div class="benefits-content">
+            <div class="benefits-logo">
+                <i class="fas fa-store"></i>
+                Waapfolio
+            </div>
+            
+            <h2 class="benefits-title">Welcome Back to Your Business Hub</h2>
+            
+            <ul class="benefits-list">
+                <li>
+                    <i class="fas fa-chart-line"></i>
+                    <span>Track your sales and analytics in real-time</span>
+                </li>
+                <li>
+                    <i class="fas fa-box"></i>
+                    <span>Manage orders and inventory effortlessly</span>
+                </li>
+                <li>
+                    <i class="fab fa-whatsapp"></i>
+                    <span>Connect with customers via WhatsApp</span>
+                </li>
+                <li>
+                    <i class="fas fa-wallet"></i>
+                    <span>Withdraw your earnings anytime</span>
+                </li>
+            </ul>
+            
+            <div class="benefits-stats">
+                <div class="stat-item">
+                    <div class="stat-number">5K+</div>
+                    <div class="stat-label">Active Stores</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">150+</div>
+                    <div class="stat-label">Countries</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">$100K+</div>
+                    <div class="stat-label">Paid Out</div>
+                </div>
+            </div>
         </div>
     </div>
-
-    <!-- Submit -->
-    <button type="submit" class="btn btn-success w-100 btn-lg">Login</button>
-
-    <!-- Links -->
-    <p class="text-center mt-3">
-      <a href="{% url 'password_reset' %}">Forgot Password</a> | 
-      <a href="{% url 'register' %}">Register</a>
-    </p>
-  </form>
-</div>
-
-<!-- Loading Modal -->
-<div class="modal fade" id="loadingModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content text-center p-4">
-      <div class="spinner-border text-success mb-3" role="status" style="width: 3rem; height: 3rem;">
-        <span class="visually-hidden">Loading...</span>
-      </div>
-      <p class="mb-0">Logging you in, please wait...</p>
+    
+    <!-- Right Side - Login Form -->
+    <div class="login-form-section">
+        <div class="form-header">
+            <h1>Sign In</h1>
+            <p>Access your Waapfolio dashboard</p>
+        </div>
+        
+        <!-- Google Sign In -->
+        <a href="{% url 'social:begin' 'google-oauth2' %}" class="google-btn">
+            <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+            Continue with Google
+        </a>
+        
+        <div class="divider">
+            <span>or sign in with email</span>
+        </div>
+        
+        <!-- Login Form -->
+        <form action="{% url 'login' %}" method="post" class="login-form">
+            {% csrf_token %}
+            
+            <!-- Form-wide errors -->
+            {% if form.non_field_errors %}
+                <div class="error-messages">
+                    {% for error in form.non_field_errors %}
+                        <p class="error">{{ error }}</p>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            
+            <div class="form-group">
+                <label for="id_username">Email or Username</label>
+                {{ form.username }}
+                {% if form.username.errors %}
+                    {% for error in form.username.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-group">
+                <label for="id_password">Password</label>
+                <div class="password-wrapper">
+                    {{ form.password }}
+                    <span id="togglePassword" class="toggle-password">
+                        <i class="fa-solid fa-eye"></i>
+                    </span>
+                </div>
+                {% if form.password.errors %}
+                    {% for error in form.password.errors %}
+                        <span class="field-error">{{ error }}</span>
+                    {% endfor %}
+                {% endif %}
+            </div>
+            
+            <div class="form-options">
+                <label class="remember-me">
+                    <input type="checkbox" name="remember" id="remember">
+                    <span>Remember me</span>
+                </label>
+                <a href="{% url 'password_reset' %}" class="forgot-password">Forgot password?</a>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                Sign In
+            </button>
+        </form>
+        
+        <div class="register-link">
+            <p>Don't have an account? <a href="{% url 'register' %}">Create one for free</a></p>
+        </div>
     </div>
-  </div>
 </div>
+</div>
+{% endblock body %}
 
-<!-- JS -->
+{% block extra_scripts %}
 <script>
-document.getElementById('loginForm').addEventListener('submit', function() {
-    const modal = new bootstrap.Modal(document.getElementById('loadingModal'));
-    modal.show();
-});
-
-document.querySelectorAll('.toggle-password').forEach(toggle => {
-    toggle.addEventListener('click', function() {
-        const input = this.previousElementSibling; // password input
-        const icon = this.querySelector('i');      // eye icon
-
-        if (input.type === "password") {
-            input.type = "text";
-            icon.classList.remove("fa-eye");
-            icon.classList.add("fa-eye-slash");
+    // Password toggle functionality
+    document.getElementById('togglePassword').addEventListener('click', function() {
+        const passwordInput = this.previousElementSibling;
+        const icon = this.querySelector('i');
+        
+        if (passwordInput.type === 'password') {
+            passwordInput.type = 'text';
+            icon.classList.remove('fa-eye');
+            icon.classList.add('fa-eye-slash');
         } else {
-            input.type = "password";
-            icon.classList.remove("fa-eye-slash");
-            icon.classList.add("fa-eye");
+            passwordInput.type = 'password';
+            icon.classList.remove('fa-eye-slash');
+            icon.classList.add('fa-eye');
         }
     });
-});
 </script>
-
-<!-- CSS -->
-<style>
-/* Inputs */
-form input {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-    border: 1px solid #ccc;
-    border-radius: 0.375rem;
-    box-sizing: border-box;
-}
-
-/* Eye toggle inside password input */
-.position-relative {
-    position: relative;
-}
-
-.toggle-password {
-    position: absolute;
-    right: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    font-size: 1.2rem;
-    cursor: pointer;
-    user-select: none;
-    color: #555;
-}
-</style>
-{% endblock body %}
+{% endblock extra_scripts %}

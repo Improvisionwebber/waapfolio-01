@@ -1093,13 +1093,23 @@
                 <h1 class="text-light">Built for Creators, Hustlers & Online Sellers</h1>
                 <p>Waapfolio helps you launch a professional online store, sell smarter, and earn referral income, all from one powerful platform designed for the modern digital entrepreneur.</p>
                 <div class="cta-buttons">
-                    <a href="#" class="btn btn-primary">
-                        <i class="fab fa-google"></i> Sign Up with Google
-                    </a>
-                    <a href="{% url 'register' %}" class="btn btn-secondary">
-                        <i class="fas fa-envelope"></i> Get Started Free
-                    </a>
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'create_store' %}" class="btn btn-primary">
+                            <i class="fas fa-globe"></i>
+                            Create Your Website Now Easily
+                        </a>
+                    {% else %}
+                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
+                            <i class="fab fa-google"></i>
+                            Sign Up with Google
+                        </a>
+                        <a href="{% url 'register' %}" class="btn btn-secondary">
+                            <i class="fas fa-envelope"></i>
+                            Get Started Free
+                        </a>
+                    {% endif %}
                 </div>
+
             </div>
             <div class="hero-image">
                 <img src="{% static 'images/banner.jpg' %}" alt="Creator using Waapfolio with social media">
@@ -1391,13 +1401,23 @@
             <h2>Join Thousands Building With Waapfolio</h2>
             <p>Start your journey today. Launch your store in minutes, not months. Earn referral income while you grow.</p>
             <div class="cta-buttons">
-                <a href="#" class="btn btn-primary">
-                    <i class="fab fa-google"></i> Sign Up with Google
-                </a>
-                <a href="{% url 'register' %}" class="btn btn-secondary">
-                    <i class="fas fa-rocket"></i> Get Started Free
-                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'create_store' %}" class="btn btn-primary">
+                        <i class="fas fa-globe"></i>
+                        Create Your Website Now Easily
+                    </a>
+                {% else %}
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
+                        <i class="fab fa-google"></i>
+                        Sign Up with Google
+                    </a>
+                    <a href="{% url 'register' %}" class="btn btn-secondary">
+                        <i class="fas fa-envelope"></i>
+                        Get Started Free
+                    </a>
+                {% endif %}
             </div>
+
         </div>
     </div>
 </section>

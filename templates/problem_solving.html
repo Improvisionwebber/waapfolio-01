@@ -1,49 +1,1333 @@
 {% extends "base.html" %}
-{% block title %}WHAT ARE WE SOLVING{% endblock title %}
 {% load static %}
 
+{% block title %}Problems We Solve | WAAPFOLIO{% endblock title %}
+
+{% block meta %}
+<meta name="description" content="Discover how Waapfolio solves the biggest challenges creators and small businesses face when selling online. Simple, social-first commerce." />
+<meta property="og:title" content="Problems We Solve | Waapfolio" />
+<meta property="og:description" content="Stop struggling with complicated tools. Start selling smarter with Waapfolio." />
+{% endblock %}
+
+{% block extra_styles %}
+<style>
+/* ================= WAAPFOLIO THEME ================= */
+:root {
+    --primary: #059669;
+    --primary-light: #10b981;
+    --primary-dark: #047857;
+    --primary-glow: rgba(5, 150, 105, 0.3);
+    --bg-mint: #ecfdf5;
+    --bg-white: #ffffff;
+    --bg-dark: #1a1a2e;
+    --text-primary: #1f2937;
+    --text-secondary: #6b7280;
+    --text-muted: #9ca3af;
+    --border-light: rgba(5, 150, 105, 0.2);
+    --shadow-card: 0 4px 20px rgba(5, 150, 105, 0.1);
+    --shadow-hover: 0 20px 40px rgba(5, 150, 105, 0.15);
+    --gradient-primary: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --gradient-soft: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
+    --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    --radius-sm: 12px;
+    --radius-md: 16px;
+    --radius-lg: 24px;
+    --radius-full: 9999px;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-dark);
+    color: var(--text-primary);
+    overflow-x: hidden;
+    line-height: 1.7;
+}
+
+/* ================= FLOATING DOTS ================= */
+.floating-dots {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.dot {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: var(--primary);
+    border-radius: 50%;
+    opacity: 0.15;
+    animation: floatDot 20s infinite ease-in-out;
+}
+
+@keyframes floatDot {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -50px) scale(1.2); }
+    50% { transform: translate(-20px, -100px) scale(0.8); }
+    75% { transform: translate(40px, -50px) scale(1.1); }
+}
+
+/* ================= TYPOGRAPHY ================= */
+h1, h2, h3, h4, h5 {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    font-weight: 700;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+h2 { font-size: clamp(2rem, 4vw, 3rem); }
+h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
+h4 { font-size: 1.25rem; }
+
+p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    font-size: 1.1rem;
+}
+
+/* ================= CONTAINER ================= */
+.container-custom {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    position: relative;
+    z-index: 1;
+}
+
+/* ================= SECTION STYLING ================= */
+.section {
+    padding: 100px 0;
+    position: relative;
+}
+
+.section-header {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 60px;
+}
+
+.section-header h2 {
+    margin-bottom: 1rem;
+}
+
+.section-tag {
+    display: inline-block;
+    background: var(--primary-glow);
+    color: var(--primary);
+    padding: 8px 20px;
+    border-radius: var(--radius-full);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ================= HERO SECTION ================= */
+.hero-problems {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    background: var(--gradient-soft);
+    padding: 120px 0 80px;
+    position: relative;
+    overflow: hidden;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: center;
+}
+
+.hero-content h1 {
+    margin-bottom: 1.5rem;
+}
+
+.hero-content h1 .highlight-red {
+    background: linear-gradient(135deg, #ef4444, #f97316);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2rem;
+    max-width: 540px;
+}
+
+.hero-visual {
+    position: relative;
+}
+
+.hero-illustration {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-card);
+    position: relative;
+}
+
+.chaos-icons {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.chaos-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    animation: shake 2s infinite;
+    position: relative;
+}
+
+.chaos-icon:nth-child(1) { background: #fee2e2; animation-delay: 0s; }
+.chaos-icon:nth-child(2) { background: #fef3c7; animation-delay: 0.2s; }
+.chaos-icon:nth-child(3) { background: #dbeafe; animation-delay: 0.4s; }
+.chaos-icon:nth-child(4) { background: #f3e8ff; animation-delay: 0.6s; }
+.chaos-icon:nth-child(5) { background: #fce7f3; animation-delay: 0.8s; }
+.chaos-icon:nth-child(6) { background: #d1fae5; animation-delay: 1s; }
+
+.chaos-icon::after {
+    content: '!';
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    width: 24px;
+    height: 24px;
+    background: #ef4444;
+    color: white;
+    border-radius: 50%;
+    font-size: 14px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+@keyframes shake {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(-5deg); }
+    75% { transform: rotate(5deg); }
+}
+
+.stress-meter {
+    margin-top: 30px;
+    background: #fef2f2;
+    border-radius: var(--radius-md);
+    padding: 20px;
+}
+
+.stress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #ef4444;
+}
+
+.stress-bar {
+    height: 12px;
+    background: #fecaca;
+    border-radius: var(--radius-full);
+    overflow: hidden;
+}
+
+.stress-fill {
+    height: 100%;
+    width: 85%;
+    background: linear-gradient(90deg, #f87171, #ef4444);
+    border-radius: var(--radius-full);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+/* ================= PROBLEMS SECTION ================= */
+.problems-section {
+    background: var(--bg-white);
+}
+
+.problems-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+}
+
+.problem-card {
+    background: var(--bg-mint);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    border: 2px solid transparent;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.problem-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+    background: #ef4444;
+    transform: scaleY(0);
+    transition: var(--transition);
+}
+
+.problem-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-hover);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.problem-card:hover::before {
+    transform: scaleY(1);
+}
+
+.problem-icon {
+    width: 70px;
+    height: 70px;
+    background: #fef2f2;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+}
+
+.problem-card h4 {
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.problem-card p {
+    font-size: 1rem;
+    color: var(--text-secondary);
+}
+
+/* ================= SOCIAL MEDIA SECTION ================= */
+.social-problem-section {
+    background: var(--bg-mint);
+}
+
+.split-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: center;
+}
+
+.split-content h2 {
+    margin-bottom: 1.5rem;
+}
+
+.split-content p {
+    margin-bottom: 1.5rem;
+}
+
+.pain-list {
+    list-style: none;
+}
+
+.pain-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-light);
+}
+
+.pain-list li:last-child {
+    border-bottom: none;
+}
+
+.pain-icon {
+    width: 28px;
+    height: 28px;
+    background: #fef2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ef4444;
+    flex-shrink: 0;
+}
+
+.flow-visual {
+    background: var(--bg-white);
+    border-radius: var(--radius-lg);
+    padding: 40px;
+    box-shadow: var(--shadow-card);
+}
+
+.flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.flow-step {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.flow-box {
+    flex: 1;
+    padding: 20px 30px;
+    border-radius: var(--radius-md);
+    text-align: center;
+    font-weight: 600;
+}
+
+.flow-box.social {
+    background: linear-gradient(135deg, #dbeafe, #ede9fe);
+    color: #6366f1;
+}
+
+.flow-box.confusion {
+    background: #fef3c7;
+    color: #d97706;
+}
+
+.flow-box.lost {
+    background: #fef2f2;
+    color: #ef4444;
+}
+
+.flow-arrow {
+    font-size: 1.5rem;
+    color: var(--text-muted);
+}
+
+/* ================= PLATFORM FAIL SECTION ================= */
+.platform-fail-section {
+    background: var(--bg-white);
+}
+
+.fail-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 24px;
+}
+
+.fail-card {
+    background: #fef2f2;
+    border-radius: var(--radius-lg);
+    padding: 30px;
+    text-align: center;
+    border: 2px solid #fecaca;
+    transition: var(--transition);
+}
+
+.fail-card:hover {
+    transform: translateY(-5px);
+}
+
+.fail-icon {
+    width: 60px;
+    height: 60px;
+    background: #fee2e2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    font-size: 1.5rem;
+}
+
+.fail-card h4 {
+    font-size: 1.1rem;
+    margin-bottom: 8px;
+    color: #991b1b;
+}
+
+.fail-card p {
+    font-size: 0.9rem;
+    color: #b91c1c;
+}
+
+/* ================= WAAPFOLIO APPROACH SECTION ================= */
+.approach-section {
+    background: var(--gradient-primary);
+    color: white;
+    position: relative;
+    overflow: hidden;
+}
+
+.approach-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -20%;
+    width: 600px;
+    height: 600px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+}
+
+.approach-section .section-header h2 {
+    color: white;
+}
+
+.approach-section .section-header p {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.approach-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+    position: relative;
+    z-index: 1;
+}
+
+.approach-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    border-radius: var(--radius-lg);
+    padding: 35px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: var(--transition);
+}
+
+.approach-card:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateY(-5px);
+}
+
+.approach-icon {
+    width: 60px;
+    height: 60px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    margin-bottom: 20px;
+}
+
+.approach-card h4 {
+    color: white;
+    margin-bottom: 10px;
+}
+
+.approach-card p {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 1rem;
+}
+
+/* ================= BEFORE/AFTER SECTION ================= */
+.before-after-section {
+    background: var(--bg-mint);
+}
+
+.comparison-grid {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 40px;
+    align-items: stretch;
+}
+
+.comparison-card {
+    border-radius: var(--radius-lg);
+    padding: 50px;
+    position: relative;
+}
+
+.comparison-card.before {
+    background: #fef2f2;
+    border: 2px solid #320000ff;
+}
+
+.comparison-card.after {
+    background: var(--bg-white);
+    border: 2px solid var(--primary);
+    box-shadow: var(--shadow-card);
+}
+
+.comparison-label {
+    position: absolute;
+    top: -15px;
+    left: 30px;
+    padding: 8px 24px;
+    border-radius: var(--radius-full);
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+}
+
+.before .comparison-label {
+    background: #ef4444;
+    color: white;
+}
+
+.after .comparison-label {
+    background: var(--primary);
+    color: white;
+}
+
+.comparison-list {
+    list-style: none;
+    margin-top: 20px;
+}
+
+.comparison-list li {
+    display: flex;
+    align-items: flex-start;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.05);
+}
+
+.comparison-list li:last-child {
+    border-bottom: none;
+}
+
+.comparison-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1rem;
+}
+
+.before .comparison-icon {
+    background: #b12727ff;
+    color: #d96868ff;
+}
+
+.after .comparison-icon {
+    background: #d1fae5;
+    color: var(--primary);
+}
+
+.comparison-divider {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.divider-arrow {
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 1.5rem;
+    box-shadow: 0 10px 30px var(--primary-glow);
+}
+
+/* ================= PERSONAS SECTION ================= */
+.personas-section {
+    background: var(--bg-white);
+}
+
+.personas-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
+}
+
+.persona-card {
+    background: var(--bg-mint);
+    border-radius: var(--radius-lg);
+    padding: 40px 30px;
+    text-align: center;
+    transition: var(--transition);
+    border: 2px solid transparent;
+}
+
+.persona-card:hover {
+    border-color: var(--primary);
+    transform: translateY(-8px);
+    box-shadow: var(--shadow-hover);
+}
+
+.persona-avatar {
+    width: 100px;
+    height: 100px;
+    background: var(--gradient-primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 24px;
+    font-size: 2.5rem;
+}
+
+.persona-card h4 {
+    margin-bottom: 12px;
+}
+
+/* ================= STATS SECTION ================= */
+.stats-section {
+    background: var(--bg-dark);
+    color: white;
+    padding: 80px 0;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+}
+
+.stat-item {
+    text-align: center;
+}
+
+.stat-number {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: clamp(3rem, 6vw, 4.5rem);
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.1rem;
+}
+
+/* ================= FUTURE SECTION ================= */
+.future-section {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #ecfdf5 100%);
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.future-section::before,
+.future-section::after {
+    content: '';
+    position: absolute;
+    width: 400px;
+    height: 400px;
+    border-radius: 50%;
+    background: var(--primary-glow);
+    filter: blur(100px);
+}
+
+.future-section::before {
+    top: -200px;
+    left: -200px;
+}
+
+.future-section::after {
+    bottom: -200px;
+    right: -200px;
+}
+
+.future-content {
+    position: relative;
+    z-index: 1;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.future-content h2 {
+    font-size: clamp(2.5rem, 5vw, 3.5rem);
+    margin-bottom: 1.5rem;
+}
+
+.future-content h2 .highlight {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.future-content p {
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* ================= CTA SECTION ================= */
+.cta-section {
+    background: var(--bg-white);
+    text-align: center;
+}
+
+.cta-content {
+    max-width: 700px;
+    margin: 0 auto;
+}
+
+.cta-content h2 {
+    margin-bottom: 1rem;
+}
+
+.cta-content p {
+    font-size: 1.25rem;
+    margin-bottom: 2.5rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 36px;
+    border-radius: var(--radius-full);
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+    border: none;
+}
+
+.btn-primary {
+    background: var(--gradient-primary);
+    color: white;
+    box-shadow: 0 10px 30px var(--primary-glow);
+}
+
+.btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 15px 40px var(--primary-glow);
+}
+
+.btn-secondary {
+    background: var(--bg-white);
+    color: var(--primary);
+    border: 2px solid var(--primary);
+}
+
+.btn-secondary:hover {
+    background: var(--primary);
+    color: white;
+}
+
+/* ================= ANIMATIONS ================= */
+.animate-on-scroll {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+}
+
+.animate-on-scroll.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+/* ================= RESPONSIVE ================= */
+@media (max-width: 1024px) {
+    .hero-grid,
+    .split-layout,
+    .comparison-grid {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .comparison-divider {
+        transform: rotate(90deg);
+    }
+    
+    .fail-grid,
+    .personas-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    
+    .approach-grid,
+    .problems-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .section {
+        padding: 60px 0;
+    }
+    
+    .container-custom {
+        padding: 0 1rem;
+    }
+    
+    .fail-grid,
+    .personas-grid,
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .cta-buttons {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .btn {
+        width: 100%;
+        max-width: 300px;
+        justify-content: center;
+    }
+    
+    .chaos-icons {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+</style>
+{% endblock extra_styles %}
+
 {% block body %}
-<div class="container my-4 p-4 bg-light rounded shadow-sm" data-aos="fade-up">
-
-    <!-- Back Link -->
-    <a href="{% url 'home' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-        <i class="bi bi-arrow-left"></i> Back
-    </a>
-
-    <!-- The Problem -->
-    <h3 class="text-center mb-3 text-uppercase fw-bold text-success" data-aos="fade-up">
-        THE PROBLEM
-    </h3>
-    <p class="text-justify" data-aos="fade-up">
-        The major problem that WAAPFOLIO is solving is the fact that mobile users who are mostly not familiar with tech—e.g., WhatsApp vendors, market men, small business owners, and even teens who want to start a business but don't have the money—can now easily create a store on WAAPFOLIO. They can list products directly to WhatsApp, enabling buyers and sellers to have a very “wow” performance.
-    </p>
-
-    <!-- Why WAAPFOLIO is Preferable -->
-    <h3 class="text-center mt-4 mb-3 text-primary fw-semibold" data-aos="fade-up">
-        WHY WAAPFOLIO IS MOST PREFERABLE FOR MARKETING
-    </h3>
-    <p data-aos="fade-up">
-        WAAPFOLIO is most preferable for marketing because of the following:
-    </p>
-    <ol class="ps-3" data-aos="fade-up">
-        <li>It's very easy to use and allows your normal business to continue the way you normally do it via WhatsApp.</li>
-        <li>Store creation is fast and easy.</li>
-        <li>It can be used as a daily menu to organize business owners, no matter how small.</li>
-        <li>It serves as a chain between a business owner and a customer, where the customer sees high professionalism for even having a web page.</li>
-        <li>It simplifies the complexity of e-commerce websites.</li>
-    </ol>
-
-    <!-- The Solution -->
-    <h3 class="text-center mb-3 text-uppercase fw-bold" data-aos="fade-up">
-        THE SOLUTION
-    </h3>
-    <p class="text-muted mt-3 text-justify" data-aos="fade-up">
-        WAAPFOLIO enables WhatsApp vendors, individuals, and market men who usually post on their status to brighten their audience’s view and have a gazing professional look at zero cost. Users can create their store and share their store link across various social media networks and watch their small businesses grow. Isn’t that crazy? You start a small WhatsApp status vending business and already have something like a mini website.  
-
-        That's not just professionalism—it boosts small businesses. As the name implies, WAAPFOLIO comes from “WhatsApp” and “Portfolio.” It’s your mini portfolio, accessible via the easiest method ever through WhatsApp. No stressful e-commerce management or constant updates needed. WAAPFOLIO makes it all easy: users can add, edit, or delete products, solving the complexity of e-commerce.  
-
-        <strong>EVERYONE MATTERS</strong>
-    </p>
-
+<!-- Floating Dots Background -->
+<div class="floating-dots">
+    <div class="dot" style="left: 10%; top: 20%;"></div>
+    <div class="dot" style="left: 20%; top: 60%;"></div>
+    <div class="dot" style="left: 80%; top: 15%;"></div>
+    <div class="dot" style="left: 70%; top: 70%;"></div>
+    <div class="dot" style="left: 50%; top: 40%;"></div>
+    <div class="dot" style="left: 30%; top: 80%;"></div>
+    <div class="dot" style="left: 90%; top: 50%;"></div>
+    <div class="dot" style="left: 5%; top: 90%;"></div>
 </div>
+
+<!-- Hero Section -->
+<section class="hero-problems">
+    <div class="container-custom">
+        <div class="hero-grid">
+            <div class="hero-content animate-on-scroll">
+                <span class="section-tag">The Problem</span>
+                <h1>Selling Online <span class="highlight-red">Shouldn't Be This Hard.</span></h1>
+                <p>Creators and small businesses struggle daily with complicated tools, low conversions, and scattered sales channels. Sound familiar?</p>
+                <a href="{% url 'register' %}" class="btn btn-primary">
+                    See the Solution
+                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path d="M5 12h14M12 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
+            <div class="hero-visual animate-on-scroll">
+                <div class="hero-illustration">
+                    <div class="chaos-icons">
+                        <div class="chaos-icon">📱</div>
+                        <div class="chaos-icon">💬</div>
+                        <div class="chaos-icon">📧</div>
+                        <div class="chaos-icon">📊</div>
+                        <div class="chaos-icon">💳</div>
+                        <div class="chaos-icon">🔔</div>
+                    </div>
+                    <div class="stress-meter">
+                        <div class="stress-label">
+                            <span>Stress Level</span>
+                            <span>85%</span>
+                        </div>
+                        <div class="stress-bar">
+                            <div class="stress-fill"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Problems Grid Section -->
+<section class="section problems-section">
+    <div class="container-custom">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag">Real Struggles</span>
+            <h2>The Real Problems Creators Face</h2>
+            <p>Every day, thousands of creators hit the same walls. Here's what's holding them back.</p>
+        </div>
+        <div class="problems-grid">
+            <div class="problem-card animate-on-scroll">
+                <div class="problem-icon">🔄</div>
+                <h4>Too Many Platforms to Manage</h4>
+                <p>Juggling Instagram, WhatsApp, TikTok, and separate payment apps. It's exhausting and nothing syncs together.</p>
+            </div>
+            <div class="problem-card animate-on-scroll">
+                <div class="problem-icon">📵</div>
+                <h4>No Easy Way to Sell on Social Media</h4>
+                <p>You post great content, get engagement, but there's no simple way to turn followers into paying customers.</p>
+            </div>
+            <div class="problem-card animate-on-scroll">
+                <div class="problem-icon">💰</div>
+                <h4>Complicated Setup & High Costs</h4>
+                <p>Traditional e-commerce platforms need technical skills and charge hefty monthly fees before you even make a sale.</p>
+            </div>
+            <div class="problem-card animate-on-scroll">
+                <div class="problem-icon">🚫</div>
+                <h4>No Way to Earn from Referrals</h4>
+                <p>You recommend products all the time but never get rewarded. Your audience is valuable, but you're not monetizing it.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Social Media Problem Section -->
+<section class="section social-problem-section">
+    <div class="container-custom">
+        <div class="split-layout">
+            <div class="split-content animate-on-scroll">
+                <span class="section-tag">The Gap</span>
+                <h2>Social Media ≠ Sales</h2>
+                <p>You get the likes. You get the comments. You get the DMs asking "How much?" But turning that engagement into actual money? That's where everything breaks down.</p>
+                <ul class="pain-list">
+                    <li>
+                        <span class="pain-icon">✕</span>
+                        <span>Followers ask questions but never complete purchases</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">✕</span>
+                        <span>Manual order tracking leads to missed sales</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">✕</span>
+                        <span>No centralized place to showcase products</span>
+                    </li>
+                    <li>
+                        <span class="pain-icon">✕</span>
+                        <span>Payment collection is awkward and unprofessional</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="flow-visual animate-on-scroll">
+                <div class="flow-steps">
+                    <div class="flow-step">
+                        <div class="flow-box social">📱 Social Media<br><small>Likes, Comments, DMs</small></div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-box confusion">😵 Confusion<br><small>No clear path to buy</small></div>
+                    </div>
+                    <div class="flow-arrow">↓</div>
+                    <div class="flow-step">
+                        <div class="flow-box lost">💸 Lost Sales<br><small>Customer gives up</small></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Platform Failures Section -->
+<section class="section platform-fail-section">
+    <div class="container-custom">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag">The Competition</span>
+            <h2>Why Existing Platforms Fail</h2>
+            <p>Traditional e-commerce wasn't built for creators. Here's why they fall short.</p>
+        </div>
+        <div class="fail-grid">
+            <div class="fail-card animate-on-scroll">
+                <div class="fail-icon">🖥️</div>
+                <h4>Technical Complexity</h4>
+                <p>Requires coding or expensive developers</p>
+            </div>
+            <div class="fail-card animate-on-scroll">
+                <div class="fail-icon">💵</div>
+                <h4>Expensive Fees</h4>
+                <p>High monthly costs before earning anything</p>
+            </div>
+            <div class="fail-card animate-on-scroll">
+                <div class="fail-icon">🏢</div>
+                <h4>Built for Big Business</h4>
+                <p>Overcomplicated for solo creators</p>
+            </div>
+            <div class="fail-card animate-on-scroll">
+                <div class="fail-icon">📵</div>
+                <h4>No Social Integration</h4>
+                <p>Can't sell via WhatsApp or DMs</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Waapfolio Approach Section -->
+<section class="section approach-section">
+    <div class="container-custom">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag" style="background: rgba(255,255,255,0.2); color: white;">The Solution</span>
+            <h2>Waapfolio Was Built to Solve This.</h2>
+            <p>We took everything that's broken about selling online and fixed it. Here's how.</p>
+        </div>
+        <div class="approach-grid">
+            <div class="approach-card animate-on-scroll">
+                <div class="approach-icon">⚡</div>
+                <h4>Launch in Minutes</h4>
+                <p>No coding, no setup headaches. Create your professional store in under 5 minutes flat.</p>
+            </div>
+            <div class="approach-card animate-on-scroll">
+                <div class="approach-icon">💬</div>
+                <h4>Sell via WhatsApp & Social</h4>
+                <p>Share your store link anywhere. Customers order directly through WhatsApp.</p>
+            </div>
+            <div class="approach-card animate-on-scroll">
+                <div class="approach-icon">🛒</div>
+                <h4>Simple Checkout</h4>
+                <p>No complicated payment gateways. Multiple easy options that work globally.</p>
+            </div>
+            <div class="approach-card animate-on-scroll">
+                <div class="approach-icon">💰</div>
+                <h4>Earn Referral Income</h4>
+                <p>Share products, earn commissions. Turn your audience into a revenue stream.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Before/After Section -->
+<section class="section before-after-section">
+    <div class="container-custom">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag">The Transformation</span>
+            <h2>Before vs After Waapfolio</h2>
+            <p>See the difference when you stop struggling and start selling smarter.</p>
+        </div>
+        <div class="comparison-grid">
+            <div class="comparison-card before animate-on-scroll">
+                <span class="comparison-label">Before</span>
+                <h3 class="text-dark" style="margin-top: 10px;">😰 The Struggle</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <span class="comparison-icon">✕</span>
+                        <span class="text-dark">Missed DMs and lost customers</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✕</span>
+                        <span class="text-dark">Scattered products across platforms</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✕</span>
+                        <span class="text-dark">Manual order tracking nightmares</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✕</span>
+                        <span class="text-dark">Unprofessional payment requests</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✕</span>
+                        <span class="text-dark">Zero income from referrals</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="comparison-divider">
+                <div class="divider-arrow">→</div>
+            </div>
+            <div class="comparison-card after animate-on-scroll">
+                <span class="comparison-label">After</span>
+                <h3 style="margin-top: 10px;">🚀 The Success</h3>
+                <ul class="comparison-list">
+                    <li>
+                        <span class="comparison-icon">✓</span>
+                        <span>Organized storefront, clear orders</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✓</span>
+                        <span>All products in one beautiful store</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✓</span>
+                        <span>Automatic order management</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✓</span>
+                        <span>Professional checkout experience</span>
+                    </li>
+                    <li>
+                        <span class="comparison-icon">✓</span>
+                        <span>Passive referral earnings</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Personas Section -->
+<section class="section personas-section">
+    <div class="container-custom">
+        <div class="section-header animate-on-scroll">
+            <span class="section-tag">Who We Help</span>
+            <h2>Who This Solves Problems For</h2>
+            <p>Waapfolio removes the pain for creators of all types.</p>
+        </div>
+        <div class="personas-grid">
+            <div class="persona-card animate-on-scroll">
+                <div class="persona-avatar">📸</div>
+                <h4>Influencers</h4>
+                <p>Monetize your following with products and earn from every recommendation.</p>
+            </div>
+            <div class="persona-card animate-on-scroll">
+                <div class="persona-avatar">🎓</div>
+                <h4>Online Coaches</h4>
+                <p>Sell courses, ebooks, and sessions without tech complexity.</p>
+            </div>
+            <div class="persona-card animate-on-scroll">
+                <div class="persona-avatar">💎</div>
+                <h4>Digital Sellers</h4>
+                <p>Templates, designs, presets — sell digital products instantly.</p>
+            </div>
+            <div class="persona-card animate-on-scroll">
+                <div class="persona-avatar">🏪</div>
+                <h4>Small Business Owners</h4>
+                <p>Launch your online presence without expensive agencies.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="stats-section">
+    <div class="container-custom">
+        <div class="stats-grid">
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number" data-target="5000">0</div>
+                <div class="stat-label">Stores Created</div>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number" data-target="150">0</div>
+                <div class="stat-label">Countries Served</div>
+            </div>
+            <div class="stat-item animate-on-scroll">
+                <div class="stat-number" data-target="100">$0K</div>
+                <div class="stat-label">Paid to Creators</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Future Section -->
+<section class="section future-section">
+    <div class="container-custom">
+        <div class="future-content animate-on-scroll">
+            <span class="section-tag">Our Vision</span>
+            <h2>We're Building the Future of <span class="highlight">Social Commerce</span></h2>
+            <p>A world where every creator owns their audience, controls their income, and builds wealth on their terms. That future starts with Waapfolio.</p>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="section cta-section">
+    <div class="container-custom">
+        <div class="cta-content animate-on-scroll">
+            <span class="section-tag">Start Now</span>
+            <h2>Stop Struggling. Start Selling Smarter.</h2>
+            <p>Join thousands of creators who've escaped the chaos and built thriving online businesses with Waapfolio.</p>
+            <div class="cta-buttons">
+                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+                    </svg>
+                    Sign Up with Google
+                </a>
+                <a href="{% url 'register' %}" class="btn btn-secondary">
+                    Get Started Free
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock body %}
+
+{% block extra_scripts %}
+<script>
+// Scroll Animation Observer
+const observerOptions = {
+    threshold: 0.1,
+    rootMargin: '0px 0px -50px 0px'
+};
+
+const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+        }
+    });
+}, observerOptions);
+
+document.querySelectorAll('.animate-on-scroll').forEach(el => {
+    observer.observe(el);
+});
+
+// Stats Counter Animation
+function animateCounter(element, target, suffix = '') {
+    let current = 0;
+    const increment = target / 60;
+    const timer = setInterval(() => {
+        current += increment;
+        if (current >= target) {
+            current = target;
+            clearInterval(timer);
+        }
+        if (suffix === 'K') {
+            element.textContent = '$' + Math.floor(current) + 'K+';
+        } else if (target >= 1000) {
+            element.textContent = Math.floor(current).toLocaleString() + '+';
+        } else {
+            element.textContent = Math.floor(current) + '+';
+        }
+    }, 25);
+}
+
+// Trigger stats animation when visible
+const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const statNumbers = entry.target.querySelectorAll('.stat-number');
+            statNumbers.forEach(stat => {
+                const target = parseInt(stat.dataset.target);
+                if (stat.textContent.includes('$')) {
+                    animateCounter(stat, target, 'K');
+                } else {
+                    animateCounter(stat, target);
+                }
+            });
+            statsObserver.unobserve(entry.target);
+        }
+    });
+}, { threshold: 0.5 });
+
+const statsSection = document.querySelector('.stats-section');
+if (statsSection) {
+    statsObserver.observe(statsSection);
+}
+</script>
+{% endblock extra_scripts %}
