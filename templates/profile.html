@@ -13,15 +13,15 @@
     --waap-primary: #059669;
     --waap-primary-dark: #047857;
     --waap-primary-light: #10b981;
-    --waap-bg: #ecfdf5;
-    --waap-bg-card: #ffffff;
-    --waap-text: #1f2937;
-    --waap-text-muted: #6b7280;
-    --waap-border: #e5e7eb;
+    --waap-bg: #0f1419; /* Changed from #ecfdf5 to dark */
+    --waap-bg-card: #1a1f26; /* Changed from #ffffff to dark */
+    --waap-text: #e7e9ea; /* Changed from #1f2937 to light */
+    --waap-text-muted: #8b98a5; /* Changed from #6b7280 */
+    --waap-border: #2f3336; /* Changed from #e5e7eb */
     --waap-danger: #dc2626;
     --waap-danger-light: #fef2f2;
-    --waap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --waap-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --waap-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+    --waap-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
 }
 
 * {
@@ -657,7 +657,7 @@ body.dark .danger-btn {
                     <i class="fas fa-question-circle"></i>
                     <span>FAQs</span>
                 </a>
-                <a href="{% url 'privacy_policy' %}" class="sidebar-nav-item">
+                <a href="{% url 'privacy' %}" class="sidebar-nav-item">
                     <i class="fas fa-file-alt"></i>
                     <span>Privacy Policy</span>
                 </a>
@@ -685,7 +685,7 @@ body.dark .danger-btn {
                     <h2>Account Information</h2>
                 </div>
                 <div class="settings-card-body">
-                    <a href="{% url 'account_info' %}" class="settings-link">
+                    <a href="{% url 'account_information' %}" class="settings-link">
                         <div class="settings-item">
                             <div class="settings-item-info">
                                 <div class="settings-item-icon">
@@ -809,7 +809,7 @@ body.dark .danger-btn {
                             </div>
                         </div>
                     </a>
-                    <a href="{% url 'privacy_policy' %}" class="settings-link">
+                    <a href="{% url 'privacy' %}" class="settings-link">
                         <div class="settings-item">
                             <div class="settings-item-info">
                                 <div class="settings-item-icon">
@@ -875,23 +875,7 @@ body.dark .danger-btn {
         </main>
     </div>
 
-    <!-- Footer Actions -->
-    <div class="settings-footer">
-        {% if request.user.is_authenticated %}
-            <form action="{% url 'logout' %}" method="post" style="display: inline;">
-                {% csrf_token %}
-                <button type="submit" class="btn-logout">
-                    <i class="fas fa-sign-out-alt"></i>
-                    Logout
-                </button>
-            </form>
-        {% else %}
-            <a href="{% url 'login' %}" class="btn-primary">
-                <i class="fas fa-sign-in-alt"></i>
-                Login / Register
-            </a>
-        {% endif %}
-    </div>
+
 </div>
 {% endblock body %}
 

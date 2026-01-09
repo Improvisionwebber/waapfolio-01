@@ -1,0 +1,52 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{{ store.brand_name }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="{% url 'store_home' store_slug=store.slug %}">
+      {% if store.brand_logo %}
+        <img src="{{ store.brand_logo.url }}" height="40" alt="{{ store.brand_name }}">
+      {% endif %}
+      {{ store.brand_name }}
+    </a>
+
+    <button class="navbar-toggler" data-bs-toggle="collapse" data-bs-target="#nav">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div id="nav" class="collapse navbar-collapse">
+      <ul class="navbar-nav ms-auto">
+        <!-- Include store_slug in every link -->
+        <li class="nav-item"><a class="nav-link" href="{% url 'store_home' store_slug=store.slug %}">Home</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'store_about' store_slug=store.slug %}">About</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'store_product_list' store_slug=store.slug %}">Products</a></li>
+        <li class="nav-item"><a class="nav-link" href="{% url 'store_contact' store_slug=store.slug %}">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  {% block body %}{% endblock %}
+</div>
+
+<footer class="text-center py-4 mt-5 border-top">
+  <small>Powered by <strong>Waapfolio</strong></small>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

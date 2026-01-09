@@ -1,52 +1,721 @@
-{% extends 'base.html' %}
-{% block title %}Contact Us - Waapfolio{% endblock %}
+{% extends "base.html" %}
+{% load static %}
 
+{% block title %}Contact | Waapfolio{% endblock %}
+
+{% block meta %}
+<meta name="description" content="WaapFolio Support Contact">
+{% endblock %}
 {% block body %}
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-<div class="container mt-4 mb-5 px-3">
-  <a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-    <i class="bi bi-arrow-left"></i> Back
-  </a>
 
-  <h2 class="mb-3">Need Help?</h2>
-  <p class="mb-4">For questions, account support, or business inquiries, you can chat with our team on Telegram, WhatsApp, or connect with us on socials.</p>
 
-  <!-- Telegram Button -->
-  <a href="https://t.me/customerservicewaapfolio1" class="btn btn-primary w-100 mb-3">
-    <i class="bi bi-telegram me-1"></i> Message Us on Telegram
-  </a>
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
 
-  <!-- WhatsApp Button -->
-  <a href="https://wa.me/2349161453058" class="btn btn-success w-100 mb-3">
-    <i class="bi bi-whatsapp me-1"></i> Chat on WhatsApp
-  </a>
+    /* Back Link */
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: #1f2937;
+      text-decoration: none;
+      font-weight: 500;
+      padding: 12px 0;
+      transition: color 0.3s ease;
+    }
 
-  <hr class="my-4">
+    .back-link:hover {
+      color: #059669;
+    }
 
-  <p class="mb-1"><strong>Business Email:</strong> <br>
-    <a href="mailto:waapfolioorg@gmail.com">waapfolioorg@gmail.com</a>
-  </p>
+    /* Hero Section */
+    .hero {
+      text-align: center;
+      padding: 60px 20px 80px;
+      position: relative;
+      overflow: hidden;
+    }
 
-  <hr class="my-4">
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle at center, rgba(5, 150, 105, 0.08) 0%, transparent 50%);
+      animation: pulse 8s ease-in-out infinite;
+    }
 
-  <!-- Socials Section -->
-  <h4 class="mb-3">Catch Us on Socials</h4>
-  <div class="d-flex flex-wrap gap-2">
-    <a href="https://www.facebook.com/profile.php?id=61579309809005" target="_blank" class="btn btn-outline-primary flex-fill">
-      <i class="bi bi-facebook me-1"></i> Facebook
-    </a>
-    <a href="https://x.com/Bigemmy77?t=SLev7gf58215oY3ejGGhrw&s=09" target="_blank" class="btn btn-outline-dark flex-fill">
-      <i class="bi bi-twitter-x me-1"></i> X (Twitter)
-    </a>
-    <a href="https://www.instagram.com/waapfolio?igsh=YWI4MGs4aTlyMDFh " target="_blank" class="btn btn-outline-danger flex-fill">
-      <i class="bi bi-instagram me-1"></i> Instagram
-    </a>
-    <a href="https://tiktok.com/@waapfolio" target="_blank" class="btn btn-outline-dark flex-fill">
-      <i class="bi bi-tiktok me-1"></i> TikTok
-    </a>
-    <a href="https://youtube.com/@waapfolio" target="_blank" class="btn btn-outline-danger flex-fill">
-      <i class="bi bi-youtube me-1"></i> YouTube
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-icon {
+      width: 80px;
+      height: 80px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 30px rgba(5, 150, 105, 0.3);
+      animation: float 3s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px); }
+    }
+
+    .hero-icon i {
+      font-size: 36px;
+      color: white;
+    }
+
+    .hero h1 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(32px, 5vw, 48px);
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero h1 span {
+      background: linear-gradient(135deg, #059669, #10b981);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #6b7280;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    /* Contact Cards Section */
+    .cards-section {
+      padding: 0 20px 60px;
+    }
+
+    .cards-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .contact-card {
+      background: white;
+      border-radius: 24px;
+      padding: 32px;
+      text-align: center;
+      border: 1px solid rgba(5, 150, 105, 0.1);
+      box-shadow: 0 4px 20px rgba(5, 150, 105, 0.1);
+      transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #059669, #10b981);
+      transform: scaleX(0);
+      transition: transform 0.4s ease;
+    }
+
+    .contact-card:hover {
+      transform: translateY(-8px);
+      box-shadow: 0 20px 40px rgba(5, 150, 105, 0.15);
+    }
+
+    .contact-card:hover::before {
+      transform: scaleX(1);
+    }
+
+    .card-icon {
+      width: 64px;
+      height: 64px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      font-size: 28px;
+      transition: transform 0.3s ease;
+    }
+
+    .contact-card:hover .card-icon {
+      transform: scale(1.1);
+    }
+
+    .card-icon.telegram {
+      background: linear-gradient(135deg, #0088cc, #00aced);
+      color: white;
+    }
+
+    .card-icon.whatsapp {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: white;
+    }
+
+    .card-icon.email {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+    }
+
+    .contact-card h3 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 8px;
+    }
+
+    .contact-card p {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 20px;
+    }
+
+    .card-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 28px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+      width: 100%;
+    }
+
+    .card-btn.telegram {
+      background: linear-gradient(135deg, #0088cc, #00aced);
+      color: white;
+    }
+
+    .card-btn.telegram:hover {
+      box-shadow: 0 8px 24px rgba(0, 136, 204, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .card-btn.whatsapp {
+      background: linear-gradient(135deg, #25d366, #128c7e);
+      color: white;
+    }
+
+    .card-btn.whatsapp:hover {
+      box-shadow: 0 8px 24px rgba(37, 211, 102, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .card-btn.email-btn {
+      background: linear-gradient(135deg, #059669, #10b981);
+      color: white;
+    }
+
+    .card-btn.email-btn:hover {
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* Socials Section */
+    .socials-section {
+      padding: 60px 20px;
+    }
+
+    .socials-container {
+      max-width: 800px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .section-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(5, 150, 105, 0.1);
+      color: #059669;
+      padding: 8px 16px;
+      border-radius: 9999px;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .socials-section h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 32px;
+      font-weight: 800;
+      color: #1f2937;
+      margin-bottom: 12px;
+    }
+
+    .socials-section > .socials-container > p {
+      color: #6b7280;
+      margin-bottom: 32px;
+    }
+
+    .socials-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .social-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 24px;
+      border-radius: 12px;
+      font-family: 'Inter', sans-serif;
+      font-weight: 600;
+      font-size: 14px;
+      text-decoration: none;
+      border: 2px solid;
+      transition: all 0.3s ease;
+      min-width: 150px;
+      justify-content: center;
+    }
+
+    .social-btn i {
+      font-size: 20px;
+    }
+
+    .social-btn.facebook {
+      border-color: #1877f2;
+      color: #1877f2;
+      background: rgba(24, 119, 242, 0.05);
+    }
+
+    .social-btn.facebook:hover {
+      background: #1877f2;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(24, 119, 242, 0.3);
+    }
+
+    .social-btn.twitter {
+      border-color: #1f2937;
+      color: #1f2937;
+      background: rgba(31, 41, 55, 0.05);
+    }
+
+    .social-btn.twitter:hover {
+      background: #1f2937;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.3);
+    }
+
+    .social-btn.instagram {
+      border-color: #e4405f;
+      color: #e4405f;
+      background: rgba(228, 64, 95, 0.05);
+    }
+
+    .social-btn.instagram:hover {
+      background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+      color: white;
+      border-color: transparent;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(228, 64, 95, 0.3);
+    }
+
+    .social-btn.tiktok {
+      border-color: #1f2937;
+      color: #1f2937;
+      background: rgba(31, 41, 55, 0.05);
+    }
+
+    .social-btn.tiktok:hover {
+      background: #1f2937;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(31, 41, 55, 0.3);
+    }
+
+    .social-btn.youtube {
+      border-color: #ff0000;
+      color: #ff0000;
+      background: rgba(255, 0, 0, 0.05);
+    }
+
+    .social-btn.youtube:hover {
+      background: #ff0000;
+      color: white;
+      transform: translateY(-3px);
+      box-shadow: 0 8px 20px rgba(255, 0, 0, 0.3);
+    }
+
+    /* Trust Section */
+    .trust-section {
+      padding: 60px 20px;
+    }
+
+    .trust-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .trust-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .trust-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      padding: 24px;
+      background: white;
+      border-radius: 16px;
+      border: 1px solid rgba(5, 150, 105, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .trust-item:hover {
+      box-shadow: 0 4px 20px rgba(5, 150, 105, 0.1);
+    }
+
+    .trust-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(5, 150, 105, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .trust-icon i {
+      font-size: 24px;
+      color: #059669;
+    }
+
+    .trust-item h4 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 16px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+
+    .trust-item p {
+      font-size: 14px;
+      color: #6b7280;
+    }
+
+    /* CTA Section */
+    .cta-section {
+      padding: 80px 20px;
+      background: linear-gradient(135deg, #059669, #10b981);
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+
+    .cta-content {
+      position: relative;
+      z-index: 1;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .cta-section h2 {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 800;
+      color: white;
+      margin-bottom: 16px;
+    }
+
+    .cta-section p {
+      font-size: 18px;
+      color: rgba(255, 255, 255, 0.9);
+      margin-bottom: 32px;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 16px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-weight: 700;
+      font-size: 16px;
+      text-decoration: none;
+      transition: all 0.3s ease;
+    }
+
+    .cta-btn.primary {
+      background: white;
+      color: #059669;
+    }
+
+    .cta-btn.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .cta-btn.secondary {
+      background: transparent;
+      color: white;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .cta-btn.secondary:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: white;
+      transform: translateY(-3px);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero {
+        padding: 40px 20px 60px;
+      }
+
+      .cards-section {
+        padding: 0 16px 40px;
+      }
+
+      .contact-card {
+        padding: 24px;
+      }
+
+      .socials-grid {
+        flex-direction: column;
+      }
+
+      .social-btn {
+        width: 100%;
+      }
+
+      .cta-buttons {
+        flex-direction: column;
+      }
+
+      .cta-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .animate-fade-in {
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+  <!-- Back Link -->
+  <div class="container" style="padding-top: 20px;">
+    <a href="/profile" class="back-link">
+      <i class="bi bi-arrow-left"></i> Back
     </a>
   </div>
-</div>
+
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content animate-fade-in">
+      <div class="hero-icon">
+        <i class="bi bi-headset"></i>
+      </div>
+      <h1>Get in Touch with <span>Waapfolio</span></h1>
+      <p>Have questions, feedback, or need support? We're here to help you succeed in your social commerce journey.</p>
+    </div>
+  </section>
+
+  <!-- Contact Cards -->
+  <section class="cards-section">
+    <div class="cards-grid">
+      <!-- Telegram Card -->
+      <div class="contact-card animate-fade-in delay-1">
+        <div class="card-icon telegram">
+          <i class="bi bi-telegram"></i>
+        </div>
+        <h3>Telegram Support</h3>
+        <p>Get instant responses from our dedicated support team on Telegram.</p>
+        <a href="https://t.me/customerservicewaapfolio1" target="_blank" class="card-btn telegram">
+          <i class="bi bi-telegram"></i> Message on Telegram
+        </a>
+      </div>
+
+      <!-- WhatsApp Card -->
+      <div class="contact-card animate-fade-in delay-2">
+        <div class="card-icon whatsapp">
+          <i class="bi bi-whatsapp"></i>
+        </div>
+        <h3>WhatsApp Chat</h3>
+        <p>Prefer WhatsApp? Chat with us directly for quick assistance.</p>
+        <a href="https://wa.me/2349161453058" target="_blank" class="card-btn whatsapp">
+          <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+        </a>
+      </div>
+
+      <!-- Email Card -->
+      <div class="contact-card animate-fade-in delay-3">
+        <div class="card-icon email">
+          <i class="bi bi-envelope"></i>
+        </div>
+        <h3>Email Support</h3>
+        <p>For detailed inquiries, partnerships, or account issues.</p>
+        <a href="mailto:waapfolioorg@gmail.com" class="card-btn email-btn">
+          <i class="bi bi-envelope"></i> Send Email
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Social Media Section -->
+  <section class="socials-section">
+    <div class="socials-container">
+      <span class="section-badge">
+        <i class="bi bi-globe2"></i> Stay Connected
+      </span>
+      <h2>Follow Us on Social Media</h2>
+      <p>Get the latest updates, tips, and inspiration for your social commerce success.</p>
+      
+      <div class="socials-grid">
+        <a href="https://www.facebook.com/profile.php?id=61579309809005" target="_blank" class="social-btn facebook">
+          <i class="bi bi-facebook"></i> Facebook
+        </a>
+        <a href="https://x.com/Bigemmy77?t=SLev7gf58215oY3ejGGhrw&s=09" target="_blank" class="social-btn twitter">
+          <i class="bi bi-twitter-x"></i> X (Twitter)
+        </a>
+        <a href="https://www.instagram.com/waapfolio?igsh=YWI4MGs4aTlyMDFh" target="_blank" class="social-btn instagram">
+          <i class="bi bi-instagram"></i> Instagram
+        </a>
+        <a href="https://tiktok.com/@waapfolio" target="_blank" class="social-btn tiktok">
+          <i class="bi bi-tiktok"></i> TikTok
+        </a>
+        <a href="https://youtube.com/@waapfolio" target="_blank" class="social-btn youtube">
+          <i class="bi bi-youtube"></i> YouTube
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust Section -->
+  <section class="trust-section">
+    <div class="trust-container">
+      <div class="trust-grid">
+        <div class="trust-item">
+          <div class="trust-icon">
+            <i class="bi bi-lightning-charge-fill"></i>
+          </div>
+          <div>
+            <h4>Fast Response Time</h4>
+            <p>We typically respond within 24 hours on all channels.</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">
+            <i class="bi bi-shield-check"></i>
+          </div>
+          <div>
+            <h4>Secure Communication</h4>
+            <p>Your data and conversations are always protected.</p>
+          </div>
+        </div>
+        <div class="trust-item">
+          <div class="trust-icon">
+            <i class="bi bi-people-fill"></i>
+          </div>
+          <div>
+            <h4>Dedicated Team</h4>
+            <p>Real humans ready to help you succeed.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Ready to Start Selling on Social Media?</h2>
+      <p>Join thousands of sellers already using Waapfolio to grow their business through social commerce.</p>
+      <div class="cta-buttons">
+        {% if not request.user.is_authenticated %}
+        <a href="{% url "register" %}" class="cta-btn primary">
+          <i class="bi bi-rocket-takeoff"></i> Create Your Store
+        </a>
+        {% endif %}
+        <a href="/pricing" class="cta-btn secondary">
+          <i class="bi bi-tag"></i> View Pricing
+        </a>
+      </div>
+    </div>
+  </section>
+
 {% endblock %}

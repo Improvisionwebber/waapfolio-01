@@ -194,8 +194,16 @@ def privacy(request):
     if request.user.is_authenticated:
         store = Store.objects.filter(owner=request.user).first()
     return render(request, "privacy_policy.html", {'store': store})
-
-
+def terms_of_service(request):
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "terms_of_service.html", {'store': store})
+def cookies_policy(request):
+    store = None
+    if request.user.is_authenticated:
+        store = Store.objects.filter(owner=request.user).first()
+    return render(request, "cookies_policy.html", {'store': store})
 def security_settings(request):
     store = None
     if request.user.is_authenticated:
@@ -295,17 +303,20 @@ def verify_otp(request):
 # -------------------------
 # Store Views
 # -------------------------
-ALLOW_MULTI = ["plutodollar91@gmail.com"]   
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.utils.text import slugify
+import base64, requests
+
+from .forms import StoreForm
+from .models import Store
+
 @login_required
 def create_store(request, id=0):
+    # If editing, get the store instance
     store_instance = get_object_or_404(Store, pk=id) if id else None
-    # If editing, do NOT block
-    if not id:  # means creating new store
-        if request.user.email not in ALLOW_MULTI:
-            if Store.objects.filter(owner=request.user).exists():
-                return HttpResponse("You can only create one store.")
 
-        
     if request.method == 'GET':
         form = StoreForm(instance=store_instance)
         return render(request, 'store/create_store.html', {'form': form})
@@ -314,17 +325,8 @@ def create_store(request, id=0):
     if form.is_valid():
         store = form.save(commit=False)
         store.owner = request.user
-        
-        # ---- Validate brand logo size ----
-        logo_file = request.FILES.get('brand_logo')
-        if logo_file:
-            try:
-                validate_file_size(logo_file, 32)  # <-- limit 32MB
-            except ValidationError as e:
-                messages.error(request, str(e))
-                return render(request, 'store/create_store.html', {'form': form})
 
-        # Generate slug
+        # Generate slug if not exists
         if not store.slug:
             base_slug = slugify(store.brand_name)
             slug = base_slug
@@ -340,39 +342,23 @@ def create_store(request, id=0):
             try:
                 url = 'https://api.imgbb.com/1/upload'
                 payload = {
-                    'key': settings.IMGBB_API_KEY,
+                    'key': 'c346e6e29bbc0340846deb957f6d510a',
                     'image': base64.b64encode(logo_file.read()).decode('utf-8')
                 }
-                response = requests.post(url, data=payload, timeout=10)
-                response.raise_for_status()
+                response = requests.post(url, data=payload)
                 data = response.json()
-
-                if data.get('success'):
+                if response.status_code == 200 and data.get('success'):
                     store.brand_logo = data['data']['url']
                 else:
-                    messages.warning(
-                        request,
-                        f"Logo upload failed: {data.get('error', 'Unknown error')}. Default logo will be used."
-                    )
-            except requests.exceptions.RequestException as e:
-                messages.warning(
-                    request,
-                    f"Logo upload failed: {str(e)}. Default logo will be used."
-                )
+                    messages.error(request, f"Logo upload failed: {data.get('error', 'Unknown error')}")
             except Exception as e:
-                messages.warning(
-                    request,
-                    f"Unexpected error during logo upload: {str(e)}. Default logo will be used."
-                )
+                messages.error(request, f"Logo upload failed: {str(e)}")
 
-        # Save store even if logo upload fails
         store.save()
         messages.success(request, "Store saved successfully!")
         return redirect(store.get_absolute_url())
 
     return render(request, 'store/create_store.html', {'form': form})
-
-
 
 # def view_store(request, slug):
 #     store = get_object_or_404(Store, slug=slug)
@@ -813,6 +799,7 @@ def delete_extra_video(request, slug, video_id):
     video.delete()
     messages.success(request, "Video deleted successfully!")
     return redirect(request.META.get("HTTP_REFERER", "manage_store"), slug=slug)
+
 def product_detail(request, slug):
     # -------------------------------
     # Optional: detect subdomain for live hosts
@@ -1395,3 +1382,99 @@ def root_dispatch(request):
         return view_store(request)
 
     return home(request)
+from django.shortcuts import render, get_object_or_404
+from django.views import View
+from .models import Store, Item, StoreTemplate, StoreImage, ProductMedia, Comment
+# Helper function
+def get_template_path(template_slug, store, page):
+    slug = template_slug or getattr(store.template, 'slug', None) or 'starter'
+    return f"store_templates/{slug}/{page}.html"
+
+# -----------------------------
+# -----------------------------
+# Store Home
+# -----------------------------
+# class StoreHomeView(View):
+#     def get(self, request, store_slug, template_slug=None):
+#         store = get_object_or_404(Store, slug=store_slug)
+#         products = Item.objects.filter(store=store)
+#         template_name = f"store_templates/{template_slug or store.template.slug}/home.html"
+#         context = {
+#             "store": store,
+#             "products": products
+#         }
+#         return render(request, template_name, context)
+class StoreHomeView(View):
+    def get(self, request, store_slug, template_slug=None):
+        store = get_object_or_404(Store, slug=store_slug)
+
+        # fallback to store.template.slug or "starter"
+        resolved_template = template_slug or (store.template.slug if store.template else "starter")
+        template_name = f"store_templates/{resolved_template}/home.html"
+
+        return render(request, template_name, {"store": store})
+
+# -----------------------------
+# About Page
+# -----------------------------
+class StoreAboutView(View):
+    def get(self, request, store_slug, template_slug=None):
+        store = get_object_or_404(Store, slug=store_slug)
+        template_name = f"store_templates/{template_slug or store.template.slug}/about.html"
+        return render(request, template_name, {"store": store})
+
+# -----------------------------
+# Contact Page
+# -----------------------------
+class StoreContactView(View):
+    def get(self, request, store_slug, template_slug=None):
+        store = get_object_or_404(Store, slug=store_slug)
+        template_name = f"store_templates/{template_slug or store.template.slug}/contact.html"
+        return render(request, template_name, {"store": store})
+
+# -----------------------------
+# Product List
+# -----------------------------
+class ProductListView(View):
+    def get(self, request, store_slug, template_slug=None):
+        store = get_object_or_404(Store, slug=store_slug)
+        products = Item.objects.filter(store=store)
+        template_name = f"store_templates/{template_slug or store.template.slug}/products.html"
+        return render(request, template_name, {"store": store, "products": products})
+
+# -----------------------------
+# Product Detail
+# -----------------------------
+class ProductDetailView(View):
+    def get(self, request, store_slug, product_slug, template_slug=None):
+        # Get the store
+        store = get_object_or_404(Store, slug=store_slug)
+        
+        # Get the product within the store
+        product = get_object_or_404(Item, slug=product_slug, store=store)
+
+        # Related objects
+        extra_files = product.extra_files.all()
+        media = product.media.all()
+        comments = product.comments.all()
+        # Other products from the same store, excluding current product
+        items_meta = Item.objects.filter(store=store).exclude(pk=product.pk)[:8]
+
+        # Template resolution: URL > store template > fallback "starter"
+        resolved_template = template_slug or (store.template.slug if store.template else "starter")
+        template_name = f"store_templates/{resolved_template}/product_detail.html"
+
+        # Render the product detail page
+        context = {
+            "store": store,
+            "product": product,
+            "comments": comments,
+            "items_meta": items_meta,
+            "extra_files": extra_files,
+            "media": media,
+        }
+        return render(request, template_name, context)
+
+def templates_page(request):
+    templates = StoreTemplate.objects.filter(is_active=True)
+    return render(request, 'templates.html', {'templates': templates})

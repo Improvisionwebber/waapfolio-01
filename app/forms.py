@@ -26,28 +26,128 @@ class CustomClearableFileInput(ClearableFileInput):
     pass
 
 class StoreForm(forms.ModelForm):
+
     whatsapp_number = forms.CharField(
+        required=False,
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'id': 'phone',
             'placeholder': 'e.g. +2347098865543'
         })
     )
-    Bio = forms.CharField(
-        widget=forms.Textarea(attrs={'class': 'form-control','placeholder': 'Welcome to my Store','rows': 3})
+
+    bio = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Short description of your brand',
+            'rows': 3
+        })
     )
-    social = forms.URLField(required=False, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'e.g. tiktok, instagram or any social media link'}))
-    background_color = forms.CharField(widget=forms.TextInput(attrs={'type': 'color','class': 'form-control form-control-color','style': 'height: 50px; padding: 0;'}))
-    dob = forms.DateField(widget=forms.TextInput(attrs={'placeholder': 'YYYY-MM-DD'}))
-    address = forms.CharField(required=False, widget=forms.TextInput(attrs={'class': 'form-control','placeholder': 'Store Address'}))
-    business_type = forms.ChoiceField(required=False, choices=Store.BUSINESS_CHOICES, widget=forms.Select(attrs={'class': 'form-control'}))
+
+    about = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Tell people about your brand',
+            'rows': 4
+        })
+    )
+
+    mission = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your brand mission or vision',
+            'rows': 3
+        })
+    )
+
+    brand_story = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'placeholder': 'Your brand story or history',
+            'rows': 4
+        })
+    )
+
+    founder_name = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Founder name (optional)'
+        })
+    )
+
+    telegram_username = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': '@telegram_username'
+        })
+    )
+
+    background_color = forms.CharField(
+        widget=forms.TextInput(attrs={
+            'type': 'color',
+            'class': 'form-control form-control-color',
+            'style': 'height: 50px; padding: 0;'
+        })
+    )
+
+    address = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Business address (optional)'
+        })
+    )
+
+    business_type = forms.ChoiceField(
+        required=False,
+        choices=Store.BUSINESS_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = Store
-        fields = ['brand_name', 'brand_logo','whatsapp_number', 'facebook_link', 'tiktok_link', 'depop_link','order_system', 'Bio', 'social', 'dob', 'address', 'business_type', 'background_color']
+        fields = [
+            'brand_name',
+            'brand_logo',
+            'bio',
+            'about',
+            'mission',
+            'founder_name',
+            'brand_story',
+            'order_system',
+            'whatsapp_number',
+            'telegram_username',
+            'facebook_link',
+            'instagram_link',
+            'tiktok_link',
+            'address',
+            'business_type',
+            'background_color',
+        ]
+
         widgets = {
-            'brand_logo': CustomClearableFileInput(attrs={'class': 'form-control'}),
+            'brand_logo': CustomClearableFileInput(
+                attrs={'class': 'form-control'}
+            ),
+            'facebook_link': forms.URLInput(
+                attrs={'class': 'form-control', 'placeholder': 'Facebook page link'}
+            ),
+            'instagram_link': forms.URLInput(
+                attrs={'class': 'form-control', 'placeholder': 'Instagram profile link'}
+            ),
+            'tiktok_link': forms.URLInput(
+                attrs={'class': 'form-control', 'placeholder': 'TikTok profile link'}
+            ),
+            'order_system': forms.Select(
+                attrs={'class': 'form-control'}
+            ),
         }
+
 
 
 

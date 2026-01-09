@@ -2,32 +2,46 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-# Load .env file
 load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+DEBUG = True
+LOCAL = os.getenv('DJANGO_LOCAL', 'False') == 'True'
 
 # Security
 SECRET_KEY = os.getenv('SECRET_KEY', 'fallback-secret-key')
-DEBUG =True 
+
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    "waapfolio.com", 
+    "waapfolio.com",
     "www.waapfolio.com",
-    '.waapfolio.com', 
+    ".waapfolio.com",
 ]
 
-CSRF_TRUSTED_ORIGINS = [
-    "https://waapfolio.com",
-    "https://www.waapfolio.com",
-]
-CSRF_FAILURE_VIEW = 'app.views.csrf_failure'
-SESSION_COOKIE_DOMAIN = ".waapfolio.com"
-CSRF_COOKIE_DOMAIN = ".waapfolio.com"
-SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = True   # since you are on HTTPS
-CSRF_COOKIE_SECURE = True
+# CSRF and cookie settings
+if LOCAL:
+    SESSION_COOKIE_SECURE = False
+    CSRF_COOKIE_SECURE = False
+    SESSION_COOKIE_DOMAIN = None
+    CSRF_COOKIE_DOMAIN = None
+    CSRF_TRUSTED_ORIGINS = [
+        "http://127.0.0.1:8000",
+        "http://localhost:8000"
+    ]
+    SOCIAL_AUTH_REDIRECT_URI = "http://127.0.0.1:8000/auth/complete/google-oauth2/"
+else:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_DOMAIN = ".waapfolio.com"
+    CSRF_COOKIE_DOMAIN = ".waapfolio.com"
+    CSRF_TRUSTED_ORIGINS = [
+        "https://waapfolio.com",
+        "https://www.waapfolio.com"
+    ]
+    SOCIAL_AUTH_REDIRECT_URI = "https://waapfolio.com/auth/complete/google-oauth2/"
+
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 # Applications
 INSTALLED_APPS = [
@@ -44,23 +58,21 @@ INSTALLED_APPS = [
     'app',
     'social_django',
 ]
+
 AUTHENTICATION_BACKENDS = (
     'social_core.backends.google.GoogleOAuth2',  # Google login
     'django.contrib.auth.backends.ModelBackend', # default
 )
+
 SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = os.environ.get("GOOGLE_CLIENT_ID")
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET")
-SOCIAL_AUTH_REDIRECT_URI = "https://waapfolio.com/auth/complete/google-oauth2/"
-
 
 # Optional: automatically create user on first login
 SOCIAL_AUTH_GOOGLE_OAUTH2_IGNORE_DEFAULT_SCOPE = False
 SOCIAL_AUTH_GOOGLE_OAUTH2_SCOPE = ['email', 'profile']
-# Allow cookies on localhost
-SESSION_COOKIE_SECURE = False  # don’t require HTTPS
-CSRF_COOKIE_SECURE = False     # don’t require HTTPS
-SESSION_COOKIE_SAMESITE = 'Lax'
+
 SITE_ID = 1
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -72,24 +84,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'app.middleware.StoreSubdomainMiddleware',
 ]
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'file': {
-#             'level': 'ERROR',
-#             'class': 'logging.FileHandler',
-#             'filename': '/home/waapfoli/error.log',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['file'],
-#             'level': 'ERROR',
-#             'propagate': True,
-#         },
-#     },
-# }
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -130,7 +125,7 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'project.wsgi.application'
-# In settings.py
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
@@ -145,15 +140,11 @@ DATABASES = {
             'connect_timeout': 10,
             'read_timeout': 600,
             'write_timeout': 600,
-            # Auto reconnect for lost connections
             'autocommit': True,
         },
-        'CONN_MAX_AGE': 0,  # 0 disables persistent connections if server drops them
+        'CONN_MAX_AGE': 0,
     }
 }
-
-
-
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -188,7 +179,7 @@ USE_TZ = True
 
 # Static files
 STATIC_URL = 'static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'      
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Authentication redirects
 LOGOUT_REDIRECT_URL = '/'

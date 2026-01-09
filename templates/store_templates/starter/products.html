@@ -1,0 +1,28 @@
+{% extends "store_templates/starter/base.html" %}
+
+{% block body %}
+<section class="container py-5">
+  <h2>Products</h2>
+
+  <div class="row g-4 mt-3">
+    {% for product in products %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card h-100">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" class="card-img-top">
+          {% endif %}
+          <div class="card-body">
+            <h6>{{ product.name }}</h6>
+            <p class="fw-bold">{{ product.price }}</p>
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="btn btn-success btn-sm w-100">
+              Details
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p>No products found.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

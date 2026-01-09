@@ -1,65 +1,1454 @@
 {% extends "base.html" %}
+{% load static %}
+
 {% block title %}FAQs | Waapfolio{% endblock %}
 
+{% block meta %}
+<meta name="description" content="Get answers to common questions about Waapfolio - your social commerce platform for creating and growing online stores.">
+{% endblock %}
+
+{% block extra_styles %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+<style>
+{% comment %} :root {
+    --waap-primary: #059669;
+    --waap-primary-light: #10b981;
+    --waap-primary-dark: #047857;
+    --waap-secondary: #0ea5e9;
+    --waap-accent: #8b5cf6;
+    --waap-bg-light: #ecfdf5;
+    --waap-bg-white: #ffffff;
+    --waap-text-dark: #1f2937;
+    --waap-text-muted: #6b7280;
+    --waap-border: #e5e7eb;
+    --waap-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --waap-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+    --waap-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #0ea5e9 100%);
+} {% endcomment %}
+
+* {
+    box-sizing: border-box;
+}
+
+.faq-page {
+    min-height: 100vh;
+    background: linear-gradient(180deg, var(--waap-bg-light) 0%, #f0fdf4 50%, #ffffff 100%);
+}
+
+/* Hero Section */
+.faq-hero {
+    background: var(--waap-gradient);
+    padding: 4rem 1.5rem 5rem;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
+    animation: heroFloat 20s ease-in-out infinite;
+}
+
+@keyframes heroFloat {
+    0%, 100% { transform: translate(0, 0) rotate(0deg); }
+    50% { transform: translate(-20px, 20px) rotate(180deg); }
+}
+
+.faq-hero-content {
+    position: relative;
+    z-index: 2;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.faq-hero h1 {
+    color: white;
+    font-size: 2.75rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.faq-hero p {
+    color: rgba(255,255,255,0.95);
+    font-size: 1.25rem;
+    max-width: 600px;
+    margin: 0 auto 2rem;
+    line-height: 1.6;
+}
+
+/* Search Bar */
+.faq-search-container {
+    max-width: 600px;
+    margin: 0 auto;
+    position: relative;
+}
+
+.faq-search-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.faq-search-input {
+    width: 100%;
+    padding: 1.25rem 1.5rem 1.25rem 3.5rem;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 50px;
+    background: white;
+    box-shadow: var(--waap-shadow-lg);
+    outline: none;
+    transition: all 0.3s ease;
+}
+
+.faq-search-input:focus {
+    box-shadow: 0 0 0 4px rgba(5,150,105,0.2), var(--waap-shadow-lg);
+}
+
+.faq-search-input::placeholder {
+    color: var(--waap-text-muted);
+}
+
+.faq-search-icon {
+    position: absolute;
+    left: 1.25rem;
+    color: var(--waap-primary);
+    font-size: 1.25rem;
+}
+
+.faq-search-suggestions {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border-radius: 16px;
+    box-shadow: var(--waap-shadow-lg);
+    z-index: 100;
+    display: none;
+    overflow: hidden;
+}
+
+.faq-search-suggestions.active {
+    display: block;
+    animation: fadeSlideIn 0.2s ease;
+}
+
+@keyframes fadeSlideIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.faq-suggestion-item {
+    padding: 1rem 1.5rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    transition: background 0.2s;
+    border-bottom: 1px solid var(--waap-border);
+}
+
+.faq-suggestion-item:last-child {
+    border-bottom: none;
+}
+
+.faq-suggestion-item:hover {
+    background: var(--waap-bg-light);
+}
+
+.faq-suggestion-item i {
+    color: var(--waap-primary);
+}
+
+/* Main Content */
+.faq-content {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 1.5rem 4rem;
+    position: relative;
+    margin-top: -2rem;
+}
+
+/* Popular Questions */
+.popular-questions {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 3rem;
+    box-shadow: var(--waap-shadow);
+}
+
+.popular-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+}
+
+.popular-header i {
+    font-size: 1.5rem;
+    color: #f59e0b;
+}
+
+.popular-header h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--waap-text-dark);
+    margin: 0;
+}
+
+.popular-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1rem;
+}
+
+.popular-item {
+    padding: 1.25rem;
+    background: var(--waap-bg-light);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    border: 2px solid transparent;
+}
+
+.popular-item:hover {
+    background: white;
+    border-color: var(--waap-primary);
+    transform: translateY(-2px);
+    box-shadow: var(--waap-shadow);
+}
+
+.popular-item i {
+    color: var(--waap-primary);
+    font-size: 1.25rem;
+}
+
+.popular-item span {
+    color: var(--waap-text-dark);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+/* Category Tabs */
+.category-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    margin-bottom: 2rem;
+    justify-content: center;
+}
+
+.category-tab {
+    padding: 0.75rem 1.5rem;
+    background: white;
+    border: 2px solid var(--waap-border);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-weight: 600;
+    color: var(--waap-text-muted);
+    font-size: 0.9rem;
+}
+
+.category-tab:hover {
+    border-color: var(--waap-primary);
+    color: var(--waap-primary);
+}
+
+.category-tab.active {
+    background: var(--waap-primary);
+    border-color: var(--waap-primary);
+    color: white;
+}
+
+.category-tab i {
+    font-size: 1rem;
+}
+
+/* FAQ Categories */
+.faq-category {
+    background: white;
+    border-radius: 24px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--waap-shadow);
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--waap-bg-light);
+}
+
+.category-icon {
+    width: 50px;
+    height: 50px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    color: white;
+}
+
+.category-icon.account { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
+.category-icon.store { background: linear-gradient(135deg, #059669, #10b981); }
+.category-icon.payments { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
+.category-icon.shipping { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
+.category-icon.security { background: linear-gradient(135deg, #ef4444, #f87171); }
+.category-icon.marketing { background: linear-gradient(135deg, #ec4899, #f472b6); }
+.category-icon.troubleshoot { background: linear-gradient(135deg, #6366f1, #818cf8); }
+
+.category-header h3 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: var(--waap-text-dark);
+    margin: 0;
+}
+
+/* Accordion */
+.faq-accordion {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.faq-item {
+    border: 1px solid var(--waap-border);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.faq-item:hover {
+    border-color: var(--waap-primary-light);
+}
+
+.faq-item.active {
+    border-color: var(--waap-primary);
+    box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+}
+
+.faq-question {
+    width: 100%;
+    padding: 1.25rem 1.5rem;
+    background: none;
+    border: none;
+    text-align: left;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    font-size: 1rem;
+    font-weight: 600;
+    color: var(--waap-text-dark);
+    transition: all 0.3s ease;
+}
+
+.faq-question:hover {
+    background: var(--waap-bg-light);
+}
+
+.faq-item.active .faq-question {
+    background: var(--waap-bg-light);
+}
+
+.faq-question i {
+    color: var(--waap-primary);
+    transition: transform 0.3s ease;
+    font-size: 1rem;
+}
+
+.faq-item.active .faq-question i {
+    transform: rotate(180deg);
+}
+
+.faq-answer {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s ease, padding 0.3s ease;
+}
+
+.faq-item.active .faq-answer {
+    max-height: 500px;
+}
+
+.faq-answer-content {
+    padding: 0 1.5rem 1.5rem;
+    color: var(--waap-text-muted);
+    line-height: 1.7;
+    font-size: 0.95rem;
+}
+
+.faq-answer-content strong {
+    color: var(--waap-primary);
+}
+
+.faq-answer-content ul {
+    margin: 0.75rem 0;
+    padding-left: 1.5rem;
+}
+
+.faq-answer-content li {
+    margin-bottom: 0.5rem;
+}
+
+/* CTA Section */
+.faq-cta {
+    background: var(--waap-gradient);
+    border-radius: 24px;
+    padding: 3rem 2rem;
+    text-align: center;
+    margin-top: 3rem;
+    position: relative;
+    overflow: hidden;
+}
+
+.faq-cta::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.5;
+}
+
+.faq-cta-content {
+    position: relative;
+    z-index: 2;
+}
+
+.faq-cta h2 {
+    color: white;
+    font-size: 2rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+}
+
+.faq-cta p {
+    color: rgba(255,255,255,0.9);
+    font-size: 1.1rem;
+    max-width: 500px;
+    margin: 0 auto 2rem;
+}
+
+.cta-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.cta-btn {
+    padding: 1rem 2rem;
+    border-radius: 50px;
+    font-weight: 700;
+    font-size: 1rem;
+    text-decoration: none;
+    transition: all 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.cta-btn-primary {
+    background: white;
+    color: var(--waap-primary);
+    box-shadow: var(--waap-shadow);
+}
+
+.cta-btn-primary:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--waap-shadow-lg);
+}
+
+.cta-btn-secondary {
+    background: transparent;
+    color: white;
+    border: 2px solid rgba(255,255,255,0.5);
+}
+
+.cta-btn-secondary:hover {
+    background: rgba(255,255,255,0.1);
+    border-color: white;
+}
+
+/* Floating Support Button */
+.floating-support {
+    position: fixed;
+    bottom: 100px;
+    right: 24px;
+    z-index: 1000;
+}
+
+.support-btn {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: var(--waap-primary);
+    color: white;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 4px 20px rgba(5,150,105,0.4);
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.support-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 25px rgba(5,150,105,0.5);
+}
+
+.support-btn::before {
+    content: 'Need Help?';
+    position: absolute;
+    right: calc(100% + 12px);
+    background: white;
+    color: var(--waap-text-dark);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+    box-shadow: var(--waap-shadow);
+    opacity: 0;
+    transform: translateX(10px);
+    transition: all 0.3s ease;
+    pointer-events: none;
+}
+
+.support-btn:hover::before {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Support Modal */
+.support-modal {
+    position: fixed;
+    bottom: 170px;
+    right: 24px;
+    width: 350px;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+    z-index: 999;
+    display: none;
+    overflow: hidden;
+    animation: slideUp 0.3s ease;
+}
+
+.support-modal.active {
+    display: block;
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.support-modal-header {
+    background: var(--waap-gradient);
+    padding: 1.5rem;
+    color: white;
+}
+
+.support-modal-header h4 {
+    margin: 0 0 0.25rem;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.support-modal-header p {
+    margin: 0;
+    font-size: 0.9rem;
+    opacity: 0.9;
+}
+
+.support-modal-body {
+    padding: 1.5rem;
+}
+
+.support-input {
+    width: 100%;
+    padding: 0.9rem 1rem;
+    border: 2px solid var(--waap-border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    margin-bottom: 1rem;
+    transition: border-color 0.3s;
+}
+
+.support-input:focus {
+    outline: none;
+    border-color: var(--waap-primary);
+}
+
+.support-textarea {
+    min-height: 100px;
+    resize: none;
+}
+
+.support-submit {
+    width: 100%;
+    padding: 1rem;
+    background: var(--waap-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.support-submit:hover {
+    background: var(--waap-primary-dark);
+}
+
+.support-modal-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    color: white;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s;
+}
+
+.support-modal-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+
+/* Back Link */
+.back-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding: 0.5rem 1rem;
+    background: rgba(255,255,255,0.15);
+    border-radius: 50px;
+    transition: all 0.3s ease;
+}
+
+.back-link:hover {
+    background: rgba(255,255,255,0.25);
+    color: white;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .faq-hero {
+        padding: 3rem 1rem 4rem;
+    }
+    
+    .faq-hero h1 {
+        font-size: 2rem;
+    }
+    
+    .faq-hero p {
+        font-size: 1rem;
+    }
+    
+    .faq-content {
+        padding: 0 1rem 4rem;
+    }
+    
+    .popular-questions,
+    .faq-category {
+        padding: 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .category-tabs {
+        gap: 0.5rem;
+    }
+    
+    .category-tab {
+        padding: 0.6rem 1rem;
+        font-size: 0.8rem;
+    }
+    
+    .faq-cta {
+        padding: 2rem 1.5rem;
+        border-radius: 16px;
+    }
+    
+    .faq-cta h2 {
+        font-size: 1.5rem;
+    }
+    
+    .floating-support {
+        bottom: 80px;
+        right: 16px;
+    }
+    
+    .support-modal {
+        right: 16px;
+        left: 16px;
+        width: auto;
+        bottom: 150px;
+    }
+    
+    .support-btn::before {
+        display: none;
+    }
+}
+
+/* No results state */
+.no-results {
+    text-align: center;
+    padding: 3rem;
+    color: var(--waap-text-muted);
+}
+
+.no-results i {
+    font-size: 3rem;
+    color: var(--waap-border);
+    margin-bottom: 1rem;
+}
+
+.no-results h3 {
+    color: var(--waap-text-dark);
+    margin-bottom: 0.5rem;
+}
+</style>
+{% endblock %}
+
 {% block body %}
-<div class="container py-5">
-  {% if request.user.is_authenticated %}
-  <a href="{% url 'profile' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-  {% else %} 
-  <a href="{% url 'home' %}" class="text-decoration-none text-dark mb-3 d-inline-block">
-  {% endif %}
-  <i class="bi bi-arrow-left"></i> Back
-</a>
-  <h2 class="text-center mb-4">Frequently Asked Questions</h2>
-
-  <div class="accordion" id="faqAccordion">
-    <!-- FAQ 1 -->
-    <div class="accordion-item mb-3">
-      <h2 class="accordion-header" id="headingOne">
-        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
-          What is Waapfolio and how does it work?
-        </button>
-      </h2>
-      <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Waapfolio is a digital storefront builder that helps you create and share your own personal shop online. You can list your products, share your store link, and start getting orders.
+<div class="faq-page">
+    <!-- Hero Section -->
+    <section class="faq-hero">
+        <div class="faq-hero-content">
+            
+            <h1>Frequently Asked Questions</h1>
+            <p>Get answers to common questions about Waapfolio and selling on social media.</p>
+            
+            <!-- Search Bar -->
+            <div class="faq-search-container">
+                <div class="faq-search-wrapper">
+                    <i class="fas fa-search faq-search-icon"></i>
+                    <input type="text" class="faq-search-input" id="faqSearch" placeholder="Search for answers..." autocomplete="off">
+                </div>
+                <div class="faq-search-suggestions" id="searchSuggestions">
+                    <!-- Suggestions will be populated by JS -->
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <!-- FAQ 2 -->
-    <div class="accordion-item mb-3">
-      <h2 class="accordion-header" id="headingTwo">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTwo">
-          Is Waapfolio free to use?
-        </button>
-      </h2>
-      <div id="collapseTwo" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Yes, it's completely free to create a store and start selling. Premium features may be added in the future.
+    </section>
+    
+    <div class="faq-content">
+        <!-- Popular Questions -->
+        <div class="popular-questions">
+            <div class="popular-header">
+                <i class="fas fa-fire"></i>
+                <h2>Popular Questions</h2>
+            </div>
+            <div class="popular-grid">
+                <div class="popular-item" data-target="q-what-is-waapfolio">
+                    <i class="fas fa-question-circle"></i>
+                    <span>What is Waapfolio?</span>
+                </div>
+                <div class="popular-item" data-target="q-free-to-use">
+                    <i class="fas fa-dollar-sign"></i>
+                    <span>What is the Monthly Cost?</span>
+                </div>
+                <div class="popular-item" data-target="q-payment-methods">
+                    <i class="fas fa-credit-card"></i>
+                    <span>What payment methods are supported?</span>
+                </div>
+                <div class="popular-item" data-target="q-social-media">
+                    <i class="fas fa-share-alt"></i>
+                    <span>Can I integrate with social media?</span>
+                </div>
+            </div>
         </div>
-      </div>
-    </div>
-
-    <!-- FAQ 3 -->
-    <div class="accordion-item mb-3">
-      <h2 class="accordion-header" id="headingThree">
-        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree">
-          Can I share my store on WhatsApp or social media?
-        </button>
-      </h2>
-      <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
-        <div class="accordion-body">
-          Yes, every store gets a unique shareable link. You can post it anywhere – WhatsApp, Instagram, Facebook, X, etc.
+        
+        <!-- Category Tabs -->
+        <div class="category-tabs">
+            <button class="category-tab active" data-category="all">
+                <i class="fas fa-th-large"></i> All
+            </button>
+            <button class="category-tab" data-category="account">
+                <i class="fas fa-user-circle"></i> Account
+            </button>
+            <button class="category-tab" data-category="store">
+                <i class="fas fa-store"></i> Store
+            </button>
+            <button class="category-tab" data-category="payments">
+                <i class="fas fa-wallet"></i> Payments
+            </button>
+            <button class="category-tab" data-category="security">
+                <i class="fas fa-shield-alt"></i> Security
+            </button>
+            <button class="category-tab" data-category="marketing">
+                <i class="fas fa-bullhorn"></i> Marketing
+            </button>
+            <button class="category-tab" data-category="troubleshoot">
+                <i class="fas fa-tools"></i> Help
+            </button>
         </div>
-      </div>
-    </div>
-  </div>
+        
+        <!-- Account & Registration -->
+        <div class="faq-category" data-category="account">
+            <div class="category-header">
+                <div class="category-icon account">
+                    <i class="fas fa-user-circle"></i>
+                </div>
+                <h3>Account & Registration</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-create-account">
+                    <button class="faq-question">
+                        How do I create a Waapfolio account?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Creating a Waapfolio account is quick and easy! Simply click the <strong>"Register"</strong> button on our homepage and follow these steps:
+                            <ul>
+                                <li>Enter your email address and create a secure password</li>
+                                <li>Verify your email through the confirmation link we send</li>
+                                <li>Complete your profile with your store details</li>
+                                <li>Start adding products and selling!</li>
+                            </ul>
+                            The entire process takes less than <strong>2 minutes</strong>.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-register-google">
+                    <button class="faq-question">
+                        Can I register with Google or email?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Waapfolio supports multiple registration options for your convenience:
+                            <ul>
+                                <li><strong>Google Sign-In:</strong> One-click registration using your Google account</li>
+                                <li><strong>Email Registration:</strong> Traditional signup with email and password</li>
+                            </ul>
+                            Both methods give you full access to all Waapfolio features.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-reset-password">
+                    <button class="faq-question">
+                        How do I reset my password?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            To reset your password, go to the <strong>login page</strong> and click <strong>"Forgot Password?"</strong>. Enter your registered email address, and we'll send you a secure link to create a new password. The link expires in <strong>24 hours</strong> for security.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Store Management -->
+        <div class="faq-category" data-category="store">
+            <div class="category-header">
+                <div class="category-icon store">
+                    <i class="fas fa-store"></i>
+                </div>
+                <h3>Store Management</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-what-is-waapfolio">
+                    <button class="faq-question">
+                        What is Waapfolio and how does it work?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Waapfolio is a <strong>social commerce platform</strong> that helps you create and grow your online store. Here's how it works:
+                            <ul>
+                                <li>Create your personalized storefront in minutes</li>
+                                <li>Add products with photos, descriptions, and prices</li>
+                                <li>Share your unique store link on <strong>WhatsApp, Instagram, Facebook</strong>, and more</li>
+                                <li>Receive orders directly and manage everything from one dashboard</li>
+                            </ul>
+                            No technical skills needed – just your products and creativity!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-add-products">
+                    <button class="faq-question">
+                        How do I add products to my store?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Adding products is simple! From your dashboard:
+                            <ul>
+                                <li>Click <strong>"Add Product"</strong> button</li>
+                                <li>Upload product images (up to 5 per product)</li>
+                                <li>Enter product name, description, and price</li>
+                                <li>Set inventory quantity and variations (size, color, etc.)</li>
+                                <li>Click <strong>"Publish"</strong> to make it live</li>
+                            </ul>
+                            Your products appear instantly on your store page!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-customize-store">
+                    <button class="faq-question">
+                        Can I customize my store's theme and layout?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely! Waapfolio offers various customization options:
+                            <ul>
+                                <li><strong>Store themes:</strong> Choose from multiple professional templates</li>
+                                <li><strong>Colors:</strong> Customize your brand colors and accent tones</li>
+                                <li><strong>Logo:</strong> Upload your own logo or brand image</li>
+                                <li><strong>Layout:</strong> Arrange product categories and featured items</li>
+                            </ul>
+                            Make your store uniquely yours!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-track-inventory">
+                    <button class="faq-question">
+                        How do I track inventory and manage stock?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Waapfolio includes built-in inventory management:
+                            <ul>
+                                <li><strong>Stock tracking:</strong> Set quantities for each product</li>
+                                <li><strong>Low stock alerts:</strong> Get notified when items are running low</li>
+                                <li><strong>Auto-update:</strong> Stock automatically decreases with each order</li>
+                                <li><strong>Out of stock:</strong> Products hide automatically when sold out</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Payments -->
+        <div class="faq-category" data-category="payments">
+            <div class="category-header">
+                <div class="category-icon payments">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <h3>Payments</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-free-to-use">
+                    <button class="faq-question">
+                        WHat is the monthly cost?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                        Yes! Waapfolio is <strong>$20 per month</strong>, giving you full access to create your store and start selling. Waapfolio is a <strong>social commerce platform</strong>, which means you can showcase your products directly on social media and interact with buyers in real time. Orders are sent straight to your DMs, making selling simple, fast, and personal. There are no hidden fees, you just pay $20 monthly for the full selling experience. Premium features may be added in the future, but the core platform will always make selling easy, direct, and affordable.
+                        </div>
+                    </div>
+                </div>
+               
+                </div>
+          
+               
+            </div>
+        </div>
+        
 
-  <!-- Links to other pages -->
-  <div class="mt-5 text-center">
-    <a href="{% url 'about' %}" class="btn btn-outline-primary me-3">About Us</a>
-    <a href="{% url 'contact' %}" class="btn btn-outline-success">Contact Support</a>
-  </div>
+                    {% comment %} <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Waapfolio offers flexible shipping options:
+                            <ul>
+                                <li><strong>Flat rate:</strong> Set a single shipping fee for all orders</li>
+                                <li><strong>Zone-based:</strong> Different rates for different regions</li>
+                                <li><strong>Free shipping:</strong> Offer free shipping above a minimum order</li>
+                                <li><strong>Local pickup:</strong> Allow customers to pick up locally</li>
+                            </ul>
+                        </div> {% endcomment %}
+                    </div>
+                </div>
+                {% comment %} <div class="faq-item" id="q-track-shipments">
+                    <button class="faq-question">
+                        How can I track shipments?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Add tracking numbers to orders, and customers automatically receive tracking updates. We integrate with major carriers like <strong>DHL, FedEx, UPS</strong>, and local delivery services. Both you and your customers can track packages in real-time.
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+            </div>
+        </div>
+        
+        <!-- Security & Privacy -->
+        <div class="faq-category" data-category="security">
+            <div class="category-header">
+                <div class="category-icon security">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Security & Privacy</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-data-protection">
+                    <button class="faq-question">
+                        How is my personal information protected?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Your security is our priority. We use:
+                            <ul>
+                                <li><strong>256-bit SSL encryption:</strong> All data is encrypted in transit</li>
+                                <li><strong>Secure servers:</strong> Enterprise-grade cloud infrastructure</li>
+                                <li><strong>GDPR compliant:</strong> We follow international data protection standards</li>
+                                <li><strong>No data selling:</strong> We never sell your information to third parties</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                {% comment %} <div class="faq-item" id="q-two-factor">
+                    <button class="faq-question">
+                        How do I enable two-factor authentication?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Enable 2FA from your <strong>Settings → Security</strong> page:
+                            <ul>
+                                <li>Choose authentication method (SMS or authenticator app)</li>
+                                <li>Scan QR code or enter phone number</li>
+                                <li>Verify with the code sent to you</li>
+                                <li>Save backup codes in a safe place</li>
+                            </ul>
+                            2FA adds an extra layer of protection to your account.
+                        </div>
+                    </div>
+                </div> {% endcomment %}
+                <div class="faq-item" id="q-account-fraud">
+                    <button class="faq-question">
+                        What should I do if I suspect account fraud?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            If you suspect unauthorized access:
+                            <ul>
+                                <li><strong>Change your password immediately</strong></li>
+                                <li>Enable two-factor authentication</li>
+                                <li>Review recent account activity</li>
+                                <li>Contact our support team right away</li>
+                            </ul>
+                            We take fraud seriously and will help secure your account.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Marketing & Growth -->
+        <div class="faq-category" data-category="marketing">
+            <div class="category-header">
+                <div class="category-icon marketing">
+                    <i class="fas fa-bullhorn"></i>
+                </div>
+                <h3>Marketing & Growth</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-social-media">
+                    <button class="faq-question">
+                        Can I integrate Waapfolio with social media platforms?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Absolutely! Waapfolio is built for social selling:
+                            <ul>
+                                <li><strong>WhatsApp:</strong> Direct order links and chat integration</li>
+                                <li><strong>Instagram:</strong> Product tagging and bio links</li>
+                                <li><strong>Facebook:</strong> Shop integration and marketplace</li>
+                                <li><strong>TikTok:</strong> Link in bio for your store</li>
+                                <li><strong>Twitter/X:</strong> Share products with one click</li>
+                            </ul>
+                            Every product has a shareable link for any platform!
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-promote-store">
+                    <button class="faq-question">
+                        How can I promote my store to get more sales?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Boost your sales with these strategies:
+                            <ul>
+                                <li>Share your store link on all social media profiles</li>
+                                <li>Use high-quality product photos</li>
+                                <li>Offer limited-time discounts</li>
+                                <li>Engage with customers on WhatsApp and DMs</li>
+                                <li>Ask satisfied customers for reviews</li>
+                                <li>Post regularly about new products</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-analytics">
+                    <button class="faq-question">
+                        Does Waapfolio offer analytics for sales and traffic?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Yes! Your dashboard includes detailed analytics:
+                            <ul>
+                                <li><strong>Sales reports:</strong> Daily, weekly, and monthly revenue</li>
+                                <li><strong>Traffic stats:</strong> Store visits and page views</li>
+                                <li><strong>Top products:</strong> Best-selling items</li>
+                                <li><strong>Customer insights:</strong> Where your buyers come from</li>
+                                <li><strong>Conversion rates:</strong> Track your store's performance</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Troubleshooting -->
+        <div class="faq-category" data-category="troubleshoot">
+            <div class="category-header">
+                <div class="category-icon troubleshoot">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h3>Troubleshooting</h3>
+            </div>
+            <div class="faq-accordion">
+                <div class="faq-item" id="q-store-not-showing">
+                    <button class="faq-question">
+                        What should I do if my store isn't showing correctly?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Try these troubleshooting steps:
+                            <ul>
+                                <li><strong>Clear browser cache:</strong> Refresh with Ctrl+Shift+R</li>
+                                <li>Try a different browser or device</li>
+                                <li>Check if your store is set to "Published"</li>
+                                <li>Ensure all required fields are completed</li>
+                                <li>Contact support if the issue persists</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-payment-issues">
+                    <button class="faq-question">
+                        Why isn't my payment going through?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            Payment issues can occur due to:
+                            <ul>
+                                <li>Insufficient funds or card limits</li>
+                                <li>Incorrect card details</li>
+                                <li>Bank security blocks (contact your bank)</li>
+                                <li>Expired payment method</li>
+                            </ul>
+                            Try a different payment method or contact your bank for assistance.
+                        </div>
+                    </div>
+                </div>
+                <div class="faq-item" id="q-contact-support">
+                    <button class="faq-question">
+                        How do I contact support for help?
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="faq-answer">
+                        <div class="faq-answer-content">
+                            We're here to help! Reach us through:
+                            <ul>
+                                <li><strong>Live chat:</strong> Click the support button on this page</li>
+                                <li><strong>Email:</strong> waapfolioorg@gmail.com</li>
+                                <li><strong>WhatsApp:</strong> Message us directly</li>
+                                <li><strong>Help Center:</strong> Browse our knowledge base</li>
+                            </ul>
+                            Our team typically responds within <strong>24 hours</strong>.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- No Results -->
+        <div class="no-results" id="noResults" style="display: none;">
+            <i class="fas fa-search"></i>
+            <h3>No results found</h3>
+            <p>Try different keywords or browse the categories above</p>
+        </div>
+        
+        <!-- CTA Section -->
+        <div class="faq-cta">
+            <div class="faq-cta-content">
+                <h2>Ready to Start Selling?</h2>
+                <p>Join thousands of sellers growing their business with Waapfolio</p>
+                <div class="cta-buttons">
+                  {% if not request.user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="cta-btn cta-btn-primary">
+                        <i class="fas fa-rocket"></i> Start Selling Today
+                    </a>
+                  {% endif %}
+                    <a href="{% url 'contact' %}" class="cta-btn cta-btn-secondary">
+                        <i class="fas fa-envelope"></i> Contact Us
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% comment %} <!-- Floating Support Button -->
+    <div class="floating-support">
+        <button class="support-btn" id="supportBtn">
+            <i class="fas fa-headset"></i>
+        </button>
+    </div>
+     {% endcomment %}
+    <!-- Support Modal -->
+    <div class="support-modal" id="supportModal">
+        <button class="support-modal-close" id="closeModal">
+            <i class="fas fa-times"></i>
+        </button>
+        <div class="support-modal-header">
+            <h4>Contact Support</h4>
+            <p>We typically respond within 24 hours</p>
+        </div>
+        <div class="support-modal-body">
+            <form action="{% url 'contact' %}" method="post">
+                {% csrf_token %}
+                <input type="email" class="support-input" placeholder="Your email" required>
+                <textarea class="support-input support-textarea" placeholder="How can we help you?" required></textarea>
+                <button type="submit" class="support-submit">
+                    <i class="fas fa-paper-plane"></i> Send Message
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // FAQ Accordion
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const wasActive = item.classList.contains('active');
+            // Close all items in same category
+            const parent = item.closest('.faq-accordion');
+            parent.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
+            // Toggle current
+            if (!wasActive) {
+                item.classList.add('active');
+            }
+        });
+    });
+    
+    // Category Tabs
+    const categoryTabs = document.querySelectorAll('.category-tab');
+    const faqCategories = document.querySelectorAll('.faq-category');
+    
+    categoryTabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            const category = tab.dataset.category;
+            
+            // Update active tab
+            categoryTabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            
+            // Show/hide categories
+            if (category === 'all') {
+                faqCategories.forEach(cat => cat.style.display = 'block');
+            } else {
+                faqCategories.forEach(cat => {
+                    cat.style.display = cat.dataset.category === category ? 'block' : 'none';
+                });
+            }
+            
+            document.getElementById('noResults').style.display = 'none';
+        });
+    });
+    
+    // Popular Questions Click
+    const popularItems = document.querySelectorAll('.popular-item');
+    popularItems.forEach(item => {
+        item.addEventListener('click', () => {
+            const targetId = item.dataset.target;
+            const targetItem = document.getElementById(targetId);
+            if (targetItem) {
+                // Show all categories first
+                categoryTabs.forEach(t => t.classList.remove('active'));
+                document.querySelector('[data-category="all"]').classList.add('active');
+                faqCategories.forEach(cat => cat.style.display = 'block');
+                
+                // Scroll to and open the question
+                targetItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                setTimeout(() => {
+                    targetItem.classList.add('active');
+                }, 300);
+            }
+        });
+    });
+    
+    // Search Functionality
+    const searchInput = document.getElementById('faqSearch');
+    const suggestionsBox = document.getElementById('searchSuggestions');
+    const noResults = document.getElementById('noResults');
+    
+    const allQuestions = [];
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question').textContent.trim();
+        const answer = item.querySelector('.faq-answer-content').textContent.trim();
+        allQuestions.push({
+            element: item,
+            question: question,
+            answer: answer,
+            category: item.closest('.faq-category')
+        });
+    });
+    
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase().trim();
+        
+        if (query.length < 2) {
+            suggestionsBox.classList.remove('active');
+            faqCategories.forEach(cat => cat.style.display = 'block');
+            faqItems.forEach(item => item.style.display = 'block');
+            noResults.style.display = 'none';
+            return;
+        }
+        
+        // Filter questions
+        const matches = allQuestions.filter(q => 
+            q.question.toLowerCase().includes(query) || 
+            q.answer.toLowerCase().includes(query)
+        );
+        
+        // Show suggestions
+        if (matches.length > 0) {
+            suggestionsBox.innerHTML = matches.slice(0, 5).map(m => `
+                <div class="faq-suggestion-item" data-id="${m.element.id}">
+                    <i class="fas fa-search"></i>
+                    <span>${m.question}</span>
+                </div>
+            `).join('');
+            suggestionsBox.classList.add('active');
+            
+            // Add click handlers to suggestions
+            suggestionsBox.querySelectorAll('.faq-suggestion-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const targetId = item.dataset.id;
+                    const target = document.getElementById(targetId);
+                    if (target) {
+                        searchInput.value = '';
+                        suggestionsBox.classList.remove('active');
+                        faqCategories.forEach(cat => cat.style.display = 'block');
+                        faqItems.forEach(i => i.style.display = 'block');
+                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        setTimeout(() => target.classList.add('active'), 300);
+                    }
+                });
+            });
+        } else {
+            suggestionsBox.classList.remove('active');
+        }
+        
+        // Filter visible questions
+        let hasVisible = false;
+        faqCategories.forEach(cat => {
+            const items = cat.querySelectorAll('.faq-item');
+            let catHasVisible = false;
+            items.forEach(item => {
+                const q = allQuestions.find(aq => aq.element === item);
+                if (q && (q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query))) {
+                    item.style.display = 'block';
+                    catHasVisible = true;
+                    hasVisible = true;
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+            cat.style.display = catHasVisible ? 'block' : 'none';
+        });
+        
+        noResults.style.display = hasVisible ? 'none' : 'block';
+    });
+    
+    // Close suggestions on click outside
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.faq-search-container')) {
+            suggestionsBox.classList.remove('active');
+        }
+    });
+    
+    // Support Modal
+    const supportBtn = document.getElementById('supportBtn');
+    const supportModal = document.getElementById('supportModal');
+    const closeModal = document.getElementById('closeModal');
+    
+    supportBtn.addEventListener('click', () => {
+        supportModal.classList.toggle('active');
+    });
+    
+    closeModal.addEventListener('click', () => {
+        supportModal.classList.remove('active');
+    });
+    
+    // Close modal on outside click
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.floating-support') && !e.target.closest('.support-modal')) {
+            supportModal.classList.remove('active');
+        }
+    });
+});
+</script>
 {% endblock %}

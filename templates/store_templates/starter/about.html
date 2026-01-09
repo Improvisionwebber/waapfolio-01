@@ -1,0 +1,13 @@
+{% extends "store_templates/starter/base.html" %}
+
+{% block body %}
+<section class="container py-5">
+  <h2>About {{ store.brand_name }}</h2>
+  <p>{{ store.about }}</p>
+
+  {% if store.mission %}
+    <h5 class="mt-4">Our Mission</h5>
+    <p>{{ store.mission }}</p>
+  {% endif %}
+</section>
+{% endblock %}

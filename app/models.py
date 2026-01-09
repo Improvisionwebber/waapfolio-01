@@ -32,21 +32,62 @@ from django.urls import reverse
 from django.conf import settings
 from django.utils.text import slugify
 
+class StoreTemplate(models.Model):
+    name = models.CharField(max_length=50)
+    slug = models.SlugField(unique=True)
+
+    description = models.TextField(blank=True)
+    preview_image = models.ImageField(
+        upload_to='template_previews/',
+        blank=True,
+        null=True
+    )
+
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0
+    )
+
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 class Store(models.Model):
+    # ===== CORE IDENTITY =====
     brand_name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True, blank=True)
+
     brand_logo = models.ImageField(upload_to='brands/')
     brand_logo_url = models.URLField(max_length=500, blank=True, null=True)
-    whatsapp_number = models.CharField(max_length=20)
-    Bio = models.TextField()
-    total_views = models.IntegerField(default=0)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="stores")
-    social = models.URLField(max_length=255, blank=True, null=True)
-    dob = models.DateField(blank=True, null=True)
-    address = models.CharField(max_length=255, blank=True, null=True)
-    total_orders = models.PositiveIntegerField(default=0)
 
+    owner = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="stores"
+    )
+
+    # ===== TEMPLATE =====
+    template = models.ForeignKey(
+        StoreTemplate,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="stores"
+    )
+
+    # ===== BRAND CONTENT =====
+    bio = models.TextField(help_text="Short brand description")
+
+    about = models.TextField(blank=True, null=True, default="No About Set")
+    mission = models.TextField(blank=True, null=True, default="No Mission Set")
+    founder_name = models.CharField(max_length=100, blank=True, null=True, default="Unknown")
+    brand_story = models.TextField(blank=True, null=True, default="No Story Set")
+
+
+    # ===== BUSINESS INFO =====
     BUSINESS_CHOICES = [
         ('retail', 'Retail'),
         ('services', 'Services'),
@@ -55,72 +96,78 @@ class Store(models.Model):
         ('tech', 'Technology'),
         ('other', 'Other'),
     ]
+
     business_type = models.CharField(
-        max_length=50, choices=BUSINESS_CHOICES, blank=True, null=True
+        max_length=50,
+        choices=BUSINESS_CHOICES,
+        blank=True,
+        null=True
     )
 
+    address = models.CharField(max_length=255, blank=True, null=True)
+
+    # ===== ORDER SYSTEM =====
+    ORDER_SYSTEM_CHOICES = [
+        ('whatsapp', 'WhatsApp'),
+        ('telegram', 'Telegram'),
+        ('facebook', 'Facebook Messenger'),
+    ]
+
+    order_system = models.CharField(
+        max_length=20,
+        choices=ORDER_SYSTEM_CHOICES,
+        default='whatsapp'
+    )
+
+    whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
+    telegram_username = models.CharField(max_length=50, blank=True, null=True)
+    facebook_link = models.URLField(blank=True, null=True)
+    instagram_link = models.URLField(blank=True, null=True)
+    tiktok_link = models.URLField(blank=True, null=True)
+
+    # ===== DESIGN =====
     background_color = models.CharField(
         max_length=20,
         default="#ffffff",
         help_text="Hex color (e.g. #F5F5F5)"
     )
 
-    whatsapp_number = models.CharField(max_length=20, blank=True, null=True)
-    facebook_link = models.URLField(blank=True, null=True)
-    tiktok_link = models.URLField(blank=True, null=True)
-    depop_link = models.URLField(blank=True, null=True)
+    # ===== ANALYTICS =====
+    total_views = models.PositiveIntegerField(default=0)
+    total_orders = models.PositiveIntegerField(default=0)
 
-    order_system = models.CharField(
-        max_length=20,
-        choices=[
-            ('whatsapp', 'WhatsApp'),
-            ('facebook', 'Facebook'),
-            ('tiktok', 'TikTok'),
-            ('depop', 'Depop'),
-        ],
-        default='whatsapp'
-    )
+    # ===== META =====
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # ✅ Update slug if brand_name changed
         if not self.slug or self.brand_name_changed():
             self.slug = slugify(self.brand_name)
         super().save(*args, **kwargs)
 
     def brand_name_changed(self):
-        """Return True if brand_name changed."""
         if not self.pk:
             return True
         old = Store.objects.filter(pk=self.pk).first()
-        if not old:
-            return True
-        return old.brand_name != self.brand_name
+        return old and old.brand_name != self.brand_name
 
     def get_absolute_url(self):
-        """
-        Dev (localhost):
-            /store/slug/
-        Production:
-            https://slug.waapfolio.com/
-        """
         if settings.DEBUG:
-            return reverse('view_store', kwargs={'slug': self.slug})
-
+            return reverse(
+                "store_template_home",
+                kwargs={
+                    "store_slug": self.slug,
+                    "template_slug": self.template.slug if self.template else "default",
+                },
+            )
         return f"https://{self.slug}.waapfolio.com/"
-
-    def get_store_url(self):
-        return self.get_absolute_url()
 
     def __str__(self):
         return self.brand_name
 
     @staticmethod
     def get_user_store(user):
-        """Return the store belonging to a given user, or None if no store exists."""
-        try:
-            return Store.objects.get(owner=user)
-        except Store.DoesNotExist:
-            return None
+        return Store.objects.filter(owner=user).first()
 
 
 
@@ -209,7 +256,14 @@ class Item(models.Model):
         super().save(*args, **kwargs)
 
     def get_absolute_url(self):
-        return f"/product/{self.slug}/"
+        return reverse(
+            "store_product_detail",
+            kwargs={
+                "store_slug": self.store.slug,
+                "product_slug": self.slug,
+            },
+        )
+
     def get_store_url(self):
         return self.store.get_absolute_url()
 

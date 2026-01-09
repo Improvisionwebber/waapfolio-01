@@ -7,7 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WAAPFOLIO {% block title %}{% endblock title %}</title>
     {% block head %}{% endblock head %}
-    
+    {% block extra_css %}{% endblock %}
+
     <!-- CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}">
@@ -725,16 +726,16 @@
                 {% endif %}
                 {% comment %} <li><a href="/marketplace">Marketplace</a></li> {% endcomment %}
                 <li><a href="/pricing">Pricing</a></li>
-                <li><a href="/templates">Templates</a></li>
+                <li><a href="{% url 'templates_page' %}">Templates</a></li>
                 <li><a href="/referral">Referral</a></li>
             </ul>
 
             <div class="nav-cta">
                 {% if request.user.is_authenticated %}
-                <a href="/settings" class="btn-waap btn-waap-secondary">
+                <a href="{% url 'profile' %}" class="btn-waap btn-waap-secondary">
                     <i class="bi bi-gear"></i> Settings
                 </a>
-                <a href="/logout" class="btn-waap btn-waap-primary">
+                <a href="{% url 'logout' %}" class="btn-waap btn-waap-primary">
                     <i class="bi bi-box-arrow-right"></i> Logout
                 </a>
                 {% else %}
@@ -809,7 +810,7 @@
                 <div class="footer-column">
                     <h4>Product</h4>
                     <ul class="footer-links">
-                        <li><a href="/templates">Templates</a></li>
+                        <li><a href="{% url 'templates_page' %}">Templates</a></li>
                         <li><a href="/pricing">Pricing</a></li>
                         {% comment %} <li><a href="/integrations">Integrations</a></li> {% endcomment %}
                     </ul>
@@ -842,11 +843,24 @@
                 <p>© {% now "Y" %} Waapfolio. All rights reserved.</p>
                 <div class="footer-bottom-links">
                     <a href="{% url 'privacy' %}">Privacy Policy</a>
-                    {% comment %} <a href="/terms">Terms of Service</a>
-                    <a href="/cookies">Cookie Policy</a> {% endcomment %}
+                     <a href="{% url 'terms_of_service' %}">Terms of Service</a>
+                    <a href="{% url 'cookies_policy' %}">Cookie Policy</a> 
                 </div>
             </div>
         </div>
+{% if not request.COOKIES.accept_cookies %}
+<div id="cookie-banner" style="position: fixed; bottom: 0; width: 100%; background: rgba(0,0,0,0.8); color: white; padding: 15px; text-align: center; z-index: 9999;">
+    We use cookies to improve your experience. By continuing, you accept our <a href="{% url 'cookies_policy' %}" style="color: #054708ff;">Cookies Policy</a>.
+    <button id="accept-cookies" style="margin-left: 15px; padding: 5px 10px; background: #26723cff; border: none; cursor: pointer;">Accept</button>
+</div>
+<script>
+document.getElementById('accept-cookies').onclick = function() {
+    document.cookie = "accept_cookies=true; path=/; max-age=" + 60*60*24*365; // 1 year
+    document.getElementById('cookie-banner').style.display = "none";
+};
+</script>
+{% endif %}
+
     </footer>
 {% comment %} 
     <!-- Mobile Bottom Nav -->

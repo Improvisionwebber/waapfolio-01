@@ -4,6 +4,15 @@ from django.contrib.auth import views as auth_views
 from . import views
 from django.conf import settings
 from django.conf.urls.static import static
+from .views import (
+    StoreHomeView,
+    StoreAboutView,
+    StoreContactView,
+    ProductListView,
+    ProductDetailView,
+    templates_page,
+)
+   
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("account/", include("django.contrib.auth.urls")),
@@ -14,10 +23,11 @@ urlpatterns = [
         ),
         name='password_reset',
     ),
-    # -------------------------
+ # -------------------------
     # Public Pages
     # -------------------------
     path('', views.root_dispatch, name='home'),
+    path('templates/', templates_page, name='templates_page'),
 
     path('about/', views.about, name='about'),
     path('profile/', views.profile, name='profile'),
@@ -28,6 +38,8 @@ urlpatterns = [
     path('faqs/', views.faqs, name='faqs'),
     path('contact/', views.contact, name='contact'),
     path('privacy/', views.privacy, name='privacy'),
+    path('terms_of_service/', views.terms_of_service, name='terms_of_service'),
+    path('cookies_policy/', views.cookies_policy, name='cookies_policy'),
     path("verify-otp/", views.verify_otp, name="verify_otp"),
     path('security-settings/', views.security_settings, name='security_settings'),
     path('account-information/', views.account_information, name='account_information'),
@@ -64,7 +76,26 @@ urlpatterns = [
     path('notifications/', views.notifications_view, name='notifications'),
     path("record-order/<int:store_id>/", views.record_order, name="record_order"),
     path("marketplace/", views.marketplace_view, name="marketplace"),
-    ]
+    # Store Home
+    path('<str:store_slug>/', StoreHomeView.as_view(), name='store_home'),
+    path('<str:store_slug>/<str:template_slug>/', StoreHomeView.as_view(), name='store_template_home'),
+
+    # About
+    path('<str:store_slug>/about/', StoreAboutView.as_view(), name='store_about'),
+    path('<str:store_slug>/<str:template_slug>/about/', StoreAboutView.as_view(), name='store_template_about'),
+
+    # Contact
+    path('<str:store_slug>/contact/', StoreContactView.as_view(), name='store_contact'),
+    path('<str:store_slug>/<str:template_slug>/contact/', StoreContactView.as_view(), name='store_template_contact'),
+
+    # Product List
+    path('<str:store_slug>/products/', ProductListView.as_view(), name='store_product_list'),
+    path('<str:store_slug>/<str:template_slug>/products/', ProductListView.as_view(), name='store_template_product_list'),
+
+    # Product Detail
+    path('<str:store_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_product_detail'),
+    path('<str:store_slug>/<str:template_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_template_product_detail'),
+]
 handler404 = 'app.views.custom_404'
 handler500 = 'app.views.custom_500'
 handler403 = 'app.views.custom_403'

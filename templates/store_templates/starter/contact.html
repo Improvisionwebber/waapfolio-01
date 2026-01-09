@@ -1,0 +1,22 @@
+{% extends "store_templates/starter/base.html" %}
+
+{% block body %}
+<section class="container py-5">
+  <h2>Contact {{ store.brand_name }}</h2>
+
+  <ul class="list-unstyled mt-3">
+    {% if store.whatsapp %}
+      <li><i class="bi bi-whatsapp"></i> {{ store.whatsapp }}</li>
+    {% endif %}
+    {% if store.telegram %}
+      <li><i class="bi bi-telegram"></i> {{ store.telegram }}</li>
+    {% endif %}
+    {% if store.facebook %}
+      <li><i class="bi bi-facebook"></i> {{ store.facebook }}</li>
+    {% endif %}
+    {% if store.instagram %}
+      <li><i class="bi bi-instagram"></i> {{ store.instagram }}</li>
+    {% endif %}
+  </ul>
+</section>
+{% endblock %}
