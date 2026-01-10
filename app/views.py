@@ -1404,15 +1404,26 @@ def get_template_path(template_slug, store, page):
 #             "products": products
 #         }
 #         return render(request, template_name, context)
+
 class StoreHomeView(View):
     def get(self, request, store_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
 
-        # fallback to store.template.slug or "starter"
-        resolved_template = template_slug or (store.template.slug if store.template else "starter")
+        resolved_template = template_slug or (
+            store.template.slug if store.template else "starter"
+        )
+
         template_name = f"store_templates/{resolved_template}/home.html"
 
-        return render(request, template_name, {"store": store})
+        return render(
+            request,
+            template_name,
+            {
+                "store": store,
+                "template_slug": resolved_template,
+            }
+        )
+
 
 # -----------------------------
 # About Page
@@ -1420,8 +1431,22 @@ class StoreHomeView(View):
 class StoreAboutView(View):
     def get(self, request, store_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
-        template_name = f"store_templates/{template_slug or store.template.slug}/about.html"
-        return render(request, template_name, {"store": store})
+
+        resolved_template = template_slug or (
+            store.template.slug if store.template else "starter"
+        )
+
+        template_name = f"store_templates/{resolved_template}/about.html"
+
+        return render(
+            request,
+            template_name,
+            {
+                "store": store,
+                "template_slug": resolved_template,
+            }
+        )
+
 
 # -----------------------------
 # Contact Page
@@ -1429,8 +1454,22 @@ class StoreAboutView(View):
 class StoreContactView(View):
     def get(self, request, store_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
-        template_name = f"store_templates/{template_slug or store.template.slug}/contact.html"
-        return render(request, template_name, {"store": store})
+
+        resolved_template = template_slug or (
+            store.template.slug if store.template else "starter"
+        )
+
+        template_name = f"store_templates/{resolved_template}/contact.html"
+
+        return render(
+            request,
+            template_name,
+            {
+                "store": store,
+                "template_slug": resolved_template,
+            }
+        )
+
 
 # -----------------------------
 # Product List
@@ -1439,41 +1478,55 @@ class ProductListView(View):
     def get(self, request, store_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
         products = Item.objects.filter(store=store)
-        template_name = f"store_templates/{template_slug or store.template.slug}/products.html"
-        return render(request, template_name, {"store": store, "products": products})
+
+        resolved_template = template_slug or (
+            store.template.slug if store.template else "starter"
+        )
+
+        template_name = f"store_templates/{resolved_template}/products.html"
+
+        return render(
+            request,
+            template_name,
+            {
+                "store": store,
+                "products": products,
+                "template_slug": resolved_template,
+            }
+        )
 
 # -----------------------------
 # Product Detail
 # -----------------------------
 class ProductDetailView(View):
     def get(self, request, store_slug, product_slug, template_slug=None):
-        # Get the store
         store = get_object_or_404(Store, slug=store_slug)
-        
-        # Get the product within the store
         product = get_object_or_404(Item, slug=product_slug, store=store)
 
-        # Related objects
         extra_files = product.extra_files.all()
         media = product.media.all()
         comments = product.comments.all()
-        # Other products from the same store, excluding current product
         items_meta = Item.objects.filter(store=store).exclude(pk=product.pk)[:8]
 
-        # Template resolution: URL > store template > fallback "starter"
-        resolved_template = template_slug or (store.template.slug if store.template else "starter")
+        resolved_template = template_slug or (
+            store.template.slug if store.template else "starter"
+        )
+
         template_name = f"store_templates/{resolved_template}/product_detail.html"
 
-        # Render the product detail page
-        context = {
-            "store": store,
-            "product": product,
-            "comments": comments,
-            "items_meta": items_meta,
-            "extra_files": extra_files,
-            "media": media,
-        }
-        return render(request, template_name, context)
+        return render(
+            request,
+            template_name,
+            {
+                "store": store,
+                "product": product,
+                "comments": comments,
+                "items_meta": items_meta,
+                "extra_files": extra_files,
+                "media": media,
+                "template_slug": resolved_template,
+            }
+        )
 
 def templates_page(request):
     templates = StoreTemplate.objects.filter(is_active=True)

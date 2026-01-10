@@ -157,10 +157,11 @@ class Store(models.Model):
                 "store_template_home",
                 kwargs={
                     "store_slug": self.slug,
-                    "template_slug": self.template.slug if self.template else "default",
+                    "template_slug": self.template.slug if self.template else "starter",
                 },
             )
         return f"https://{self.slug}.waapfolio.com/"
+
 
     def __str__(self):
         return self.brand_name
