@@ -169,7 +169,6 @@
         font-weight: 700;
         background: var(--gradient-primary);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
     .hero-text h1 {
         font-family: 'Space Grotesk', sans-serif;
@@ -260,6 +259,30 @@
         margin-bottom: 1.5rem;
         backdrop-filter: blur(10px);
     }
+/* ================= WHAT MAKES US DIFFERENT ================= */
+.different-section h2 {
+    color: #FFFFFF; /* white */
+}
+
+/* ================= WHO IS WAAPFOLIO FOR ================= */
+.persona-section h2 {
+    color: #FFFFFF; /* white */
+}
+
+/* ================= WHAT WE STAND FOR ================= */
+.values-section h2 {
+    color: #FFFFFF; /* white */
+}
+
+/* ================= THE WAAPFOLIO STORY ================= */
+.vision-section h2 {
+    color: #FFFFFF; /* white */
+}
+
+/* ================= JOIN THOUSANDS BUILDING WITH WAAPFOLIO ================= */
+.cta-section h2 {
+    color: #FFFFFF; /* white */
+}
 
     .section-header h2 {
         font-family: 'Space Grotesk', sans-serif;
@@ -268,7 +291,6 @@
         margin-bottom: 1rem;
         background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
     .section-header p {
@@ -611,12 +633,12 @@
         font-family: 'Space Grotesk', sans-serif;
         font-size: 1.2rem;
         margin-bottom: 0.75rem;
-        color: var(--text-primary);
+        color: var(--texlight);
     }
 
     .persona-card p {
         font-size: 0.9rem;
-        color: var(--text-secondary);
+        color: var(--text-light);
         line-height: 1.6;
     }
 
@@ -702,7 +724,6 @@
         margin-bottom: 2rem;
         background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
     .vision-content p {
@@ -907,7 +928,6 @@
         margin-bottom: 1.5rem;
         background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
         -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
     }
 
     .cta-content p {
@@ -1091,7 +1111,7 @@
                     <span>Waapfolio</span>
                 </div>
                 <h1 class="text-light">Built for Creators, Hustlers & Online Sellers</h1>
-                <p>Waapfolio helps you launch a professional online store, sell smarter, and earn referral income, all from one powerful platform designed for the modern digital entrepreneur.</p>
+                <p>Waapfolio helps you launch a professional online store, sell smarter, all from one powerful platform designed for the modern digital entrepreneur.</p>
                 <div class="cta-buttons">
                     {% if user.is_authenticated %}
                         <a href="{% url 'create_store' %}" class="btn btn-primary">
@@ -1203,13 +1223,7 @@
                         <p>Built for how creators actually sell today</p>
                     </div>
                 </div>
-                <div class="feature-card">
-                    <div class="check-icon">💰</div>
-                    <div>
-                        <h4>Referral Income System</h4>
-                        <p>Earn $5 for every new paying user you refer</p>
-                    </div>
-                </div>
+
                 <div class="feature-card">
                     <div class="check-icon">🌐</div>
                     <div>
@@ -1228,39 +1242,45 @@
         <div class="section-header animate-on-scroll">
             <span class="section-badge">✨ Our Edge</span>
             <h2>What Makes Us Different</h2>
-            <p>Built from the ground up for the new generation of social sellers.</p>
+            <p>Designed for the new generation of social sellers who want to sell fast and look professional.</p>
         </div>
         <div class="different-grid">
+
             <div class="diff-card animate-on-scroll">
                 <div class="diff-icon">📱</div>
-                <h3>Social-First Commerce</h3>
-                <p>Seamlessly integrate with WhatsApp, Instagram, TikTok, and Telegram where your customers already are.</p>
+                <h3>Social-First Selling</h3>
+                <p>Sell directly through WhatsApp, Instagram, TikTok, and Telegram where your customers already are.</p>
             </div>
+
             <div class="diff-card animate-on-scroll">
-                <div class="diff-icon">💸</div>
-                <h3>Built-in Referral Earnings</h3>
-                <p>Turn your network into income. Earn real money for every creator you bring to the platform.</p>
+                <div class="diff-icon">⚡</div>
+                <h3>Quick Store Setup</h3>
+                <p>Launch a professional store in minutes and start selling immediately, no coding required.</p>
             </div>
+
             <div class="diff-card animate-on-scroll">
                 <div class="diff-icon">🌍</div>
                 <h3>Global-Ready Payments</h3>
-                <p>Accept payments from anywhere in the world with multiple payment options and currencies.</p>
+                <p>Accept payments from anywhere with flexible options that work for local and international customers.</p>
             </div>
+
             <div class="diff-card animate-on-scroll">
                 <div class="diff-icon">📲</div>
                 <h3>Mobile-First Experience</h3>
-                <p>Manage your entire business from your phone. Built for creators on the go.</p>
+                <p>Manage your entire business from your phone. Built for sellers on the go.</p>
             </div>
+
         </div>
     </div>
 </section>
+
 
 <!-- ================= WHO IS WAAPFOLIO FOR ================= -->
 <section class="persona-section">
     <div class="container">
         <div class="section-header animate-on-scroll">
             <span class="section-badge">👥 Our Community</span>
-            <h2>Who Waapfolio Is For</h2>
+            <h2 class="text-light">Who Waapfolio Is For</h2>
             <p>Join thousands of creators already building their dreams with us.</p>
         </div>
         <div class="persona-grid">
@@ -1300,13 +1320,32 @@
                 <span class="stat-number" data-target="150">0</span>
                 <span class="stat-label">Countries Reached</span>
             </div>
-            <div class="stat-item animate-on-scroll">
-                <span class="stat-number" data-target="100">$0K</span>
-                <span class="stat-label">Earnings Paid Out</span>
-            </div>
         </div>
     </div>
 </section>
+
+<style>
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr); /* 2 per row */
+    gap: 3rem; /* spacing between stats */
+    justify-content: center; /* center the grid */
+    text-align: center; /* center text in each stat */
+}
+
+.stat-item .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.stat-item .stat-label {
+    font-size: 1.2rem;
+    color: #CCCCCC;
+    margin-top: 0.5rem;
+}
+</style>
+
 
 <!-- ================= OUR VALUES ================= -->
 <section class="values-section">

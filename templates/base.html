@@ -727,7 +727,6 @@
                 {% comment %} <li><a href="/marketplace">Marketplace</a></li> {% endcomment %}
                 <li><a href="/pricing">Pricing</a></li>
                 <li><a href="{% url 'templates_page' %}">Templates</a></li>
-                <li><a href="/referral">Referral</a></li>
             </ul>
 
             <div class="nav-cta">
@@ -763,7 +762,6 @@
             {% endif %}
 
             <li><a href="#templates">Templates</a></li>
-            <li><a href="#referral">Referral</a></li>
 
             {% if request.user.is_authenticated %}
             <li><a href="{% url 'profile' %}">Settings</a></li>
@@ -797,7 +795,7 @@
                         <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio">
                         <span>Waapfolio</span>
                     </div>
-                    <p>Build your dream online store, share your referral link, and turn your skills into cash, all from your phone or laptop.</p>
+                    <p>Build your dream online store, and turn your skills into cash, all from your phone or laptop.</p>
                     <div class="footer-social">
                         <a href="https://wa.me/2349161453058" class="social-icon whatsapp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
                         <a href="https://instagram.com/waapfolio" class="social-icon instagram" title="Instagram"><i class="bi bi-instagram"></i></a>
@@ -880,10 +878,7 @@ document.getElementById('accept-cookies').onclick = function() {
                 <span>Store</span>
             </a>
             {% endif %}
-            <a href="/referral" class="mobile-nav-item">
-                <i class="bi bi-gift"></i>
-                <span>Earn</span>
-            </a>
+
             {% if request.user.is_authenticated %}
             <a href="/settings" class="mobile-nav-item">
                 <i class="bi bi-person"></i>

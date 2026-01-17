@@ -474,7 +474,6 @@ p {
 
 /* ================= WAAPFOLIO APPROACH SECTION ================= */
 .approach-section {
-    background: var(--gradient-primary);
     color: white;
     position: relative;
     overflow: hidden;
@@ -727,7 +726,6 @@ p {
 
 /* ================= FUTURE SECTION ================= */
 .future-section {
-    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 50%, #ecfdf5 100%);
     text-align: center;
     position: relative;
     overflow: hidden;
@@ -988,11 +986,7 @@ p {
                 <h4>Complicated Setup & High Costs</h4>
                 <p>Traditional e-commerce platforms need technical skills and charge hefty monthly fees before you even make a sale.</p>
             </div>
-            <div class="problem-card animate-on-scroll">
-                <div class="problem-icon">🚫</div>
-                <h4>No Way to Earn from Referrals</h4>
-                <p>You recommend products all the time but never get rewarded. Your audience is valuable, but you're not monetizing it.</p>
-            </div>
+
         </div>
     </div>
 </section>
@@ -1100,11 +1094,7 @@ p {
                 <h4>Simple Checkout</h4>
                 <p>No complicated payment gateways. Multiple easy options that work globally.</p>
             </div>
-            <div class="approach-card animate-on-scroll">
-                <div class="approach-icon">💰</div>
-                <h4>Earn Referral Income</h4>
-                <p>Share products, earn commissions. Turn your audience into a revenue stream.</p>
-            </div>
+
         </div>
     </div>
 </section>
@@ -1138,10 +1128,6 @@ p {
                         <span class="comparison-icon">✕</span>
                         <span class="text-dark">Unprofessional payment requests</span>
                     </li>
-                    <li>
-                        <span class="comparison-icon">✕</span>
-                        <span class="text-dark">Zero income from referrals</span>
-                    </li>
                 </ul>
             </div>
             <div class="comparison-divider">
@@ -1166,10 +1152,6 @@ p {
                     <li>
                         <span class="comparison-icon">✓</span>
                         <span>Professional checkout experience</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✓</span>
-                        <span>Passive referral earnings</span>
                     </li>
                 </ul>
             </div>
@@ -1210,7 +1192,7 @@ p {
     </div>
 </section>
 
-<!-- Stats Section -->
+<!-- ================= STATS SECTION ================= -->
 <section class="stats-section">
     <div class="container-custom">
         <div class="stats-grid">
@@ -1222,14 +1204,40 @@ p {
                 <div class="stat-number" data-target="150">0</div>
                 <div class="stat-label">Countries Served</div>
             </div>
-            <div class="stat-item animate-on-scroll">
-                <div class="stat-number" data-target="100">$0K</div>
-                <div class="stat-label">Paid to Creators</div>
-            </div>
         </div>
     </div>
 </section>
 
+<style>
+/* Grid for 2 stats per row, centered */
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 3rem;
+    justify-content: center;
+    text-align: center;
+    margin: 0 auto;
+}
+
+.stat-item .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    color: #FFFFFF;
+}
+
+.stat-item .stat-label {
+    font-size: 1.2rem;
+    color: #CCCCCC;
+    margin-top: 0.5rem;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+}
+</style>
 <!-- Future Section -->
 <section class="section future-section">
     <div class="container-custom">
