@@ -1,0 +1,81 @@
+{% extends "store_templates/real_estate_basic/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block body %}
+<section class="py-5">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <span class="hero-badge mb-2 d-inline-block bg-success text-white px-2 py-1 rounded">Listings</span>
+      <h2 class="fw-bold mb-0">Available Properties</h2>
+    </div>
+  </div>
+
+  <div class="row g-4 mt-2">
+    {% for product in products %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm hover-scale">
+
+          <!-- Product Image -->
+    {% if product.image %}
+    <img src="{{ product.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% elif product.image_url %}
+    <img src="{{ product.image_url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% else %}
+    <img src="{% static 'images/placeholder.png' %}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% endif %}
+
+
+          <div class="card-body text-center d-flex flex-column justify-content-between">
+            <h6 class="mb-1">{{ product.name }}</h6>
+
+            <p class="fw-bold text-primary mb-2">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% endif %}
+              {{ product.price|intcomma }}
+            </p>
+
+            <div class="d-flex justify-content-between align-items-center mt-2">
+              <a href="{% url 'store_template_product_detail' store.slug template_slug product.slug %}"
+                 class="btn btn-outline-primary btn-sm flex-grow-1 me-1">
+                View Property
+              </a>
+              <button class="btn btn-outline-success btn-sm" onclick="shareProperty('{{ product.get_absolute_url }}', '{{ product.name|escapejs }}')">
+                <i class="bi bi-share-fill"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">No properties available at the moment.</p>
+    {% endfor %}
+  </div>
+
+</section>
+
+<script>
+  function shareProperty(url, name) {
+    const text = `Check out ${name} on our listings: ${url}`;
+    if (navigator.share) {
+      navigator.share({ title: name, text, url }).catch(() => {});
+    } else {
+      const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
+      window.open(wa, "_blank");
+    }
+  }
+</script>
+
+<style>
+  /* Hover scale effect */
+  .hover-scale:hover img {
+    transform: scale(1.05);
+  }
+
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(0,128,0,0.15);
+    transition: all 0.3s ease;
+  }
+</style>
+{% endblock %}

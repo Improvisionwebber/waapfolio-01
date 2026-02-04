@@ -597,14 +597,12 @@ from decimal import Decimal
 def manage_store(request, slug, item_id=None):
     try:
         # ---------------------- MULTI-STORE SWITCHER ----------------------
-        # Only for your email
-        your_email = "plutodollar91@gmail.com"  # <-- change this
+        your_email = "plutodollar91@gmail.com"
         stores = []
         active_store = None
 
         if request.user.email == your_email:
             stores = Store.objects.filter(owner=request.user).order_by("id")
-            # Use session to track active store
             active_store_id = request.session.get("active_store_id")
             if active_store_id:
                 active_store = Store.objects.filter(id=active_store_id, owner=request.user).first()
@@ -614,11 +612,16 @@ def manage_store(request, slug, item_id=None):
 
         # ---------------------- EXISTING STORE LOGIC ----------------------
         store = get_object_or_404(Store, slug=slug, owner=request.user)
+
+        # ---------------------- TEMPLATE SAFE FALLBACK ----------------------
+        template_slug = store.template.slug if store.template else "starter"
+
         # ---------------------- SUBDOMAIN ENFORCEMENT ----------------------
         if hasattr(request, "store"):
             if request.store.slug != store.slug:
                 return redirect(store.get_absolute_url())
 
+        # ---------------------- ITEM FORM ----------------------
         if item_id:
             item = get_object_or_404(Item, id=item_id, store=store)
             form = ProductForm(request.POST or None, request.FILES or None, instance=item)
@@ -630,8 +633,7 @@ def manage_store(request, slug, item_id=None):
 
         extra_files = request.FILES.getlist("extra_images")
         cover_file = request.FILES.get("image")
-
-        product = None  # Ensure product exists before use
+        product = None
 
         if request.method == "POST":
             try:
@@ -650,6 +652,7 @@ def manage_store(request, slug, item_id=None):
                     "items": Item.objects.filter(store=store),
                     "stores": stores,
                     "active_store": active_store,
+                    "template_slug": template_slug,
                 })
 
             if form.is_valid():
@@ -657,7 +660,7 @@ def manage_store(request, slug, item_id=None):
                     product = form.save(commit=False)
                     product.store = store
 
-                    # ---- Price (clean digits and convert to Decimal with .00) ----
+                    # ---- Price ----
                     raw_price = request.POST.get("price", "")
                     clean_price = re.sub(r"[^\d.]", "", raw_price)
                     if not clean_price:
@@ -686,9 +689,8 @@ def manage_store(request, slug, item_id=None):
                 print("Form errors:", form.errors)
                 messages.error(request, form.errors)
 
-            # ✅ Only process files if product exists
+            # ✅ Only process extra files if product exists
             if product:
-                # ---- Extra Images ----
                 for f in extra_files:
                     if f.content_type.startswith("image/"):
                         try:
@@ -761,6 +763,7 @@ def manage_store(request, slug, item_id=None):
             "items": items,
             "stores": stores,
             "active_store": active_store,
+            "template_slug": template_slug,
         })
 
     except (ConnectionResetError, OSError) as e:
@@ -769,6 +772,7 @@ def manage_store(request, slug, item_id=None):
             "<h2>Connection lost</h2><p>Your network seems unstable. Please try again.</p>",
             status=400
         )
+
 
 
 @login_required

@@ -1,5 +1,6 @@
 {% extends "store_templates/starter/base.html" %}
-
+{% load static %}
+{% load humanize %}
 {% block body %}
 <section class="container py-5">
   <h2>Products</h2>
@@ -8,12 +9,18 @@
     {% for product in products %}
       <div class="col-6 col-md-4 col-lg-3">
         <div class="card h-100">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top">
-          {% endif %}
+    {% if product.image %}
+    <img src="{{ product.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% elif product.image_url %}
+    <img src="{{ product.image_url }}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% else %}
+    <img src="{% static 'images/placeholder.png' %}" class="card-img-top" style="height:200px; object-fit:cover;">
+    {% endif %}
           <div class="card-body">
             <h6>{{ product.name }}</h6>
-            <p class="fw-bold">{{ product.price }}</p>
+            <p class="fw-bold">        
+        {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% endif %}
+        {{ product.price|intcomma }}</p>
             <a href="{% url 'store_product_detail' store.slug product.slug %}" class="btn btn-success btn-sm w-100">
               Details
             </a>

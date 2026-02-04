@@ -111,24 +111,7 @@ class StoreForm(forms.ModelForm):
 
     class Meta:
         model = Store
-        fields = [
-            'brand_name',
-            'brand_logo',
-            'bio',
-            'about',
-            'mission',
-            'founder_name',
-            'brand_story',
-            'order_system',
-            'whatsapp_number',
-            'telegram_username',
-            'facebook_link',
-            'instagram_link',
-            'tiktok_link',
-            'address',
-            'business_type',
-            'background_color',
-        ]
+        fields = '__all__'
 
         widgets = {
             'brand_logo': CustomClearableFileInput(

@@ -1,0 +1,64 @@
+{% extends "store_templates/real_estate_basic/base.html" %}
+{% block title %}{{ store.brand_name }}{% endblock %}
+
+{% block body %}
+
+<!-- HERO -->
+<section class="py-5 text-center">
+  <span class="hero-badge mb-3 d-inline-block">Real Estate</span>
+
+  <h1 class="fw-bold display-6">
+    {{ store.brand_name }}
+  </h1>
+
+  <p class="text-muted col-lg-8 mx-auto">
+    {{ store.bio }}
+  </p>
+
+  {% if store.whatsapp %}
+  <a href="https://wa.me/{{ store.whatsapp }}"
+     class="btn btn-primary btn-lg mt-3 px-4">
+    <i class="bi bi-whatsapp me-2"></i>
+    Book Inspection
+  </a>
+  {% endif %}
+</section>
+
+<!-- LISTINGS -->
+<section class="pb-5">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h3 class="fw-semibold mb-0">Featured Properties</h3>
+  </div>
+
+  <div class="row g-4">
+    {% for product in products|slice:":6" %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <div class="card h-100 border-0 shadow-sm">
+
+          {% if product.image %}
+          <img src="{{ product.image.url }}"
+               class="card-img-top"
+               style="height:190px; object-fit:cover;">
+          {% endif %}
+
+          <div class="card-body">
+            <h6 class="mb-1">{{ product.name }}</h6>
+
+            <p class="fw-bold text-primary mb-2">
+              {{ product.price }}
+            </p>
+
+            <a href="{% url 'store_template_product_detail' store.slug template_slug product.slug %}"
+               class="btn btn-outline-primary btn-sm w-100">
+              View Property
+            </a>
+          </div>
+        </div>
+      </div>
+    {% empty %}
+      <p class="text-muted">No properties listed yet.</p>
+    {% endfor %}
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends "store_templates/real_estate_basic/base.html" %}
+
+{% block body %}
+<section class="py-5">
+  <div class="row justify-content-center">
+    <div class="col-lg-9">
+
+      <span class="hero-badge mb-3 d-inline-block">About Us</span>
+
+      <h2 class="fw-bold mb-3">
+        {{ store.brand_name }}
+      </h2>
+
+      <p class="text-muted fs-6">
+        {{ store.about }}
+      </p>
+
+      {% if store.mission %}
+      <div class="card border-0 shadow-sm mt-4">
+        <div class="card-body">
+          <h5 class="fw-semibold mb-2">
+            <i class="bi bi-bullseye me-2 text-primary"></i>
+            Our Mission
+          </h5>
+          <p class="mb-0 text-muted">
+            {{ store.mission }}
+          </p>
+        </div>
+      </div>
+      {% endif %}
+
+    </div>
+  </div>
+</section>
+{% endblock %}
