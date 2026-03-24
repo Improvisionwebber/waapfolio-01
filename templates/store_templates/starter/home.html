@@ -2,39 +2,335 @@
 {% block title %}{{ store.brand_name }}{% endblock %}
 
 {% block body %}
-<section class="container py-5 text-center">
-  <h1 class="fw-bold">{{ store.brand_name }}</h1>
-  <p class="text-muted">{{ store.bio }}</p>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 
-  {% if store.whatsapp %}
-    <a href="https://wa.me/{{ store.whatsapp }}" class="btn btn-success mt-3">
-      <i class="bi bi-whatsapp"></i> Order on WhatsApp
-    </a>
-  {% endif %}
-</section>
+  :root {
+    --wf-dark: #0f172a;
+    --wf-text: #1e293b;
+    --wf-muted: #64748b;
+    --wf-light: #f8fafc;
+    --wf-border: #e2e8f0;
+    --wf-accent: #0ea5e9;
+    --wf-accent-dark: #0284c7;
+    --wf-success: #22c55e;
+    --wf-success-dark: #16a34a;
+    --wf-card: #ffffff;
+    --wf-radius: 16px;
+    --wf-shadow-sm: 0 1px 2px rgba(0,0,0,0.04), 0 2px 8px rgba(0,0,0,0.03);
+    --wf-shadow-md: 0 4px 6px rgba(0,0,0,0.04), 0 10px 24px rgba(0,0,0,0.06);
+    --wf-shadow-lg: 0 10px 15px rgba(0,0,0,0.04), 0 20px 50px rgba(0,0,0,0.08);
+  }
 
-<section class="container pb-5">
-  <h3 class="mb-4">Featured Products</h3>
+  .wf-page {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    color: var(--wf-text);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
 
-  <div class="row g-4">
-    {% for product in products|slice:":6" %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="card h-100">
-          {% if product.image %}
-            <img src="{{ product.image.url }}" class="card-img-top">
-          {% endif %}
-          <div class="card-body">
-            <h6>{{ product.name }}</h6>
-            <p class="fw-bold">{{ product.price }}</p>
-            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="btn btn-outline-success btn-sm w-100">
-              View
-            </a>
-          </div>
-        </div>
+  /* ─── HERO ─── */
+  .wf-hero {
+    position: relative;
+    padding: 6rem 1.5rem 5rem;
+    text-align: center;
+    background: linear-gradient(160deg, var(--wf-dark) 0%, #1e293b 40%, #0f172a 100%);
+    color: #fff;
+    overflow: hidden;
+  }
+  .wf-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 600px 400px at 20% 50%, rgba(14,165,233,0.15), transparent),
+      radial-gradient(ellipse 500px 500px at 80% 20%, rgba(34,197,94,0.1), transparent);
+    pointer-events: none;
+  }
+  .wf-hero::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: var(--wf-light);
+    clip-path: ellipse(55% 100% at 50% 100%);
+  }
+  .wf-hero-inner {
+    position: relative;
+    z-index: 2;
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .wf-hero-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 50px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.7);
+    margin-bottom: 1.75rem;
+    backdrop-filter: blur(4px);
+  }
+  .wf-hero-badge .dot {
+    width: 7px;
+    height: 7px;
+    background: var(--wf-success);
+    border-radius: 50%;
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.4); }
+  }
+  .wf-hero h1 {
+    font-size: clamp(2rem, 5vw, 3.25rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+    margin-bottom: 1rem;
+  }
+  .wf-hero .wf-bio {
+    font-size: 1.1rem;
+    line-height: 1.65;
+    color: rgba(255,255,255,0.6);
+    margin-bottom: 2.25rem;
+    max-width: 480px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .wf-hero-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 32px;
+    background: var(--wf-success);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+    box-shadow: 0 4px 14px rgba(34,197,94,0.3);
+  }
+  .wf-hero-cta:hover {
+    background: var(--wf-success-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(34,197,94,0.35);
+    color: #fff;
+  }
+  .wf-hero-cta i {
+    font-size: 1.2rem;
+  }
+
+  /* ─── SECTIONS ─── */
+  .wf-section {
+    padding: 4.5rem 0;
+    background: var(--wf-light);
+  }
+  .wf-section-header {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .wf-section-label {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--wf-accent);
+    margin-bottom: 0.5rem;
+  }
+  .wf-section-title {
+    font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 800;
+    color: var(--wf-dark);
+    letter-spacing: -0.02em;
+    margin: 0;
+  }
+
+  /* ─── PRODUCT CARD ─── */
+  .wf-product-card {
+    background: var(--wf-card);
+    border-radius: var(--wf-radius);
+    overflow: hidden;
+    border: 1px solid var(--wf-border);
+    box-shadow: var(--wf-shadow-sm);
+    transition: all 0.35s cubic-bezier(0.4,0,0.2,1);
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+  .wf-product-card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--wf-shadow-lg);
+    border-color: transparent;
+  }
+  .wf-product-img {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    background: #f1f5f9;
+  }
+  .wf-product-img img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+  }
+  .wf-product-card:hover .wf-product-img img {
+    transform: scale(1.06);
+  }
+  .wf-product-body {
+    padding: 1.15rem 1.25rem 1.35rem;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+  .wf-product-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--wf-dark);
+    margin-bottom: 4px;
+    line-height: 1.35;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .wf-product-price {
+    font-size: 1.05rem;
+    font-weight: 800;
+    color: var(--wf-accent-dark);
+    margin-bottom: 0.85rem;
+  }
+  .wf-btn-product {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    width: 100%;
+    padding: 10px 0;
+    background: var(--wf-dark);
+    color: #fff;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.25s ease;
+    margin-top: auto;
+    border: none;
+  }
+  .wf-btn-product:hover {
+    background: var(--wf-accent);
+    color: #fff;
+  }
+
+  /* ─── EMPTY ─── */
+  .wf-empty {
+    text-align: center;
+    padding: 4rem 2rem;
+    grid-column: 1 / -1;
+  }
+  .wf-empty-icon {
+    width: 56px;
+    height: 56px;
+    margin: 0 auto 1rem;
+    background: var(--wf-border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    color: var(--wf-muted);
+  }
+  .wf-empty h5 {
+    font-weight: 700;
+    color: var(--wf-dark);
+    margin-bottom: 4px;
+  }
+  .wf-empty p {
+    color: var(--wf-muted);
+    font-size: 0.9rem;
+    margin: 0;
+  }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 575.98px) {
+    .wf-hero { padding: 4.5rem 1.25rem 4rem; }
+    .wf-section { padding: 3rem 0; }
+    .wf-product-body { padding: 0.9rem 1rem 1.1rem; }
+    .wf-product-name { font-size: 0.85rem; }
+    .wf-product-price { font-size: 0.95rem; }
+  }
+</style>
+
+<div class="wf-page">
+
+  <!-- ═══════ HERO ═══════ -->
+  <section class="wf-hero">
+    <div class="wf-hero-inner">
+      <div class="wf-hero-badge">
+        <span class="dot"></span> Open for Orders
       </div>
-    {% empty %}
-      <p>No products yet.</p>
-    {% endfor %}
-  </div>
-</section>
+      <h1>{{ store.brand_name }}</h1>
+      <p class="wf-bio">{{ store.bio }}</p>
+      {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" class="wf-hero-cta" target="_blank">
+          <i class="bi bi-whatsapp"></i> Order on WhatsApp
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ═══════ FEATURED PRODUCTS ═══════ -->
+  <section class="wf-section">
+    <div class="container">
+      <div class="wf-section-header">
+        <span class="wf-section-label">Curated Collection</span>
+        <h2 class="wf-section-title">Featured Products</h2>
+      </div>
+
+      <div class="row g-3 g-md-4">
+        {% for product in products|slice:":6" %}
+          <div class="col-6 col-md-4 col-lg-3">
+            <div class="wf-product-card">
+              <div class="wf-product-img">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% endif %}
+              </div>
+              <div class="wf-product-body">
+                <div class="wf-product-name">{{ product.name }}</div>
+                <div class="wf-product-price">{{ product.price }}</div>
+                <a href="{% url 'store_product_detail' store.slug product.slug %}" class="wf-btn-product">
+                  View Product <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
+            </div>
+          </div>
+        {% empty %}
+          <div class="col-12">
+            <div class="wf-empty">
+              <div class="wf-empty-icon"><i class="bi bi-box-seam"></i></div>
+              <h5>No products yet</h5>
+              <p>New items are coming soon — stay tuned!</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+</div>
 {% endblock %}

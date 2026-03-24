@@ -592,7 +592,6 @@ def view_store(request, slug=None):
 import tempfile
 import os
 from decimal import Decimal
-
 @login_required
 def manage_store(request, slug, item_id=None):
     try:
@@ -604,22 +603,27 @@ def manage_store(request, slug, item_id=None):
         if request.user.email == your_email:
             stores = Store.objects.filter(owner=request.user).order_by("id")
             active_store_id = request.session.get("active_store_id")
+
             if active_store_id:
-                active_store = Store.objects.filter(id=active_store_id, owner=request.user).first()
-            if not active_store and stores:
+                active_store = Store.objects.filter(
+                    id=active_store_id,
+                    owner=request.user
+                ).first()
+
+            if not active_store and stores.exists():
                 active_store = stores.first()
                 request.session["active_store_id"] = active_store.id
 
-        # ---------------------- EXISTING STORE LOGIC ----------------------
+        # ---------------------- GET STORE ----------------------
         store = get_object_or_404(Store, slug=slug, owner=request.user)
 
         # ---------------------- TEMPLATE SAFE FALLBACK ----------------------
-        template_slug = store.template.slug if store.template else "starter"
+        template_slug = getattr(store.template, "slug", "starter")
 
-        # ---------------------- SUBDOMAIN ENFORCEMENT ----------------------
-        if hasattr(request, "store"):
-            if request.store.slug != store.slug:
-                return redirect(store.get_absolute_url())
+        # ---------------------- SUBDOMAIN SAFE CHECK ----------------------
+        request_store = getattr(request, "store", None)
+        if request_store and request_store.slug != store.slug:
+            return redirect(store.get_absolute_url())
 
         # ---------------------- ITEM FORM ----------------------
         if item_id:
@@ -636,12 +640,16 @@ def manage_store(request, slug, item_id=None):
         product = None
 
         if request.method == "POST":
+
+            # -------- File Size Validation --------
             try:
                 if cover_file:
                     validate_file_size(cover_file, 32)
+
                 for f in extra_files:
                     if f.content_type.startswith("image/"):
                         validate_file_size(f, 32)
+
             except ValidationError as e:
                 messages.error(request, str(e))
                 return render(request, "app/manage_store.html", {
@@ -655,45 +663,49 @@ def manage_store(request, slug, item_id=None):
                     "template_slug": template_slug,
                 })
 
+            # -------- Form Save --------
             if form.is_valid():
                 with transaction.atomic():
                     product = form.save(commit=False)
                     product.store = store
 
-                    # ---- Price ----
+                    # ---- Price Clean ----
                     raw_price = request.POST.get("price", "")
                     clean_price = re.sub(r"[^\d.]", "", raw_price)
+
                     if not clean_price:
                         clean_price = "0.00"
                     elif "." not in clean_price:
                         clean_price += ".00"
+
                     product.price = Decimal(clean_price)
 
                     # ---- Currency ----
                     product.currency = request.POST.get("currency", "₦")
 
-                    # ---- Cover Image ----
+                    # ---- Cover Upload ----
                     if cover_file:
                         try:
                             uploaded_url = upload_to_imgbb(cover_file)
                             if uploaded_url:
                                 product.image_url = uploaded_url
+
                             if product.image:
                                 product.image.delete(save=False)
+
                         except Exception as e:
                             messages.warning(request, f"Cover image upload failed: {e}")
-                            logger.warning(f"Cover image upload failed: {e}")
 
                     product.save()
+
             else:
-                print("Form errors:", form.errors)
                 messages.error(request, form.errors)
 
-            # ✅ Only process extra files if product exists
+            # -------- Extra Files --------
             if product:
                 for f in extra_files:
-                    if f.content_type.startswith("image/"):
-                        try:
+                    try:
+                        if f.content_type.startswith("image/"):
                             img_url = upload_to_imgbb(f)
                             if img_url:
                                 StoreImage.objects.create(
@@ -703,49 +715,45 @@ def manage_store(request, slug, item_id=None):
                                     name=product.name,
                                     price=product.price
                                 )
-                        except Exception as e:
-                            messages.warning(request, f"Failed to process {getattr(f, 'name', 'file')}: {e}")
-                            logger.warning(f"Failed to process {getattr(f, 'name', 'file')}: {e}")
-                            continue
 
-                # ---- Video Uploads ----
-                video_files = [f for f in extra_files if f.content_type.startswith("video/")]
+                        elif f.content_type.startswith("video/"):
+                            with tempfile.NamedTemporaryFile(delete=False) as tmp:
+                                for chunk in f.chunks():
+                                    tmp.write(chunk)
+                                tmp_path = tmp.name
 
-                for video in video_files:
-                    try:
-                        with tempfile.NamedTemporaryFile(delete=False, suffix=os.path.splitext(video.name)[1]) as tmp_file:
-                            for chunk in video.chunks():
-                                tmp_file.write(chunk)
-                            tmp_file_path = tmp_file.name
+                            response = upload_to_youtube(
+                                tmp_path,
+                                title=product.name,
+                                description=product.description or ""
+                            )
 
-                        response = upload_to_youtube(
-                            tmp_file_path,
-                            title=product.name,
-                            description=product.description or ""
-                        )
+                            os.remove(tmp_path)
 
-                        os.remove(tmp_file_path)
+                            youtube_id = response.get("id")
+                            youtube_url = (
+                                f"https://www.youtube.com/watch?v={youtube_id}"
+                                if youtube_id else None
+                            )
 
-                        youtube_id = response.get("id")
-                        youtube_url = f"https://www.youtube.com/watch?v={youtube_id}" if youtube_id else None
-
-                        ProductMedia.objects.create(
-                            product=product,
-                            youtube_id=youtube_id,
-                            youtube_url=youtube_url,
-                            label=product.name,
-                            description=product.description or ""
-                        )
+                            ProductMedia.objects.create(
+                                product=product,
+                                youtube_id=youtube_id,
+                                youtube_url=youtube_url,
+                                label=product.name,
+                                description=product.description or ""
+                            )
 
                     except Exception as e:
-                        messages.warning(request, f"Failed to upload video {getattr(video, 'name', '')}: {e}")
-                        logger.warning(f"Failed to upload video {getattr(video, 'name', '')}: {e}")
-                        continue
+                        messages.warning(
+                            request,
+                            f"Failed to process {getattr(f, 'name', 'file')}: {e}"
+                        )
 
             messages.success(request, "Product saved successfully!")
             return redirect("manage_store", slug=slug)
 
-        # ---- Edit Form Old Files ----
+        # -------- Load Items --------
         if edit_mode and item:
             old_files = list(StoreImage.objects.filter(item=item))
             old_files += list(ProductMedia.objects.filter(product=item))
@@ -774,7 +782,6 @@ def manage_store(request, slug, item_id=None):
         )
 
 
-
 @login_required
 def delete_item(request, slug, item_id):
     store = get_object_or_404(Store, slug=slug, owner=request.user)
@@ -785,8 +792,7 @@ def delete_item(request, slug, item_id):
     item.delete()
     messages.success(request, "Product deleted successfully!")
     return redirect("manage_store", slug=slug)
-
-
+  
 @login_required
 def delete_extra_image(request, slug, image_id):
     store = get_object_or_404(Store, slug=slug, owner=request.user)
