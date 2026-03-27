@@ -58,8 +58,7 @@ urlpatterns = [
     # Store
     # -------------------------
     path('store/create/', views.create_store, name='create_store'),
-    path('store/create/<int:id>/', views.create_store, name='edit_store'),
-    path('store/manage/switch/<int:store_id>/', views.switch_store, name='switch_store'),
+    path("store/create/<slug:slug>/", views.create_store, name="create_store"),    path('store/manage/switch/<int:store_id>/', views.switch_store, name='switch_store'),
     path('store/delete/<int:store_id>/', views.delete_store, name='delete_store'),
     path('store/<slug:slug>/', views.view_store, name='view_store'),
     path('store/manage/<slug:slug>/', views.manage_store, name='manage_store'),

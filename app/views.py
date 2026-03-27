@@ -312,54 +312,49 @@ import base64, requests
 from .forms import StoreForm
 from .models import Store
 
-@login_required
-def create_store(request, id=0):
-    # If editing, get the store instance
-    store_instance = get_object_or_404(Store, pk=id) if id else None
+from django.shortcuts import get_object_or_404, redirect, render
+from django.utils.text import slugify
+from .models import Store
+from .forms import StoreForm
 
-    if request.method == 'GET':
-        form = StoreForm(instance=store_instance)
-        return render(request, 'store/create_store.html', {'form': form})
+def create_store(request, slug=None):
+    store = None
+    if slug:
+        store = get_object_or_404(Store, slug=slug)
 
-    form = StoreForm(request.POST, request.FILES, instance=store_instance)
-    if form.is_valid():
-        store = form.save(commit=False)
-        store.owner = request.user
+    if request.method == "POST":
+        form = StoreForm(request.POST, request.FILES, instance=store)
 
-        # Generate slug if not exists
-        if not store.slug:
-            base_slug = slugify(store.brand_name)
-            slug = base_slug
-            counter = 1
-            while Store.objects.filter(slug=slug).exists():
-                slug = f"{base_slug}-{counter}"
-                counter += 1
-            store.slug = slug
+        if form.is_valid():
+            store = form.save(commit=False)
 
-        # Upload brand logo to imgbb
-        logo_file = request.FILES.get('brand_logo')
-        if logo_file:
-            try:
-                url = 'https://api.imgbb.com/1/upload'
-                payload = {
-                    'key': 'c346e6e29bbc0340846deb957f6d510a',
-                    'image': base64.b64encode(logo_file.read()).decode('utf-8')
-                }
-                response = requests.post(url, data=payload)
-                data = response.json()
-                if response.status_code == 200 and data.get('success'):
-                    store.brand_logo = data['data']['url']
-                else:
-                    messages.error(request, f"Logo upload failed: {data.get('error', 'Unknown error')}")
-            except Exception as e:
-                messages.error(request, f"Logo upload failed: {str(e)}")
+            # REQUIRED FIELDS
+            store.owner = request.user
+            store.total_views = store.total_views or 0
+            store.total_orders = store.total_orders or 0
 
-        store.save()
-        messages.success(request, "Store saved successfully!")
-        return redirect(store.get_absolute_url())
+            # AUTO SLUG
+            if not store.slug:
+                base_slug = slugify(store.brand_name)
+                slug_val = base_slug
+                counter = 1
+                while Store.objects.filter(slug=slug_val).exclude(id=store.id).exists():
+                    slug_val = f"{base_slug}-{counter}"
+                    counter += 1
+                store.slug = slug_val
 
-    return render(request, 'store/create_store.html', {'form': form})
+            store.save()
+            print("✅ STORE SAVED")
+            return redirect("manage_store", slug=store.slug)
 
+        else:
+            print("❌ FORM NOT VALID")
+            print(form.errors)
+
+    else:
+        form = StoreForm(instance=store)
+
+    return render(request, "store/create_store.html", {"form": form, "store": store})
 # def view_store(request, slug):
 #     store = get_object_or_404(Store, slug=slug)
 #     items = Item.objects.filter(store=store)

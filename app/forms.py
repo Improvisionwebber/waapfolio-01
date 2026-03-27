@@ -26,7 +26,6 @@ class CustomClearableFileInput(ClearableFileInput):
     pass
 
 class StoreForm(forms.ModelForm):
-
     whatsapp_number = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={
@@ -36,83 +35,11 @@ class StoreForm(forms.ModelForm):
         })
     )
 
-    bio = forms.CharField(
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Short description of your brand',
-            'rows': 3
-        })
-    )
-
-    about = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Tell people about your brand',
-            'rows': 4
-        })
-    )
-
-    mission = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Your brand mission or vision',
-            'rows': 3
-        })
-    )
-
-    brand_story = forms.CharField(
-        required=False,
-        widget=forms.Textarea(attrs={
-            'class': 'form-control',
-            'placeholder': 'Your brand story or history',
-            'rows': 4
-        })
-    )
-
-    founder_name = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Founder name (optional)'
-        })
-    )
-
-    telegram_username = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': '@telegram_username'
-        })
-    )
-
-    background_color = forms.CharField(
-        widget=forms.TextInput(attrs={
-            'type': 'color',
-            'class': 'form-control form-control-color',
-            'style': 'height: 50px; padding: 0;'
-        })
-    )
-
-    address = forms.CharField(
-        required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Business address (optional)'
-        })
-    )
-
-    business_type = forms.ChoiceField(
-        required=False,
-        choices=Store.BUSINESS_CHOICES,
-        widget=forms.Select(attrs={'class': 'form-control'})
-    )
+    # ... all your other custom fields ...
 
     class Meta:
         model = Store
-        fields = '__all__'
-
+        exclude = ['owner', 'total_views', 'total_orders', 'slug']  # <-- THIS
         widgets = {
             'brand_logo': CustomClearableFileInput(
                 attrs={'class': 'form-control'}
@@ -130,8 +57,6 @@ class StoreForm(forms.ModelForm):
                 attrs={'class': 'form-control'}
             ),
         }
-
-
 
 
 class CommentForm(forms.ModelForm):

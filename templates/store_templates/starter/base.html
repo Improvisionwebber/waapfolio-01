@@ -37,7 +37,7 @@
   <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="storeMenu">
     {% if request.user.is_authenticated and request.user == store.owner %}
       <li>
-        <a class="dropdown-item" href="{% url 'edit_store' store.id %}">
+        <a class="dropdown-item" href="{% url 'create_store' store.slug %}">
           <i class="bi bi-pencil-square me-2 text-success"></i> Edit Store
         </a>
       </li>
