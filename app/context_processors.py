@@ -20,3 +20,9 @@ def user_store(request):
         return {'active_store': active_store, 'user_stores': stores}
 
     return {'active_store': None, 'user_stores': []}
+from django.urls import resolve
+
+def full_url(request):
+    return {
+        "full_url": request.build_absolute_uri()
+    }

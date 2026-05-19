@@ -125,12 +125,12 @@ class Store(models.Model):
     instagram_link = models.URLField(blank=True, null=True)
     tiktok_link = models.URLField(blank=True, null=True)
 
-    # ===== DESIGN =====
-    background_color = models.CharField(
-        max_length=20,
-        default="#ffffff",
-        help_text="Hex color (e.g. #F5F5F5)"
-    )
+    # # ===== DESIGN =====
+    # background_color = models.CharField(
+    #     max_length=20,
+    #     default="#ffffff",
+    #     help_text="Hex color (e.g. #F5F5F5)"
+    # )
 
     # ===== ANALYTICS =====
     total_views = models.PositiveIntegerField(default=0)
@@ -139,7 +139,31 @@ class Store(models.Model):
     # ===== META =====
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    @property
+    def display_about(self):
+        return self.about or (
+            f"{self.brand_name} was created with a vision to deliver a refined "
+            "and modern shopping experience built around quality, trust, and "
+            "strong brand identity. Every product showcased through the store "
+            "is carefully presented to create a seamless digital experience "
+            "that feels premium, immersive, and customer-focused."
+        )
 
+    @property
+    def display_mission(self):
+        return self.mission or (
+            f"The mission of {self.brand_name} is to redefine the way customers "
+            "experience online shopping by combining premium presentation, "
+            "reliable service, and curated collections into one seamless platform."
+        )
+
+    @property
+    def display_founder(self):
+        return self.founder_name or (
+            f"The vision behind {self.brand_name} is rooted in creativity, "
+            "innovation, consistency, and the desire to build a memorable "
+            "customer experience."
+        )
     def save(self, *args, **kwargs):
         if not self.slug or self.brand_name_changed():
             self.slug = slugify(self.brand_name)

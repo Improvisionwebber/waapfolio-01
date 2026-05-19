@@ -176,7 +176,9 @@ LANGUAGE_CODE = 'en-us'
 TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
-
+TEMPLATES[0]['OPTIONS']['context_processors'] += [
+    'app.context_processors.full_url',
+]
 # Static files
 STATIC_URL = 'static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'

@@ -1,65 +1,881 @@
 {% extends "store_templates/starter/base.html" %}
 {% load static %}
 {% load humanize %}
+
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
 {% block body %}
-<section class="container py-5">
-  <div class="row g-4">
-    <div class="col-md-6">
-{% if product.image %}
-  <div class="card border-0 shadow-sm">
-    <img src="{{ product.image.url }}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% elif product.image_url %}
-  <div class="card border-0 shadow-sm">
-    <img src="{{ product.image_url }}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% else %}
-  <div class="card border-0 shadow-sm">
-    <img src="{% static 'images/placeholder.png' %}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% endif %}
+<!-- ============================================================
+     WAAPFOLIO • PRODUCT DETAIL
+     Mature Black & White • Editorial • Mobile-Perfect
+============================================================ -->
+
+<style>
+:root{
+  --wf-bg:#ffffff;
+  --wf-ink:#0a0a0a;
+  --wf-ink-2:#161616;
+  --wf-text:#0a0a0a;
+  --wf-text-2:#1f1f1f;
+  --wf-mute:#4a4a4a;
+  --wf-mute-2:#6b6b6b;
+  --wf-line:#e5e5e5;
+  --wf-line-2:#d4d4d4;
+  --wf-soft:#f5f5f5;
+  --wf-radius:18px;
+  --wf-radius-sm:12px;
+  --wf-font-display:"Inter","SF Pro Display",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+
+/* SCROLL PROGRESS */
+.wf-scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;z-index:9999;background:#0a0a0a;transition:width .08s linear}
+
+/* GLOBAL WRAPPER */
+.wf-shell{position:relative;color:var(--wf-text);font-family:var(--wf-font-display);background:var(--wf-bg);padding:clamp(40px,6vw,90px) 0 160px;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.wf-shell *{box-sizing:border-box}
+.wf-container{width:100%;max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,32px);position:relative;z-index:2}
+
+/* BREADCRUMB */
+.wf-crumbs{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--wf-mute);margin-bottom:32px;flex-wrap:wrap;font-weight:600}
+.wf-crumbs a{color:var(--wf-mute);text-decoration:none;transition:color .25s}
+.wf-crumbs a:hover{color:var(--wf-ink)}
+.wf-crumbs .sep{opacity:.5}
+.wf-crumbs .now{color:var(--wf-ink);font-weight:700}
+
+/* HERO GRID */
+.wf-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(28px,4vw,72px);align-items:start}
+@media(max-width:992px){.wf-hero{grid-template-columns:1fr;gap:32px}}
+
+/* GALLERY — NO CONTAINER, NO BACKGROUND */
+.wf-gallery{position:relative}
+.wf-stage{position:relative;overflow:hidden;aspect-ratio:4/5;background:transparent;border-radius:6px}
+@media(max-width:600px){.wf-stage{aspect-ratio:1/1;border-radius:4px}}
+.wf-stage-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.wf-stage-media img,.wf-stage-media iframe,.wf-stage-media video{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s;will-change:transform,opacity;display:block}
+.wf-stage:hover .wf-stage-media img{transform:scale(1.03)}
+.wf-stage-badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:2px;font-size:10px;letter-spacing:.18em;text-transform:uppercase;font-weight:700;background:#0a0a0a;color:#fff;z-index:3}
+.wf-stage-badge .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:wfPulse 1.6s ease-in-out infinite}
+@keyframes wfPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.wf-stage-zoom{position:absolute;bottom:14px;right:14px;width:42px;height:42px;border-radius:50%;background:#0a0a0a;border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:3;transition:transform .3s}
+.wf-stage-zoom:hover{transform:scale(1.08)}
+.wf-stage-zoom svg{width:18px;height:18px}
+
+.wf-thumbs{display:flex;gap:10px;margin-top:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px;scrollbar-width:thin}
+.wf-thumbs::-webkit-scrollbar{height:4px}
+.wf-thumbs::-webkit-scrollbar-thumb{background:#d4d4d4;border-radius:10px}
+.wf-thumb{flex:0 0 80px;height:80px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;background:#f5f5f5;transition:transform .3s,border-color .25s;scroll-snap-align:start;border-radius:4px}
+@media(max-width:600px){.wf-thumb{flex:0 0 68px;height:68px}}
+.wf-thumb img,.wf-thumb .vthumb{width:100%;height:100%;object-fit:cover;display:block}
+.wf-thumb .vthumb{display:flex;align-items:center;justify-content:center;background:#000;color:#fff}
+.wf-thumb:hover{transform:translateY(-3px)}
+.wf-thumb.active{border-color:#0a0a0a}
+.wf-thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);color:#fff}
+.wf-thumb .play svg{width:22px;height:22px;fill:#fff}
+
+/* INFO PANEL */
+.wf-info{padding:0;position:sticky;top:24px}
+@media(max-width:992px){.wf-info{position:static}}
+.wf-store-chip{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:#fff;border:1.5px solid var(--wf-line);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--wf-text);font-weight:700;margin-bottom:20px;transition:border-color .25s;text-decoration:none}
+.wf-store-chip:hover{border-color:var(--wf-ink)}
+.wf-store-chip .avatar{width:26px;height:26px;border-radius:50%;background:#0a0a0a;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+.wf-store-chip a{color:inherit;text-decoration:none}
+
+.wf-title{font-size:clamp(30px,4.4vw,52px);line-height:1.05;letter-spacing:-.025em;font-weight:800;margin:0 0 18px;color:var(--wf-ink)}
+.wf-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;font-size:13px;color:var(--wf-mute);font-weight:500}
+.wf-avail{display:inline-flex;align-items:center;gap:8px;padding:5px 11px;border-radius:999px;background:#0a0a0a;color:#fff;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.wf-avail .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:wfPulse 1.6s ease-in-out infinite}
+
+.wf-price-wrap{display:flex;align-items:baseline;gap:8px;margin:8px 0 28px;padding:22px 0;border-top:1.5px solid var(--wf-line);border-bottom:1.5px solid var(--wf-line)}
+.wf-currency{font-size:clamp(22px,2vw,28px);color:var(--wf-ink);font-weight:700}
+.wf-price{font-size:clamp(40px,4.6vw,58px);font-weight:800;letter-spacing:-.035em;color:var(--wf-ink);font-variant-numeric:tabular-nums;line-height:1}
+
+.wf-desc{position:relative;color:var(--wf-text-2);line-height:1.7;font-size:15.5px;margin-bottom:28px;font-weight:500}
+.wf-desc-title{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--wf-mute);margin-bottom:12px;font-weight:700}
+.wf-desc-body{max-height:140px;overflow:hidden;position:relative;transition:max-height .6s ease;color:var(--wf-text-2)}
+.wf-desc-body.open{max-height:2000px}
+.wf-desc-body:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,#fff 95%);pointer-events:none}
+.wf-desc-toggle{margin-top:10px;background:none;border:none;color:var(--wf-ink);font-size:12px;cursor:pointer;letter-spacing:.12em;text-transform:uppercase;padding:0;font-weight:700;border-bottom:1.5px solid var(--wf-ink);padding-bottom:2px;transition:opacity .2s}
+.wf-desc-toggle:hover{opacity:.7}
+
+/* ORDER BUTTONS */
+.wf-order{margin-top:8px;display:flex;flex-direction:column;gap:12px}
+.wf-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px 26px;border-radius:4px;border:none;background:#0a0a0a;color:#fff;font-weight:700;font-size:14.5px;letter-spacing:.06em;text-transform:uppercase;text-decoration:none;cursor:pointer;overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s;will-change:transform}
+.wf-btn:hover{transform:translateY(-2px);background:#1f1f1f}
+.wf-btn:active{transform:translateY(0)}
+.wf-btn .ic{display:inline-flex;align-items:center;justify-content:center}
+.wf-btn .ic svg{width:18px;height:18px;fill:currentColor}
+.wf-btn .arrow{margin-left:6px;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.wf-btn:hover .arrow{transform:translateX(4px)}
+.wf-btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.25);transform:scale(0);animation:wfRipple .7s ease-out;pointer-events:none}
+@keyframes wfRipple{to{transform:scale(4);opacity:0}}
+.wf-btn.outline{background:#fff;color:#0a0a0a;border:1.5px solid #0a0a0a}
+.wf-btn.outline:hover{background:#0a0a0a;color:#fff}
+
+.wf-copy-row{display:flex;gap:8px;margin-top:6px}
+.wf-copy-row input{flex:1;padding:14px 16px;border-radius:4px;background:#f5f5f5;border:1.5px solid var(--wf-line);color:var(--wf-text);font-size:13.5px;font-family:inherit;font-weight:500}
+.wf-copy-row input:focus{outline:none;border-color:#0a0a0a;background:#fff}
+.wf-copy-btn{padding:0 18px;border-radius:4px;background:#0a0a0a;border:none;color:#fff;font-size:12px;cursor:pointer;font-weight:700;letter-spacing:.1em;text-transform:uppercase;transition:background .3s}
+.wf-copy-btn:hover{background:#1f1f1f}
+
+/* SECTION HEADING */
+.wf-section{margin-top:clamp(70px,9vw,120px)}
+.wf-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1.5px solid var(--wf-line)}
+.wf-eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--wf-mute);margin-bottom:8px;font-weight:700}
+.wf-h2{font-size:clamp(26px,3.2vw,40px);letter-spacing:-.02em;line-height:1.05;font-weight:800;margin:0;color:var(--wf-ink)}
+
+/* TRUST / SAFETY */
+.wf-trust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border-top:1.5px solid var(--wf-line);border-left:1.5px solid var(--wf-line)}
+.wf-trust-card{padding:28px 26px;border-right:1.5px solid var(--wf-line);border-bottom:1.5px solid var(--wf-line);position:relative;transition:background .3s}
+.wf-trust-card:hover{background:#fafafa}
+.wf-trust-num{font-size:11px;letter-spacing:.2em;color:var(--wf-mute);font-weight:700;margin-bottom:14px;display:block}
+.wf-trust-card h4{font-size:17px;font-weight:800;margin:0 0 8px;color:var(--wf-ink);letter-spacing:-.01em;line-height:1.25}
+.wf-trust-card p{font-size:14px;color:var(--wf-text-2);line-height:1.55;margin:0;font-weight:500}
+
+/* COMMENTS */
+.wf-comments-wrap{display:grid;grid-template-columns:1fr;gap:14px}
+.wf-comment-form{padding:0;margin-bottom:24px}
+.wf-comment-label{display:block;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--wf-mute);font-weight:700;margin-bottom:10px}
+.wf-comment-form textarea,
+.wf-comment-form input[type=text]{width:100%;min-height:120px;padding:18px;border-radius:4px;background:#fff;border:1.5px solid var(--wf-line-2);color:var(--wf-ink);font-size:15px;font-family:inherit;font-weight:500;resize:vertical;transition:border-color .25s;line-height:1.55}
+.wf-comment-form textarea::placeholder,
+.wf-comment-form input[type=text]::placeholder{color:#9a9a9a;font-weight:500}
+.wf-comment-form textarea:focus,
+.wf-comment-form input[type=text]:focus{outline:none;border-color:#0a0a0a}
+.wf-comment-submit{margin-top:14px;padding:14px 28px;border-radius:4px;background:#0a0a0a;color:#fff;border:none;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;transition:background .3s,transform .25s}
+.wf-comment-submit:hover{background:#1f1f1f;transform:translateY(-2px)}
+
+.wf-comment-card{padding:22px 0;border-bottom:1.5px solid var(--wf-line);display:grid;grid-template-columns:auto 1fr;gap:16px;opacity:0;transform:translateY(10px);animation:wfRise .6s forwards}
+@keyframes wfRise{to{opacity:1;transform:translateY(0)}}
+.wf-avatar{width:44px;height:44px;border-radius:50%;background:#0a0a0a;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px;flex-shrink:0}
+.wf-comment-head{display:flex;align-items:center;gap:10px;margin-bottom:6px;flex-wrap:wrap}
+.wf-comment-user{font-weight:800;font-size:14.5px;color:var(--wf-ink)}
+.wf-comment-time{font-size:12px;color:var(--wf-mute);font-weight:500}
+.wf-comment-body{font-size:15px;color:var(--wf-text-2);line-height:1.6;font-weight:500}
+.wf-no-comments{padding:32px 22px;text-align:center;color:var(--wf-mute);border:1.5px dashed var(--wf-line-2);border-radius:6px;font-size:14px;font-weight:600;background:#fafafa}
+.wf-login-prompt{padding:22px;border:1.5px solid var(--wf-ink);border-radius:4px;font-size:14px;color:var(--wf-ink);font-weight:600;text-align:center;background:#fafafa;margin-bottom:24px}
+.wf-login-prompt a{color:var(--wf-ink);text-decoration:underline;font-weight:800}
+
+/* RELATED CAROUSEL */
+.wf-rel-track{display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 4px 20px;scrollbar-width:thin}
+.wf-rel-track::-webkit-scrollbar{height:4px}
+.wf-rel-track::-webkit-scrollbar-thumb{background:#d4d4d4;border-radius:10px}
+.wf-rel-card{flex:0 0 280px;scroll-snap-align:start;overflow:hidden;background:transparent;position:relative;transition:transform .35s cubic-bezier(.2,.7,.2,1);text-decoration:none;color:inherit;display:block}
+@media(max-width:600px){.wf-rel-card{flex:0 0 220px}}
+.wf-rel-card:hover{transform:translateY(-4px)}
+.wf-rel-media{aspect-ratio:4/5;overflow:hidden;position:relative;background:#f5f5f5;border-radius:4px}
+.wf-rel-media img{width:100%;height:100%;object-fit:cover;transition:transform .7s cubic-bezier(.2,.7,.2,1)}
+.wf-rel-card:hover .wf-rel-media img{transform:scale(1.05)}
+.wf-rel-body{padding:14px 2px 6px}
+.wf-rel-name{font-size:14.5px;font-weight:700;margin:0;letter-spacing:-.01em;color:var(--wf-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* STICKY MOBILE CTA */
+.wf-mobile-cta{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:none;padding:10px 12px;background:#fff;border-top:1.5px solid var(--wf-line);align-items:center;gap:12px}
+.wf-mobile-cta .mc-thumb{width:46px;height:46px;border-radius:4px;object-fit:cover;flex-shrink:0;background:#f5f5f5}
+.wf-mobile-cta .mc-info{flex:1;min-width:0}
+.wf-mobile-cta .mc-name{font-size:13px;font-weight:800;color:var(--wf-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.wf-mobile-cta .mc-price{font-size:12px;color:var(--wf-mute);margin:0;font-weight:600}
+.wf-mobile-cta .mc-btn{padding:13px 20px;border-radius:4px;background:#0a0a0a;color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:.1em;text-transform:uppercase}
+@media(max-width:768px){.wf-mobile-cta{display:flex}.wf-shell{padding-bottom:100px}}
+
+/* LIGHTBOX */
+.wf-lightbox{position:fixed;inset:0;background:rgba(10,10,10,.96);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s}
+.wf-lightbox.open{display:flex;opacity:1}
+.wf-lightbox img,.wf-lightbox iframe{max-width:94vw;max-height:90vh;border-radius:4px}
+.wf-lightbox-close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:50%;background:#fff;border:none;color:#0a0a0c;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.wf-lightbox-close:hover{transform:rotate(90deg)}
+.wf-lightbox-close svg{width:18px;height:18px}
+
+/* REVEAL */
+.wf-reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.wf-reveal.in{opacity:1;transform:translateY(0)}
+
+/* SCROLLBAR */
+.wf-shell ::-webkit-scrollbar{width:8px;height:8px}
+.wf-shell ::-webkit-scrollbar-thumb{background:#d4d4d4;border-radius:10px}
+
+/* MOBILE FINE TUNING */
+@media(max-width:600px){
+  .wf-title{font-size:32px}
+  .wf-price{font-size:38px}
+  .wf-price-wrap{padding:18px 0;margin:6px 0 22px}
+  .wf-section-head{margin-bottom:24px}
+  .wf-h2{font-size:26px}
+  .wf-trust-card{padding:22px 18px}
+  .wf-btn{padding:16px 20px;font-size:13.5px}
+  .wf-comment-form textarea{min-height:110px;font-size:14.5px;padding:14px}
+}
+/* ============ RELATED PRODUCTS FIX ============ */
+
+.lux-grid{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:28px;
+    align-items:start;
+    margin-top:2rem;
+}
+
+/* CARD */
+.lux-card{
+    position:relative;
+    display:flex;
+    flex-direction:column;
+    background:#fff;
+    border:1px solid rgba(0,0,0,0.06);
+    border-radius:28px;
+    overflow:hidden;
+    text-decoration:none;
+    min-height:100%;
+    transition:
+      transform .45s cubic-bezier(.19,1,.22,1),
+      box-shadow .45s cubic-bezier(.19,1,.22,1),
+      border-color .35s ease;
+    box-shadow:
+      0 10px 30px rgba(0,0,0,0.04),
+      0 2px 10px rgba(0,0,0,0.03);
+}
+
+/* HOVER */
+.lux-card:hover{
+    transform:translateY(-10px);
+    box-shadow:
+      0 30px 60px rgba(0,0,0,0.10),
+      0 10px 20px rgba(0,0,0,0.06);
+    border-color:rgba(0,0,0,0.08);
+}
+
+/* IMAGE AREA */
+.lux-card .media{
+    position:relative;
+    width:100%;
+    aspect-ratio:1/1;
+    overflow:hidden;
+    background:#f5f5f5;
+}
+
+/* PRODUCT IMAGE */
+.lux-card .media img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+    transition:transform .7s cubic-bezier(.19,1,.22,1);
+}
+
+.lux-card:hover .media img{
+    transform:scale(1.08);
+}
+
+/* BADGE */
+.lux-badge{
+    position:absolute;
+    top:14px;
+    left:14px;
+    z-index:3;
+    padding:8px 14px;
+    border-radius:999px;
+    background:rgba(255,255,255,0.88);
+    backdrop-filter:blur(14px);
+    font-size:.72rem;
+    font-weight:700;
+    color:#111;
+    box-shadow:0 5px 15px rgba(0,0,0,.08);
+}
+
+/* FAV BUTTON */
+.lux-fav{
+    position:absolute;
+    top:14px;
+    right:14px;
+    z-index:3;
+    width:42px;
+    height:42px;
+    border:none;
+    border-radius:50%;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter:blur(12px);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    cursor:pointer;
+    transition:.3s ease;
+    color:#111;
+}
+
+.lux-fav svg{
+    width:18px;
+    height:18px;
+}
+
+.lux-fav:hover{
+    transform:scale(1.08);
+}
+
+/* QUICK VIEW */
+.lux-quick{
+    position:absolute;
+    left:50%;
+    bottom:18px;
+    transform:translateX(-50%) translateY(20px);
+    opacity:0;
+    background:#111;
+    color:#fff;
+    padding:10px 18px;
+    border-radius:999px;
+    font-size:.8rem;
+    font-weight:600;
+    transition:.45s cubic-bezier(.19,1,.22,1);
+    z-index:3;
+    white-space:nowrap;
+}
+
+.lux-card:hover .lux-quick{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+}
+
+/* INFO */
+.lux-info{
+    padding:20px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:14px;
+}
+
+/* NAME */
+.lux-info .name{
+    margin:0;
+    font-size:1rem;
+    line-height:1.45;
+    font-weight:700;
+    color:#111;
+}
+
+/* META */
+.lux-info .meta{
+    margin-top:6px;
+    font-size:.8rem;
+    color:#777;
+    letter-spacing:.02em;
+}
+
+/* PRICE */
+.lux-price{
+    white-space:nowrap;
+    font-size:1rem;
+    font-weight:800;
+    color:#111;
+}
+
+/* CTA */
+.lux-details{
+    margin-top:auto;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:8px;
+    padding:18px;
+    border-top:1px solid rgba(0,0,0,0.06);
+    font-size:.86rem;
+    font-weight:700;
+    color:#111;
+    transition:.3s ease;
+}
+
+.lux-card:hover .lux-details{
+    background:#111;
+    color:#fff;
+}
+
+/* EMPTY */
+.lux-empty{
+    padding:70px 20px;
+    border-radius:30px;
+    background:#fafafa;
+    border:1px dashed rgba(0,0,0,.1);
+    text-align:center;
+}
+
+/* RESPONSIVE */
+@media(max-width:1200px){
+    .lux-grid{
+        grid-template-columns:repeat(3,minmax(0,1fr));
+    }
+}
+
+@media(max-width:768px){
+    .lux-grid{
+        grid-template-columns:repeat(2,minmax(0,1fr));
+        gap:18px;
+    }
+
+    .lux-card{
+        border-radius:22px;
+    }
+
+    .lux-info{
+        padding:16px;
+    }
+
+    .lux-info .name{
+        font-size:.92rem;
+    }
+
+    .lux-price{
+        font-size:.92rem;
+    }
+
+    .lux-details{
+        padding:15px;
+        font-size:.8rem;
+    }
+}
+
+@media(max-width:480px){
+
+    .lux-grid{
+        gap:14px;
+    }
+
+    .lux-badge{
+        font-size:.62rem;
+        padding:6px 10px;
+    }
+
+    .lux-fav{
+        width:36px;
+        height:36px;
+    }
+
+    .lux-fav svg{
+        width:16px;
+        height:16px;
+    }
+
+    .lux-info{
+        flex-direction:column;
+        align-items:flex-start;
+        gap:8px;
+    }
+
+    .lux-price{
+        font-size:.88rem;
+    }
+}
+</style>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="wf-scroll-progress" id="wfProgress"></div>
+
+<div class="wf-shell">
+  <div class="wf-container">
+
+    <!-- BREADCRUMBS -->
+    <nav class="wf-crumbs wf-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Store" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Collection</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="wf-hero">
+
+      <!-- ============ GALLERY (no container, no background) ============ -->
+      <div class="wf-gallery wf-reveal">
+        <div class="wf-stage" id="wfStage">
+          <div class="wf-stage-badge"><span class="dot"></span> Live</div>
+          <button class="wf-stage-zoom" id="wfZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="wf-stage-media" id="wfStageMedia">
+            {% if product.image %}
+              <img id="wfMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="wfMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="wfMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="wf-thumbs" id="wfThumbs">
+          {% if product.image %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image.url }}">
+              <img src="{{ product.image.url }}" alt="">
+            </div>
+          {% elif product.image_url %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image_url }}">
+              <img src="{{ product.image_url }}" alt="">
+            </div>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image.url }}">
+                <img src="{{ img.image.url }}" alt="">
+              </div>
+            {% elif img.image_url %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image_url }}">
+                <img src="{{ img.image_url }}" alt="">
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="wf-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb">
+                  <img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt="">
+                </div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ============ INFO PANEL ============ -->
+      <div class="wf-info wf-reveal">
+
+        <a href="{{ product.store.get_absolute_url }}" class="wf-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="wf-title">{{ product.name }}</h1>
+
+        <div class="wf-meta-row">
+          <span class="wf-avail"><span class="dot"></span> In Stock</span>
+          <span>Posted {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="wf-price-wrap">
+          <span class="wf-currency">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="wf-price" id="wfPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="wf-desc">
+          <div class="wf-desc-title">Product Description</div>
+          <div class="wf-desc-body" id="wfDescBody">
+            {{ product.description|default:"No description available."|linebreaks }}
+          </div>
+          <button class="wf-desc-toggle" id="wfDescToggle">Read more</button>
+        </div>
+
+        <!-- ORDER SYSTEM -->
+        <div class="wf-order">
+          {% if product.store.order_system == 'whatsapp' %}
+            <a class="wf-btn"
+               href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }} for {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %} {{ product.price|intcomma }}">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.79 3.08 1.21 4.79 1.21 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm5.82 14.01c-.25.7-1.21 1.29-2.05 1.43-.55.09-1.27.16-3.69-.79-3.1-1.21-5.1-4.35-5.25-4.55-.15-.21-1.25-1.66-1.25-3.17 0-1.51.79-2.25 1.07-2.55.24-.27.66-.39 1.06-.39.13 0 .25.01.36.01.34.01.51.03.74.57.28.68.95 2.35 1.03 2.52.08.17.16.39.03.62-.12.24-.18.39-.36.6-.18.21-.38.46-.54.62-.18.18-.37.38-.16.74.21.36.94 1.55 2.02 2.51 1.39 1.24 2.56 1.62 2.92 1.78.27.12.6.09.79-.13.25-.27.56-.71.88-1.15.23-.31.51-.35.81-.24.31.11 1.95.92 2.29 1.09.34.17.56.25.64.39.08.14.08.79-.17 1.49z"/></svg></span>
+              Order on WhatsApp <span class="arrow">→</span>
+            </a>
+
+          {% elif product.store.order_system == 'facebook' %}
+            {% if product.store.facebook_username %}
+              <a class="wf-btn" href="https://m.me/{{ product.store.facebook_username }}?ref={{ product.name|urlencode }}">
+                <span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c5.05-.5 9-4.76 9-9.95 0-5.52-4.48-10-10-10z"/></svg></span>
+                Order on Facebook <span class="arrow">→</span>
+              </a>
+            {% else %}
+              <p style="color:var(--wf-mute);font-size:14px;font-weight:600">Facebook Messenger link not set.</p>
+            {% endif %}
+
+          {% elif product.store.order_system == 'tiktok' %}
+            <a class="wf-btn" href="{{ product.store.tiktok_link }}" target="_blank">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5.8 20.1a6.34 6.34 0 0 0 10.86-4.43V8.86a8.16 8.16 0 0 0 4.77 1.52V6.93a4.85 4.85 0 0 1-1.84-.24z"/></svg></span>
+              Order on TikTok <span class="arrow">→</span>
+            </a>
+            <div class="wf-copy-row">
+              <input type="text" id="tiktokMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly>
+              <button class="wf-copy-btn" onclick="copyMessage('tiktokMessage', this)">Copy</button>
+            </div>
+
+          {% elif product.store.order_system == 'depop' %}
+            <a class="wf-btn" href="{{ product.store.depop_link }}" target="_blank">
+              <span class="ic"><svg viewBox="0 0 24 24"><path d="M4 4h7a6 6 0 0 1 0 12H8v4H4V4zm4 4v4h3a2 2 0 0 0 0-4H8z"/></svg></span>
+              Order on Depop <span class="arrow">→</span>
+            </a>
+            <div class="wf-copy-row">
+              <input type="text" id="depopMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly>
+              <button class="wf-copy-btn" onclick="copyMessage('depopMessage', this)">Copy</button>
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
     </div>
 
-    <div class="col-md-6">
-      <h2>{{ product.name }}</h2>
-      <p class="fw-bold">        
-        {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% endif %}
-        {{ product.price|intcomma }}</p>
-      <p>{{ product.description }}</p>
+    <!-- ============ TRUST & SAFETY ============ -->
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div>
+          <div class="wf-eyebrow">Trust & Safety</div>
+          <h2 class="wf-h2">Shop with confidence.</h2>
+        </div>
+      </div>
+      <div class="wf-trust-grid">
+        <div class="wf-trust-card"><span class="wf-trust-num">01</span><h4>Verify the seller</h4><p>Always confirm the seller's identity before sending payment.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">02</span><h4>Request a video call</h4><p>Ask to see the product live before completing your order.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">03</span><h4>Confirm shipping</h4><p>Clarify delivery terms, timelines, and tracking up front.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">04</span><h4>Avoid upfront payments</h4><p>Never pay in full without proper verification.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">05</span><h4>Prefer cash on delivery</h4><p>Where possible, choose COD for maximum safety.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">06</span><h4>Too good to be true?</h4><p>Be cautious of deals that look suspiciously cheap.</p></div>
+      </div>
+    </section>
 
-{% if product.store.order_system == 'whatsapp' %}
-  <a href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }} for           {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}  {{ product.price|intcomma }}" 
-     class="order-btn whatsapp-btn">Order on WhatsApp</a>
+    {% comment %} <!-- ============ COMMENTS ============ -->
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div>
+          <div class="wf-eyebrow">Community</div>
+          <h2 class="wf-h2">Leave a comment</h2>
+        </div>
+      </div>
 
-{% elif product.store.order_system == 'facebook' %}
-  {% if product.store.facebook_username %}
-    <a href="https://m.me/{{ product.store.facebook_username }}?ref={{ product.name|urlencode }}" 
-       class="order-btn facebook-btn">Order on Facebook</a>
-  {% else %}
-    <p class="text-muted">Facebook Messenger link not set.</p>
-  {% endif %}
+      {% if user.is_authenticated %}
+        <form method="post" class="wf-comment-form">
+          {% csrf_token %}
+          <label class="wf-comment-label" for="wfCommentInput">Share your thoughts</label>
+          <textarea
+            id="wfCommentInput"
+            name="text"
+            placeholder="Write your comment here..."
+            required>{% if form.text.value %}{{ form.text.value }}{% endif %}</textarea>
+          {% if form.text.errors %}
+            <div style="color:#b00020;font-size:13px;margin-top:8px;font-weight:600">{{ form.text.errors|join:", " }}</div>
+          {% endif %}
+          <button type="submit" class="wf-comment-submit">Post Comment</button>
+        </form>
+      {% else %}
+        <div class="wf-login-prompt">
+          Please <a href="{% url 'login' %}?next={{ request.path }}">log in</a> to leave a comment.
+        </div>
+      {% endif %}
 
-{% elif product.store.order_system == 'tiktok' %}
-  <div class="d-flex flex-column gap-2">
-    <a href="{{ product.store.tiktok_link }}" target="_blank" class="order-btn tiktok-btn">Order on TikTok</a>
-    <input type="text" id="tiktokMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
-    <button onclick="copyMessage('tiktokMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
-  </div>
+      <div class="wf-comments-wrap">
+        {% if comments %}
+          {% for c in comments %}
+            <div class="wf-comment-card" style="animation-delay:{{ forloop.counter0 }}00ms">
+              <div class="wf-avatar">{{ c.user.username|slice:":1"|upper }}</div>
+              <div>
+                <div class="wf-comment-head">
+                  <span class="wf-comment-user">{{ c.user.username }}</span>
+                  <span class="wf-comment-time">{{ c.created_at|timesince }} ago</span>
+                </div>
+                <div class="wf-comment-body">{{ c.text|linebreaks }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="wf-no-comments">No comments yet. Be the first to comment.</div>
+        {% endif %}
+      </div>
+    </section> {% endcomment %}
+<!-- ============ RELATED PRODUCTS ============ -->
+{% if items_meta %}
 
-{% elif product.store.order_system == 'depop' %}
-  <div class="d-flex flex-column gap-2">
-    <a href="{{ product.store.depop_link }}" target="_blank" class="order-btn depop-btn">Order on Depop</a>
-    <input type="text" id="depopMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
-    <button onclick="copyMessage('depopMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
-  </div>
-{% endif %}
+<section class="wf-section wf-reveal">
+
+  <!-- SECTION HEAD -->
+  <div class="wf-section-head">
+
+    <div class="wf-section-head__left">
+      <div class="wf-eyebrow">
+        Curated for you
+      </div>
+
+      <h2 class="wf-h2">
+        You may also like
+      </h2>
     </div>
+
+    <p class="wf-section-sub">
+      Discover more premium pieces from {{ product.store.brand_name }}
+    </p>
+
   </div>
+
+  <!-- GRID -->
+  <div class="lux-grid">
+
+      {% for product in products|slice:":4" %}
+
+        <a href="{% url 'store_product_detail' store.slug product.slug %}"
+           class="lux-card lux-reveal">
+
+          <!-- IMAGE -->
+          <div class="media">
+
+            <span class="lux-badge">
+              #{{ forloop.counter|stringformat:"02d" }}
+            </span>
+
+            <button type="button"
+                    class="lux-fav"
+                    onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>
+              </svg>
+            </button>
+
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+
+            <span class="lux-quick">
+              Quick View
+            </span>
+
+          </div>
+
+          <!-- INFO -->
+          <div class="lux-info">
+
+            <div>
+              <h6 class="name">{{ product.name }}</h6>
+              <div class="meta">{{ store.brand_name }}</div>
+            </div>
+
+            <div class="lux-price">
+              {% if product.currency == "NGN" %}₦
+              {% elif product.currency == "USD" %}$
+              {% elif product.currency == "EUR" %}€
+              {% elif product.currency == "GBP" %}£
+              {% elif product.currency == "GHS" %}₵
+              {% endif %}
+              {{ product.price|intcomma }}
+            </div>
+
+          </div>
+
+          <!-- CTA -->
+          <span class="lux-details">
+            View Details →
+          </span>
+
+        </a>
+
+      {% empty %}
+
+        <div style="grid-column: 1 / -1;">
+          <div class="lux-empty">
+
+            <div class="mark">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                <path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/>
+                <path d="M9 7V5a3 3 0 0 1 6 0v2"/>
+              </svg>
+            </div>
+
+            <h3>No more products yet</h3>
+            <p>
+              Products will appear here once added to the store.
+            </p>
+
+          </div>
+        </div>
+
+      {% endfor %}
+
+  </div>
+
 </section>
+
+{% endif %}
+  </div>
+</div>
+
+<!-- STICKY MOBILE CTA -->
+{% if product.store.order_system == 'whatsapp' %}
+<div class="wf-mobile-cta">
+  {% if product.image %}
+    <img class="mc-thumb" src="{{ product.image.url }}" alt="">
+  {% elif product.image_url %}
+    <img class="mc-thumb" src="{{ product.image_url }}" alt="">
+  {% endif %}
+  <div class="mc-info">
+    <p class="mc-name">{{ product.name }}</p>
+    <p class="mc-price">{% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}</p>
+  </div>
+  <a class="mc-btn" href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }}">Order</a>
+</div>
+{% endif %}
+
+<!-- LIGHTBOX -->
+<div class="wf-lightbox" id="wfLightbox" aria-hidden="true">
+  <button class="wf-lightbox-close" id="wfLbClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div id="wfLbBody"></div>
+</div>
+
+<script>
+(function(){
+  // SCROLL PROGRESS
+  const bar=document.getElementById('wfProgress');
+  if(bar){window.addEventListener('scroll',()=>{const h=document.documentElement;const sc=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;bar.style.width=sc+'%';},{passive:true});}
+
+  // REVEAL
+  const io=new IntersectionObserver((es)=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.12});
+  document.querySelectorAll('.wf-reveal').forEach(el=>io.observe(el));
+
+  // PRICE COUNT-UP
+  const pr=document.getElementById('wfPrice');
+  if(pr){const target=parseFloat((pr.dataset.value||'0').toString().replace(/,/g,''))||0;let cur=0;const step=Math.max(1,target/40);const fmt=new Intl.NumberFormat();const tick=()=>{cur+=step;if(cur>=target){pr.textContent=fmt.format(target);return;}pr.textContent=fmt.format(Math.floor(cur));requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+
+  // DESCRIPTION TOGGLE
+  const db=document.getElementById('wfDescBody'),dt=document.getElementById('wfDescToggle');
+  if(db&&dt){if(db.scrollHeight<=140){dt.style.display='none';}dt.addEventListener('click',()=>{db.classList.toggle('open');dt.textContent=db.classList.contains('open')?'Show less':'Read more';});}
+
+  // GALLERY
+  const stageMedia=document.getElementById('wfStageMedia');
+  document.querySelectorAll('#wfThumbs .wf-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('#wfThumbs .wf-thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const type=t.dataset.type,src=t.dataset.src;
+      stageMedia.style.opacity='0';
+      setTimeout(()=>{
+        if(type==='img'){stageMedia.innerHTML='<img id="wfMainImg" src="'+src+'" alt="">';}
+        else if(type==='yt'){stageMedia.innerHTML='<iframe src="https://www.youtube.com/embed/'+src+'?autoplay=1&mute=1&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';}
+        stageMedia.style.opacity='1';
+      },200);
+    });
+  });
+
+  // LIGHTBOX
+  const lb=document.getElementById('wfLightbox'),lbBody=document.getElementById('wfLbBody');
+  const zb=document.getElementById('wfZoomBtn');
+  if(zb){zb.addEventListener('click',()=>{const m=stageMedia.querySelector('img,iframe');if(!m)return;lbBody.innerHTML=m.outerHTML;lb.classList.add('open');});}
+  document.getElementById('wfLbClose').addEventListener('click',()=>{lb.classList.remove('open');lbBody.innerHTML='';});
+  lb.addEventListener('click',(e)=>{if(e.target===lb){lb.classList.remove('open');lbBody.innerHTML='';}});
+
+  // RIPPLE ON ORDER BUTTONS
+  document.querySelectorAll('.wf-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{const r=b.getBoundingClientRect();const c=document.createElement('span');c.className='ripple';const s=Math.max(r.width,r.height);c.style.width=c.style.height=s+'px';c.style.left=(e.clientX-r.left-s/2)+'px';c.style.top=(e.clientY-r.top-s/2)+'px';b.appendChild(c);setTimeout(()=>c.remove(),720);});
+  });
+})();
+
+// Copy message (used by tiktok/depop)
+function copyMessage(id,btn){
+  const i=document.getElementById(id);if(!i)return;
+  i.select();i.setSelectionRange(0,99999);
+  try{document.execCommand('copy');}catch(e){}
+  if(btn){const t=btn.textContent;btn.textContent='Copied';setTimeout(()=>btn.textContent=t,1600);}
+}
+</script>
+
 {% endblock %}

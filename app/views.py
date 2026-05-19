@@ -460,6 +460,7 @@ def create_store(request, slug=None):
 #         'gallery_images': gallery_images,
 #         'user_has_store': user_has_store,
 #     })
+
 import logging
 import traceback
 from django.shortcuts import render, get_object_or_404
@@ -1420,11 +1421,15 @@ class StoreHomeView(View):
 
         template_name = f"store_templates/{resolved_template}/home.html"
 
+        # 🔥 ADD THIS (same logic as ProductListView)
+        products = Item.objects.filter(store=store)
+
         return render(
             request,
             template_name,
             {
                 "store": store,
+                "products": products,  # 🔥 THIS FIXES YOUR ISSUE
                 "template_slug": resolved_template,
             }
         )
@@ -1436,7 +1441,8 @@ class StoreHomeView(View):
 class StoreAboutView(View):
     def get(self, request, store_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
-
+        products = Item.objects.filter(store=store)
+        
         resolved_template = template_slug or (
             store.template.slug if store.template else "starter"
         )
@@ -1507,6 +1513,7 @@ class ProductDetailView(View):
     def get(self, request, store_slug, product_slug, template_slug=None):
         store = get_object_or_404(Store, slug=store_slug)
         product = get_object_or_404(Item, slug=product_slug, store=store)
+        products = Item.objects.filter(store=store)
 
         extra_files = product.extra_files.all()
         media = product.media.all()
@@ -1525,6 +1532,7 @@ class ProductDetailView(View):
             {
                 "store": store,
                 "product": product,
+                "products": products,
                 "comments": comments,
                 "items_meta": items_meta,
                 "extra_files": extra_files,
@@ -1536,3 +1544,8 @@ class ProductDetailView(View):
 def templates_page(request):
     templates = StoreTemplate.objects.filter(is_active=True)
     return render(request, 'templates.html', {'templates': templates})
+# context_processors.py
+def full_url(request):
+    return {
+        "full_url": request.build_absolute_uri()
+    }

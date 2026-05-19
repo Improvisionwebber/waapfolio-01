@@ -1,209 +1,392 @@
-{% extends "base.html" %}
-
-{% block title %}CREATE YOUR WAAP FOLIO STORE{% endblock %}
-
-{% load static %}
+{% extends "base.html" %}{% load static %}
 {% load widget_tweaks %}
+
+{% block title %}Create Your Waapfolio Store{% endblock %}
 
 {% block body %}
 
-<!-- CSS for intl-tel-input -->
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/css/intlTelInput.css" />
-
-<form method="POST" enctype="multipart/form-data" class="form" style="padding-bottom: 80px;">
-    {% csrf_token %}
-
-    <!-- A. STORE IDENTITY -->
-    <h4>Store Identity</h4>
-    <p>
-        {{ form.brand_name.label_tag }}
-        {{ form.brand_name }}
-        {{ form.brand_name.errors }}
-    </p>
-
-    <p>
-        <label>Brand Logo Preview:</label><br>
-        <img id="logo-preview"
-             src="{{ form.instance.brand_logo|default:'' }}"
-             alt="Logo Preview"
-             style="max-width:200px; border-radius:8px; margin-bottom:10px;"
-             {% if not form.instance.brand_logo %}hidden{% endif %}>
-        <br>
-        {{ form.brand_logo.label_tag }}
-        {{ form.brand_logo }}
-        {{ form.brand_logo.errors }}
-    </p>
-
-    <p>
-        {{ form.favicon.label_tag }} <small>(optional, premium)</small>
-        {{ form.favicon }}
-        {{ form.favicon.errors }}
-    </p>
-
-    <!-- B. ORDER CHANNEL -->
-    <h4>Order Channel</h4>
-    <p>
-        <label for="id_order_system">Choose Order System:</label>
-        <select id="id_order_system" name="order_system" class="form-control">
-            <option value="whatsapp" {% if form.instance.order_system == 'whatsapp' %}selected{% endif %}>WhatsApp</option>
-            <option value="telegram" {% if form.instance.order_system == 'telegram' %}selected{% endif %}>Telegram</option>
-            <option value="facebook" {% if form.instance.order_system == 'facebook' %}selected{% endif %}>Facebook Messenger</option>
-            <option value="instagram" {% if form.instance.order_system == 'instagram' %}selected{% endif %}>Instagram DM</option>
-        </select>
-    </p>
-
-    <!-- Order system dependent fields -->
-    <p id="whatsapp-field" style="display:none;">
-        {{ form.whatsapp_number.label_tag }}
-        {{ form.whatsapp_number }}
-        {{ form.whatsapp_number.errors }}
-    </p>
-
-    <p id="telegram-field" style="display:none;">
-        {{ form.telegram_username.label_tag }}
-        {{ form.telegram_username }}
-        {{ form.telegram_username.errors }}
-    </p>
-
-    <p id="facebook-field" style="display:none;">
-        {{ form.facebook_link.label_tag }}
-        {{ form.facebook_link }}
-        {{ form.facebook_link.errors }}
-    </p>
-
-    <p id="instagram-field" style="display:none;">
-        {{ form.instagram_link.label_tag }}
-        {{ form.instagram_link }}
-        {{ form.instagram_link.errors }}
-    </p>
-
-    <!-- C. BRAND INFORMATION -->
-    <h4>Brand Information</h4>
-    <p>
-        {{ form.bio.label_tag }}
-        {{ form.bio }}
-        {{ form.bio.errors }}
-    </p>
-    <p>
-        {{ form.about.label_tag }}
-        {{ form.about }}
-        {{ form.about.errors }}
-    </p>
-    <p>
-        {{ form.mission.label_tag }}
-        {{ form.mission }}
-        {{ form.mission.errors }}
-    </p>
-    <p>
-        {{ form.founder_name.label_tag }} <small>(optional)</small>
-        {{ form.founder_name }}
-        {{ form.founder_name.errors }}
-    </p>
-    <p>
-        {{ form.brand_story.label_tag }} <small>(optional)</small>
-        {{ form.brand_story }}
-        {{ form.brand_story.errors }}
-    </p>
-
-    <!-- D. CONTACT & SOCIALS -->
-    <h4>Contact & Socials</h4>
-    <p>
-        {{ form.address.label_tag }} <small>(optional)</small>
-        {{ form.address }}
-        {{ form.address.errors }}
-    </p>
-
-    <p>
-        {{ form.background_color.label_tag }}
-        {{ form.background_color }}
-        {{ form.background_color.errors }}
-    </p>
-
-    <p>
-        {{ form.email.label_tag }} <small>(optional)</small>
-        {{ form.email }}
-        {{ form.email.errors }}
-    </p>
-
-    <button type="submit" class="btn btn-primary">
-        {% if form.instance.pk %}Save Changes{% else %}Create Store{% endif %}
-    </button>
-</form>
-
-<!-- JS for intl-tel-input -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
-<script>
-    const phoneInput = document.querySelector("#id_whatsapp_number");
-    if(phoneInput){
-        const iti = window.intlTelInput(phoneInput, {
-            initialCountry: "ng",
-            preferredCountries: ["ng", "us", "gb"],
-            separateDialCode: false,
-            nationalMode: false,
-            formatOnDisplay: false,
-            autoHideDialCode: false,
-            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
-        });
-
-        function keepFullNumber() {
-            const fullNumber = iti.getNumber();
-            if (fullNumber) phoneInput.value = fullNumber;
-        }
-
-        phoneInput.addEventListener("blur", keepFullNumber);
-        document.addEventListener("DOMContentLoaded", keepFullNumber);
-        document.querySelector("form").addEventListener("submit", keepFullNumber);
-    }
-
-    // Logo preview
-    const logoInput = document.querySelector('#id_brand_logo');
-    const logoPreview = document.querySelector('#logo-preview');
-    if(logoInput){
-        logoInput.addEventListener('change', function(event){
-            const file = event.target.files[0];
-            if(file){
-                const reader = new FileReader();
-                reader.onload = function(e){
-                    logoPreview.src = e.target.result;
-                    logoPreview.hidden = false;
-                }
-                reader.readAsDataURL(file);
-            }
-        });
-    }
-
-    // Show/hide order fields based on selection
-    const orderSelect = document.getElementById('id_order_system');
-    const whatsappField = document.getElementById('whatsapp-field');
-    const telegramField = document.getElementById('telegram-field');
-    const facebookField = document.getElementById('facebook-field');
-    const instagramField = document.getElementById('instagram-field');
-
-    function toggleOrderFields() {
-        const val = orderSelect.value;
-        whatsappField.style.display = (val === 'whatsapp') ? 'block' : 'none';
-        telegramField.style.display = (val === 'telegram') ? 'block' : 'none';
-        facebookField.style.display = (val === 'facebook') ? 'block' : 'none';
-        instagramField.style.display = (val === 'instagram') ? 'block' : 'none';
-    }
-
-    orderSelect.addEventListener('change', toggleOrderFields);
-    document.addEventListener('DOMContentLoaded', toggleOrderFields);
-</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 
 <style>
-    form p {
-        margin-bottom: 20px;
-    }
-    form p label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 6px;
-        font-size: 14px;
-        color: #333;
-    }
-    form p input,
-    form p select,
+  :root{
+    --wf-bg:#f7f8fa;
+    --wf-surface:#ffffff;
+    --wf-ink:#0a0a0a;
+    --wf-muted:#6b7280;
+    --wf-line:#ececef;
+    --wf-accent:#10b981;
+    --wf-accent-dark:#059669;
+    --wf-radius:16px;
+    --wf-shadow:0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04);
+  }
+  *{box-sizing:border-box}
+  .wf-wrap{
+    font-family:'Inter',system-ui,-apple-system,sans-serif;
+    color:var(--wf-ink);
+    background:
+      radial-gradient(1200px 600px at 10% -10%, rgba(16,185,129,.08), transparent 60%),
+      radial-gradient(900px 500px at 110% 10%, rgba(0,0,0,.04), transparent 60%),
+      var(--wf-bg);
+    min-height:100vh;
+    padding:32px 16px 120px;
+     overflow-x:hidden;
+  }
+  .wf-container{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:280px 1fr;gap:32px;width:100%}
+  @media (max-width:900px){
+    .wf-wrap{padding:20px 12px 100px}
+    .wf-container{grid-template-columns:minmax(0,1fr);gap:16px}
+    .wf-card,.wf-side{min-width:0;max-width:100%}
+  }
+  .wf-card,.wf-pane{min-width:0}
+  .wf-pane img,.wf-pane input,.wf-pane select,.wf-pane textarea{max-width:100%}
+
+  /* Header */
+  .wf-head{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:12px}
+  .wf-title{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:clamp(22px,3vw,30px);letter-spacing:-.02em;margin:0}
+  .wf-title em{font-style:normal;color:var(--wf-accent)}
+  .wf-sub{color:var(--wf-muted);font-size:14px;margin:4px 0 0}
+
+  /* Sidebar stepper (desktop) */
+  .wf-side{position:sticky;top:24px;align-self:start;background:var(--wf-surface);border:1px solid var(--wf-line);border-radius:var(--wf-radius);padding:18px;box-shadow:var(--wf-shadow)}
+  .wf-step{display:flex;align-items:flex-start;gap:12px;padding:12px;border-radius:12px;cursor:pointer;transition:.2s background}
+  .wf-step:hover{background:#f4f5f7}
+  .wf-step.active{background:#0a0a0a;color:#fff}
+  .wf-step.active .wf-step-num{background:var(--wf-accent);color:#000;border-color:transparent}
+  .wf-step.done .wf-step-num{background:var(--wf-accent);color:#fff;border-color:transparent}
+  .wf-step-num{flex:none;width:28px;height:28px;border-radius:50%;border:1px solid var(--wf-line);display:grid;place-items:center;font-weight:600;font-size:13px;background:#fff;color:#0a0a0a}
+  .wf-step-meta{display:flex;flex-direction:column;line-height:1.2}
+  .wf-step-meta b{font-size:14px;font-weight:600}
+  .wf-step-meta span{font-size:12px;opacity:.7;margin-top:2px}
+
+  /* Mobile pills */
+  .wf-pills{display:none;gap:8px;overflow-x:auto;padding:4px 2px 12px;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+  .wf-pills::-webkit-scrollbar{display:none}
+  .wf-pill{flex:none;padding:8px 14px;border-radius:999px;border:1px solid var(--wf-line);background:#fff;font-size:13px;font-weight:600;color:#0a0a0a;white-space:nowrap}
+  .wf-pill.active{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+  .wf-pill.done{background:var(--wf-accent);color:#fff;border-color:transparent}
+  @media (max-width:900px){.wf-pills{display:flex}.wf-side{display:none}}
+
+  /* Card */
+  .wf-card{background:var(--wf-surface);border:1px solid var(--wf-line);border-radius:var(--wf-radius);box-shadow:var(--wf-shadow);overflow:hidden}
+  .wf-pane{padding:clamp(20px,3vw,36px);display:none;animation:wfIn .35s ease both}
+  .wf-pane.active{display:block}
+  @keyframes wfIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+  .wf-pane h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(20px,2.4vw,26px);margin:0 0 4px;letter-spacing:-.01em}
+  .wf-pane .wf-pane-sub{color:var(--wf-muted);margin:0 0 24px;font-size:14px}
+
+  /* Form fields — restyle Django outputs */
+  .wf-pane p{margin:0 0 18px}
+  .wf-pane label{display:block;font-size:13px;font-weight:600;color:#111;margin-bottom:6px}
+  .wf-pane small{color:var(--wf-muted);font-weight:500}
+  .wf-pane input[type=text],
+  .wf-pane input[type=email],
+  .wf-pane input[type=url],
+  .wf-pane input[type=tel],
+  .wf-pane input[type=number],
+  .wf-pane select,
+  .wf-pane textarea{
+    width:100%;padding:12px 14px;border:1px solid var(--wf-line);border-radius:12px;
+    background:#fff;font:inherit;font-size:14.5px;color:#0a0a0a;transition:.2s border,.2s box-shadow;
+  }
+  .wf-pane textarea{min-height:110px;resize:vertical}
+  .wf-pane input:focus,.wf-pane select:focus,.wf-pane textarea:focus{
+    outline:none;border-color:#0a0a0a;box-shadow:0 0 0 4px rgba(16,185,129,.15)
+  }
+  .wf-pane input[type=color]{width:64px;height:40px;padding:4px;border-radius:10px;cursor:pointer}
+  .wf-pane input[type=file]{padding:10px;background:#fafafa;border:1px dashed #d4d4d8;cursor:pointer}
+  .errorlist{list-style:none;padding:0;margin:6px 0 0;color:#b91c1c;font-size:12.5px}
+
+  /* Two col rows */
+  .wf-row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+  @media (max-width:640px){.wf-row{grid-template-columns:1fr}}
+
+  /* Logo preview */
+  .wf-logo-prev{display:flex;align-items:center;gap:14px;margin-bottom:10px;flex-wrap:wrap}
+  #logo-preview{width:72px;height:72px;border-radius:14px;object-fit:cover;border:1px solid var(--wf-line);background:#fafafa}
+  /* Hide Django's ClearableFileInput "Currently: <link> Clear" markup — keep only the file input */
+  .wf-logo-prev a,
+  .wf-logo-prev label[for$="-clear_id"],
+  .wf-logo-prev input[type=checkbox],
+  .wf-logo-prev br{display:none !important}
+  .wf-logo-prev > span{font-size:0}
+  .wf-logo-prev > span input[type=file]{font-size:14px}
+
+  /* Footer nav */
+  .wf-nav{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:18px clamp(20px,3vw,36px);border-top:1px solid var(--wf-line);background:#fcfcfd;flex-wrap:wrap}
+  .wf-btn{appearance:none;border:1px solid var(--wf-line);background:#fff;color:#0a0a0a;padding:12px 22px;border-radius:999px;font-weight:600;font-size:14px;cursor:pointer;transition:.2s transform,.2s background,.2s box-shadow}
+  .wf-btn:hover{transform:translateY(-1px)}
+  .wf-btn[disabled]{opacity:.4;cursor:not-allowed;transform:none}
+  .wf-btn-primary{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+  .wf-btn-primary:hover{background:var(--wf-accent);border-color:var(--wf-accent)}
+  .wf-progress{flex:1;min-width:140px;height:6px;background:#eef0f3;border-radius:999px;overflow:hidden;margin:0 12px}
+  .wf-progress > i{display:block;height:100%;width:25%;background:linear-gradient(90deg,#0a0a0a,var(--wf-accent));border-radius:999px;transition:width .35s ease}
+
+  /* intl-tel-input fix */
+  .iti{width:100%}
+  .iti input{padding-left:52px !important}
+
+  /* Order channel cards */
+  .wf-channels{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px}
+  @media (max-width:640px){.wf-channels{grid-template-columns:repeat(2,1fr)}}
+  .wf-channel{cursor:pointer;border:1px solid var(--wf-line);background:#fff;padding:14px;border-radius:14px;text-align:center;font-weight:600;font-size:13px;transition:.2s}
+  .wf-channel:hover{border-color:#0a0a0a}
+  .wf-channel.active{background:#0a0a0a;color:#fff;border-color:#0a0a0a}
+  .wf-channel small{display:block;color:var(--wf-muted);font-weight:500;margin-top:2px}
+  .wf-channel.active small{color:rgba(255,255,255,.7)}
+  #id_order_system{display:none}
+</style>
+
+<div class="wf-wrap">
+  <div class="wf-container">
+
+    <header class="wf-head">
+      <div>
+        <h1 class="wf-title">Create your <em>Waapfolio</em> store</h1>
+        <p class="wf-sub">A few quick steps. You can edit everything later.</p>
+      </div>
+    </header>
+
+    <!-- Sidebar (desktop) -->
+    <aside class="wf-side" id="wfSide">
+      <div class="wf-step active" data-go="1"><span class="wf-step-num">1</span><span class="wf-step-meta"><b>Identity</b><span>Logo & brand name</span></span></div>
+      <div class="wf-step" data-go="2"><span class="wf-step-num">2</span><span class="wf-step-meta"><b>Order channel</b><span>Where customers reach you</span></span></div>
+      <div class="wf-step" data-go="3"><span class="wf-step-num">3</span><span class="wf-step-meta"><b>Brand info</b><span>Story, bio, mission</span></span></div>
+      <div class="wf-step" data-go="4"><span class="wf-step-num">4</span><span class="wf-step-meta"><b>Contact</b><span>Address</span></span></div>
+    </aside>
+
+    <!-- Main -->
+    <section>
+      <div class="wf-pills" id="wfPills">
+        <button type="button" class="wf-pill active" data-go="1">1. Identity</button>
+        <button type="button" class="wf-pill" data-go="2">2. Order</button>
+        <button type="button" class="wf-pill" data-go="3">3. Brand</button>
+        <button type="button" class="wf-pill" data-go="4">4. Contact</button>
+      </div>
+
+      <form method="POST" enctype="multipart/form-data" class="wf-card" id="wfForm">
+        {% csrf_token %}
+
+        <!-- STEP 1 -->
+        <div class="wf-pane active" data-pane="1">
+          <h2>Store identity</h2>
+          <p class="wf-pane-sub">Give your store a name and a logo customers will recognize.</p>
+
+          <p>
+            {{ form.brand_name.label_tag }}
+            {{ form.brand_name|add_class:"" }}
+            {{ form.brand_name.errors }}
+          </p>
+
+          <p>
+            <label>Brand logo</label>
+            <span class="wf-logo-prev">
+              <img id="logo-preview"
+                   src="{{ form.instance.brand_logo|default:'' }}"
+                   alt="Logo preview"
+                   {% if not form.instance.brand_logo %}hidden{% endif %}>
+              <span style="flex:1">{{ form.brand_logo }}</span>
+            </span>
+            {{ form.brand_logo.errors }}
+          </p>
+
+          <p>
+            {{ form.favicon.label_tag }} <small>(optional, premium)</small>
+            {{ form.favicon }}
+            {{ form.favicon.errors }}
+          </p>
+        </div>
+
+        <!-- STEP 2 -->
+        <div class="wf-pane" data-pane="2">
+          <h2>Order channel</h2>
+          <p class="wf-pane-sub">Pick the channel where customers will place their orders.</p>
+
+          <div class="wf-channels" id="wfChannels">
+            <div class="wf-channel" data-val="whatsapp">WhatsApp<small>Best for chat</small></div>
+            <div class="wf-channel" data-val="telegram">Telegram<small>Username link</small></div>
+            <div class="wf-channel" data-val="facebook">Facebook<small>Messenger</small></div>
+            <div class="wf-channel" data-val="instagram">Instagram<small>Direct DM</small></div>
+          </div>
+
+          <select id="id_order_system" name="order_system">
+            <option value="whatsapp">WhatsApp</option>
+            <option value="telegram">Telegram</option>
+            <option value="facebook">Facebook Messenger</option>
+            <option value="instagram">Instagram DM</option>
+          </select>
+
+          <p id="whatsapp-field" style="display:none">
+            {{ form.whatsapp_number.label_tag }}
+            {{ form.whatsapp_number }}
+            {{ form.whatsapp_number.errors }}
+          </p>
+          <p id="telegram-field" style="display:none">
+            {{ form.telegram_username.label_tag }}
+            {{ form.telegram_username }}
+            {{ form.telegram_username.errors }}
+          </p>
+          <p id="facebook-field" style="display:none">
+            {{ form.facebook_link.label_tag }}
+            {{ form.facebook_link }}
+            {{ form.facebook_link.errors }}
+          </p>
+          <p id="instagram-field" style="display:none">
+            {{ form.instagram_link.label_tag }}
+            {{ form.instagram_link }}
+            {{ form.instagram_link.errors }}
+          </p>
+        </div>
+
+        <!-- STEP 3 -->
+        <div class="wf-pane" data-pane="3">
+          <h2>Brand information</h2>
+          <p class="wf-pane-sub">Tell people who you are and what you stand for.</p>
+
+          <p>
+            {{ form.bio.label_tag }}
+            {{ form.bio }}
+            {{ form.bio.errors }}
+          </p>
+          <p>
+            {{ form.about.label_tag }} <small>Leave blank to use default</small>
+            {{ form.about }}
+            {{ form.about.errors }}
+          </p>
+          <p>
+            {{ form.mission.label_tag }} <small>Leave blank to use default</small>
+            {{ form.mission }}
+            {{ form.mission.errors }}
+          </p>
+          <div class="wf-row">
+            <p>
+              {{ form.founder_name.label_tag }} <small>(optional)</small>
+              {{ form.founder_name }}
+              {{ form.founder_name.errors }}
+            </p>
+          </div>
+        </div>
+
+        <!-- STEP 4 -->
+        <div class="wf-pane" data-pane="4">
+          <h2>Contact & appearance</h2>
+          <p class="wf-pane-sub">How customers reach you and how your store feels.</p>
+
+          <p>
+            {{ form.address.label_tag }} <small>(optional)</small>
+            {{ form.address }}
+            {{ form.address.errors }}
+          </p>
+
+       </div>
+
+        <!-- Nav -->
+        <div class="wf-nav">
+          <button type="button" class="wf-btn" id="wfBack" disabled>← Back</button>
+          <div class="wf-progress"><i id="wfBar"></i></div>
+          <button type="button" class="wf-btn wf-btn-primary" id="wfNext">Continue →</button>
+          <button type="submit" class="wf-btn wf-btn-primary" id="wfSubmit" style="display:none">
+            {% if form.instance.pk %}Save changes{% else %}Create store{% endif %}
+          </button>
+        </div>
+      </form>
+    </section>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/intlTelInput.min.js"></script>
+<script>
+(function(){
+  const TOTAL = 4;
+  let step = 1;
+
+  const panes  = document.querySelectorAll('[data-pane]');
+  const sideSteps = document.querySelectorAll('#wfSide .wf-step');
+  const pills  = document.querySelectorAll('#wfPills .wf-pill');
+  const back   = document.getElementById('wfBack');
+  const next   = document.getElementById('wfNext');
+  const submit = document.getElementById('wfSubmit');
+  const bar    = document.getElementById('wfBar');
+
+  function render(){
+    panes.forEach(p => p.classList.toggle('active', +p.dataset.pane === step));
+    sideSteps.forEach(s => {
+      const n = +s.dataset.go;
+      s.classList.toggle('active', n === step);
+      s.classList.toggle('done', n < step);
+    });
+    pills.forEach(p => {
+      const n = +p.dataset.go;
+      p.classList.toggle('active', n === step);
+      p.classList.toggle('done', n < step);
+    });
+    back.disabled = step === 1;
+    next.style.display   = step === TOTAL ? 'none' : '';
+    submit.style.display = step === TOTAL ? '' : 'none';
+    bar.style.width = (step / TOTAL * 100) + '%';
+
+  }
+console.log("MULTISTEP RUNNING");
+  next.addEventListener('click', () => { if(step < TOTAL){ step++; render(); } });
+  back.addEventListener('click', () => { if(step > 1){ step--; render(); } });
+  document.querySelectorAll('[data-go]').forEach(el => {
+    el.addEventListener('click', () => { step = +el.dataset.go; render(); });
+  });
+
+  render();
+
+  // Order channel cards <-> select
+  const select = document.getElementById('id_order_system');
+  const cards  = document.querySelectorAll('#wfChannels .wf-channel');
+  const fields = {
+    whatsapp: document.getElementById('whatsapp-field'),
+    telegram: document.getElementById('telegram-field'),
+    facebook: document.getElementById('facebook-field'),
+    instagram: document.getElementById('instagram-field'),
+  };
+  function syncChannel(v){
+    cards.forEach(c => c.classList.toggle('active', c.dataset.val === v));
+    Object.keys(fields).forEach(k => { if(fields[k]) fields[k].style.display = (k===v) ? 'block' : 'none'; });
+    select.value = v;
+  }
+  cards.forEach(c => c.addEventListener('click', () => syncChannel(c.dataset.val)));
+  syncChannel(select.value || 'whatsapp');
+
+  // Logo preview
+  const logoInput = document.querySelector('#id_brand_logo');
+  const logoPreview = document.querySelector('#logo-preview');
+  if(logoInput){
+    logoInput.addEventListener('change', e => {
+      const f = e.target.files[0];
+      if(!f) return;
+      const r = new FileReader();
+      r.onload = ev => { logoPreview.src = ev.target.result; logoPreview.hidden = false; };
+      r.readAsDataURL(f);
+    });
+  }
+
+  // intl-tel-input
+  const phoneInput = document.querySelector('#id_whatsapp_number');
+  if(phoneInput && window.intlTelInput){
+    const iti = window.intlTelInput(phoneInput, {
+      initialCountry: "ng",
+      preferredCountries: ["ng","us","gb"],
+      separateDialCode: false,
+      nationalMode: false,
+      formatOnDisplay: false,
+      autoHideDialCode: false,
+      utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/17.0.8/js/utils.js"
+    });
+    const keep = () => { const n = iti.getNumber(); if(n) phoneInput.value = n; };
+    phoneInput.addEventListener('blur', keep);
+    document.getElementById('wfForm').addEventListener('submit', keep);
+  }
+})();
+</script>
+
     form p textarea {
         width: 100%;
         padding: 12px;
