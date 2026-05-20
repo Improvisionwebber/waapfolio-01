@@ -842,19 +842,48 @@
 
   // GALLERY
   const stageMedia=document.getElementById('wfStageMedia');
-  document.querySelectorAll('#wfThumbs .wf-thumb').forEach(t=>{
-    t.addEventListener('click',()=>{
-      document.querySelectorAll('#wfThumbs .wf-thumb').forEach(x=>x.classList.remove('active'));
-      t.classList.add('active');
-      const type=t.dataset.type,src=t.dataset.src;
-      stageMedia.style.opacity='0';
-      setTimeout(()=>{
-        if(type==='img'){stageMedia.innerHTML='<img id="wfMainImg" src="'+src+'" alt="">';}
-        else if(type==='yt'){stageMedia.innerHTML='<iframe src="https://www.youtube.com/embed/'+src+'?autoplay=1&mute=1&playsinline=1" allow="autoplay; encrypted-media; picture-in-picture" allowfullscreen></iframe>';}
-        stageMedia.style.opacity='1';
-      },200);
-    });
+document.querySelectorAll('#wfThumbs .wf-thumb').forEach(t=>{
+  t.addEventListener('click',()=>{
+    document.querySelectorAll('#wfThumbs .wf-thumb').forEach(x=>x.classList.remove('active'));
+    t.classList.add('active');
+
+    const type=t.dataset.type,
+          src=t.dataset.src;
+
+    stageMedia.style.opacity='0';
+
+    setTimeout(()=>{
+
+      if(type==='img'){
+
+        stageMedia.innerHTML = `
+          <img id="wfMainImg" src="${src}" alt="">
+        `;
+
+      }
+
+      else if(type==='yt'){
+
+        stageMedia.innerHTML = `
+          <iframe
+              width="100%"
+              height="100%"
+              src="https://www.youtube.com/embed/${src}?autoplay=1&mute=1&playsinline=1&rel=0"
+              title="YouTube video player"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin"
+              allowfullscreen>
+          </iframe>
+        `;
+
+      }
+
+      stageMedia.style.opacity='1';
+
+    },200);
   });
+});
 
   // LIGHTBOX
   const lb=document.getElementById('wfLightbox'),lbBody=document.getElementById('wfLbBody');

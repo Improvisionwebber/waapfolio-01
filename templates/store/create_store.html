@@ -138,6 +138,14 @@
   .wf-channel small{display:block;color:var(--wf-muted);font-weight:500;margin-top:2px}
   .wf-channel.active small{color:rgba(255,255,255,.7)}
   #id_order_system{display:none}
+      form p textarea {
+        width: 100%;
+        padding: 12px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+        font-size: 14px;
+        transition: border-color 0.3s;
+    }
 </style>
 
 <div class="wf-wrap">
@@ -184,10 +192,13 @@
           <p>
             <label>Brand logo</label>
             <span class="wf-logo-prev">
+            {% if form.instance.brand_logo %}
               <img id="logo-preview"
-                   src="{{ form.instance.brand_logo|default:'' }}"
-                   alt="Logo preview"
-                   {% if not form.instance.brand_logo %}hidden{% endif %}>
+                  src="{{ form.instance.brand_logo.url }}"
+                  alt="Logo preview">
+            {% else %}
+              <img id="logo-preview" hidden alt="Logo preview">
+            {% endif %}
               <span style="flex:1">{{ form.brand_logo }}</span>
             </span>
             {{ form.brand_logo.errors }}
@@ -386,15 +397,5 @@ console.log("MULTISTEP RUNNING");
   }
 })();
 </script>
-
-    form p textarea {
-        width: 100%;
-        padding: 12px;
-        border: 1px solid #ccc;
-        border-radius: 8px;
-        font-size: 14px;
-        transition: border-color 0.3s;
-    }
-</style>
 
 {% endblock %}

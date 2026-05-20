@@ -344,11 +344,11 @@ def create_store(request, slug=None):
                 store.slug = slug_val
 
             store.save()
-            print("✅ STORE SAVED")
+            print("STORE SAVED")
             return redirect("manage_store", slug=store.slug)
 
         else:
-            print("❌ FORM NOT VALID")
+            print(" FORM NOT VALID")
             print(form.errors)
 
     else:
@@ -592,7 +592,8 @@ from decimal import Decimal
 def manage_store(request, slug, item_id=None):
     try:
         # ---------------------- MULTI-STORE SWITCHER ----------------------
-        your_email = "plutodollar91@gmail.com"
+        # your_email = "plutodollar91@gmail.com"
+        your_email = "*"
         stores = []
         active_store = None
 
@@ -612,7 +613,7 @@ def manage_store(request, slug, item_id=None):
 
         # ---------------------- GET STORE ----------------------
         store = get_object_or_404(Store, slug=slug, owner=request.user)
-
+        active_store = store
         # ---------------------- TEMPLATE SAFE FALLBACK ----------------------
         template_slug = getattr(store.template, "slug", "starter")
 

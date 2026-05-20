@@ -479,10 +479,10 @@
       </div>
       <div class="wf-drawer-foot">
         {% if request.user.is_authenticated and request.user == store.owner %}
-          <a class="wf-drawer-action" href="{% url 'store_home' store_slug=store.slug %}">
+          <a class="wf-drawer-action" href="{% url 'create_store' store.slug %}">
             <i class="bi bi-pencil-square"></i> Edit Store
           </a>
-          <a class="wf-drawer-action" href="{% url 'store_home' store_slug=store.slug %}">
+          <a class="wf-drawer-action" href="{% url 'manage_store' store.slug %}">
             <i class="bi bi-gear"></i> Manage Store
           </a>
         {% endif %}
