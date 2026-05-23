@@ -180,7 +180,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'app.context_processors.full_url',
 ]
 # Static files
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Authentication redirects
