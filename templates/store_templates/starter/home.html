@@ -1,5 +1,5 @@
 {% extends "store_templates/starter/base.html" %}
-{% block title %}{{ store.brand_name }} — WhatsApp Storefront{% endblock %}
+{% block title %}{{ store.brand_name }} — Pay with Ease{% endblock %}
 
 {% block body %}
 {% load static %}
@@ -904,4 +904,8 @@
     document.querySelectorAll('.wf-reveal').forEach(function(el){ io.observe(el); });
   })();
 </script>
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
 {% endblock %}
