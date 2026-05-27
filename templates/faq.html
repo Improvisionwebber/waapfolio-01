@@ -10,1414 +10,992 @@
 {% block extra_styles %}
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
 <style>
-{% comment %} :root {
-    --waap-primary: #059669;
-    --waap-primary-light: #10b981;
-    --waap-primary-dark: #047857;
-    --waap-secondary: #0ea5e9;
-    --waap-accent: #8b5cf6;
+:root {
+    --waap-primary: #047857;
+    --waap-primary-light: #059669;
+    --waap-primary-dark: #064e3b;
+    --waap-accent: #10b981;
     --waap-bg-light: #ecfdf5;
-    --waap-bg-white: #ffffff;
-    --waap-text-dark: #1f2937;
-    --waap-text-muted: #6b7280;
-    --waap-border: #e5e7eb;
-    --waap-shadow: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
-    --waap-shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
-    --waap-gradient: linear-gradient(135deg, #059669 0%, #10b981 50%, #0ea5e9 100%);
-} {% endcomment %}
-
-* {
-    box-sizing: border-box;
+    --waap-bg-page: #ffffff;
+    --waap-text-dark: #0b1220;       /* near-black for max contrast */
+    --waap-text-strong: #111827;
+    --waap-text-body: #1f2937;
+    --waap-text-muted: #374151;      /* darker muted for legibility */
+    --waap-border: #d1d5db;
+    --waap-shadow: 0 6px 16px -6px rgba(2, 32, 22, 0.18), 0 2px 6px -2px rgba(2, 32, 22, 0.08);
+    --waap-shadow-lg: 0 18px 40px -12px rgba(2, 32, 22, 0.22), 0 6px 14px -6px rgba(2, 32, 22, 0.12);
+    --waap-gradient: linear-gradient(135deg, #047857 0%, #059669 50%, #10b981 100%);
 }
+
+* { box-sizing: border-box; }
 
 .faq-page {
     min-height: 100vh;
-    background: linear-gradient(180deg, var(--waap-bg-light) 0%, #f0fdf4 50%, #ffffff 100%);
+    background:
+        radial-gradient(1200px 600px at 10% -10%, rgba(16,185,129,0.10), transparent 60%),
+        radial-gradient(900px 500px at 110% 10%, rgba(4,120,87,0.08), transparent 60%),
+        linear-gradient(180deg, #ffffff 0%, #f7fdfa 60%, #ffffff 100%);
+    color: var(--waap-text-dark);
+    perspective: 1200px;
 }
 
-/* Hero Section */
+/* ============== HERO ============== */
 .faq-hero {
-    background: var(--waap-gradient);
-    padding: 4rem 1.5rem 5rem;
-    text-align: center;
     position: relative;
+    padding: 5rem 1.5rem 6rem;
+    text-align: center;
     overflow: hidden;
+    background:
+        linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+    border-bottom: 1px solid var(--waap-border);
 }
 
-.faq-hero::before {
+.faq-hero::before,
+.faq-hero::after {
     content: '';
     position: absolute;
-    top: -50%;
-    left: -50%;
-    width: 200%;
-    height: 200%;
-    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 60%);
-    animation: heroFloat 20s ease-in-out infinite;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.55;
+    z-index: 0;
+    will-change: transform;
+}
+.faq-hero::before {
+    width: 420px; height: 420px;
+    background: radial-gradient(circle, rgba(16,185,129,0.45), transparent 60%);
+    top: -120px; left: -120px;
+    animation: floatA 14s ease-in-out infinite;
+}
+.faq-hero::after {
+    width: 360px; height: 360px;
+    background: radial-gradient(circle, rgba(4,120,87,0.35), transparent 60%);
+    bottom: -140px; right: -100px;
+    animation: floatB 18s ease-in-out infinite;
 }
 
-@keyframes heroFloat {
-    0%, 100% { transform: translate(0, 0) rotate(0deg); }
-    50% { transform: translate(-20px, 20px) rotate(180deg); }
+@keyframes floatA {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(40px, 30px) scale(1.08); }
+}
+@keyframes floatB {
+    0%,100% { transform: translate(0,0) scale(1); }
+    50%     { transform: translate(-30px, -20px) scale(1.06); }
 }
 
 .faq-hero-content {
     position: relative;
     z-index: 2;
-    max-width: 800px;
+    max-width: 820px;
     margin: 0 auto;
+    transform-style: preserve-3d;
+}
+
+.faq-eyebrow {
+    display: inline-block;
+    padding: 0.4rem 0.9rem;
+    border-radius: 999px;
+    background: rgba(4,120,87,0.10);
+    color: var(--waap-primary-dark);
+    font-weight: 700;
+    font-size: 0.8rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 1rem;
+    border: 1px solid rgba(4,120,87,0.18);
 }
 
 .faq-hero h1 {
-    color: white;
-    font-size: 2.75rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    color: var(--waap-text-dark);
+    font-size: clamp(2rem, 4.2vw, 3rem);
+    font-weight: 900;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin: 0 0 1rem;
+}
+.faq-hero h1 .accent {
+    background: linear-gradient(90deg, var(--waap-primary-dark), var(--waap-accent));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
 }
 
 .faq-hero p {
-    color: rgba(255,255,255,0.95);
-    font-size: 1.25rem;
-    max-width: 600px;
+    color: var(--waap-text-body);
+    font-size: 1.125rem;
+    max-width: 640px;
     margin: 0 auto 2rem;
-    line-height: 1.6;
+    line-height: 1.65;
+    font-weight: 500;
 }
 
-/* Search Bar */
-.faq-search-container {
-    max-width: 600px;
-    margin: 0 auto;
-    position: relative;
-}
-
-.faq-search-wrapper {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
+/* Search */
+.faq-search-container { max-width: 640px; margin: 0 auto; position: relative; }
+.faq-search-wrapper { position: relative; display: flex; align-items: center; }
 
 .faq-search-input {
     width: 100%;
-    padding: 1.25rem 1.5rem 1.25rem 3.5rem;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 50px;
-    background: white;
-    box-shadow: var(--waap-shadow-lg);
+    padding: 1.15rem 1.5rem 1.15rem 3.4rem;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--waap-text-dark);
+    border: 2px solid var(--waap-border);
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: var(--waap-shadow);
     outline: none;
-    transition: all 0.3s ease;
+    transition: all 0.25s ease;
 }
-
 .faq-search-input:focus {
-    box-shadow: 0 0 0 4px rgba(5,150,105,0.2), var(--waap-shadow-lg);
+    border-color: var(--waap-primary);
+    box-shadow: 0 0 0 4px rgba(4,120,87,0.18), var(--waap-shadow-lg);
+    transform: translateY(-1px);
 }
-
-.faq-search-input::placeholder {
-    color: var(--waap-text-muted);
-}
+.faq-search-input::placeholder { color: #6b7280; font-weight: 500; }
 
 .faq-search-icon {
-    position: absolute;
-    left: 1.25rem;
-    color: var(--waap-primary);
-    font-size: 1.25rem;
+    position: absolute; left: 1.2rem;
+    color: var(--waap-primary-dark);
+    font-size: 1.15rem;
 }
 
 .faq-search-suggestions {
-    position: absolute;
-    top: calc(100% + 0.5rem);
-    left: 0;
-    right: 0;
-    background: white;
-    border-radius: 16px;
-    box-shadow: var(--waap-shadow-lg);
-    z-index: 100;
-    display: none;
-    overflow: hidden;
+    position: absolute; top: calc(100% + 0.5rem); left: 0; right: 0;
+    background: #fff; border: 1px solid var(--waap-border);
+    border-radius: 16px; box-shadow: var(--waap-shadow-lg);
+    z-index: 100; display: none; overflow: hidden;
 }
-
-.faq-search-suggestions.active {
-    display: block;
-    animation: fadeSlideIn 0.2s ease;
-}
-
-@keyframes fadeSlideIn {
-    from { opacity: 0; transform: translateY(-10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
+.faq-search-suggestions.active { display: block; animation: fadeSlideIn 0.2s ease; }
+@keyframes fadeSlideIn { from {opacity:0; transform:translateY(-8px);} to {opacity:1; transform:translateY(0);} }
 
 .faq-suggestion-item {
-    padding: 1rem 1.5rem;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    transition: background 0.2s;
+    padding: 0.9rem 1.25rem; cursor: pointer;
+    display: flex; align-items: center; gap: 0.75rem;
+    color: var(--waap-text-dark); font-weight: 600;
     border-bottom: 1px solid var(--waap-border);
+    transition: background 0.2s;
 }
+.faq-suggestion-item:last-child { border-bottom: none; }
+.faq-suggestion-item:hover { background: var(--waap-bg-light); }
+.faq-suggestion-item i { color: var(--waap-primary); }
 
-.faq-suggestion-item:last-child {
-    border-bottom: none;
-}
-
-.faq-suggestion-item:hover {
-    background: var(--waap-bg-light);
-}
-
-.faq-suggestion-item i {
-    color: var(--waap-primary);
-}
-
-/* Main Content */
+/* ============== CONTENT ============== */
 .faq-content {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 1.5rem 4rem;
-    position: relative;
-    margin-top: -2rem;
+    max-width: 1040px; margin: -2.5rem auto 0;
+    padding: 0 1.5rem 4rem; position: relative; z-index: 3;
 }
 
-/* Popular Questions */
+/* Popular */
 .popular-questions {
-    background: white;
-    border-radius: 24px;
+    background: #fff;
+    border: 1px solid var(--waap-border);
+    border-radius: 22px;
     padding: 2rem;
-    margin-bottom: 3rem;
+    margin-bottom: 2.5rem;
     box-shadow: var(--waap-shadow);
+    transform-style: preserve-3d;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.popular-questions:hover {
+    transform: translateY(-3px) rotateX(0.4deg);
+    box-shadow: var(--waap-shadow-lg);
 }
 
-.popular-header {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    margin-bottom: 1.5rem;
-}
-
-.popular-header i {
-    font-size: 1.5rem;
-    color: #f59e0b;
-}
-
+.popular-header { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.25rem; }
+.popular-header i { font-size: 1.35rem; color: var(--waap-primary-dark); }
 .popular-header h2 {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: var(--waap-text-dark);
-    margin: 0;
+    font-size: 1.4rem; font-weight: 800;
+    color: var(--waap-text-dark); margin: 0; letter-spacing: -0.01em;
 }
 
 .popular-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
     gap: 1rem;
 }
 
 .popular-item {
-    padding: 1.25rem;
+    padding: 1.1rem 1.25rem;
     background: var(--waap-bg-light);
-    border-radius: 12px;
+    border-radius: 14px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease, background 0.3s ease;
+    display: flex; align-items: center; gap: 0.9rem;
     border: 2px solid transparent;
+    color: var(--waap-text-dark);
+    font-weight: 700;
 }
-
 .popular-item:hover {
-    background: white;
+    background: #fff;
     border-color: var(--waap-primary);
-    transform: translateY(-2px);
+    transform: translateY(-3px) scale(1.01);
     box-shadow: var(--waap-shadow);
 }
+.popular-item i { color: var(--waap-primary-dark); font-size: 1.15rem; }
+.popular-item span { color: var(--waap-text-dark); font-weight: 700; font-size: 0.95rem; }
 
-.popular-item i {
-    color: var(--waap-primary);
-    font-size: 1.25rem;
-}
-
-.popular-item span {
-    color: var(--waap-text-dark);
-    font-weight: 500;
-    font-size: 0.95rem;
-}
-
-/* Category Tabs */
+/* Tabs */
 .category-tabs {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-    margin-bottom: 2rem;
-    justify-content: center;
+    display: flex; flex-wrap: wrap; gap: 0.6rem;
+    margin-bottom: 2rem; justify-content: center;
 }
-
 .category-tab {
-    padding: 0.75rem 1.5rem;
-    background: white;
+    padding: 0.7rem 1.25rem;
+    background: #fff;
     border: 2px solid var(--waap-border);
-    border-radius: 50px;
+    border-radius: 999px;
     cursor: pointer;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    color: var(--waap-text-muted);
+    transition: all 0.25s ease;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    font-weight: 700; color: var(--waap-text-strong);
     font-size: 0.9rem;
 }
-
 .category-tab:hover {
     border-color: var(--waap-primary);
-    color: var(--waap-primary);
+    color: var(--waap-primary-dark);
+    transform: translateY(-1px);
 }
-
 .category-tab.active {
-    background: var(--waap-primary);
-    border-color: var(--waap-primary);
-    color: white;
+    background: var(--waap-primary-dark);
+    border-color: var(--waap-primary-dark);
+    color: #fff;
+    box-shadow: 0 6px 14px -6px rgba(4,120,87,0.5);
 }
+.category-tab i { font-size: 0.95rem; }
 
-.category-tab i {
-    font-size: 1rem;
-}
-
-/* FAQ Categories */
+/* Category card */
 .faq-category {
-    background: white;
-    border-radius: 24px;
+    background: #fff;
+    border: 1px solid var(--waap-border);
+    border-radius: 22px;
     padding: 2rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.75rem;
     box-shadow: var(--waap-shadow);
+    transform-style: preserve-3d;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.faq-category:hover {
+    transform: translateY(-3px) rotateX(0.4deg);
+    box-shadow: var(--waap-shadow-lg);
 }
 
 .category-header {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-    padding-bottom: 1rem;
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1.25rem; padding-bottom: 1rem;
     border-bottom: 2px solid var(--waap-bg-light);
 }
-
 .category-icon {
-    width: 50px;
-    height: 50px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    color: white;
+    width: 50px; height: 50px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; color: white;
+    box-shadow: 0 8px 18px -8px rgba(0,0,0,0.25);
 }
-
-.category-icon.account { background: linear-gradient(135deg, #8b5cf6, #a78bfa); }
-.category-icon.store { background: linear-gradient(135deg, #059669, #10b981); }
-.category-icon.payments { background: linear-gradient(135deg, #f59e0b, #fbbf24); }
-.category-icon.shipping { background: linear-gradient(135deg, #0ea5e9, #38bdf8); }
-.category-icon.security { background: linear-gradient(135deg, #ef4444, #f87171); }
-.category-icon.marketing { background: linear-gradient(135deg, #ec4899, #f472b6); }
-.category-icon.troubleshoot { background: linear-gradient(135deg, #6366f1, #818cf8); }
+.category-icon.account { background: linear-gradient(135deg, #047857, #10b981); }
+.category-icon.store   { background: linear-gradient(135deg, #064e3b, #059669); }
+.category-icon.payments{ background: linear-gradient(135deg, #047857, #34d399); }
+.category-icon.security{ background: linear-gradient(135deg, #065f46, #10b981); }
+.category-icon.marketing{ background: linear-gradient(135deg, #064e3b, #34d399); }
+.category-icon.troubleshoot{ background: linear-gradient(135deg, #047857, #6ee7b7); }
 
 .category-header h3 {
-    font-size: 1.35rem;
-    font-weight: 700;
-    color: var(--waap-text-dark);
-    margin: 0;
+    font-size: 1.3rem; font-weight: 800;
+    color: var(--waap-text-dark); margin: 0; letter-spacing: -0.01em;
 }
 
 /* Accordion */
-.faq-accordion {
-    display: flex;
-    flex-direction: column;
-    gap: 0.75rem;
-}
+.faq-accordion { display: flex; flex-direction: column; gap: 0.75rem; }
 
 .faq-item {
-    border: 1px solid var(--waap-border);
-    border-radius: 12px;
-    overflow: hidden;
-    transition: all 0.3s ease;
+    border: 1.5px solid var(--waap-border);
+    border-radius: 14px; overflow: hidden;
+    transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+    background: #fff;
 }
-
-.faq-item:hover {
-    border-color: var(--waap-primary-light);
-}
-
+.faq-item:hover { border-color: var(--waap-primary-light); transform: translateY(-1px); }
 .faq-item.active {
     border-color: var(--waap-primary);
-    box-shadow: 0 0 0 3px rgba(5,150,105,0.1);
+    box-shadow: 0 0 0 3px rgba(4,120,87,0.12);
 }
 
 .faq-question {
     width: 100%;
-    padding: 1.25rem 1.5rem;
-    background: none;
-    border: none;
-    text-align: left;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    padding: 1.1rem 1.4rem;
+    background: none; border: none;
+    text-align: left; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
     gap: 1rem;
-    font-size: 1rem;
-    font-weight: 600;
+    font-size: 1rem; font-weight: 700;
     color: var(--waap-text-dark);
-    transition: all 0.3s ease;
+    transition: background 0.25s ease;
 }
-
-.faq-question:hover {
-    background: var(--waap-bg-light);
-}
-
-.faq-item.active .faq-question {
-    background: var(--waap-bg-light);
-}
+.faq-question:hover { background: var(--waap-bg-light); }
+.faq-item.active .faq-question { background: var(--waap-bg-light); color: var(--waap-primary-dark); }
 
 .faq-question i {
-    color: var(--waap-primary);
+    color: var(--waap-primary-dark);
     transition: transform 0.3s ease;
     font-size: 1rem;
 }
-
-.faq-item.active .faq-question i {
-    transform: rotate(180deg);
-}
+.faq-item.active .faq-question i { transform: rotate(180deg); }
 
 .faq-answer {
-    max-height: 0;
-    overflow: hidden;
-    transition: max-height 0.4s ease, padding 0.3s ease;
+    max-height: 0; overflow: hidden;
+    transition: max-height 0.4s ease;
 }
-
-.faq-item.active .faq-answer {
-    max-height: 500px;
-}
+.faq-item.active .faq-answer { max-height: 800px; }
 
 .faq-answer-content {
-    padding: 0 1.5rem 1.5rem;
-    color: var(--waap-text-muted);
-    line-height: 1.7;
-    font-size: 0.95rem;
+    padding: 0.25rem 1.4rem 1.4rem;
+    color: var(--waap-text-body);
+    line-height: 1.75;
+    font-size: 0.97rem;
+    font-weight: 500;
 }
+.faq-answer-content strong { color: var(--waap-primary-dark); font-weight: 800; }
+.faq-answer-content ul { margin: 0.6rem 0; padding-left: 1.4rem; }
+.faq-answer-content li { margin-bottom: 0.4rem; color: var(--waap-text-body); }
 
-.faq-answer-content strong {
-    color: var(--waap-primary);
-}
-
-.faq-answer-content ul {
-    margin: 0.75rem 0;
-    padding-left: 1.5rem;
-}
-
-.faq-answer-content li {
-    margin-bottom: 0.5rem;
-}
-
-/* CTA Section */
+/* CTA */
 .faq-cta {
     background: var(--waap-gradient);
     border-radius: 24px;
     padding: 3rem 2rem;
     text-align: center;
-    margin-top: 3rem;
+    margin-top: 2.5rem;
     position: relative;
     overflow: hidden;
-}
-
-.faq-cta::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    opacity: 0.5;
-}
-
-.faq-cta-content {
-    position: relative;
-    z-index: 2;
-}
-
-.faq-cta h2 {
-    color: white;
-    font-size: 2rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-}
-
-.faq-cta p {
-    color: rgba(255,255,255,0.9);
-    font-size: 1.1rem;
-    max-width: 500px;
-    margin: 0 auto 2rem;
-}
-
-.cta-buttons {
-    display: flex;
-    gap: 1rem;
-    justify-content: center;
-    flex-wrap: wrap;
-}
-
-.cta-btn {
-    padding: 1rem 2rem;
-    border-radius: 50px;
-    font-weight: 700;
-    font-size: 1rem;
-    text-decoration: none;
-    transition: all 0.3s ease;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-}
-
-.cta-btn-primary {
-    background: white;
-    color: var(--waap-primary);
-    box-shadow: var(--waap-shadow);
-}
-
-.cta-btn-primary:hover {
-    transform: translateY(-3px);
     box-shadow: var(--waap-shadow-lg);
 }
+.faq-cta::before {
+    content:''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.6;
+}
+.faq-cta-content { position: relative; z-index: 2; }
+.faq-cta h2 {
+    color: #000000; font-size: clamp(1.5rem, 3vw, 2rem);
+    font-weight: 900; margin-bottom: 0.75rem; letter-spacing: -0.01em;
+}
+.faq-cta p {
+    color: rgba(14, 13, 13, 0.95);
+    font-size: 1.05rem; max-width: 520px;
+    margin: 0 auto 1.75rem; font-weight: 500;
+}
 
+.cta-buttons { display: flex; gap: 0.9rem; justify-content: center; flex-wrap: wrap; }
+.cta-btn {
+    padding: 0.95rem 1.75rem; border-radius: 999px;
+    font-weight: 800; font-size: 1rem;
+    text-decoration: none;
+    transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.25s ease;
+    display: inline-flex; align-items: center; gap: 0.5rem;
+}
+.cta-btn-primary {
+    background: #fff; color: var(--waap-primary-dark);
+    box-shadow: var(--waap-shadow);
+}
+.cta-btn-primary:hover { transform: translateY(-3px); box-shadow: var(--waap-shadow-lg); }
 .cta-btn-secondary {
-    background: transparent;
-    color: white;
-    border: 2px solid rgba(255,255,255,0.5);
+    background: transparent; color: #fff;
+    border: 2px solid rgba(255,255,255,0.7);
 }
+.cta-btn-secondary:hover { background: rgba(255,255,255,0.12); border-color: #fff; }
 
-.cta-btn-secondary:hover {
-    background: rgba(255,255,255,0.1);
-    border-color: white;
-}
-
-/* Floating Support Button */
-.floating-support {
-    position: fixed;
-    bottom: 100px;
-    right: 24px;
-    z-index: 1000;
-}
-
+/* Floating support */
+.floating-support { position: fixed; bottom: 100px; right: 24px; z-index: 1000; }
 .support-btn {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-    background: var(--waap-primary);
-    color: white;
-    border: none;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.5rem;
-    box-shadow: 0 4px 20px rgba(5,150,105,0.4);
-    transition: all 0.3s ease;
+    width: 60px; height: 60px; border-radius: 50%;
+    background: var(--waap-primary-dark);
+    color: #fff; border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem;
+    box-shadow: 0 10px 24px -8px rgba(4,120,87,0.55);
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
     position: relative;
 }
-
-.support-btn:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 25px rgba(5,150,105,0.5);
-}
-
+.support-btn:hover { transform: scale(1.08); box-shadow: 0 14px 28px -10px rgba(4,120,87,0.65); }
 .support-btn::before {
     content: 'Need Help?';
-    position: absolute;
-    right: calc(100% + 12px);
-    background: white;
-    color: var(--waap-text-dark);
-    padding: 0.5rem 1rem;
-    border-radius: 8px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    white-space: nowrap;
-    box-shadow: var(--waap-shadow);
-    opacity: 0;
-    transform: translateX(10px);
-    transition: all 0.3s ease;
-    pointer-events: none;
+    position: absolute; right: calc(100% + 12px);
+    background: #fff; color: var(--waap-text-dark);
+    padding: 0.5rem 0.9rem; border-radius: 8px;
+    font-size: 0.85rem; font-weight: 700;
+    white-space: nowrap; box-shadow: var(--waap-shadow);
+    opacity: 0; transform: translateX(10px);
+    transition: all 0.25s ease; pointer-events: none;
 }
+.support-btn:hover::before { opacity: 1; transform: translateX(0); }
 
-.support-btn:hover::before {
-    opacity: 1;
-    transform: translateX(0);
-}
-
-/* Support Modal */
+/* Support modal */
 .support-modal {
-    position: fixed;
-    bottom: 170px;
-    right: 24px;
-    width: 350px;
-    background: white;
+    position: fixed; bottom: 170px; right: 24px;
+    width: 350px; background: #fff;
+    border: 1px solid var(--waap-border);
     border-radius: 20px;
-    box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-    z-index: 999;
-    display: none;
-    overflow: hidden;
+    box-shadow: 0 18px 50px rgba(0,0,0,0.18);
+    z-index: 999; display: none; overflow: hidden;
     animation: slideUp 0.3s ease;
 }
+.support-modal.active { display: block; }
+@keyframes slideUp { from {opacity:0; transform: translateY(20px);} to {opacity:1; transform: translateY(0);} }
 
-.support-modal.active {
-    display: block;
-}
+.support-modal-header { background: var(--waap-gradient); padding: 1.25rem 1.5rem; color: #fff; position: relative; }
+.support-modal-header h4 { margin: 0 0 0.25rem; font-size: 1.15rem; font-weight: 800; }
+.support-modal-header p { margin: 0; font-size: 0.9rem; opacity: 0.95; font-weight: 500; }
 
-@keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.support-modal-header {
-    background: var(--waap-gradient);
-    padding: 1.5rem;
-    color: white;
-}
-
-.support-modal-header h4 {
-    margin: 0 0 0.25rem;
-    font-size: 1.2rem;
-    font-weight: 700;
-}
-
-.support-modal-header p {
-    margin: 0;
-    font-size: 0.9rem;
-    opacity: 0.9;
-}
-
-.support-modal-body {
-    padding: 1.5rem;
-}
-
+.support-modal-body { padding: 1.25rem; }
 .support-input {
-    width: 100%;
-    padding: 0.9rem 1rem;
+    width: 100%; padding: 0.85rem 1rem;
     border: 2px solid var(--waap-border);
-    border-radius: 10px;
-    font-size: 0.95rem;
-    margin-bottom: 1rem;
-    transition: border-color 0.3s;
+    border-radius: 10px; font-size: 0.95rem;
+    margin-bottom: 0.9rem; color: var(--waap-text-dark);
+    font-weight: 600;
+    transition: border-color 0.25s;
 }
-
-.support-input:focus {
-    outline: none;
-    border-color: var(--waap-primary);
-}
-
-.support-textarea {
-    min-height: 100px;
-    resize: none;
-}
+.support-input:focus { outline: none; border-color: var(--waap-primary); }
+.support-textarea { min-height: 100px; resize: vertical; }
 
 .support-submit {
-    width: 100%;
-    padding: 1rem;
-    background: var(--waap-primary);
-    color: white;
-    border: none;
-    border-radius: 10px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-}
-
-.support-submit:hover {
+    width: 100%; padding: 0.95rem;
     background: var(--waap-primary-dark);
+    color: #fff; border: none; border-radius: 10px;
+    font-size: 1rem; font-weight: 800; cursor: pointer;
+    transition: background 0.25s ease, transform 0.2s ease;
 }
+.support-submit:hover { background: var(--waap-primary); transform: translateY(-1px); }
 
 .support-modal-close {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background: rgba(255,255,255,0.2);
-    border: none;
-    color: white;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: background 0.3s;
+    position: absolute; top: 0.9rem; right: 0.9rem;
+    background: rgba(255,255,255,0.22); border: none;
+    color: #fff; width: 30px; height: 30px;
+    border-radius: 50%; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: background 0.25s;
 }
+.support-modal-close:hover { background: rgba(255,255,255,0.35); }
 
-.support-modal-close:hover {
-    background: rgba(255,255,255,0.3);
+/* No results */
+.no-results { text-align: center; padding: 3rem; color: var(--waap-text-body); display: none; }
+.no-results i { font-size: 2.5rem; color: var(--waap-primary); margin-bottom: 0.75rem; }
+.no-results h3 { color: var(--waap-text-dark); margin-bottom: 0.5rem; font-weight: 800; }
+
+/* ============== SCROLL REVEAL + 3D ============== */
+.reveal {
+    opacity: 0;
+    transform: translateY(28px) rotateX(6deg);
+    transform-origin: center top;
+    transition: opacity 0.7s ease, transform 0.7s cubic-bezier(.2,.7,.2,1);
+    will-change: transform, opacity;
 }
-
-/* Back Link */
-.back-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    color: white;
-    text-decoration: none;
-    font-weight: 600;
-    margin-bottom: 1.5rem;
-    padding: 0.5rem 1rem;
-    background: rgba(255,255,255,0.15);
-    border-radius: 50px;
-    transition: all 0.3s ease;
+.reveal.in-view {
+    opacity: 1;
+    transform: translateY(0) rotateX(0deg);
 }
+.reveal.delay-1 { transition-delay: 0.08s; }
+.reveal.delay-2 { transition-delay: 0.16s; }
+.reveal.delay-3 { transition-delay: 0.24s; }
 
-.back-link:hover {
-    background: rgba(255,255,255,0.25);
-    color: white;
+/* Parallax target */
+.parallax { will-change: transform; }
+
+@media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1; transform: none; transition: none; }
+    .faq-hero::before, .faq-hero::after { animation: none; }
 }
 
 /* Responsive */
 @media (max-width: 768px) {
-    .faq-hero {
-        padding: 3rem 1rem 4rem;
-    }
-    
-    .faq-hero h1 {
-        font-size: 2rem;
-    }
-    
-    .faq-hero p {
-        font-size: 1rem;
-    }
-    
-    .faq-content {
-        padding: 0 1rem 4rem;
-    }
-    
-    .popular-questions,
-    .faq-category {
-        padding: 1.5rem;
-        border-radius: 16px;
-    }
-    
-    .category-tabs {
-        gap: 0.5rem;
-    }
-    
-    .category-tab {
-        padding: 0.6rem 1rem;
-        font-size: 0.8rem;
-    }
-    
-    .faq-cta {
-        padding: 2rem 1.5rem;
-        border-radius: 16px;
-    }
-    
-    .faq-cta h2 {
-        font-size: 1.5rem;
-    }
-    
-    .floating-support {
-        bottom: 80px;
-        right: 16px;
-    }
-    
-    .support-modal {
-        right: 16px;
-        left: 16px;
-        width: auto;
-        bottom: 150px;
-    }
-    
-    .support-btn::before {
-        display: none;
-    }
-}
-
-/* No results state */
-.no-results {
-    text-align: center;
-    padding: 3rem;
-    color: var(--waap-text-muted);
-}
-
-.no-results i {
-    font-size: 3rem;
-    color: var(--waap-border);
-    margin-bottom: 1rem;
-}
-
-.no-results h3 {
-    color: var(--waap-text-dark);
-    margin-bottom: 0.5rem;
+    .faq-hero { padding: 3.5rem 1rem 4.5rem; }
+    .faq-content { padding: 0 1rem 3rem; }
+    .popular-questions, .faq-category { padding: 1.4rem; border-radius: 18px; }
+    .category-tabs { gap: 0.4rem; }
+    .category-tab { padding: 0.55rem 0.9rem; font-size: 0.82rem; }
+    .faq-cta { padding: 2rem 1.4rem; border-radius: 18px; }
+    .floating-support { bottom: 80px; right: 16px; }
+    .support-modal { right: 16px; left: 16px; width: auto; bottom: 150px; }
+    .support-btn::before { display: none; }
 }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="faq-page">
-    <!-- Hero Section -->
+
+    <!-- HERO -->
     <section class="faq-hero">
-        <div class="faq-hero-content">
-            
-            <h1>Frequently Asked Questions</h1>
-            <p>Get answers to common questions about Waapfolio and selling on social media.</p>
-            
-            <!-- Search Bar -->
-            <div class="faq-search-container">
+        <div class="faq-hero-content parallax" data-parallax="0.15">
+            <span class="faq-eyebrow reveal">Help Center</span>
+            <h1 class="reveal delay-1">Frequently Asked <span class="accent">Questions</span></h1>
+            <p class="reveal delay-2">Simple answers about Waapfolio. Learn how to build your store, share it on social media, and start selling.</p>
+
+            <div class="faq-search-container reveal delay-3">
                 <div class="faq-search-wrapper">
                     <i class="fas fa-search faq-search-icon"></i>
-                    <input type="text" class="faq-search-input" id="faqSearch" placeholder="Search for answers..." autocomplete="off">
+                    <input type="text" id="faqSearch" class="faq-search-input" placeholder="Search a question..." autocomplete="off"/>
                 </div>
-                <div class="faq-search-suggestions" id="searchSuggestions">
-                    <!-- Suggestions will be populated by JS -->
-                </div>
+                <div class="faq-search-suggestions" id="faqSuggestions"></div>
             </div>
         </div>
     </section>
-    
-    <div class="faq-content">
-        <!-- Popular Questions -->
-        <div class="popular-questions">
+
+    <!-- CONTENT -->
+    <main class="faq-content">
+
+        <!-- Popular -->
+        <section class="popular-questions reveal">
             <div class="popular-header">
                 <i class="fas fa-fire"></i>
                 <h2>Popular Questions</h2>
             </div>
             <div class="popular-grid">
-                <div class="popular-item" data-target="q-what-is-waapfolio">
-                    <i class="fas fa-question-circle"></i>
+                <div class="popular-item" data-target="q-what-waapfolio">
+                    <i class="fas fa-circle-question"></i>
                     <span>What is Waapfolio?</span>
                 </div>
-                <div class="popular-item" data-target="q-free-to-use">
-                    <i class="fas fa-dollar-sign"></i>
-                    <span>Is Waapfolio Free?</span>
+                <div class="popular-item" data-target="q-is-free">
+                    <i class="fas fa-tag"></i>
+                    <span>Is Waapfolio free to use?</span>
                 </div>
-                <div class="popular-item" data-target="q-social-media">
-                    <i class="fas fa-share-alt"></i>
-                    <span>Can I integrate with social media?</span>
+                <div class="popular-item" data-target="q-social-integration">
+                    <i class="fas fa-share-nodes"></i>
+                    <span>Can I link my store to social media?</span>
                 </div>
             </div>
+        </section>
+
+        <!-- Tabs -->
+        <div class="category-tabs reveal">
+            <button class="category-tab active" data-filter="all"><i class="fas fa-layer-group"></i> All</button>
+            <button class="category-tab" data-filter="account"><i class="fas fa-user"></i> Account</button>
+            <button class="category-tab" data-filter="store"><i class="fas fa-store"></i> Store</button>
+            <button class="category-tab" data-filter="payments"><i class="fas fa-credit-card"></i> Payments</button>
+            <button class="category-tab" data-filter="security"><i class="fas fa-shield-halved"></i> Security</button>
+            <button class="category-tab" data-filter="marketing"><i class="fas fa-bullhorn"></i> Marketing</button>
+            <button class="category-tab" data-filter="troubleshoot"><i class="fas fa-screwdriver-wrench"></i> Help</button>
         </div>
-        
-        <!-- Category Tabs -->
-        <div class="category-tabs">
-            <button class="category-tab active" data-category="all">
-                <i class="fas fa-th-large"></i> All
-            </button>
-            <button class="category-tab" data-category="account">
-                <i class="fas fa-user-circle"></i> Account
-            </button>
-            <button class="category-tab" data-category="store">
-                <i class="fas fa-store"></i> Store
-            </button>
-            <button class="category-tab" data-category="payments">
-                <i class="fas fa-wallet"></i> Payments
-            </button>
-            <button class="category-tab" data-category="security">
-                <i class="fas fa-shield-alt"></i> Security
-            </button>
-            <button class="category-tab" data-category="marketing">
-                <i class="fas fa-bullhorn"></i> Marketing
-            </button>
-            <button class="category-tab" data-category="troubleshoot">
-                <i class="fas fa-tools"></i> Help
-            </button>
-        </div>
-        
-        <!-- Account & Registration -->
-        <div class="faq-category" data-category="account">
+
+        <!-- ACCOUNT -->
+        <section class="faq-category reveal" data-category="account">
             <div class="category-header">
-                <div class="category-icon account">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <h3>Account & Registration</h3>
+                <div class="category-icon account"><i class="fas fa-user"></i></div>
+                <h3>Account &amp; Registration</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-create-account">
-                    <button class="faq-question">
-                        How do I create a Waapfolio account?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Creating a Waapfolio account is quick and easy! Simply click the <strong>"Register"</strong> button on our homepage and follow these steps:
-                            <ul>
-                                <li>Enter your email address and create a secure password</li>
-                                <li>Verify your email through the confirmation link we send</li>
-                                <li>Complete your profile with your store details</li>
-                                <li>Start adding products and selling!</li>
-                            </ul>
-                            The entire process takes less than <strong>2 minutes</strong>.
-                        </div>
-                    </div>
+                <div class="faq-item">
+                    <button class="faq-question">How do I create a Waapfolio account?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Making an account is fast. Click the <strong>Register</strong> button on the home page and do these steps:
+                        <ul>
+                            <li>Type your email and create a strong password</li>
+                            <li>Open the email we send and click the link to verify</li>
+                            <li>Fill in your store name and basic details</li>
+                            <li>Add your first product and start selling</li>
+                        </ul>
+                        The whole signup takes about two minutes.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-register-google">
-                    <button class="faq-question">
-                        Can I register with Google or email?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Yes! Waapfolio supports multiple registration options for your convenience:
-                            <ul>
-                                <li><strong>Google Sign-In:</strong> One-click registration using your Google account</li>
-                                <li><strong>Email Registration:</strong> Traditional signup with email and password</li>
-                            </ul>
-                            Both methods give you full access to all Waapfolio features.
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">Can I sign up with Google or email?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Yes. You can use either of these:
+                        <ul>
+                            <li><strong>Google Sign-In:</strong> One click using your Google account</li>
+                            <li><strong>Email signup:</strong> Use your email and a password you choose</li>
+                        </ul>
+                        Both give you the same full access to your dashboard.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-reset-password">
-                    <button class="faq-question">
-                        How do I reset my password?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            To reset your password, go to the <strong>login page</strong> and click <strong>"Forgot Password?"</strong>. Enter your registered email address, and we'll send you a secure link to create a new password. The link expires in <strong>24 hours</strong> for security.
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">How do I reset my password?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Go to the login page and click <strong>Forgot Password</strong>. Enter the email you used to sign up, and we will send a secure reset link. The link works for 24 hours, then it expires for safety.
+                    </div></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Store Management -->
-        <div class="faq-category" data-category="store">
+        </section>
+
+        <!-- STORE -->
+        <section class="faq-category reveal" data-category="store">
             <div class="category-header">
-                <div class="category-icon store">
-                    <i class="fas fa-store"></i>
-                </div>
+                <div class="category-icon store"><i class="fas fa-store"></i></div>
                 <h3>Store Management</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-what-is-waapfolio">
-                    <button class="faq-question">
-                        What is Waapfolio and how does it work?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Waapfolio is a <strong>social commerce platform</strong> that helps you create and grow your online store. Here's how it works:
-                            <ul>
-                                <li>Create your personalized storefront in minutes</li>
-                                <li>Add products with photos, descriptions, and prices</li>
-                                <li>Share your unique store link on <strong>WhatsApp, Instagram, Facebook</strong>, and more</li>
-                                <li>Receive orders directly and manage everything from one dashboard</li>
-                            </ul>
-                            No technical skills needed – just your products and creativity!
-                        </div>
-                    </div>
+                <div class="faq-item" id="q-what-waapfolio">
+                    <button class="faq-question">What is Waapfolio and how does it work?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Waapfolio is a <strong>social commerce platform</strong>. It helps you build a simple online store and sell on social media. Here is the flow:
+                        <ul>
+                            <li>Build your <strong>storefront</strong> in a few minutes</li>
+                            <li>Add products with photos, a short description, and a price</li>
+                            <li>Share your store link on WhatsApp, Instagram, Facebook, TikTok</li>
+                            <li>Get orders in your DMs and manage them from your <strong>dashboard</strong></li>
+                        </ul>
+                        You do not need any tech skill. Just your products and your time.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-add-products">
-                    <button class="faq-question">
-                        How do I add products to my store?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Adding products is simple! From your dashboard:
-                            <ul>
-                                <li>Click <strong>"Add Product"</strong> button</li>
-                                <li>Upload product images (up to 5 per product)</li>
-                                <li>Enter product name, description, and price</li>
-                                <li>Set inventory quantity and variations (size, color, etc.)</li>
-                                <li>Click <strong>"Publish"</strong> to make it live</li>
-                            </ul>
-                            Your products appear instantly on your store page!
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">How do I add products to my store?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        From your dashboard:
+                        <ul>
+                            <li>Click <strong>Add Product</strong></li>
+                            <li>Upload product images (up to 5 per product)</li>
+                            <li>Type the product name, description, and price</li>
+                            <li>Set the <strong>stock quantity</strong> and product <strong>variants</strong> (size, color)</li>
+                            <li>Click <strong>Publish</strong> to make it live</li>
+                        </ul>
+                        Your product will show on your store page right away.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-customize-store">
-                    <button class="faq-question">
-                        Can I customize my store's theme and layout?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Absolutely! Waapfolio offers various customization options:
-                            <ul>
-                                <li><strong>Store themes:</strong> Choose from multiple professional templates</li>
-                                <li><strong>Colors:</strong> Customize your brand colors and accent tones</li>
-                                <li><strong>Logo:</strong> Upload your own logo or brand image</li>
-                                <li><strong>Layout:</strong> Arrange product categories and featured items</li>
-                            </ul>
-                            Make your store uniquely yours!
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">Can I customize my store theme and layout?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Yes. Waapfolio gives you many options:
+                        <ul>
+                            <li><strong>Store themes:</strong> Pick from clean, ready-made templates</li>
+                            <li><strong>Brand colors:</strong> Set your main and accent color</li>
+                            <li><strong>Logo:</strong> Upload your own brand image</li>
+                            <li><strong>Layout:</strong> Arrange your categories and featured products</li>
+                        </ul>
+                        Make the store feel like your brand.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-track-inventory">
-                    <button class="faq-question">
-                        How do I track inventory and manage stock?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Waapfolio includes built-in inventory management:
-                            <ul>
-                                <li><strong>Stock tracking:</strong> Set quantities for each product</li>
-                                <li><strong>Low stock alerts:</strong> Get notified when items are running low</li>
-                                <li><strong>Auto-update:</strong> Stock automatically decreases with each order</li>
-                                <li><strong>Out of stock:</strong> Products hide automatically when sold out</li>
-                            </ul>
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">How do I track inventory and manage stock?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Waapfolio has built-in <strong>inventory management</strong>:
+                        <ul>
+                            <li><strong>Stock tracking:</strong> Set a quantity for every product</li>
+                            <li><strong>Low stock alerts:</strong> Get a notice when items run low</li>
+                            <li><strong>Auto update:</strong> Stock goes down each time someone orders</li>
+                            <li><strong>Out of stock:</strong> The product hides on its own when sold out</li>
+                        </ul>
+                    </div></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Payments -->
-        <div class="faq-category" data-category="payments">
+        </section>
+
+        <!-- PAYMENTS -->
+        <section class="faq-category reveal" data-category="payments">
             <div class="category-header">
-                <div class="category-icon payments">
-                    <i class="fas fa-wallet"></i>
-                </div>
+                <div class="category-icon payments"><i class="fas fa-credit-card"></i></div>
                 <h3>Payments</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-free-to-use">
-                    <button class="faq-question">
-                        Is Waapfolio Free?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                    <div class="faq-answer-content">
-                        Yes! Waapfolio gives you full access to create your store and start selling immediately. Waapfolio is a <strong>social commerce platform</strong>, which means you can showcase your products directly on social media and interact with buyers in real time. Orders are sent straight to your DMs, making selling simple, fast, and personal. There are no hidden fees, our platform focuses on making selling easy, direct, and accessible for everyone. Premium features may be added in the future, but the core experience will always help you sell with ease.
-                    </div>
+                <div class="faq-item" id="q-is-free">
+                    <button class="faq-question">Is Waapfolio free?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Yes. Waapfolio gives you full access to build your store and start selling right away. As a <strong>social commerce platform</strong>, you can show your products on social media and talk to buyers in real time. Orders land straight in your DMs, so selling stays simple and personal. There are no hidden fees. We may add <strong>premium features</strong> later, but the main experience will always help you sell with ease.
+                    </div></div>
+                </div>
+            </div>
+        </section>
 
-                    </div>
-                </div>
-               
-                </div>
-          
-               
-            </div>
-        </div>
-        
-        <!-- Security & Privacy -->
-        <div class="faq-category" data-category="security">
+        <!-- SECURITY -->
+        <section class="faq-category reveal" data-category="security">
             <div class="category-header">
-                <div class="category-icon security">
-                    <i class="fas fa-shield-alt"></i>
-                </div>
-                <h3>Security & Privacy</h3>
+                <div class="category-icon security"><i class="fas fa-shield-halved"></i></div>
+                <h3>Security &amp; Privacy</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-data-protection">
-                    <button class="faq-question">
-                        How is my personal information protected?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Your security is our priority. We use:
-                            <ul>
-                                <li><strong>256-bit SSL encryption:</strong> All data is encrypted in transit</li>
-                                <li><strong>Secure servers:</strong> Enterprise-grade cloud infrastructure</li>
-                                <li><strong>GDPR compliant:</strong> We follow international data protection standards</li>
-                                <li><strong>No data selling:</strong> We never sell your information to third parties</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="faq-item">
+                    <button class="faq-question">How is my personal information protected?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Your safety matters. We use:
+                        <ul>
+                            <li><strong>256-bit SSL encryption:</strong> All data is locked while it moves</li>
+                            <li><strong>Secure servers:</strong> Strong cloud infrastructure</li>
+                            <li><strong>GDPR-aligned:</strong> We follow global data protection rules</li>
+                            <li><strong>No data selling:</strong> We never sell your information</li>
+                        </ul>
+                    </div></div>
                 </div>
-                {% comment %} <div class="faq-item" id="q-two-factor">
-                    <button class="faq-question">
-                        How do I enable two-factor authentication?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Enable 2FA from your <strong>Settings → Security</strong> page:
-                            <ul>
-                                <li>Choose authentication method (SMS or authenticator app)</li>
-                                <li>Scan QR code or enter phone number</li>
-                                <li>Verify with the code sent to you</li>
-                                <li>Save backup codes in a safe place</li>
-                            </ul>
-                            2FA adds an extra layer of protection to your account.
-                        </div>
-                    </div>
-                </div> {% endcomment %}
-                <div class="faq-item" id="q-account-fraud">
-                    <button class="faq-question">
-                        What should I do if I suspect account fraud?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            If you suspect unauthorized access:
-                            <ul>
-                                <li><strong>Change your password immediately</strong></li>
-                                <li>Enable two-factor authentication</li>
-                                <li>Review recent account activity</li>
-                                <li>Contact our support team right away</li>
-                            </ul>
-                            We take fraud seriously and will help secure your account.
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">What should I do if I think someone got into my account?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        If you think your account is not safe:
+                        <ul>
+                            <li>Change your <strong>password</strong> right away</li>
+                            <li>Turn on <strong>two-factor authentication (2FA)</strong></li>
+                            <li>Check your recent <strong>account activity</strong></li>
+                            <li>Contact our support team fast</li>
+                        </ul>
+                        We take this seriously and will help you lock your account.
+                    </div></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Marketing & Growth -->
-        <div class="faq-category" data-category="marketing">
+        </section>
+
+        <!-- MARKETING -->
+        <section class="faq-category reveal" data-category="marketing">
             <div class="category-header">
-                <div class="category-icon marketing">
-                    <i class="fas fa-bullhorn"></i>
-                </div>
-                <h3>Marketing & Growth</h3>
+                <div class="category-icon marketing"><i class="fas fa-bullhorn"></i></div>
+                <h3>Marketing &amp; Growth</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-social-media">
-                    <button class="faq-question">
-                        Can I integrate Waapfolio with social media platforms?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Absolutely! Waapfolio is built for social selling:
-                            <ul>
-                                <li><strong>WhatsApp:</strong> Direct order links and chat integration</li>
-                                <li><strong>Instagram:</strong> Product tagging and bio links</li>
-                                <li><strong>Facebook:</strong> Shop integration and marketplace</li>
-                                <li><strong>TikTok:</strong> Link in bio for your store</li>
-                                <li><strong>Twitter/X:</strong> Share products with one click</li>
-                            </ul>
-                            Every product has a shareable link for any platform!
-                        </div>
-                    </div>
+                <div class="faq-item" id="q-social-integration">
+                    <button class="faq-question">Can I link Waapfolio with social media?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Yes. Waapfolio is built for <strong>social selling</strong>:
+                        <ul>
+                            <li><strong>WhatsApp:</strong> Direct order links and chat</li>
+                            <li><strong>Instagram:</strong> Bio link and product tagging</li>
+                            <li><strong>Facebook:</strong> Shop and marketplace links</li>
+                            <li><strong>TikTok:</strong> Bio link to your store</li>
+                            <li><strong>Twitter / X:</strong> Share products in one click</li>
+                        </ul>
+                        Every product has a <strong>shareable link</strong> for any platform.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-promote-store">
-                    <button class="faq-question">
-                        How can I promote my store to get more sales?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Boost your sales with these strategies:
-                            <ul>
-                                <li>Share your store link on all social media profiles</li>
-                                <li>Use high-quality product photos</li>
-                                <li>Offer limited-time discounts</li>
-                                <li>Engage with customers on WhatsApp and DMs</li>
-                                <li>Ask satisfied customers for reviews</li>
-                                <li>Post regularly about new products</li>
-                            </ul>
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">How can I promote my store and get more sales?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Try these simple tips:
+                        <ul>
+                            <li>Add your store link to every social media profile</li>
+                            <li>Use clear, bright product photos</li>
+                            <li>Run a small <strong>discount</strong> for a short time</li>
+                            <li>Reply fast to buyers on WhatsApp and DMs</li>
+                            <li>Ask happy customers for a <strong>review</strong></li>
+                            <li>Post often about new products</li>
+                        </ul>
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-analytics">
-                    <button class="faq-question">
-                        Does Waapfolio offer analytics for sales and traffic?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Yes! Your dashboard includes detailed analytics:
-                            <ul>
-                                <li><strong>Sales reports:</strong> Daily, weekly, and monthly revenue</li>
-                                <li><strong>Traffic stats:</strong> Store visits and page views</li>
-                                <li><strong>Top products:</strong> Best-selling items</li>
-                                <li><strong>Customer insights:</strong> Where your buyers come from</li>
-                                <li><strong>Conversion rates:</strong> Track your store's performance</li>
-                            </ul>
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">Does Waapfolio have sales and traffic analytics?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Yes. Your dashboard has full <strong>analytics</strong>:
+                        <ul>
+                            <li><strong>Sales reports:</strong> Daily, weekly, and monthly revenue</li>
+                            <li><strong>Traffic stats:</strong> Store visits and page views</li>
+                            <li><strong>Top products:</strong> Your best sellers</li>
+                            <li><strong>Customer insights:</strong> Where your buyers come from</li>
+                            <li><strong>Conversion rate:</strong> How many visits turn into orders</li>
+                        </ul>
+                    </div></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- Troubleshooting -->
-        <div class="faq-category" data-category="troubleshoot">
+        </section>
+
+        <!-- TROUBLESHOOT -->
+        <section class="faq-category reveal" data-category="troubleshoot">
             <div class="category-header">
-                <div class="category-icon troubleshoot">
-                    <i class="fas fa-tools"></i>
-                </div>
+                <div class="category-icon troubleshoot"><i class="fas fa-screwdriver-wrench"></i></div>
                 <h3>Troubleshooting</h3>
             </div>
             <div class="faq-accordion">
-                <div class="faq-item" id="q-store-not-showing">
-                    <button class="faq-question">
-                        What should I do if my store isn't showing correctly?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Try these troubleshooting steps:
-                            <ul>
-                                <li><strong>Clear browser cache:</strong> Refresh with Ctrl+Shift+R</li>
-                                <li>Try a different browser or device</li>
-                                <li>Check if your store is set to "Published"</li>
-                                <li>Ensure all required fields are completed</li>
-                                <li>Contact support if the issue persists</li>
-                            </ul>
-                        </div>
-                    </div>
+                <div class="faq-item">
+                    <button class="faq-question">My store is not showing correctly. What do I do?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Try these quick steps:
+                        <ul>
+                            <li>Clear your browser <strong>cache</strong> (press Ctrl + Shift + R)</li>
+                            <li>Open the store on a different browser or device</li>
+                            <li>Check that your store status is <strong>Published</strong></li>
+                            <li>Make sure all required fields on your products are filled</li>
+                            <li>Contact support if it still does not work</li>
+                        </ul>
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-payment-issues">
-                    <button class="faq-question">
-                        Why isn't my payment going through?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            Payment issues can occur due to:
-                            <ul>
-                                <li>Insufficient funds </li>
-                                <li>Bank security blocks (contact your bank)</li>
-                                <li>Expired payment method</li>
-                            </ul>
-                            Try a different payment method or contact your bank for assistance.
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">Why is my payment not going through?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        Payments can fail because of:
+                        <ul>
+                            <li>Not enough funds in the account</li>
+                            <li>Bank security block (call your bank)</li>
+                            <li>Expired card or payment method</li>
+                        </ul>
+                        Try a different payment method or talk to your bank.
+                    </div></div>
                 </div>
-                <div class="faq-item" id="q-contact-support">
-                    <button class="faq-question">
-                        How do I contact support for help?
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <div class="faq-answer">
-                        <div class="faq-answer-content">
-                            We're here to help! Reach us through:
-                            <ul>
-                                <li><strong>Live chat:</strong> Click the support button on this page</li>
-                                <li><strong>Email:</strong> waapfolioorg@gmail.com</li>
-                                <li><strong>WhatsApp:</strong> Message us directly</li>
-                                <li><strong>Help Center:</strong> Browse our knowledge base</li>
-                            </ul>
-                            Our team typically responds within <strong>24 hours</strong>.
-                        </div>
-                    </div>
+
+                <div class="faq-item">
+                    <button class="faq-question">How do I contact support?<i class="fas fa-chevron-down"></i></button>
+                    <div class="faq-answer"><div class="faq-answer-content">
+                        We are here to help. You can reach us by:
+                        <ul>
+                            <li><strong>Live chat:</strong> Click the support button on this page</li>
+                            <li><strong>Email:</strong> waapfolioorg@gmail.com</li>
+                            <li><strong>WhatsApp:</strong> Send us a direct message</li>
+                            <li><strong>Help Center:</strong> Read our guides</li>
+                        </ul>
+                        Our team usually replies within 24 hours.
+                    </div></div>
                 </div>
             </div>
-        </div>
-        
-        <!-- No Results -->
-        <div class="no-results" id="noResults" style="display: none;">
-            <i class="fas fa-search"></i>
+        </section>
+
+        <!-- No results -->
+        <div class="no-results" id="noResults">
+            <i class="fas fa-magnifying-glass"></i>
             <h3>No results found</h3>
-            <p>Try different keywords or browse the categories above</p>
+            <p>Try other words or browse the categories above.</p>
         </div>
-        
-        <!-- CTA Section -->
-        <div class="faq-cta">
+
+        <!-- CTA -->
+        <section class="faq-cta reveal">
             <div class="faq-cta-content">
                 <h2>Ready to Start Selling?</h2>
-                <p>Join thousands of sellers growing their business with Waapfolio</p>
+                <p>Build your store, share the link, and turn your followers into customers.</p>
                 <div class="cta-buttons">
-                  {% if not request.user.is_authenticated %}
-                    <a href="{% url 'register' %}" class="cta-btn cta-btn-primary">
-                        <i class="fas fa-rocket"></i> Start Selling Today
-                    </a>
-                  {% endif %}
-                    <a href="{% url 'contact' %}" class="cta-btn cta-btn-secondary">
-                        <i class="fas fa-envelope"></i> Contact Us
-                    </a>
+                    {% if not request.user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="cta-btn cta-btn-success"><i class="fas fa-rocket"></i> Start Selling Today</a>
+                    {% endif %}
+                    <a href="{% url 'contact' %}" class="cta-btn cta-btn-success" id="openSupportCta"><i class="fas fa-envelope"></i> Contact Us</a>
                 </div>
             </div>
-        </div>
-    </div>
-    
-    {% comment %} <!-- Floating Support Button -->
+        </section>
+
+    </main>
+
+    <!-- Floating support -->
     <div class="floating-support">
-        <button class="support-btn" id="supportBtn">
-            <i class="fas fa-headset"></i>
-        </button>
+        <button class="support-btn" id="supportBtn" aria-label="Open support"><i class="fas fa-headset"></i></button>
     </div>
-     {% endcomment %}
-    <!-- Support Modal -->
+
     <div class="support-modal" id="supportModal">
-        <button class="support-modal-close" id="closeModal">
-            <i class="fas fa-times"></i>
-        </button>
         <div class="support-modal-header">
+            <button class="support-modal-close" id="closeSupport" aria-label="Close"><i class="fas fa-times"></i></button>
             <h4>Contact Support</h4>
-            <p>We typically respond within 24 hours</p>
+            <p>We usually reply within 24 hours.</p>
         </div>
         <div class="support-modal-body">
-            <form action="{% url 'contact' %}" method="post">
+            <form method="post" action="#">
                 {% csrf_token %}
-                <input type="email" class="support-input" placeholder="Your email" required>
-                <textarea class="support-input support-textarea" placeholder="How can we help you?" required></textarea>
-                <button type="submit" class="support-submit">
-                    <i class="fas fa-paper-plane"></i> Send Message
-                </button>
+                <input type="text" name="name" class="support-input" placeholder="Your name" required>
+                <input type="email" name="email" class="support-input" placeholder="Your email" required>
+                <textarea name="message" class="support-input support-textarea" placeholder="How can we help?" required></textarea>
+                <button type="submit" class="support-submit"><i class="fas fa-paper-plane"></i> Send Message</button>
             </form>
         </div>
     </div>
+
 </div>
 {% endblock %}
 
 {% block extra_scripts %}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // FAQ Accordion
-    const faqItems = document.querySelectorAll('.faq-item');
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question');
-        question.addEventListener('click', () => {
-            const wasActive = item.classList.contains('active');
-            // Close all items in same category
-            const parent = item.closest('.faq-accordion');
-            parent.querySelectorAll('.faq-item').forEach(i => i.classList.remove('active'));
-            // Toggle current
-            if (!wasActive) {
-                item.classList.add('active');
-            }
+(function() {
+    // Accordion
+    document.querySelectorAll('.faq-question').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const item = btn.closest('.faq-item');
+            item.classList.toggle('active');
         });
     });
-    
-    // Category Tabs
-    const categoryTabs = document.querySelectorAll('.category-tab');
-    const faqCategories = document.querySelectorAll('.faq-category');
-    
-    categoryTabs.forEach(tab => {
+
+    // Popular -> open the matching question
+    document.querySelectorAll('.popular-item').forEach(el => {
+        el.addEventListener('click', () => {
+            const id = el.getAttribute('data-target');
+            const target = document.getElementById(id);
+            if (!target) return;
+            target.classList.add('active');
+            target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+
+    // Category tabs
+    const tabs = document.querySelectorAll('.category-tab');
+    const categories = document.querySelectorAll('.faq-category');
+    tabs.forEach(tab => {
         tab.addEventListener('click', () => {
-            const category = tab.dataset.category;
-            
-            // Update active tab
-            categoryTabs.forEach(t => t.classList.remove('active'));
+            tabs.forEach(t => t.classList.remove('active'));
             tab.classList.add('active');
-            
-            // Show/hide categories
-            if (category === 'all') {
-                faqCategories.forEach(cat => cat.style.display = 'block');
-            } else {
-                faqCategories.forEach(cat => {
-                    cat.style.display = cat.dataset.category === category ? 'block' : 'none';
-                });
-            }
-            
-            document.getElementById('noResults').style.display = 'none';
+            const filter = tab.getAttribute('data-filter');
+            categories.forEach(cat => {
+                cat.style.display = (filter === 'all' || cat.getAttribute('data-category') === filter) ? '' : 'none';
+            });
         });
     });
-    
-    // Popular Questions Click
-    const popularItems = document.querySelectorAll('.popular-item');
-    popularItems.forEach(item => {
-        item.addEventListener('click', () => {
-            const targetId = item.dataset.target;
-            const targetItem = document.getElementById(targetId);
-            if (targetItem) {
-                // Show all categories first
-                categoryTabs.forEach(t => t.classList.remove('active'));
-                document.querySelector('[data-category="all"]').classList.add('active');
-                faqCategories.forEach(cat => cat.style.display = 'block');
-                
-                // Scroll to and open the question
-                targetItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                setTimeout(() => {
-                    targetItem.classList.add('active');
-                }, 300);
-            }
-        });
-    });
-    
-    // Search Functionality
-    const searchInput = document.getElementById('faqSearch');
-    const suggestionsBox = document.getElementById('searchSuggestions');
+
+    // Search
+    const search = document.getElementById('faqSearch');
     const noResults = document.getElementById('noResults');
-    
-    const allQuestions = [];
-    faqItems.forEach(item => {
-        const question = item.querySelector('.faq-question').textContent.trim();
-        const answer = item.querySelector('.faq-answer-content').textContent.trim();
-        allQuestions.push({
-            element: item,
-            question: question,
-            answer: answer,
-            category: item.closest('.faq-category')
-        });
-    });
-    
-    searchInput.addEventListener('input', function() {
-        const query = this.value.toLowerCase().trim();
-        
-        if (query.length < 2) {
-            suggestionsBox.classList.remove('active');
-            faqCategories.forEach(cat => cat.style.display = 'block');
-            faqItems.forEach(item => item.style.display = 'block');
-            noResults.style.display = 'none';
-            return;
-        }
-        
-        // Filter questions
-        const matches = allQuestions.filter(q => 
-            q.question.toLowerCase().includes(query) || 
-            q.answer.toLowerCase().includes(query)
-        );
-        
-        // Show suggestions
-        if (matches.length > 0) {
-            suggestionsBox.innerHTML = matches.slice(0, 5).map(m => `
-                <div class="faq-suggestion-item" data-id="${m.element.id}">
-                    <i class="fas fa-search"></i>
-                    <span>${m.question}</span>
-                </div>
-            `).join('');
-            suggestionsBox.classList.add('active');
-            
-            // Add click handlers to suggestions
-            suggestionsBox.querySelectorAll('.faq-suggestion-item').forEach(item => {
-                item.addEventListener('click', () => {
-                    const targetId = item.dataset.id;
-                    const target = document.getElementById(targetId);
-                    if (target) {
-                        searchInput.value = '';
-                        suggestionsBox.classList.remove('active');
-                        faqCategories.forEach(cat => cat.style.display = 'block');
-                        faqItems.forEach(i => i.style.display = 'block');
-                        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        setTimeout(() => target.classList.add('active'), 300);
-                    }
-                });
+    search.addEventListener('input', () => {
+        const q = search.value.trim().toLowerCase();
+        let anyVisible = false;
+        categories.forEach(cat => {
+            let catVisible = false;
+            cat.querySelectorAll('.faq-item').forEach(item => {
+                const text = item.innerText.toLowerCase();
+                const match = !q || text.includes(q);
+                item.style.display = match ? '' : 'none';
+                if (match) catVisible = true;
             });
-        } else {
-            suggestionsBox.classList.remove('active');
-        }
-        
-        // Filter visible questions
-        let hasVisible = false;
-        faqCategories.forEach(cat => {
-            const items = cat.querySelectorAll('.faq-item');
-            let catHasVisible = false;
-            items.forEach(item => {
-                const q = allQuestions.find(aq => aq.element === item);
-                if (q && (q.question.toLowerCase().includes(query) || q.answer.toLowerCase().includes(query))) {
-                    item.style.display = 'block';
-                    catHasVisible = true;
-                    hasVisible = true;
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-            cat.style.display = catHasVisible ? 'block' : 'none';
+            cat.style.display = catVisible ? '' : 'none';
+            if (catVisible) anyVisible = true;
         });
-        
-        noResults.style.display = hasVisible ? 'none' : 'block';
+        noResults.style.display = anyVisible ? 'none' : 'block';
     });
-    
-    // Close suggestions on click outside
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.faq-search-container')) {
-            suggestionsBox.classList.remove('active');
-        }
-    });
-    
-    // Support Modal
+
+    // Support modal
     const supportBtn = document.getElementById('supportBtn');
     const supportModal = document.getElementById('supportModal');
-    const closeModal = document.getElementById('closeModal');
-    
-    supportBtn.addEventListener('click', () => {
-        supportModal.classList.toggle('active');
+    const closeSupport = document.getElementById('closeSupport');
+    const openSupportCta = document.getElementById('openSupportCta');
+    supportBtn.addEventListener('click', () => supportModal.classList.toggle('active'));
+    closeSupport.addEventListener('click', () => supportModal.classList.remove('active'));
+    if (openSupportCta) openSupportCta.addEventListener('click', (e) => {
+        e.preventDefault();
+        supportModal.classList.add('active');
     });
-    
-    closeModal.addEventListener('click', () => {
-        supportModal.classList.remove('active');
-    });
-    
-    // Close modal on outside click
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.floating-support') && !e.target.closest('.support-modal')) {
-            supportModal.classList.remove('active');
+
+    // Scroll reveal with stagger
+    const revealEls = document.querySelectorAll('.reveal');
+    const io = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('in-view');
+                io.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
+    revealEls.forEach(el => io.observe(el));
+
+    // Parallax (hero) + subtle 3D tilt on cards
+    const parallaxEls = document.querySelectorAll('.parallax');
+    const tiltCards = document.querySelectorAll('.faq-category, .popular-questions');
+
+    let ticking = false;
+    window.addEventListener('scroll', () => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const y = window.scrollY;
+                parallaxEls.forEach(el => {
+                    const speed = parseFloat(el.getAttribute('data-parallax')) || 0.2;
+                    el.style.transform = `translate3d(0, ${y * speed}px, 0)`;
+                });
+                ticking = false;
+            });
+            ticking = true;
         }
-    });
-});
+    }, { passive: true });
+
+    // 3D tilt on mouse move (desktop)
+    if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+        tiltCards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                card.style.transform = `perspective(900px) rotateX(${(-y * 3).toFixed(2)}deg) rotateY(${(x * 3).toFixed(2)}deg) translateY(-3px)`;
+            });
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = '';
+            });
+        });
+    }
+})();
 </script>
 {% endblock %}

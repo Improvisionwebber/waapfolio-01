@@ -18,115 +18,69 @@
 {% block extra_styles %}
 <style>
     :root {
-        --primary: #00D26A;
-        --primary-dark: #00B85C;
-        --primary-light: #4AE89A;
-        --primary-glow: rgba(0, 210, 106, 0.4);
-        --secondary: #1A1A2E;
-        --secondary-light: #252542;
-        --accent: #00FFA3;
-        --accent-blue: #00D4FF;
-        --text-primary: #FFFFFF;
-        --text-secondary: #A0A0B0;
-        --text-muted: #6B6B7B;
-        --bg-dark: #0A0A14;
-        --bg-card: rgba(26, 26, 46, 0.8);
-        --bg-glass: rgba(255, 255, 255, 0.05);
-        --border-glass: rgba(255, 255, 255, 0.1);
+        --primary: #00B85C;
+        --primary-dark: #009149;
+        --primary-light: #00D26A;
+        --primary-glow: rgba(0, 184, 92, 0.25);
+        --accent: #00C28A;
+
+        /* LIGHT THEME TOKENS */
+        --bg-page: #ffffff;
+        --bg-soft: #f8fafc;
         --bg-mint: #ecfdf5;
+        --bg-card: #ffffff;
+        --bg-glass: rgba(0, 0, 0, 0.03);
+        --border-glass: #e5e7eb;
+        --border-strong: #d1d5db;
+
+        --ink: #0a0a0a;
+        --ink-2: #1f2937;
+        --text-primary: #0a0a0a;
+        --text-secondary: #374151;
+        --text-muted: #6b7280;
+
         --gradient-primary: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        --gradient-dark: linear-gradient(180deg, #0A0A14 0%, #1A1A2E 100%);
-        --shadow-glow: 0 0 40px var(--primary-glow);
-        --shadow-card: 0 20px 60px rgba(0, 0, 0, 0.4);
+        --gradient-soft: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+        --shadow-glow: 0 10px 40px rgba(0, 184, 92, 0.15);
+        --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.06);
         --transition-smooth: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     }
 
-    * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-    }
+    * { margin:0; padding:0; box-sizing:border-box; }
 
     body {
         font-family: 'Plus Jakarta Sans', sans-serif;
-        background: var(--bg-dark);
-        color: var(--text-primary);
+        background: var(--bg-page);
+        color: var(--ink);
         overflow-x: hidden;
         line-height: 1.7;
     }
 
-    /* Scrollbar */
     ::-webkit-scrollbar { width: 8px; }
-    ::-webkit-scrollbar-track { background: var(--bg-dark); }
+    ::-webkit-scrollbar-track { background: var(--bg-soft); }
     ::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
 
-    /* Floating Dots Background */
-    .floating-dots {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-        z-index: 0;
-        overflow: hidden;
-    }
+    section { position: relative; z-index: 1; }
+    .container { max-width: 1280px; margin: 0 auto; padding: 0 2rem; }
 
-    .dot {
-        position: absolute;
-        width: 6px;
-        height: 6px;
-        background: var(--primary);
-        border-radius: 50%;
-        opacity: 0.15;
-        animation: floatDot 20s infinite ease-in-out;
+    /* Make every heading and paragraph bold + dark for light bg */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--ink) !important;
+        font-weight: 800;
     }
+    p, li, span { color: var(--ink-2); }
+    strong { color: var(--ink); font-weight: 700; }
 
-    @keyframes floatDot {
-        0%, 100% { transform: translateY(0) translateX(0); }
-        25% { transform: translateY(-30px) translateX(20px); }
-        50% { transform: translateY(-10px) translateX(-20px); }
-        75% { transform: translateY(-50px) translateX(10px); }
-    }
-
-    /* Section Styling */
-    section {
-        position: relative;
-        z-index: 1;
-    }
-
-    .container {
-        max-width: 1280px;
-        margin: 0 auto;
-        padding: 0 2rem;
-    }
-
-    /* ================= HERO SECTION ================= */
+    /* ================= HERO ================= */
     .about-hero {
-        min-height: 100vh;
+        min-height: 90vh;
         display: flex;
         align-items: center;
         padding: 120px 0 80px;
-        background: linear-gradient(135deg, var(--bg-dark) 0%, var(--secondary) 50%, #0d2818 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%);
+        border-bottom: 1px solid var(--border-glass);
         position: relative;
         overflow: hidden;
-    }
-
-    .about-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 80%;
-        height: 150%;
-        background: radial-gradient(ellipse, var(--primary-glow) 0%, transparent 60%);
-        opacity: 0.3;
-        animation: pulseGlow 8s infinite ease-in-out;
-    }
-
-    @keyframes pulseGlow {
-        0%, 100% { opacity: 0.2; transform: scale(1); }
-        50% { opacity: 0.4; transform: scale(1.1); }
     }
 
     .hero-content {
@@ -136,1255 +90,564 @@
         align-items: center;
     }
 
-    .hero-text {
-        animation: fadeInLeft 1s ease-out;
-    }
-
-    @keyframes fadeInLeft {
-        from { opacity: 0; transform: translateX(-50px); }
-        to { opacity: 1; transform: translateX(0); }
-    }
-
-    .hero-logo {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 2rem;
-    }
-
-    .hero-logo img {
-        height: 60px;
-        filter: drop-shadow(0 0 20px var(--primary-glow));
-        animation: logoFloat 3s infinite ease-in-out;
-    }
-
-    @keyframes logoFloat {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-
+    .hero-logo { display:flex; align-items:center; gap:12px; margin-bottom:2rem; }
+    .hero-logo img { height:60px; }
     .hero-logo span {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 2rem;
-        font-weight: 700;
-        background: var(--gradient-primary);
-        -webkit-background-clip: text;
+        font-size: 2rem; font-weight: 800;
+        color: var(--primary-dark) !important;
     }
+
     .hero-text h1 {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 3.5rem;
+        font-size: clamp(2.2rem, 5vw, 3.6rem);
         font-weight: 800;
         line-height: 1.15;
         margin-bottom: 1.5rem;
-        color: #ffffff;
+        color: var(--ink) !important;
     }
-
-
     .hero-text p {
-        font-size: 1.25rem;
-        color: var(--text-secondary);
+        font-size: 1.2rem;
+        color: var(--text-secondary) !important;
         max-width: 520px;
         margin-bottom: 2rem;
-    }
-
-    .hero-image {
-        position: relative;
-        animation: fadeInRight 1s ease-out 0.3s both;
-    }
-
-    @keyframes fadeInRight {
-        from { opacity: 0; transform: translateX(50px); }
-        to { opacity: 1; transform: translateX(0); }
+        font-weight: 500;
     }
 
     .hero-image img {
-        width: 100%;
-        max-width: 550px;
-        border-radius: 30px;
-        box-shadow: 0 40px 80px rgba(0, 210, 106, 0.2);
-        transition: var(--transition-smooth);
+        width: 100%; max-width: 550px;
+        border-radius: 24px;
+        box-shadow: var(--shadow-card);
+        border: 1px solid var(--border-glass);
     }
 
-    .hero-image:hover img {
-        transform: scale(1.02) rotate(1deg);
-        box-shadow: 0 50px 100px rgba(0, 210, 106, 0.3);
-    }
-
-    .hero-image .floating-logo {
-        position: absolute;
-        top: -30px;
-        left: 50%;
-        transform: translateX(-50%);
-        height: 80px;
-        filter: drop-shadow(0 0 30px var(--primary-glow));
-        animation: floatBounce 4s infinite ease-in-out;
-    }
-
-    @keyframes floatBounce {
-        0%, 100% { transform: translateX(-50%) translateY(0); }
-        50% { transform: translateX(-50%) translateY(-20px); }
-    }
-
-    /* ================= MISSION SECTION ================= */
+    /* ================= MISSION ================= */
     .mission-section {
         padding: 120px 0;
-        background: var(--secondary);
-        position: relative;
+        background: var(--bg-soft);
+        border-bottom: 1px solid var(--border-glass);
     }
 
-    .mission-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 2px;
-        background: var(--gradient-primary);
-    }
-
-    .section-header {
-        text-align: center;
-        margin-bottom: 4rem;
-    }
-
+    .section-header { text-align:center; margin-bottom: 4rem; }
     .section-badge {
         display: inline-block;
         padding: 0.5rem 1.5rem;
-        background: var(--bg-glass);
-        border: 1px solid var(--border-glass);
+        background: var(--bg-mint);
+        border: 1px solid #bbf7d0;
         border-radius: 50px;
         font-size: 0.9rem;
-        color: var(--primary);
-        font-weight: 600;
+        color: var(--primary-dark) !important;
+        font-weight: 700;
         margin-bottom: 1.5rem;
-        backdrop-filter: blur(10px);
     }
-/* ================= WHAT MAKES US DIFFERENT ================= */
-.different-section h2 {
-    color: #FFFFFF; /* white */
-}
-
-/* ================= WHO IS WAAPFOLIO FOR ================= */
-.persona-section h2 {
-    color: #FFFFFF; /* white */
-}
-
-/* ================= WHAT WE STAND FOR ================= */
-.values-section h2 {
-    color: #FFFFFF; /* white */
-}
-
-/* ================= THE WAAPFOLIO STORY ================= */
-.vision-section h2 {
-    color: #FFFFFF; /* white */
-}
-
-/* ================= JOIN THOUSANDS BUILDING WITH WAAPFOLIO ================= */
-.cta-section h2 {
-    color: #FFFFFF; /* white */
-}
-
     .section-header h2 {
         font-family: 'Space Grotesk', sans-serif;
-        font-size: 3rem;
-        font-weight: 700;
+        font-size: clamp(2rem, 4vw, 3rem);
+        font-weight: 800;
         margin-bottom: 1rem;
-        background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
-        -webkit-background-clip: text;
+        color: var(--ink) !important;
     }
-
     .section-header p {
-        font-size: 1.15rem;
-        color: var(--text-secondary);
+        font-size: 1.1rem;
+        color: var(--text-secondary) !important;
         max-width: 700px;
         margin: 0 auto;
+        font-weight: 500;
     }
 
-    .mission-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        align-items: center;
-    }
-
-    .mission-text p {
-        font-size: 1.1rem;
-        color: var(--text-secondary);
-        margin-bottom: 2rem;
-        line-height: 1.8;
-    }
+    .mission-content { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:center; }
+    .mission-text p { font-size:1.05rem; color: var(--text-secondary) !important; margin-bottom:1.5rem; font-weight:500; }
 
     .mission-highlight {
-        background: linear-gradient(135deg, rgba(0, 210, 106, 0.1) 0%, rgba(0, 255, 163, 0.05) 100%);
+        background: var(--bg-mint);
         border-left: 4px solid var(--primary);
         padding: 2rem;
-        border-radius: 0 20px 20px 0;
-        position: relative;
-        overflow: hidden;
+        border-radius: 0 16px 16px 0;
+        margin-top: 1rem;
     }
-
-    .mission-highlight::before {
-        content: '"';
-        position: absolute;
-        top: -20px;
-        left: 20px;
-        font-size: 8rem;
-        color: var(--primary);
-        opacity: 0.1;
-        font-family: Georgia, serif;
-    }
-
     .mission-highlight p {
-        font-size: 1.3rem;
-        color: var(--text-primary);
-        font-weight: 500;
+        font-size: 1.2rem;
+        color: var(--ink) !important;
+        font-weight: 600;
         font-style: italic;
         margin: 0;
     }
 
-    .mission-visual {
-        position: relative;
-    }
-
     .mission-card {
-        background: var(--gradient-dark);
+        background: var(--bg-card);
         border: 1px solid var(--border-glass);
         border-radius: 24px;
         padding: 3rem;
         text-align: center;
         box-shadow: var(--shadow-card);
         position: relative;
-        overflow: hidden;
     }
-
     .mission-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
+        content: ''; position: absolute; top:0; left:0; right:0; height:4px;
         background: var(--gradient-primary);
+        border-radius: 24px 24px 0 0;
     }
-
     .mission-icon {
-        width: 100px;
-        height: 100px;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        width:100px; height:100px;
+        background: var(--gradient-primary);
+        border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
         margin: 0 auto 2rem;
         font-size: 2.5rem;
+        color: #fff;
         box-shadow: var(--shadow-glow);
-        animation: pulse 3s infinite;
     }
+    .mission-card h3 { font-family:'Space Grotesk',sans-serif; font-size:1.6rem; margin-bottom:1rem; }
+    .mission-card p { color: var(--text-secondary) !important; font-weight: 500; }
 
-    @keyframes pulse {
-        0%, 100% { box-shadow: 0 0 20px var(--primary-glow); }
-        50% { box-shadow: 0 0 50px var(--primary-glow); }
-    }
+    /* ================= WHY ================= */
+    .why-section { padding: 120px 0; background: var(--bg-page); border-bottom:1px solid var(--border-glass); }
+    .why-content { display:grid; grid-template-columns:1fr 1fr; gap:4rem; align-items:start; }
+    .why-story h3 { font-family:'Space Grotesk',sans-serif; font-size:1.8rem; margin-bottom:1.5rem; }
+    .why-story p { font-size:1.05rem; color: var(--text-secondary) !important; margin-bottom:1.25rem; font-weight:500; }
 
-    .mission-card h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.8rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-    }
-
-    .mission-card p {
-        color: var(--text-secondary);
-        font-size: 1rem;
-    }
-
-    /* ================= WHY WAAPFOLIO SECTION ================= */
-    .why-section {
-        padding: 120px 0;
-        background: var(--bg-dark);
-    }
-
-    .why-content {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 4rem;
-        align-items: start;
-    }
-
-    .why-story h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 2rem;
-        margin-bottom: 1.5rem;
-        color: var(--text-primary);
-    }
-
-    .why-story p {
-        font-size: 1.1rem;
-        color: var(--text-secondary);
-        margin-bottom: 1.5rem;
-        line-height: 1.8;
-    }
-
-    .pain-points {
-        list-style: none;
-        margin-top: 2rem;
-    }
-
+    .pain-points { list-style:none; margin-top:1.5rem; }
     .pain-points li {
-        display: flex;
-        align-items: flex-start;
-        gap: 1rem;
-        margin-bottom: 1rem;
-        color: var(--text-secondary);
+        display:flex; align-items:flex-start; gap:1rem;
+        margin-bottom:1rem; color: var(--text-secondary) !important; font-weight:500;
+    }
+    .pain-icon {
+        width:24px; height:24px;
+        background:#fee2e2; color:#dc2626 !important;
+        border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-size:0.8rem; font-weight:800;
+        flex-shrink:0; margin-top:3px;
     }
 
-    .pain-points .pain-icon {
-        width: 24px;
-        height: 24px;
-        background: rgba(255, 100, 100, 0.2);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: #ff6b6b;
-        font-size: 0.8rem;
-        flex-shrink: 0;
-        margin-top: 3px;
-    }
-
-    .feature-cards {
-        display: grid;
-        gap: 1.5rem;
-    }
-
+    .feature-cards { display:grid; gap:1.25rem; }
     .feature-card {
-        background: var(--bg-glass);
-        border: 1px solid var(--border-glass);
-        border-radius: 16px;
-        padding: 1.5rem 2rem;
-        display: flex;
-        align-items: center;
-        gap: 1.5rem;
+        background: var(--bg-card);
+        border:1px solid var(--border-glass);
+        border-radius:16px;
+        padding:1.5rem 1.75rem;
+        display:flex; align-items:center; gap:1.25rem;
         transition: var(--transition-smooth);
-        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
     }
-
     .feature-card:hover {
-        background: rgba(0, 210, 106, 0.1);
         border-color: var(--primary);
-        transform: translateX(10px);
-    }
-
-    .feature-card .check-icon {
-        width: 40px;
-        height: 40px;
-        background: var(--gradient-primary);
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: var(--secondary);
-        font-size: 1.2rem;
-        flex-shrink: 0;
-    }
-
-    .feature-card h4 {
-        font-size: 1.1rem;
-        color: var(--text-primary);
-        margin-bottom: 0.25rem;
-    }
-
-    .feature-card p {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        margin: 0;
-    }
-
-    /* ================= WHAT MAKES US DIFFERENT ================= */
-    .different-section {
-        padding: 120px 0;
-        background: linear-gradient(180deg, var(--secondary) 0%, var(--bg-dark) 100%);
-    }
-
-    .different-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2rem;
-    }
-
-    .diff-card {
-        background: var(--bg-glass);
-        border: 1px solid var(--border-glass);
-        border-radius: 24px;
-        padding: 2.5rem;
-        text-align: center;
-        transition: var(--transition-smooth);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .diff-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--gradient-primary);
-        opacity: 0;
-        transition: var(--transition-smooth);
-        z-index: 0;
-    }
-
-    .diff-card:hover {
-        transform: translateY(-10px);
-        border-color: var(--primary);
+        transform: translateX(6px);
         box-shadow: var(--shadow-glow);
     }
-
-    .diff-card:hover::before {
-        opacity: 0.1;
+    .check-icon {
+        width:40px; height:40px;
+        background: var(--gradient-primary);
+        border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        color:#fff !important; font-size:1.1rem; font-weight:800;
+        flex-shrink:0;
     }
+    .feature-card h4 { font-size:1.05rem; margin-bottom:0.25rem; }
+    .feature-card p { font-size:0.92rem; color: var(--text-secondary) !important; margin:0; font-weight:500; }
 
-    .diff-card > * {
-        position: relative;
-        z-index: 1;
-    }
-
-    .diff-icon {
-        width: 80px;
-        height: 80px;
-        background: linear-gradient(135deg, rgba(0, 210, 106, 0.2) 0%, rgba(0, 255, 163, 0.1) 100%);
+    /* ================= DIFFERENT ================= */
+    .different-section { padding:120px 0; background: var(--bg-soft); border-bottom:1px solid var(--border-glass); }
+    .different-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
+    .diff-card {
+        background: var(--bg-card);
+        border:1px solid var(--border-glass);
         border-radius: 20px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2rem;
+        padding: 2.25rem;
+        text-align: center;
         transition: var(--transition-smooth);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
     }
-
-    .diff-card:hover .diff-icon {
-        background: var(--gradient-primary);
-        transform: scale(1.1) rotate(5deg);
+    .diff-card:hover { transform: translateY(-6px); border-color: var(--primary); box-shadow: var(--shadow-glow); }
+    .diff-icon {
+        width:72px; height:72px;
+        background: var(--bg-mint);
+        border-radius: 18px;
+        display:flex; align-items:center; justify-content:center;
+        margin: 0 auto 1.25rem;
+        font-size: 1.8rem;
     }
+    .diff-card h3 { font-family:'Space Grotesk',sans-serif; font-size:1.2rem; margin-bottom:0.6rem; }
+    .diff-card p { font-size:0.92rem; color: var(--text-secondary) !important; font-weight:500; }
 
-    .diff-card h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.3rem;
-        margin-bottom: 0.75rem;
-        color: var(--text-primary);
-    }
-
-    .diff-card p {
-        font-size: 0.95rem;
-        color: var(--text-secondary);
-    }
-
-    /* ================= WHO IS WAAPFOLIO FOR ================= */
-    .persona-section {
-        padding: 120px 0;
-        background: var(--bg-dark);
-    }
-
-    .persona-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 2rem;
-    }
-
+    /* ================= PERSONA ================= */
+    .persona-section { padding:120px 0; background: var(--bg-page); border-bottom:1px solid var(--border-glass); }
+    .persona-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1.5rem; }
     .persona-card {
-        background: linear-gradient(145deg, rgba(26, 26, 46, 0.8) 0%, rgba(10, 10, 20, 0.8) 100%);
-        border: 1px solid var(--border-glass);
-        border-radius: 24px;
-        padding: 2.5rem;
+        background: var(--bg-card);
+        border:1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 2.25rem;
         text-align: center;
         transition: var(--transition-smooth);
-        backdrop-filter: blur(10px);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
     }
-
-    .persona-card:hover {
-        transform: translateY(-10px) scale(1.02);
-        border-color: var(--primary);
-        box-shadow: 0 20px 60px rgba(0, 210, 106, 0.15);
-    }
-
+    .persona-card:hover { transform: translateY(-6px); border-color: var(--primary); box-shadow: var(--shadow-glow); }
     .persona-icon {
-        width: 90px;
-        height: 90px;
-        background: var(--bg-glass);
-        border: 2px solid var(--border-glass);
+        width:80px; height:80px;
+        background: var(--bg-mint);
+        border: 2px solid #bbf7d0;
         border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin: 0 auto 1.5rem;
-        font-size: 2.5rem;
+        display:flex; align-items:center; justify-content:center;
+        margin: 0 auto 1.25rem;
+        font-size: 2.2rem;
+    }
+    .persona-card h3 { font-family:'Space Grotesk',sans-serif; font-size:1.15rem; margin-bottom:0.6rem; color: var(--ink) !important; }
+    .persona-card p { font-size:0.92rem; color: var(--text-secondary) !important; font-weight:500; }
+
+    /* ================= VALUES ================= */
+    .values-section { padding: 120px 0; background: var(--bg-soft); border-bottom:1px solid var(--border-glass); }
+    .values-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:1.5rem; }
+    .value-card {
+        background: var(--bg-card);
+        border:1px solid var(--border-glass);
+        border-radius: 20px;
+        padding: 2.25rem;
+        position: relative;
+        overflow: hidden;
+        transition: var(--transition-smooth);
+        box-shadow: 0 4px 16px rgba(0,0,0,0.03);
+    }
+    .value-card::before {
+        content:''; position:absolute; top:0; left:0; width:100%; height:4px;
+        background: var(--gradient-primary);
+        transform: scaleX(0); transform-origin:left;
         transition: var(--transition-smooth);
     }
-
-    .persona-card:hover .persona-icon {
-        background: var(--gradient-primary);
-        border-color: var(--primary);
-        transform: rotate(10deg) scale(1.1);
-    }
-
-    .persona-card h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.2rem;
-        margin-bottom: 0.75rem;
-        color: var(--texlight);
-    }
-
-    .persona-card p {
-        font-size: 0.9rem;
-        color: var(--text-light);
-        line-height: 1.6;
-    }
-
-    /* ================= STATS SECTION ================= */
-    .stats-section {
-        padding: 80px 0;
-        background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .stats-section::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.1'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-    }
-
-    .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 3rem;
-        position: relative;
-        z-index: 1;
-    }
-
-    .stat-item {
-        text-align: center;
-    }
-
-    .stat-number {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 4rem;
-        font-weight: 800;
-        color: var(--secondary);
-        display: block;
-        line-height: 1;
-        margin-bottom: 0.5rem;
-    }
-
-    .stat-label {
-        font-size: 1.2rem;
-        color: var(--secondary);
-        font-weight: 600;
-        opacity: 0.8;
-    }
-
-    /* ================= VISION SECTION ================= */
-    .vision-section {
-        padding: 150px 0;
-        background: linear-gradient(180deg, var(--bg-dark) 0%, #0d1a12 50%, var(--secondary) 100%);
-        text-align: center;
-        position: relative;
-        overflow: hidden;
-    }
-
-    .vision-section::before {
-        content: '';
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 600px;
-        height: 600px;
-        background: radial-gradient(ellipse, var(--primary-glow) 0%, transparent 70%);
+    .value-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+    .value-card:hover::before { transform: scaleX(1); }
+    .value-number {
+        font-family:'Space Grotesk',sans-serif;
+        font-size: 3.2rem; font-weight: 800;
+        color: var(--primary) !important;
         opacity: 0.3;
+        line-height: 1; margin-bottom: 0.75rem;
     }
+    .value-card h3 { font-family:'Space Grotesk',sans-serif; font-size:1.3rem; margin-bottom:0.75rem; }
+    .value-card p { font-size:1rem; color: var(--text-secondary) !important; font-weight: 500; }
 
-    .vision-content {
-        position: relative;
-        z-index: 1;
-        max-width: 900px;
-        margin: 0 auto;
-    }
-
-    .vision-content h2 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 3.5rem;
-        font-weight: 800;
-        margin-bottom: 2rem;
-        background: linear-gradient(135deg, #fff 0%, var(--primary) 100%);
-        -webkit-background-clip: text;
-    }
-
-    .vision-content p {
-        font-size: 1.3rem;
-        color: var(--text-secondary);
-        line-height: 1.8;
-        margin-bottom: 1.5rem;
-    }
-
-    .vision-highlight {
-        display: inline-block;
-        padding: 1rem 2.5rem;
-        background: var(--bg-glass);
-        border: 1px solid var(--primary);
-        border-radius: 50px;
-        color: var(--primary);
-        font-weight: 600;
-        font-size: 1.1rem;
-        margin-top: 2rem;
-    }
-
-    /* ================= TIMELINE SECTION ================= */
-    .timeline-section {
-        padding: 120px 0;
-        background: var(--secondary);
-    }
-
-    .timeline {
-        position: relative;
-        max-width: 800px;
-        margin: 0 auto;
-    }
-
+    /* ================= TIMELINE ================= */
+    .timeline-section { padding:120px 0; background: var(--bg-page); border-bottom:1px solid var(--border-glass); }
+    .timeline { position:relative; max-width: 800px; margin: 0 auto; }
     .timeline::before {
-        content: '';
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 4px;
-        height: 100%;
+        content:''; position:absolute; left:50%; transform: translateX(-50%);
+        width:3px; height:100%;
         background: var(--gradient-primary);
-        border-radius: 4px;
+        border-radius:3px;
     }
-
-    .timeline-item {
-        display: flex;
-        align-items: center;
-        margin-bottom: 4rem;
-        position: relative;
-    }
-
-    .timeline-item:nth-child(odd) {
-        flex-direction: row-reverse;
-    }
-
+    .timeline-item { display:flex; align-items:center; margin-bottom: 3rem; position:relative; }
+    .timeline-item:nth-child(odd) { flex-direction: row-reverse; }
     .timeline-content {
         width: 45%;
-        background: var(--bg-glass);
-        border: 1px solid var(--border-glass);
-        border-radius: 20px;
-        padding: 2rem;
-        position: relative;
+        background: var(--bg-card);
+        border:1px solid var(--border-glass);
+        border-radius:18px;
+        padding:1.75rem;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.04);
         transition: var(--transition-smooth);
     }
-
-    .timeline-content:hover {
-        background: rgba(0, 210, 106, 0.1);
-        border-color: var(--primary);
-        transform: scale(1.02);
-    }
-
+    .timeline-content:hover { border-color: var(--primary); transform: scale(1.02); }
     .timeline-dot {
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 20px;
-        height: 20px;
+        position:absolute; left:50%; transform: translateX(-50%);
+        width:18px; height:18px;
         background: var(--primary);
-        border-radius: 50%;
-        border: 4px solid var(--secondary);
+        border-radius:50%;
+        border: 4px solid #fff;
+        box-shadow: 0 0 0 2px var(--primary);
         z-index: 2;
     }
-
     .timeline-year {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.5rem;
+        font-family:'Space Grotesk',sans-serif;
+        font-size: 1.4rem; font-weight: 800;
+        color: var(--primary-dark) !important;
+        margin-bottom: 0.5rem;
+    }
+    .timeline-content h4 { font-size:1.15rem; margin-bottom:0.5rem; }
+    .timeline-content p { font-size:0.95rem; color: var(--text-secondary) !important; margin:0; font-weight:500; }
+
+    /* ================= VISION ================= */
+    .vision-section {
+        padding:130px 0;
+        background: linear-gradient(180deg, #ffffff 0%, #f0fdf4 100%);
+        text-align:center;
+        border-bottom:1px solid var(--border-glass);
+    }
+    .vision-content { max-width:900px; margin:0 auto; }
+    .vision-content h2 {
+        font-family:'Space Grotesk',sans-serif;
+        font-size: clamp(2rem, 5vw, 3.2rem);
+        font-weight:800;
+        margin-bottom: 2rem;
+        color: var(--ink) !important;
+    }
+    .vision-content p {
+        font-size:1.15rem; color: var(--text-secondary) !important;
+        line-height: 1.8; margin-bottom: 1.25rem; font-weight: 500;
+    }
+    .vision-highlight {
+        display:inline-block;
+        padding: 0.9rem 2rem;
+        background: var(--bg-card);
+        border: 1.5px solid var(--primary);
+        border-radius: 50px;
+        color: var(--primary-dark) !important;
         font-weight: 700;
-        color: var(--primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .timeline-content h4 {
-        font-size: 1.2rem;
-        color: var(--text-primary);
-        margin-bottom: 0.5rem;
-    }
-
-    .timeline-content p {
-        font-size: 0.95rem;
-        color: var(--text-secondary);
-        margin: 0;
-    }
-
-    /* ================= VALUES SECTION ================= */
-    .values-section {
-        padding: 120px 0;
-        background: var(--bg-dark);
-    }
-
-    .values-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 2rem;
-    }
-
-    .value-card {
-        background: linear-gradient(145deg, rgba(26, 26, 46, 0.6) 0%, rgba(10, 10, 20, 0.6) 100%);
-        border: 1px solid var(--border-glass);
-        border-radius: 24px;
-        padding: 2.5rem;
-        transition: var(--transition-smooth);
-        position: relative;
-        overflow: hidden;
-    }
-
-    .value-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 4px;
-        background: var(--gradient-primary);
-        transform: scaleX(0);
-        transition: var(--transition-smooth);
-    }
-
-    .value-card:hover {
-        transform: translateY(-5px);
-        border-color: var(--primary);
-    }
-
-    .value-card:hover::before {
-        transform: scaleX(1);
-    }
-
-    .value-number {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 4rem;
-        font-weight: 800;
-        color: var(--primary);
-        opacity: 0.2;
-        line-height: 1;
-        margin-bottom: 1rem;
-    }
-
-    .value-card h3 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 1.4rem;
-        margin-bottom: 1rem;
-        color: var(--text-primary);
-    }
-
-    .value-card p {
         font-size: 1rem;
-        color: var(--text-secondary);
-        line-height: 1.7;
+        margin-top: 1.5rem;
     }
 
-    /* ================= CTA SECTION ================= */
+    /* ================= CTA ================= */
     .cta-section {
         padding: 120px 0;
-        background: linear-gradient(180deg, var(--secondary) 0%, var(--bg-dark) 100%);
+        background: var(--gradient-soft);
         text-align: center;
-        position: relative;
-        overflow: hidden;
     }
-
-    .cta-section::before {
-        content: '';
-        position: absolute;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 800px;
-        height: 400px;
-        background: radial-gradient(ellipse, var(--primary-glow) 0%, transparent 70%);
-        opacity: 0.4;
-    }
-
-    .cta-content {
-        position: relative;
-        z-index: 1;
-        max-width: 700px;
-        margin: 0 auto;
-    }
-
+    .cta-content { max-width:700px; margin: 0 auto; }
     .cta-content h2 {
-        font-family: 'Space Grotesk', sans-serif;
-        font-size: 3rem;
-        font-weight: 800;
-        margin-bottom: 1.5rem;
-        background: linear-gradient(135deg, #fff 0%, var(--primary-light) 100%);
-        -webkit-background-clip: text;
+        font-family:'Space Grotesk',sans-serif;
+        font-size: clamp(2rem,4vw,2.8rem);
+        font-weight:800; margin-bottom:1.25rem;
+        color: var(--ink) !important;
     }
-
     .cta-content p {
-        font-size: 1.2rem;
-        color: var(--text-secondary);
-        margin-bottom: 2.5rem;
+        font-size: 1.15rem;
+        color: var(--text-secondary) !important;
+        margin-bottom: 2.5rem; font-weight: 500;
     }
 
-    .cta-buttons {
-        display: flex;
-        gap: 1.5rem;
-        justify-content: center;
-        flex-wrap: wrap;
-    }
+    .cta-buttons { display:flex; gap:1rem; justify-content:center; flex-wrap:wrap; }
 
     .btn {
-        padding: 1rem 2.5rem;
+        padding: 1rem 2.25rem;
         border-radius: 50px;
-        font-weight: 600;
+        font-weight: 700;
         font-size: 1rem;
         cursor: pointer;
         transition: var(--transition-smooth);
         text-decoration: none;
         display: inline-flex;
         align-items: center;
-        gap: 0.75rem;
+        gap: 0.6rem;
         border: none;
     }
-
     .btn-primary {
         background: var(--gradient-primary);
-        color: var(--secondary);
-        box-shadow: 0 10px 40px var(--primary-glow);
+        color: #ffffff !important;
+        box-shadow: 0 8px 24px var(--primary-glow);
     }
-
-    .btn-primary:hover {
-        transform: translateY(-3px) scale(1.02);
-        box-shadow: 0 20px 60px var(--primary-glow);
-    }
-
+    .btn-primary:hover { transform: translateY(-3px); box-shadow: 0 14px 36px var(--primary-glow); }
     .btn-secondary {
-        background: var(--bg-glass);
-        color: var(--text-primary);
-        border: 2px solid var(--border-glass);
+        background: #ffffff;
+        color: var(--ink) !important;
+        border: 1.5px solid var(--border-strong);
     }
-
-    .btn-secondary:hover {
-        background: rgba(255, 255, 255, 0.1);
-        border-color: var(--primary);
-        transform: translateY(-3px);
-    }
+    .btn-secondary:hover { border-color: var(--primary); transform: translateY(-3px); }
 
     /* ================= RESPONSIVE ================= */
-    @media (max-width: 1200px) {
-        .different-grid,
-        .persona-grid {
-            grid-template-columns: repeat(2, 1fr);
-        }
+    @media (max-width:1200px){
+        .different-grid, .persona-grid { grid-template-columns: repeat(2,1fr); }
     }
-
-    @media (max-width: 992px) {
-        .hero-content,
-        .mission-content,
-        .why-content {
-            grid-template-columns: 1fr;
-            text-align: center;
+    @media (max-width:992px){
+        .hero-content, .mission-content, .why-content { grid-template-columns:1fr; text-align:center; }
+        .hero-text p, .why-story p { margin-left:auto; margin-right:auto; }
+        .hero-image { order:-1; }
+        .timeline::before { left: 20px; }
+        .timeline-item, .timeline-item:nth-child(odd) {
+            flex-direction: column; align-items:flex-start; padding-left:60px;
         }
-
-        .hero-text h1 {
-            font-size: 2.5rem;
-        }
-
-        .hero-text p {
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .hero-image {
-            order: -1;
-        }
-
-        .mission-text {
-            order: 2;
-        }
-
-        .timeline::before {
-            left: 20px;
-        }
-
-        .timeline-item,
-        .timeline-item:nth-child(odd) {
-            flex-direction: column;
-            align-items: flex-start;
-            padding-left: 60px;
-        }
-
-        .timeline-content {
-            width: 100%;
-        }
-
-        .timeline-dot {
-            left: 20px;
-        }
-
-        .values-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .stats-grid {
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
+        .timeline-content { width:100%; }
+        .timeline-dot { left:20px; }
+        .values-grid { grid-template-columns:1fr; }
+        .pain-points li { text-align:left; }
     }
-
-    @media (max-width: 768px) {
-        .container {
-            padding: 0 1.5rem;
-        }
-
-        .about-hero {
-            padding: 100px 0 60px;
-        }
-
-        .hero-text h1 {
-            font-size: 2rem;
-        }
-
-        .section-header h2,
-        .vision-content h2,
-        .cta-content h2 {
-            font-size: 2rem;
-        }
-
-        .different-grid,
-        .persona-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .stat-number {
-            font-size: 3rem;
-        }
-
-        .cta-buttons {
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .btn {
-            width: 100%;
-            max-width: 300px;
-            justify-content: center;
-        }
-    }
-
-    /* Animate on scroll */
-    .animate-on-scroll {
-        opacity: 0;
-        transform: translateY(30px);
-        transition: all 0.8s ease-out;
-    }
-
-    .animate-on-scroll.visible {
-        opacity: 1;
-        transform: translateY(0);
+    @media (max-width:768px){
+        .container { padding: 0 1.25rem; }
+        .different-grid, .persona-grid { grid-template-columns:1fr; }
+        .cta-buttons { flex-direction:column; align-items:center; }
+        .btn { width:100%; max-width:320px; justify-content:center; }
     }
 </style>
 {% endblock extra_styles %}
 
 {% block body %}
 
-<!-- Floating Dots Background -->
-<div class="floating-dots" id="floatingDots"></div>
-
-<!-- ================= HERO SECTION ================= -->
+{# ============================ HERO ============================ #}
 <section class="about-hero">
     <div class="container">
         <div class="hero-content">
             <div class="hero-text">
                 <div class="hero-logo">
-                    <img src="{% static 'images/logo-bg.png' %}" alt="Waapfolio Logo">
                     <span>Waapfolio</span>
                 </div>
-                <h1 class="text-light">Built for Creators, Hustlers & Online Sellers</h1>
-                <p>Waapfolio helps you launch a professional online store, sell smarter, all from one powerful platform designed for the modern digital entrepreneur.</p>
-                <div class="cta-buttons">
+                <h1>Built for Creators, Hustlers &amp; Online Sellers</h1>
+                <p>Waapfolio helps you launch a professional online store and sell smarter — all from one powerful platform designed for the modern digital entrepreneur.</p>
+
+                <div class="cta-buttons" style="justify-content:flex-start;">
                     {% if user.is_authenticated %}
-                        <a href="{% url 'create_store' %}" class="btn btn-primary">
-                            <i class="fas fa-globe"></i>
-                            Create Your Website Now Easily
-                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-primary">Create Your Website Now</a>
                     {% else %}
-                        <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
-                            <i class="fab fa-google"></i>
-                            Sign Up with Google
-                        </a>
-                        <a href="{% url 'register' %}" class="btn btn-secondary">
-                            <i class="fas fa-envelope"></i>
-                            Get Started Free
-                        </a>
+                        <a href="{% url 'home' %}" class="btn btn-primary">Get Started Free</a>
+                        <a href="{% url 'home' %}" class="btn btn-secondary">Learn More</a>
                     {% endif %}
                 </div>
-
             </div>
+
             <div class="hero-image">
-                <img src="{% static 'images/banner.jpg' %}" alt="Creator using Waapfolio with social media">
+                <img src="{% static 'images/banner.jpg' %}" alt="Waapfolio creators" onerror="this.style.display='none'">
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= MISSION SECTION ================= -->
+{# ============================ MISSION ============================ #}
 <section class="mission-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">🎯 Our Mission</span>
             <h2>Empowering Global Creators</h2>
-            <p>We're on a mission to democratize e-commerce and help creators worldwide turn their passions into profits.</p>
+            <p>We're on a mission to democratize e-commerce and help creators turn their passions into profits.</p>
         </div>
+
         <div class="mission-content">
-            <div class="mission-text animate-on-scroll">
+            <div class="mission-text">
                 <p>At Waapfolio, we believe that every creator, hustler, and digital entrepreneur deserves access to professional tools that help them succeed online. We're breaking down the barriers that have traditionally kept small businesses from competing in the digital marketplace.</p>
-                <p>Our platform was built from the ground up with one goal: to make online selling accessible, profitable, and enjoyable for everyone—regardless of technical skill or budget.</p>
+                <p>Our platform was built from the ground up with one goal: to make online selling accessible, profitable, and enjoyable for everyone — regardless of technical skill or budget.</p>
                 <div class="mission-highlight">
                     <p>"We believe everyone deserves a simple way to sell online and earn globally. No code, no hassle, just results."</p>
                 </div>
             </div>
-            <div class="mission-visual animate-on-scroll">
+            <div class="mission-visual">
                 <div class="mission-card">
                     <div class="mission-icon">🌍</div>
                     <h3>Global Impact</h3>
-                    <p>Helping creators across 150+ countries build their digital empires and achieve financial freedom through social commerce.</p>
+                    <p>Helping creators build their digital businesses and pursue financial freedom through social commerce.</p>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= WHY WAAPFOLIO EXISTS ================= -->
+{# ============================ WHY ============================ #}
 <section class="why-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">💡 The Problem</span>
             <h2>Why Waapfolio Exists</h2>
             <p>We saw creators struggling and knew there had to be a better way.</p>
         </div>
+
         <div class="why-content">
-            <div class="why-story animate-on-scroll">
+            <div class="why-story">
                 <h3>The Struggle is Real</h3>
-                <p>Every day, thousands of talented creators give up on their dreams because existing platforms are too complicated, too expensive, or simply not designed for social sellers.</p>
+                <p>Every day, talented creators give up on their dreams because existing platforms are too complicated, too expensive, or simply not designed for social sellers.</p>
                 <p>We watched creators spend weeks trying to set up online stores, lose money on platform fees, and struggle with payment solutions that don't work in their countries.</p>
                 <ul class="pain-points">
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Complex setup processes that take weeks to complete</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>High monthly fees eating into slim profit margins</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Payment solutions that don't work globally</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>No integration with social media selling channels</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Technical skills required just to get started</span>
-                    </li>
+                    <li><span class="pain-icon">✕</span> Complex setup processes that take weeks to complete</li>
+                    <li><span class="pain-icon">✕</span> High monthly fees eating into slim profit margins</li>
+                    <li><span class="pain-icon">✕</span> Payment solutions that don't work globally</li>
+                    <li><span class="pain-icon">✕</span> No integration with social media selling channels</li>
+                    <li><span class="pain-icon">✕</span> Technical skills required just to get started</li>
                 </ul>
             </div>
-            <div class="feature-cards animate-on-scroll">
+
+            <div class="feature-cards">
                 <div class="feature-card">
                     <div class="check-icon">⚡</div>
-                    <div>
-                        <h4>Launch in Minutes</h4>
-                        <p>Go from signup to live store in under 5 minutes flat</p>
-                    </div>
+                    <div><h4>Launch in Minutes</h4><p>Go from signup to live store in under 5 minutes.</p></div>
                 </div>
                 <div class="feature-card">
                     <div class="check-icon">🎨</div>
-                    <div>
-                        <h4>No Coding Required</h4>
-                        <p>Beautiful templates that just work out of the box</p>
-                    </div>
+                    <div><h4>No Coding Required</h4><p>Beautiful templates that just work out of the box.</p></div>
                 </div>
                 <div class="feature-card">
                     <div class="check-icon">💬</div>
-                    <div>
-                        <h4>WhatsApp & Social Selling</h4>
-                        <p>Built for how creators actually sell today</p>
-                    </div>
+                    <div><h4>WhatsApp &amp; Social Selling</h4><p>Built for how creators actually sell today.</p></div>
                 </div>
-
                 <div class="feature-card">
                     <div class="check-icon">🌐</div>
-                    <div>
-                        <h4>Global Payment Ready</h4>
-                        <p>Accept payments from customers worldwide</p>
-                    </div>
+                    <div><h4>Global Payment Ready</h4><p>Accept payments from customers worldwide.</p></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= WHAT MAKES US DIFFERENT ================= -->
+{# ============================ DIFFERENT ============================ #}
 <section class="different-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">✨ Our Edge</span>
             <h2>What Makes Us Different</h2>
             <p>Designed for the new generation of social sellers who want to sell fast and look professional.</p>
         </div>
+
         <div class="different-grid">
-
-            <div class="diff-card animate-on-scroll">
-                <div class="diff-icon">📱</div>
-                <h3>Social-First Selling</h3>
-                <p>Sell directly through WhatsApp, Instagram, TikTok, and Telegram where your customers already are.</p>
-            </div>
-
-            <div class="diff-card animate-on-scroll">
-                <div class="diff-icon">⚡</div>
-                <h3>Quick Store Setup</h3>
-                <p>Launch a professional store in minutes and start selling immediately, no coding required.</p>
-            </div>
-
-            <div class="diff-card animate-on-scroll">
-                <div class="diff-icon">🌍</div>
-                <h3>Global-Ready Payments</h3>
-                <p>Accept payments from anywhere with flexible options that work for local and international customers.</p>
-            </div>
-
-            <div class="diff-card animate-on-scroll">
-                <div class="diff-icon">📲</div>
-                <h3>Mobile-First Experience</h3>
-                <p>Manage your entire business from your phone. Built for sellers on the go.</p>
-            </div>
-
+            <div class="diff-card"><div class="diff-icon">📱</div><h3>Social-First Selling</h3><p>Sell directly through WhatsApp, Instagram, TikTok, and Telegram where your customers already are.</p></div>
+            <div class="diff-card"><div class="diff-icon">⚡</div><h3>Quick Store Setup</h3><p>Launch a professional store in minutes and start selling immediately, no coding required.</p></div>
+            <div class="diff-card"><div class="diff-icon">🌍</div><h3>Global-Ready Payments</h3><p>Accept payments from anywhere with flexible options for local and international customers.</p></div>
+            <div class="diff-card"><div class="diff-icon">📲</div><h3>Mobile-First Experience</h3><p>Manage your entire business from your phone. Built for sellers on the go.</p></div>
         </div>
     </div>
 </section>
 
-
-<!-- ================= WHO IS WAAPFOLIO FOR ================= -->
+{# ============================ PERSONA ============================ #}
 <section class="persona-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">👥 Our Community</span>
-            <h2 class="text-light">Who Waapfolio Is For</h2>
-            <p>Join thousands of creators already building their dreams with us.</p>
+            <h2>Who Waapfolio Is For</h2>
+            <p>Creators building real businesses with us.</p>
         </div>
+
         <div class="persona-grid">
-            <div class="persona-card animate-on-scroll">
-                <div class="persona-icon">🎬</div>
-                <h3>Content Creators & Influencers</h3>
-                <p>Monetize your audience with your own branded store. Sell merch, digital products, and more.</p>
-            </div>
-            <div class="persona-card animate-on-scroll">
-                <div class="persona-icon">📚</div>
-                <h3>Digital Product Sellers</h3>
-                <p>Sell ebooks, courses, templates, and downloads with zero inventory hassles.</p>
-            </div>
-            <div class="persona-card animate-on-scroll">
-                <div class="persona-icon">🏪</div>
-                <h3>Small Business Owners</h3>
-                <p>Take your local business online and reach customers beyond your neighborhood.</p>
-            </div>
-            <div class="persona-card animate-on-scroll">
-                <div class="persona-icon">🎓</div>
-                <h3>Online Mentors & Coaches</h3>
-                <p>Package and sell your knowledge. Build a coaching business with booking and payments built in.</p>
-            </div>
+            <div class="persona-card"><div class="persona-icon">🎬</div><h3>Content Creators &amp; Influencers</h3><p>Monetize your audience with your own branded store. Sell merch, digital products, and more.</p></div>
+            <div class="persona-card"><div class="persona-icon">📚</div><h3>Digital Product Sellers</h3><p>Sell ebooks, courses, templates, and downloads with zero inventory hassles.</p></div>
+            <div class="persona-card"><div class="persona-icon">🏪</div><h3>Small Business Owners</h3><p>Take your local business online and reach customers beyond your neighborhood.</p></div>
+            <div class="persona-card"><div class="persona-icon">🎓</div><h3>Online Mentors &amp; Coaches</h3><p>Package and sell your knowledge with booking and payments built in.</p></div>
         </div>
     </div>
 </section>
 
-<!-- ================= STATS SECTION ================= -->
-<section class="stats-section">
-    <div class="container">
-        <div class="stats-grid">
-            <div class="stat-item animate-on-scroll">
-                <span class="stat-number" data-target="5000">0</span>
-                <span class="stat-label">Active Stores</span>
-            </div>
-            <div class="stat-item animate-on-scroll">
-                <span class="stat-number" data-target="150">0</span>
-                <span class="stat-label">Countries Reached</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* 2 per row */
-    gap: 3rem; /* spacing between stats */
-    justify-content: center; /* center the grid */
-    text-align: center; /* center text in each stat */
-}
-
-.stat-item .stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #FFFFFF;
-}
-
-.stat-item .stat-label {
-    font-size: 1.2rem;
-    color: #CCCCCC;
-    margin-top: 0.5rem;
-}
-</style>
-
-
-<!-- ================= OUR VALUES ================= -->
+{# ============================ VALUES ============================ #}
 <section class="values-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">💎 Our Values</span>
             <h2>What We Stand For</h2>
             <p>The principles that guide everything we build.</p>
         </div>
+
         <div class="values-grid">
-            <div class="value-card animate-on-scroll">
+            <div class="value-card">
                 <div class="value-number">01</div>
                 <h3>Simplicity First</h3>
-                <p>We believe powerful tools don't have to be complicated. Every feature we build passes the "grandma test", if it's not intuitive, we redesign it.</p>
+                <p>Powerful tools don't have to be complicated. Every feature passes the "grandma test" — if it's not intuitive, we redesign it.</p>
             </div>
-            <div class="value-card animate-on-scroll">
+            <div class="value-card">
                 <div class="value-number">02</div>
                 <h3>Creator Success</h3>
-                <p>Your success is our success. We're not here to extract value, we're here to help you create it. When you win, we win.</p>
+                <p>Your success is our success. We're here to help you create value — when you win, we win.</p>
             </div>
-            <div class="value-card animate-on-scroll">
+            <div class="value-card">
                 <div class="value-number">03</div>
                 <h3>Global Inclusion</h3>
-                <p>We build for the world, not just wealthy markets. Everyone deserves access to professional e-commerce tools regardless of where they live.</p>
+                <p>We build for the world, not just wealthy markets. Everyone deserves access to professional e-commerce tools.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= TIMELINE SECTION ================= -->
+{# ============================ TIMELINE ============================ #}
 <section class="timeline-section">
     <div class="container">
-        <div class="section-header animate-on-scroll">
+        <div class="section-header">
             <span class="section-badge">📅 Our Journey</span>
             <h2>The Waapfolio Story</h2>
-            <p>From idea to impact—our journey so far.</p>
+            <p>From idea to impact — our journey so far.</p>
         </div>
+
         <div class="timeline">
-            <div class="timeline-item animate-on-scroll">
+            <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-year">2024</div>
                     <h4>The Idea Sparks</h4>
@@ -1392,27 +655,27 @@
                 </div>
                 <div class="timeline-dot"></div>
             </div>
-            <div class="timeline-item animate-on-scroll">
+            <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-year">2025</div>
                     <h4>Beta Launch</h4>
-                    <p>First 100 creators joined our beta. Their feedback shaped every feature we've built since.</p>
+                    <p>Our first creators joined the beta. Their feedback shaped every feature we've built since.</p>
                 </div>
                 <div class="timeline-dot"></div>
             </div>
-            <div class="timeline-item animate-on-scroll">
+            <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-year">2026</div>
                     <h4>Going Global</h4>
-                    <p>5,000+ stores across 150 countries. The referral program launches, creating new income streams for creators.</p>
+                    <p>The referral program launches, creating new income streams for creators around the world.</p>
                 </div>
                 <div class="timeline-dot"></div>
             </div>
-            <div class="timeline-item animate-on-scroll">
+            <div class="timeline-item">
                 <div class="timeline-content">
                     <div class="timeline-year">Future</div>
                     <h4>The Vision Continues</h4>
-                    <p>AI-powered selling tools, more integrations, and helping 1 million creators achieve financial freedom.</p>
+                    <p>AI-powered selling tools, more integrations, and helping more creators achieve financial freedom.</p>
                 </div>
                 <div class="timeline-dot"></div>
             </div>
@@ -1420,43 +683,33 @@
     </div>
 </section>
 
-<!-- ================= VISION SECTION ================= -->
+{# ============================ VISION ============================ #}
 <section class="vision-section">
     <div class="container">
-        <div class="vision-content animate-on-scroll">
+        <div class="vision-content">
             <span class="section-badge">🚀 The Future</span>
             <h2>We're Building the Future of Social Commerce</h2>
-            <p>Waapfolio is more than a platform—it's a movement. We envision a world where anyone with a smartphone and a dream can build a thriving online business. Where creators own their audience, their data, and their destiny.</p>
-            <p>We're just getting started. Join us as we redefine what's possible for independent creators and small businesses worldwide.</p>
-            <span class="vision-highlight">1 Million Creators. 1 Billion in Sales. One Platform.</span>
+            <p>Waapfolio is more than a platform — it's a movement. We envision a world where anyone with a smartphone and a dream can build a thriving online business. Where creators own their audience, their data, and their destiny.</p>
+            <p>We're just getting started. Join us as we redefine what's possible for independent creators and small businesses.</p>
+            <span class="vision-highlight">Built for creators. Powered by community.</span>
         </div>
     </div>
 </section>
 
-<!-- ================= CTA SECTION ================= -->
+{# ============================ CTA ============================ #}
 <section class="cta-section">
     <div class="container">
-        <div class="cta-content animate-on-scroll">
-            <h2>Join Thousands Building With Waapfolio</h2>
+        <div class="cta-content">
+            <h2>Join Creators Building With Waapfolio</h2>
             <p>Start your journey today. Launch your store in minutes, not months. Earn referral income while you grow.</p>
             <div class="cta-buttons">
-                {% if user.is_authenticated %}
-                    <a href="{% url 'create_store' %}" class="btn btn-primary">
-                        <i class="fas fa-globe"></i>
-                        Create Your Website Now Easily
-                    </a>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-success">Sign up</a>
                 {% else %}
-                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
-                        <i class="fab fa-google"></i>
-                        Sign Up with Google
-                    </a>
-                    <a href="{% url 'register' %}" class="btn btn-secondary">
-                        <i class="fas fa-envelope"></i>
-                        Get Started Free
-                    </a>
+                    <a href="{% url 'home' %}" class="btn btn-success">Get Started Free</a>
+                    <a href="{% url 'home' %}" class="btn btn-secondary">Back to Home</a>
                 {% endif %}
             </div>
-
         </div>
     </div>
 </section>
@@ -1464,76 +717,4 @@
 {% endblock body %}
 
 {% block extra_scripts %}
-<script>
-    // Generate floating dots
-    const dotsContainer = document.getElementById('floatingDots');
-    for (let i = 0; i < 50; i++) {
-        const dot = document.createElement('div');
-        dot.className = 'dot';
-        dot.style.left = Math.random() * 100 + '%';
-        dot.style.top = Math.random() * 100 + '%';
-        dot.style.animationDelay = Math.random() * 20 + 's';
-        dot.style.animationDuration = (15 + Math.random() * 10) + 's';
-        dotsContainer.appendChild(dot);
-    }
-
-    // Scroll animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('visible');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        observer.observe(el);
-    });
-
-    // Counter animation for stats
-    function animateCounter(element) {
-        const target = parseInt(element.getAttribute('data-target'));
-        const duration = 2000;
-        const step = target / (duration / 16);
-        let current = 0;
-
-        const timer = setInterval(() => {
-            current += step;
-            if (current >= target) {
-                current = target;
-                clearInterval(timer);
-            }
-            
-            if (element.textContent.includes('$')) {
-                element.textContent = '$' + Math.floor(current) + 'K+';
-            } else if (target > 1000) {
-                element.textContent = Math.floor(current).toLocaleString() + '+';
-            } else {
-                element.textContent = Math.floor(current) + '+';
-            }
-        }, 16);
-    }
-
-    // Trigger counter animation when visible
-    const statsObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target.querySelector('.stat-number');
-                if (counter && !counter.classList.contains('animated')) {
-                    counter.classList.add('animated');
-                    animateCounter(counter);
-                }
-            }
-        });
-    }, { threshold: 0.5 });
-
-    document.querySelectorAll('.stat-item').forEach(el => {
-        statsObserver.observe(el);
-    });
-</script>
 {% endblock extra_scripts %}

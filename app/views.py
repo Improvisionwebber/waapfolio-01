@@ -1054,18 +1054,50 @@ def delete_account(request):
     # GET request: show confirmation page
     return render(request, "confirm_delete_account.html")
 # notifications/views.py
+from django.contrib.auth.decorators import login_required
+from django.core.paginator import Paginator
+from django.shortcuts import render
+
 @login_required
 def notifications_view(request):
-    store = Store.objects.filter(owner=request.user).first()
-    notifications = request.user.notifications.order_by("-created_at")
 
-    # ✅ Mark all unread as read
-    notifications.filter(is_read=False).update(is_read=True)
+    store = Store.objects.filter(
+        owner=request.user
+    ).first()
 
-    return render(request, "notifications.html", {
-        "store": store,
-        "notifications": notifications
-    })
+    notifications = request.user.notifications.order_by(
+        "-created_at"
+    )
+
+    # mark unread as read
+    notifications.filter(
+        is_read=False
+    ).update(
+        is_read=True
+    )
+
+    # pagination
+    paginator = Paginator(
+        notifications,
+        8
+    )  # 8 per page
+
+    page_number = request.GET.get(
+        "page"
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+    return render(
+        request,
+        "notifications.html",
+        {
+            "store": store,
+            "page_obj": page_obj,
+        }
+    )
 from django.http import JsonResponse
 from .utils import get_youtube_access_token
 

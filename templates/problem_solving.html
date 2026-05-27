@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load static %}
 
-{% block title %}Problems We Solve | WAAPFOLIO{% endblock title %}
+{% block title %}Problems We Solve | Waapfolio{% endblock title %}
 
 {% block meta %}
 <meta name="description" content="Discover how Waapfolio solves the biggest challenges creators and small businesses face when selling online. Simple, social-first commerce." />
@@ -11,22 +11,23 @@
 
 {% block extra_styles %}
 <style>
-/* ================= WAAPFOLIO THEME ================= */
+/* ================= WAAPFOLIO LIGHT THEME ================= */
 :root {
-    --primary: #059669;
-    --primary-light: #10b981;
-    --primary-dark: #047857;
-    --primary-glow: rgba(5, 150, 105, 0.3);
+    --primary: #047857;
+    --primary-light: #059669;
+    --primary-dark: #064e3b;
+    --primary-glow: rgba(4, 120, 87, 0.25);
     --bg-mint: #ecfdf5;
     --bg-white: #ffffff;
-    --bg-dark: #1a1a2e;
-    --text-primary: #1f2937;
-    --text-secondary: #6b7280;
-    --text-muted: #9ca3af;
-    --border-light: rgba(5, 150, 105, 0.2);
-    --shadow-card: 0 4px 20px rgba(5, 150, 105, 0.1);
-    --shadow-hover: 0 20px 40px rgba(5, 150, 105, 0.15);
-    --gradient-primary: linear-gradient(135deg, #059669 0%, #10b981 100%);
+    --bg-soft: #f8fafc;
+    --text-primary: #0b1220;       /* near-black, bold */
+    --text-secondary: #1f2937;     /* dark slate */
+    --text-muted: #4b5563;         /* readable on white */
+    --border-strong: rgba(11, 18, 32, 0.12);
+    --border-light: rgba(4, 120, 87, 0.2);
+    --shadow-card: 0 6px 24px rgba(11, 18, 32, 0.08);
+    --shadow-hover: 0 20px 40px rgba(11, 18, 32, 0.12);
+    --gradient-primary: linear-gradient(135deg, #047857 0%, #059669 100%);
     --gradient-soft: linear-gradient(180deg, #ecfdf5 0%, #ffffff 100%);
     --transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     --radius-sm: 12px;
@@ -35,69 +36,41 @@
     --radius-full: 9999px;
 }
 
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
+* { margin: 0; padding: 0; box-sizing: border-box; }
 
 body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--bg-dark);
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    background: var(--bg-white);
     color: var(--text-primary);
     overflow-x: hidden;
     line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
 }
 
-/* ================= FLOATING DOTS ================= */
-.floating-dots {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-}
-
-.dot {
-    position: absolute;
-    width: 6px;
-    height: 6px;
-    background: var(--primary);
-    border-radius: 50%;
-    opacity: 0.15;
-    animation: floatDot 20s infinite ease-in-out;
-}
-
-@keyframes floatDot {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(30px, -50px) scale(1.2); }
-    50% { transform: translate(-20px, -100px) scale(0.8); }
-    75% { transform: translate(40px, -50px) scale(1.1); }
-}
-
-/* ================= TYPOGRAPHY ================= */
+/* ================= TYPOGRAPHY — DARK & BOLD ================= */
 h1, h2, h3, h4, h5 {
     font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-    font-weight: 700;
+    font-weight: 800;
     color: var(--text-primary);
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
 }
 
-h1 { font-size: clamp(2.5rem, 5vw, 4rem); }
+h1 { font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 900; }
 h2 { font-size: clamp(2rem, 4vw, 3rem); }
 h3 { font-size: clamp(1.5rem, 3vw, 2rem); }
-h4 { font-size: 1.25rem; }
+h4 { font-size: 1.35rem; font-weight: 700; }
 
 p {
     color: var(--text-secondary);
-    line-height: 1.8;
-    font-size: 1.1rem;
+    line-height: 1.75;
+    font-size: 1.075rem;
+    font-weight: 500;
 }
 
-/* ================= CONTAINER ================= */
+strong { color: var(--text-primary); font-weight: 700; }
+
+/* ================= LAYOUT ================= */
 .container-custom {
     max-width: 1280px;
     margin: 0 auto;
@@ -106,72 +79,63 @@ p {
     z-index: 1;
 }
 
-/* ================= SECTION STYLING ================= */
-.section {
-    padding: 100px 0;
-    position: relative;
-}
+.section { padding: 100px 0; position: relative; }
 
 .section-header {
     text-align: center;
-    max-width: 800px;
+    max-width: 820px;
     margin: 0 auto 60px;
 }
 
-.section-header h2 {
-    margin-bottom: 1rem;
-}
+.section-header h2 { margin-bottom: 1rem; }
 
 .section-tag {
     display: inline-block;
-    background: var(--primary-glow);
-    color: var(--primary);
+    background: var(--bg-mint);
+    color: var(--primary-dark);
     padding: 8px 20px;
     border-radius: var(--radius-full);
-    font-size: 0.875rem;
-    font-weight: 600;
+    font-size: 0.8rem;
+    font-weight: 700;
     margin-bottom: 1rem;
     text-transform: uppercase;
-    letter-spacing: 1px;
+    letter-spacing: 1.5px;
+    border: 1px solid var(--border-light);
 }
 
-/* ================= HERO SECTION ================= */
+/* ================= HERO ================= */
 .hero-problems {
-    min-height: 100vh;
+    min-height: 90vh;
     display: flex;
     align-items: center;
     background: var(--gradient-soft);
     padding: 120px 0 80px;
     position: relative;
     overflow: hidden;
+    border-bottom: 1px solid var(--border-strong);
 }
 
 .hero-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1.1fr 0.9fr;
     gap: 60px;
     align-items: center;
 }
 
-.hero-content h1 {
-    margin-bottom: 1.5rem;
-}
+.hero-content h1 { margin-bottom: 1.5rem; color: var(--text-primary); }
 
-.hero-content h1 .highlight-red {
-    background: linear-gradient(135deg, #ef4444, #f97316);
+.hero-content h1 .highlight-dark {
+    background: var(--gradient-primary);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
 }
 
 .hero-content p {
-    font-size: 1.25rem;
+    font-size: 1.2rem;
     margin-bottom: 2rem;
-    max-width: 540px;
-}
-
-.hero-visual {
-    position: relative;
+    max-width: 560px;
+    color: var(--text-secondary);
 }
 
 .hero-illustration {
@@ -179,161 +143,91 @@ p {
     border-radius: var(--radius-lg);
     padding: 40px;
     box-shadow: var(--shadow-card);
-    position: relative;
+    border: 1px solid var(--border-strong);
 }
 
-.chaos-icons {
+.code-block {
+    background: var(--text-primary);
+    color: #e5e7eb;
+    border-radius: var(--radius-md);
+    padding: 24px;
+    font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    font-size: 0.875rem;
+    line-height: 1.8;
+    overflow-x: auto;
+}
+.code-block .k { color: #34d399; font-weight: 700; }
+.code-block .s { color: #fbbf24; }
+.code-block .c { color: #9ca3af; font-style: italic; }
+.code-block .v { color: #93c5fd; }
+
+.metric-row {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    gap: 16px;
+    margin-top: 24px;
 }
-
-.chaos-icon {
-    width: 80px;
-    height: 80px;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    animation: shake 2s infinite;
-    position: relative;
+.metric-tile {
+    background: var(--bg-mint);
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
 }
-
-.chaos-icon:nth-child(1) { background: #fee2e2; animation-delay: 0s; }
-.chaos-icon:nth-child(2) { background: #fef3c7; animation-delay: 0.2s; }
-.chaos-icon:nth-child(3) { background: #dbeafe; animation-delay: 0.4s; }
-.chaos-icon:nth-child(4) { background: #f3e8ff; animation-delay: 0.6s; }
-.chaos-icon:nth-child(5) { background: #fce7f3; animation-delay: 0.8s; }
-.chaos-icon:nth-child(6) { background: #d1fae5; animation-delay: 1s; }
-
-.chaos-icon::after {
-    content: '!';
-    position: absolute;
-    top: -8px;
-    right: -8px;
-    width: 24px;
-    height: 24px;
-    background: #ef4444;
-    color: white;
-    border-radius: 50%;
-    font-size: 14px;
+.metric-tile .label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--primary-dark);
     font-weight: 700;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+}
+.metric-tile .value {
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-top: 4px;
+    font-size: 0.95rem;
 }
 
-@keyframes shake {
-    0%, 100% { transform: rotate(0deg); }
-    25% { transform: rotate(-5deg); }
-    75% { transform: rotate(5deg); }
-}
-
-.stress-meter {
-    margin-top: 30px;
-    background: #fef2f2;
-    border-radius: var(--radius-md);
-    padding: 20px;
-}
-
-.stress-label {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 10px;
-    font-weight: 600;
-    color: #ef4444;
-}
-
-.stress-bar {
-    height: 12px;
-    background: #fecaca;
-    border-radius: var(--radius-full);
-    overflow: hidden;
-}
-
-.stress-fill {
-    height: 100%;
-    width: 85%;
-    background: linear-gradient(90deg, #f87171, #ef4444);
-    border-radius: var(--radius-full);
-    animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-}
-
-/* ================= PROBLEMS SECTION ================= */
-.problems-section {
-    background: var(--bg-white);
-}
+/* ================= PROBLEMS GRID ================= */
+.problems-section { background: var(--bg-white); }
 
 .problems-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
 }
 
 .problem-card {
-    background: var(--bg-mint);
+    background: var(--bg-white);
     border-radius: var(--radius-lg);
-    padding: 40px;
-    border: 2px solid transparent;
+    padding: 36px;
+    border: 1.5px solid var(--border-strong);
     transition: var(--transition);
     position: relative;
     overflow: hidden;
 }
-
-.problem-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    background: #ef4444;
-    transform: scaleY(0);
-    transition: var(--transition);
-}
-
 .problem-card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-4px);
     box-shadow: var(--shadow-hover);
-    border-color: rgba(239, 68, 68, 0.2);
+    border-color: var(--primary);
 }
-
-.problem-card:hover::before {
-    transform: scaleY(1);
-}
-
-.problem-icon {
-    width: 70px;
-    height: 70px;
-    background: #fef2f2;
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 2rem;
-    margin-bottom: 20px;
-}
-
-.problem-card h4 {
-    margin-bottom: 12px;
-    color: var(--text-primary);
-}
-
-.problem-card p {
-    font-size: 1rem;
-    color: var(--text-secondary);
-}
-
-/* ================= SOCIAL MEDIA SECTION ================= */
-.social-problem-section {
+.problem-card .tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
     background: var(--bg-mint);
+    color: var(--primary-dark);
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-light);
 }
+.problem-card h4 { margin-bottom: 12px; color: var(--text-primary); }
+.problem-card p { font-size: 1rem; color: var(--text-secondary); }
+
+/* ================= SPLIT SECTION ================= */
+.social-problem-section { background: var(--bg-soft); border-top: 1px solid var(--border-strong); border-bottom: 1px solid var(--border-strong); }
 
 .split-layout {
     display: grid;
@@ -342,464 +236,185 @@ p {
     align-items: center;
 }
 
-.split-content h2 {
-    margin-bottom: 1.5rem;
-}
-
-.split-content p {
-    margin-bottom: 1.5rem;
-}
-
-.pain-list {
-    list-style: none;
-}
-
+.pain-list { list-style: none; margin-top: 20px; }
 .pain-list li {
     display: flex;
     align-items: flex-start;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border-light);
+    gap: 14px;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-weight: 600;
 }
-
-.pain-list li:last-child {
-    border-bottom: none;
-}
-
+.pain-list li:last-child { border-bottom: none; }
 .pain-icon {
-    width: 28px;
-    height: 28px;
-    background: #fef2f2;
+    width: 24px; height: 24px;
+    background: var(--text-primary);
+    color: #fff;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #ef4444;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
+    font-weight: 700;
+    font-size: 0.85rem;
 }
 
 .flow-visual {
     background: var(--bg-white);
     border-radius: var(--radius-lg);
-    padding: 40px;
+    padding: 36px;
     box-shadow: var(--shadow-card);
+    border: 1px solid var(--border-strong);
 }
-
-.flow-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-}
-
 .flow-step {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-.flow-box {
-    flex: 1;
-    padding: 20px 30px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 20px;
     border-radius: var(--radius-md);
-    text-align: center;
-    font-weight: 600;
+    background: var(--bg-soft);
+    border: 1px solid var(--border-strong);
+    margin-bottom: 12px;
+    font-weight: 700;
+    color: var(--text-primary);
 }
+.flow-step .method {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    background: var(--primary);
+    color: #fff;
+    padding: 4px 10px;
+    border-radius: 6px;
+}
+.flow-step.fail .method { background: #991b1b; }
 
-.flow-box.social {
-    background: linear-gradient(135deg, #dbeafe, #ede9fe);
-    color: #6366f1;
-}
-
-.flow-box.confusion {
-    background: #fef3c7;
-    color: #d97706;
-}
-
-.flow-box.lost {
-    background: #fef2f2;
-    color: #ef4444;
-}
-
-.flow-arrow {
-    font-size: 1.5rem;
-    color: var(--text-muted);
-}
-
-/* ================= PLATFORM FAIL SECTION ================= */
-.platform-fail-section {
-    background: var(--bg-white);
-}
-
-.fail-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 24px;
-}
-
-.fail-card {
-    background: #fef2f2;
-    border-radius: var(--radius-lg);
-    padding: 30px;
-    text-align: center;
-    border: 2px solid #fecaca;
-    transition: var(--transition);
-}
-
-.fail-card:hover {
-    transform: translateY(-5px);
-}
-
-.fail-icon {
-    width: 60px;
-    height: 60px;
-    background: #fee2e2;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 1.5rem;
-}
-
-.fail-card h4 {
-    font-size: 1.1rem;
-    margin-bottom: 8px;
-    color: #991b1b;
-}
-
-.fail-card p {
-    font-size: 0.9rem;
-    color: #b91c1c;
-}
-
-/* ================= WAAPFOLIO APPROACH SECTION ================= */
-.approach-section {
-    color: white;
-    position: relative;
-    overflow: hidden;
-}
-
-.approach-section::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 600px;
-    height: 600px;
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 50%;
-}
-
-.approach-section .section-header h2 {
-    color: white;
-}
-
-.approach-section .section-header p {
-    color: rgba(255, 255, 255, 0.9);
-}
+/* ================= APPROACH / SOLUTION ================= */
+.approach-section { background: var(--text-primary); color: #fff; }
+.approach-section .section-tag { background: rgba(255,255,255,0.08); color: #6ee7b7; border-color: rgba(110,231,183,0.3); }
+.approach-section .section-header h2 { color: #fff; }
+.approach-section .section-header p { color: rgba(255,255,255,0.8); }
 
 .approach-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
-    gap: 30px;
-    position: relative;
-    z-index: 1;
+    gap: 24px;
 }
-
 .approach-card {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(10px);
+    background: rgba(255,255,255,0.04);
     border-radius: var(--radius-lg);
-    padding: 35px;
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 32px;
+    border: 1px solid rgba(255,255,255,0.1);
     transition: var(--transition);
 }
-
-.approach-card:hover {
-    background: rgba(255, 255, 255, 0.25);
-    transform: translateY(-5px);
+.approach-card:hover { background: rgba(255,255,255,0.08); transform: translateY(-4px); border-color: var(--primary-light); }
+.approach-card .endpoint {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    color: #6ee7b7;
+    background: rgba(110,231,183,0.08);
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    border: 1px solid rgba(110,231,183,0.2);
 }
+.approach-card h4 { color: #fff; margin-bottom: 10px; }
+.approach-card p { color: rgba(255,255,255,0.75); font-size: 0.98rem; }
 
-.approach-icon {
-    width: 60px;
-    height: 60px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: var(--radius-md);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 1.75rem;
-    margin-bottom: 20px;
-}
-
-.approach-card h4 {
-    color: white;
-    margin-bottom: 10px;
-}
-
-.approach-card p {
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 1rem;
-}
-
-/* ================= BEFORE/AFTER SECTION ================= */
-.before-after-section {
-    background: var(--bg-mint);
-}
+/* ================= BEFORE / AFTER ================= */
+.before-after-section { background: var(--bg-white); }
 
 .comparison-grid {
     display: grid;
-    grid-template-columns: 1fr auto 1fr;
-    gap: 40px;
-    align-items: stretch;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
 }
-
 .comparison-card {
     border-radius: var(--radius-lg);
-    padding: 50px;
+    padding: 40px;
     position: relative;
+    border: 2px solid var(--border-strong);
 }
-
-.comparison-card.before {
-    background: #fef2f2;
-    border: 2px solid #320000ff;
-}
-
-.comparison-card.after {
-    background: var(--bg-white);
-    border: 2px solid var(--primary);
-    box-shadow: var(--shadow-card);
-}
+.comparison-card.before { background: var(--bg-soft); }
+.comparison-card.after  { background: var(--bg-mint); border-color: var(--primary); }
 
 .comparison-label {
-    position: absolute;
-    top: -15px;
-    left: 30px;
-    padding: 8px 24px;
+    display: inline-block;
+    padding: 6px 16px;
     border-radius: var(--radius-full);
-    font-weight: 700;
-    font-size: 0.875rem;
+    font-weight: 800;
+    font-size: 0.75rem;
     text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 16px;
 }
+.before .comparison-label { background: var(--text-primary); color: #fff; }
+.after  .comparison-label { background: var(--primary); color: #fff; }
 
-.before .comparison-label {
-    background: #ef4444;
-    color: white;
-}
-
-.after .comparison-label {
-    background: var(--primary);
-    color: white;
-}
-
-.comparison-list {
-    list-style: none;
-    margin-top: 20px;
-}
-
+.comparison-card h3 { color: var(--text-primary); margin-bottom: 8px; }
+.comparison-list { list-style: none; margin-top: 18px; }
 .comparison-list li {
-    display: flex;
-    align-items: flex-start;
-    gap: 15px;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(0,0,0,0.05);
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-strong);
+    color: var(--text-primary);
+    font-weight: 600;
 }
-
-.comparison-list li:last-child {
-    border-bottom: none;
-}
-
-.comparison-icon {
-    width: 32px;
-    height: 32px;
+.comparison-list li:last-child { border-bottom: none; }
+.comparison-mark {
+    width: 22px; height: 22px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    display: flex; align-items: center; justify-content: center;
     flex-shrink: 0;
-    font-size: 1rem;
+    font-weight: 800;
+    font-size: 0.8rem;
 }
+.before .comparison-mark { background: var(--text-primary); color: #fff; }
+.after  .comparison-mark { background: var(--primary); color: #fff; }
 
-.before .comparison-icon {
-    background: #b12727ff;
-    color: #d96868ff;
-}
-
-.after .comparison-icon {
-    background: #d1fae5;
-    color: var(--primary);
-}
-
-.comparison-divider {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.divider-arrow {
-    width: 60px;
-    height: 60px;
-    background: var(--primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    font-size: 1.5rem;
-    box-shadow: 0 10px 30px var(--primary-glow);
-}
-
-/* ================= PERSONAS SECTION ================= */
-.personas-section {
-    background: var(--bg-white);
-}
+/* ================= PERSONAS ================= */
+.personas-section { background: var(--bg-soft); border-top: 1px solid var(--border-strong); }
 
 .personas-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+    gap: 24px;
 }
-
 .persona-card {
-    background: var(--bg-mint);
+    background: var(--bg-white);
     border-radius: var(--radius-lg);
-    padding: 40px 30px;
-    text-align: center;
+    padding: 32px 28px;
     transition: var(--transition);
-    border: 2px solid transparent;
+    border: 1.5px solid var(--border-strong);
 }
-
 .persona-card:hover {
     border-color: var(--primary);
-    transform: translateY(-8px);
+    transform: translateY(-6px);
     box-shadow: var(--shadow-hover);
 }
-
-.persona-avatar {
-    width: 100px;
-    height: 100px;
-    background: var(--gradient-primary);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 24px;
-    font-size: 2.5rem;
-}
-
-.persona-card h4 {
-    margin-bottom: 12px;
-}
-
-/* ================= STATS SECTION ================= */
-.stats-section {
-    background: var(--bg-dark);
-    color: white;
-    padding: 80px 0;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 40px;
-}
-
-.stat-item {
-    text-align: center;
-}
-
-.stat-number {
-    font-family: 'Space Grotesk', sans-serif;
-    font-size: clamp(3rem, 6vw, 4.5rem);
+.persona-card .role {
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--primary-dark);
+    font-size: 0.75rem;
     font-weight: 700;
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
 }
+.persona-card h4 { margin-bottom: 8px; color: var(--text-primary); }
+.persona-card p { font-size: 0.95rem; }
 
-.stat-label {
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 1.1rem;
-}
-
-/* ================= FUTURE SECTION ================= */
-.future-section {
-    text-align: center;
-    position: relative;
-    overflow: hidden;
-}
-
-.future-section::before,
-.future-section::after {
-    content: '';
-    position: absolute;
-    width: 400px;
-    height: 400px;
-    border-radius: 50%;
-    background: var(--primary-glow);
-    filter: blur(100px);
-}
-
-.future-section::before {
-    top: -200px;
-    left: -200px;
-}
-
-.future-section::after {
-    bottom: -200px;
-    right: -200px;
-}
-
-.future-content {
-    position: relative;
-    z-index: 1;
-    max-width: 800px;
-    margin: 0 auto;
-}
-
-.future-content h2 {
-    font-size: clamp(2.5rem, 5vw, 3.5rem);
-    margin-bottom: 1.5rem;
-}
-
-.future-content h2 .highlight {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-}
-
-.future-content p {
-    font-size: 1.25rem;
-    max-width: 600px;
-    margin: 0 auto;
-}
-
-/* ================= CTA SECTION ================= */
+/* ================= CTA ================= */
 .cta-section {
-    background: var(--bg-white);
+    background: var(--gradient-soft);
     text-align: center;
+    border-top: 1px solid var(--border-strong);
 }
-
-.cta-content {
-    max-width: 700px;
-    margin: 0 auto;
-}
-
-.cta-content h2 {
-    margin-bottom: 1rem;
-}
-
-.cta-content p {
-    font-size: 1.25rem;
-    margin-bottom: 2.5rem;
-}
+.cta-content { max-width: 720px; margin: 0 auto; }
+.cta-content h2 { margin-bottom: 1rem; color: var(--text-primary); }
+.cta-content p { font-size: 1.2rem; margin-bottom: 2.5rem; color: var(--text-secondary); }
 
 .cta-buttons {
     display: flex;
-    gap: 20px;
+    gap: 16px;
     justify-content: center;
     flex-wrap: wrap;
 }
@@ -807,535 +422,304 @@ p {
 .btn {
     display: inline-flex;
     align-items: center;
-    gap: 10px;
-    padding: 18px 36px;
+    gap: 12px;
+    padding: 16px 32px;
     border-radius: var(--radius-full);
-    font-weight: 600;
-    font-size: 1.1rem;
+    font-weight: 700;
+    font-size: 1.05rem;
     text-decoration: none;
     transition: var(--transition);
     cursor: pointer;
-    border: none;
+    border: 2px solid transparent;
 }
-
 .btn-primary {
     background: var(--gradient-primary);
-    color: white;
+    color: #fff;
     box-shadow: 0 10px 30px var(--primary-glow);
 }
+.btn-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px var(--primary-glow); }
 
-.btn-primary:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 15px 40px var(--primary-glow);
+.btn-google {
+    background: var(--bg-white);
+    color: var(--text-primary);
+    border-color: var(--border-strong);
 }
+.btn-google:hover { border-color: var(--primary); color: var(--primary-dark); }
 
 .btn-secondary {
-    background: var(--bg-white);
-    color: var(--primary);
-    border: 2px solid var(--primary);
+    background: transparent;
+    color: var(--text-primary);
+    border-color: var(--text-primary);
 }
-
-.btn-secondary:hover {
-    background: var(--primary);
-    color: white;
-}
+.btn-secondary:hover { background: var(--text-primary); color: #fff; }
 
 /* ================= ANIMATIONS ================= */
 .animate-on-scroll {
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(24px);
     transition: opacity 0.6s ease, transform 0.6s ease;
 }
-
-.animate-on-scroll.visible {
-    opacity: 1;
-    transform: translateY(0);
-}
+.animate-on-scroll.visible { opacity: 1; transform: translateY(0); }
 
 /* ================= RESPONSIVE ================= */
 @media (max-width: 1024px) {
-    .hero-grid,
-    .split-layout,
-    .comparison-grid {
-        grid-template-columns: 1fr;
-        gap: 40px;
-    }
-    
-    .comparison-divider {
-        transform: rotate(90deg);
-    }
-    
-    .fail-grid,
-    .personas-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
-    
-    .approach-grid,
-    .problems-grid {
-        grid-template-columns: 1fr;
-    }
+    .hero-grid, .split-layout { grid-template-columns: 1fr; gap: 40px; }
+    .problems-grid, .approach-grid { grid-template-columns: repeat(2, 1fr); }
+    .personas-grid { grid-template-columns: repeat(2, 1fr); }
 }
-
 @media (max-width: 768px) {
-    .section {
-        padding: 60px 0;
-    }
-    
-    .container-custom {
-        padding: 0 1rem;
-    }
-    
-    .fail-grid,
-    .personas-grid,
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-    
-    .cta-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-    
-    .btn {
-        width: 100%;
-        max-width: 300px;
-        justify-content: center;
-    }
-    
-    .chaos-icons {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    .section { padding: 60px 0; }
+    .container-custom { padding: 0 1.25rem; }
+    .problems-grid, .approach-grid, .personas-grid, .comparison-grid { grid-template-columns: 1fr; }
+    .cta-buttons { flex-direction: column; align-items: stretch; }
+    .btn { justify-content: center; }
 }
 </style>
 {% endblock extra_styles %}
 
 {% block body %}
-<!-- Floating Dots Background -->
-<div class="floating-dots">
-    <div class="dot" style="left: 10%; top: 20%;"></div>
-    <div class="dot" style="left: 20%; top: 60%;"></div>
-    <div class="dot" style="left: 80%; top: 15%;"></div>
-    <div class="dot" style="left: 70%; top: 70%;"></div>
-    <div class="dot" style="left: 50%; top: 40%;"></div>
-    <div class="dot" style="left: 30%; top: 80%;"></div>
-    <div class="dot" style="left: 90%; top: 50%;"></div>
-    <div class="dot" style="left: 5%; top: 90%;"></div>
-</div>
 
-<!-- Hero Section -->
+<!-- ================= HERO ================= -->
 <section class="hero-problems">
     <div class="container-custom">
         <div class="hero-grid">
             <div class="hero-content animate-on-scroll">
                 <span class="section-tag">The Problem</span>
-                <h1>Selling Online <span class="highlight-red">Shouldn't Be This Hard.</span></h1>
-                <p>Creators and small businesses struggle daily with complicated tools, low conversions, and scattered sales channels. Sound familiar?</p>
-                <a href="{% url 'register' %}" class="btn btn-primary">
-                    See the Solution
-                    <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                        <path d="M5 12h14M12 5l7 7-7 7"/>
-                    </svg>
-                </a>
+                <h1>Selling Online Shouldn't Be This <span class="text-success">Complicated</span>.</h1>
+                <p>Creators and small businesses lose revenue to fragmented tools, broken checkout flows, and platforms that were never built for social-first commerce.</p>
+                <a href="#solution" class="btn btn-primary">See How We Solve It</a>
             </div>
-            <div class="hero-visual animate-on-scroll">
-                <div class="hero-illustration">
-                    <div class="chaos-icons">
-                        <div class="chaos-icon">📱</div>
-                        <div class="chaos-icon">💬</div>
-                        <div class="chaos-icon">📧</div>
-                        <div class="chaos-icon">📊</div>
-                        <div class="chaos-icon">💳</div>
-                        <div class="chaos-icon">🔔</div>
-                    </div>
-                    <div class="stress-meter">
-                        <div class="stress-label">
-                            <span>Stress Level</span>
-                            <span>85%</span>
-                        </div>
-                        <div class="stress-bar">
-                            <div class="stress-fill"></div>
-                        </div>
-                    </div>
+
+            <div class="hero-illustration animate-on-scroll">
+                <div class="code-block">
+<span class="c"># Typical creator stack — fragmented</span><br>
+<span class="k">POST</span> <span class="s">/instagram/dm</span> <span class="c"># inquiry</span><br>
+<span class="k">POST</span> <span class="s">/whatsapp/manual-quote</span><br>
+<span class="k">POST</span> <span class="s">/payment-link/generate</span><br>
+<span class="k">GET</span>  <span class="s">/spreadsheet/track-order</span><br>
+<span class="v">status</span>: <span class="s">"customer abandoned"</span>
+                </div>
+                <div class="metric-row">
+                    <div class="metric-tile"><div class="label">Tools</div><div class="value">5+</div></div>
+                    <div class="metric-tile"><div class="label">Handoffs</div><div class="value">High</div></div>
+                    <div class="metric-tile"><div class="label">Drop-off</div><div class="value">Severe</div></div>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Problems Grid Section -->
+<!-- ================= PROBLEMS ================= -->
 <section class="section problems-section">
     <div class="container-custom">
         <div class="section-header animate-on-scroll">
-            <span class="section-tag">Real Struggles</span>
+            <span class="section-tag">Core Issues</span>
             <h2>The Real Problems Creators Face</h2>
-            <p>Every day, thousands of creators hit the same walls. Here's what's holding them back.</p>
+            <p>Recurring friction points we've validated across thousands of seller conversations.</p>
         </div>
+
         <div class="problems-grid">
             <div class="problem-card animate-on-scroll">
-                <div class="problem-icon">🔄</div>
-                <h4>Too Many Platforms to Manage</h4>
-                <p>Juggling Instagram, WhatsApp, TikTok, and separate payment apps. It's exhausting and nothing syncs together.</p>
+                <span class="tag">issue/fragmentation</span>
+                <h4>Disconnected Sales Channels</h4>
+                <p>Instagram, WhatsApp, TikTok, and payment processors operate in isolation. No unified order pipeline, no shared customer record, no source of truth.</p>
             </div>
             <div class="problem-card animate-on-scroll">
-                <div class="problem-icon">📵</div>
-                <h4>No Easy Way to Sell on Social Media</h4>
-                <p>You post great content, get engagement, but there's no simple way to turn followers into paying customers.</p>
+                <span class="tag">issue/conversion</span>
+                <h4>No Native Path from DM to Checkout</h4>
+                <p>Engagement happens on social. Checkout happens somewhere else. That handoff is where most intent-to-purchase silently dies.</p>
             </div>
             <div class="problem-card animate-on-scroll">
-                <div class="problem-icon">💰</div>
-                <h4>Complicated Setup & High Costs</h4>
-                <p>Traditional e-commerce platforms need technical skills and charge hefty monthly fees before you even make a sale.</p>
+                <span class="tag">issue/onboarding</span>
+                <h4>High Technical &amp; Cost Barrier</h4>
+                <p>Legacy e-commerce platforms assume a developer, a designer, and a fixed monthly budget before the first sale ever clears.</p>
             </div>
-
         </div>
     </div>
 </section>
 
-<!-- Social Media Problem Section -->
+<!-- ================= GAP / SPLIT ================= -->
 <section class="section social-problem-section">
     <div class="container-custom">
         <div class="split-layout">
-            <div class="split-content animate-on-scroll">
+            <div class="animate-on-scroll">
                 <span class="section-tag">The Gap</span>
-                <h2>Social Media ≠ Sales</h2>
-                <p>You get the likes. You get the comments. You get the DMs asking "How much?" But turning that engagement into actual money? That's where everything breaks down.</p>
+                <h2>Social Engagement Does Not Equal Revenue</h2>
+                <p>Likes, comments, and DMs are signals — not transactions. Without a structured checkout surface attached to those signals, intent never converts.</p>
                 <ul class="pain-list">
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Followers ask questions but never complete purchases</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Manual order tracking leads to missed sales</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>No centralized place to showcase products</span>
-                    </li>
-                    <li>
-                        <span class="pain-icon">✕</span>
-                        <span>Payment collection is awkward and unprofessional</span>
-                    </li>
+                    <li><span class="pain-icon">×</span> Inbound inquiries never reach a payment step</li>
+                    <li><span class="pain-icon">×</span> Manual order tracking introduces errors and missed fulfillment</li>
+                    <li><span class="pain-icon">×</span> No centralized catalog to reference from social posts</li>
+                    <li><span class="pain-icon">×</span> Payment collection feels ad-hoc and untrustworthy</li>
                 </ul>
             </div>
+
             <div class="flow-visual animate-on-scroll">
-                <div class="flow-steps">
-                    <div class="flow-step">
-                        <div class="flow-box social">📱 Social Media<br><small>Likes, Comments, DMs</small></div>
-                    </div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-step">
-                        <div class="flow-box confusion">😵 Confusion<br><small>No clear path to buy</small></div>
-                    </div>
-                    <div class="flow-arrow">↓</div>
-                    <div class="flow-step">
-                        <div class="flow-box lost">💸 Lost Sales<br><small>Customer gives up</small></div>
-                    </div>
+                <div class="flow-step">
+                    <span>Social inquiry received</span>
+                    <span class="method">INTENT</span>
+                </div>
+                <div class="flow-step">
+                    <span>Manual quote &amp; back-and-forth</span>
+                    <span class="method">FRICTION</span>
+                </div>
+                <div class="flow-step fail">
+                    <span>Customer abandons</span>
+                    <span class="method">LOST</span>
                 </div>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Platform Failures Section -->
-<section class="section platform-fail-section">
+<!-- ================= SOLUTION / APPROACH ================= -->
+<section id="solution" class="section approach-section">
     <div class="container-custom">
         <div class="section-header animate-on-scroll">
-            <span class="section-tag">The Competition</span>
-            <h2>Why Existing Platforms Fail</h2>
-            <p>Traditional e-commerce wasn't built for creators. Here's why they fall short.</p>
+            <span class="section-tag">The Solution</span>
+            <h2>Waapfolio Was Built to Solve This</h2>
+            <p>A single platform that turns every social touchpoint into a structured, trackable sales pipeline.</p>
         </div>
-        <div class="fail-grid">
-            <div class="fail-card animate-on-scroll">
-                <div class="fail-icon">🖥️</div>
-                <h4>Technical Complexity</h4>
-                <p>Requires coding or expensive developers</p>
-            </div>
-            <div class="fail-card animate-on-scroll">
-                <div class="fail-icon">💵</div>
-                <h4>Expensive Fees</h4>
-                <p>High monthly costs before earning anything</p>
-            </div>
-            <div class="fail-card animate-on-scroll">
-                <div class="fail-icon">🏢</div>
-                <h4>Built for Big Business</h4>
-                <p>Overcomplicated for solo creators</p>
-            </div>
-            <div class="fail-card animate-on-scroll">
-                <div class="fail-icon">📵</div>
-                <h4>No Social Integration</h4>
-                <p>Can't sell via WhatsApp or DMs</p>
-            </div>
-        </div>
-    </div>
-</section>
 
-<!-- Waapfolio Approach Section -->
-<section class="section approach-section">
-    <div class="container-custom">
-        <div class="section-header animate-on-scroll">
-            <span class="section-tag" style="background: rgba(255,255,255,0.2); color: white;">The Solution</span>
-            <h2>Waapfolio Was Built to Solve This.</h2>
-            <p>We took everything that's broken about selling online and fixed it. Here's how.</p>
-        </div>
         <div class="approach-grid">
             <div class="approach-card animate-on-scroll">
-                <div class="approach-icon">⚡</div>
+                <span class="endpoint">/onboarding/launch</span>
                 <h4>Launch in Minutes</h4>
-                <p>No coding, no setup headaches. Create your professional store in under 5 minutes flat.</p>
+                <p>Guided store creation with no code, no integrations, and no developer required. From signup to live storefront in a single session.</p>
             </div>
             <div class="approach-card animate-on-scroll">
-                <div class="approach-icon">💬</div>
-                <h4>Sell via WhatsApp & Social</h4>
-                <p>Share your store link anywhere. Customers order directly through WhatsApp.</p>
+                <span class="endpoint">/orders/whatsapp</span>
+                <h4>Sell Through WhatsApp &amp; Social</h4>
+                <p>Share one store link across every channel. Orders flow back into a unified inbox with structured customer and product data.</p>
             </div>
             <div class="approach-card animate-on-scroll">
-                <div class="approach-icon">🛒</div>
-                <h4>Simple Checkout</h4>
-                <p>No complicated payment gateways. Multiple easy options that work globally.</p>
+                <span class="endpoint">/checkout/session</span>
+                <h4>Frictionless Checkout</h4>
+                <p>Multiple payment methods, mobile-first by default, and built to clear transactions without funneling buyers through unfamiliar gateways.</p>
             </div>
-
+            <div class="approach-card animate-on-scroll">
+                <span class="endpoint">/catalog/manage</span>
+                <h4>One Catalog, Every Channel</h4>
+                <p>Manage products, pricing, and inventory in one place. Updates propagate everywhere your store link lives — no duplicate work.</p>
+            </div>
         </div>
     </div>
 </section>
 
-<!-- Before/After Section -->
+<!-- ================= BEFORE / AFTER ================= -->
 <section class="section before-after-section">
     <div class="container-custom">
         <div class="section-header animate-on-scroll">
             <span class="section-tag">The Transformation</span>
             <h2>Before vs After Waapfolio</h2>
-            <p>See the difference when you stop struggling and start selling smarter.</p>
+            <p>What changes when your sales pipeline stops leaking.</p>
         </div>
+
         <div class="comparison-grid">
             <div class="comparison-card before animate-on-scroll">
                 <span class="comparison-label">Before</span>
-                <h3 class="text-dark" style="margin-top: 10px;">😰 The Struggle</h3>
+                <h3>Manual, Fragmented, Lossy</h3>
                 <ul class="comparison-list">
-                    <li>
-                        <span class="comparison-icon">✕</span>
-                        <span class="text-dark">Missed DMs and lost customers</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✕</span>
-                        <span class="text-dark">Scattered products across platforms</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✕</span>
-                        <span class="text-dark">Manual order tracking nightmares</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✕</span>
-                        <span class="text-dark">Unprofessional payment requests</span>
-                    </li>
+                    <li><span class="comparison-mark">×</span> Missed DMs and unanswered inquiries</li>
+                    <li><span class="comparison-mark">×</span> Products scattered across multiple surfaces</li>
+                    <li><span class="comparison-mark">×</span> Manual order tracking in spreadsheets</li>
+                    <li><span class="comparison-mark">×</span> Ad-hoc payment requests with low trust</li>
                 </ul>
             </div>
-            <div class="comparison-divider">
-                <div class="divider-arrow">→</div>
-            </div>
+
             <div class="comparison-card after animate-on-scroll">
                 <span class="comparison-label">After</span>
-                <h3 style="margin-top: 10px;">🚀 The Success</h3>
+                <h3>Unified, Automated, Trackable</h3>
                 <ul class="comparison-list">
-                    <li>
-                        <span class="comparison-icon">✓</span>
-                        <span>Organized storefront, clear orders</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✓</span>
-                        <span>All products in one beautiful store</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✓</span>
-                        <span>Automatic order management</span>
-                    </li>
-                    <li>
-                        <span class="comparison-icon">✓</span>
-                        <span>Professional checkout experience</span>
-                    </li>
+                    <li><span class="comparison-mark">✓</span> Structured order inbox with full context</li>
+                    <li><span class="comparison-mark">✓</span> Single catalog powering every channel</li>
+                    <li><span class="comparison-mark">✓</span> Automated order status and notifications</li>
+                    <li><span class="comparison-mark">✓</span> Professional checkout session per order</li>
                 </ul>
             </div>
         </div>
     </div>
 </section>
 
-<!-- Personas Section -->
+<!-- ================= PERSONAS ================= -->
 <section class="section personas-section">
     <div class="container-custom">
         <div class="section-header animate-on-scroll">
-            <span class="section-tag">Who We Help</span>
-            <h2>Who This Solves Problems For</h2>
-            <p>Waapfolio removes the pain for creators of all types.</p>
+            <span class="section-tag">Who It's For</span>
+            <h2>Built for Independent Sellers</h2>
+            <p>Designed around the workflows of creators, coaches, digital sellers, and small operators.</p>
         </div>
+
         <div class="personas-grid">
             <div class="persona-card animate-on-scroll">
-                <div class="persona-avatar">📸</div>
-                <h4>Influencers</h4>
-                <p>Monetize your following with products and earn from every recommendation.</p>
+                <div class="role">role/influencer</div>
+                <h4>Creators &amp; Influencers</h4>
+                <p>Convert audience attention into recurring revenue without breaking the content workflow.</p>
             </div>
             <div class="persona-card animate-on-scroll">
-                <div class="persona-avatar">🎓</div>
+                <div class="role">role/coach</div>
                 <h4>Online Coaches</h4>
-                <p>Sell courses, ebooks, and sessions without tech complexity.</p>
+                <p>Sell sessions, programs, and digital materials without managing separate billing tools.</p>
             </div>
             <div class="persona-card animate-on-scroll">
-                <div class="persona-avatar">💎</div>
+                <div class="role">role/digital_seller</div>
                 <h4>Digital Sellers</h4>
-                <p>Templates, designs, presets — sell digital products instantly.</p>
+                <p>Distribute templates, presets, and downloadable products with automated delivery.</p>
             </div>
             <div class="persona-card animate-on-scroll">
-                <div class="persona-avatar">🏪</div>
+                <div class="role">role/small_business</div>
                 <h4>Small Business Owners</h4>
-                <p>Launch your online presence without expensive agencies.</p>
+                <p>Stand up a credible online presence without agencies, contracts, or long lead times.</p>
             </div>
         </div>
     </div>
 </section>
 
-<!-- ================= STATS SECTION ================= -->
-<section class="stats-section">
-    <div class="container-custom">
-        <div class="stats-grid">
-            <div class="stat-item animate-on-scroll">
-                <div class="stat-number" data-target="5000">0</div>
-                <div class="stat-label">Stores Created</div>
-            </div>
-            <div class="stat-item animate-on-scroll">
-                <div class="stat-number" data-target="150">0</div>
-                <div class="stat-label">Countries Served</div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<style>
-/* Grid for 2 stats per row, centered */
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 3rem;
-    justify-content: center;
-    text-align: center;
-    margin: 0 auto;
-}
-
-.stat-item .stat-number {
-    font-size: 3rem;
-    font-weight: 700;
-    color: #FFFFFF;
-}
-
-.stat-item .stat-label {
-    font-size: 1.2rem;
-    color: #CCCCCC;
-    margin-top: 0.5rem;
-}
-
-/* Mobile responsive */
-@media (max-width: 768px) {
-    .stats-grid {
-        grid-template-columns: 1fr;
-    }
-}
-</style>
-<!-- Future Section -->
-<section class="section future-section">
-    <div class="container-custom">
-        <div class="future-content animate-on-scroll">
-            <span class="section-tag">Our Vision</span>
-            <h2>We're Building the Future of <span class="highlight">Social Commerce</span></h2>
-            <p>A world where every creator owns their audience, controls their income, and builds wealth on their terms. That future starts with Waapfolio.</p>
-        </div>
-    </div>
-</section>
-
-<!-- CTA Section -->
+<!-- ================= CTA ================= -->
 <section class="section cta-section">
     <div class="container-custom">
         <div class="cta-content animate-on-scroll">
-            <span class="section-tag">Start Now</span>
-            <h2>Stop Struggling. Start Selling Smarter.</h2>
-            <p>Join thousands of creators who've escaped the chaos and built thriving online businesses with Waapfolio.</p>
+            <span class="section-tag">Get Started</span>
+            <h2>Stop Patching. Start Selling.</h2>
+            <p>Move your entire sales pipeline onto one platform built for how creators actually sell today.</p>
+
             <div class="cta-buttons">
-                <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-primary">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-                        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-                        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-                        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-                        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-                    </svg>
-                    Sign Up with Google
-                </a>
-                <a href="{% url 'register' %}" class="btn btn-secondary">
-                    Get Started Free
-                </a>
+                {% if user.is_authenticated %}
+                    <a href="{% url 'home' %}" class="btn btn-success">
+                        Go to Dashboard
+                        <span aria-hidden="true">→</span>
+                    </a>
+                {% else %}
+                    <a href="{% url 'social:begin' 'google-oauth2' %}" class="btn btn-google">
+                        <svg width="20" height="20" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+                            <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+                            <path fill="#FBBC05" d="M5.84 14.1c-.22-.66-.35-1.36-.35-2.1s.13-1.44.35-2.1V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.83z"/>
+                            <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.83C6.71 7.31 9.14 5.38 12 5.38z"/>
+                        </svg>
+                        Sign Up with Google
+                    </a>
+                    <a href="{% url 'account_signup' %}" class="btn btn-secondary">Create Free Account</a>
+                {% endif %}
             </div>
         </div>
     </div>
 </section>
+
 {% endblock body %}
 
 {% block extra_scripts %}
 <script>
-// Scroll Animation Observer
-const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-};
+    // Reveal-on-scroll
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('visible');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.12 });
 
-const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            entry.target.classList.add('visible');
-        }
-    });
-}, observerOptions);
-
-document.querySelectorAll('.animate-on-scroll').forEach(el => {
-    observer.observe(el);
-});
-
-// Stats Counter Animation
-function animateCounter(element, target, suffix = '') {
-    let current = 0;
-    const increment = target / 60;
-    const timer = setInterval(() => {
-        current += increment;
-        if (current >= target) {
-            current = target;
-            clearInterval(timer);
-        }
-        if (suffix === 'K') {
-            element.textContent = '$' + Math.floor(current) + 'K+';
-        } else if (target >= 1000) {
-            element.textContent = Math.floor(current).toLocaleString() + '+';
-        } else {
-            element.textContent = Math.floor(current) + '+';
-        }
-    }, 25);
-}
-
-// Trigger stats animation when visible
-const statsObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-        if (entry.isIntersecting) {
-            const statNumbers = entry.target.querySelectorAll('.stat-number');
-            statNumbers.forEach(stat => {
-                const target = parseInt(stat.dataset.target);
-                if (stat.textContent.includes('$')) {
-                    animateCounter(stat, target, 'K');
-                } else {
-                    animateCounter(stat, target);
-                }
-            });
-            statsObserver.unobserve(entry.target);
-        }
-    });
-}, { threshold: 0.5 });
-
-const statsSection = document.querySelector('.stats-section');
-if (statsSection) {
-    statsObserver.observe(statsSection);
-}
+    document.querySelectorAll('.animate-on-scroll').forEach(el => observer.observe(el));
 </script>
 {% endblock extra_scripts %}

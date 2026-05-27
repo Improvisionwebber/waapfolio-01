@@ -1,481 +1,282 @@
 {% extends "base.html" %}
+{% load static %}
 
 {% block title %}Account Information - Waapfolio{% endblock title %}
-
-{% load static %}
 
 {% block body %}
 
 <style>
-    .account-hero {
-        padding: 80px 20px 60px;
-        text-align: center;
-        position: relative;
-        overflow: hidden;
+:root{
+    --bg:#050505;
+    --card:#0b0b0b;
+    --card-2:#101010;
+    --green:#00d26a;
+    --green-soft:#14e57b;
+    --text:#121212;
+    --muted:#3d3d3d;
+    --border:#171717;
+}
+
+.account-page{
+    max-width:760px;
+    margin:auto;
+    padding:32px 18px 48px;
+}
+
+.account-header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:16px;
+    margin-bottom:24px;
+    flex-wrap:wrap;
+}
+
+.account-title h1{
+    font-size:1.55rem;
+    font-weight:700;
+    margin:0;
+    color:var(--green);
+    letter-spacing:-.4px;
+}
+
+.account-title p{
+    margin:6px 0 0;
+    font-size:.92rem;
+    color:var(--muted);
+}
+
+.account-status{
+    background:rgba(0,210,106,.08);
+    border:1px solid rgba(0,210,106,.18);
+    color:var(--green);
+    font-size:.82rem;
+    font-weight:600;
+    padding:10px 14px;
+    border-radius:999px;
+}
+
+.account-card{
+    background:linear-gradient(
+        180deg,
+        rgba(0,210,106,.03),
+        rgba(0,0,0,.02)
+    );
+    border:1px solid rgba(0,210,106,.10);
+    border-radius:18px;
+    padding:22px;
+    box-shadow:0 8px 30px rgba(0,0,0,.08);
+}
+
+.profile-top{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    margin-bottom:20px;
+}
+
+.avatar{
+    width:58px;
+    height:58px;
+    border-radius:50%;
+    background:linear-gradient(
+        135deg,
+        var(--green),
+        #009c4f
+    );
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:1.25rem;
+    font-weight:700;
+    color:#000;
+}
+
+.profile-name h3{
+    margin:0;
+    font-size:1rem;
+    color:var(--text);
+}
+
+.profile-name span{
+    font-size:.85rem;
+    color:var(--muted);
+}
+
+.field-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+.field{
+    background:var(--card-2);
+    border:1px solid var(--border);
+    border-radius:14px;
+    padding:14px;
+}
+
+.field label{
+    display:block;
+    font-size:.75rem;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:.8px;
+    margin-bottom:8px;
+    color:var(--muted);
+}
+
+.field-value{
+    font-size:.95rem;
+    font-weight:600;
+    color:var(--green);
+    word-break:break-word;
+}
+
+.security-box{
+    margin-top:18px;
+    padding:16px;
+    border-radius:14px;
+    background:rgba(0,210,106,.05);
+    border:1px solid rgba(0,210,106,.12);
+}
+
+.security-box h4{
+    margin:0 0 8px;
+    font-size:.95rem;
+    color:var(--green);
+}
+
+.security-box p{
+    margin:0;
+    font-size:.86rem;
+    line-height:1.5;
+    color:var(--muted);
+}
+
+.back-wrap{
+    margin-top:22px;
+}
+
+.back-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:12px 18px;
+    border-radius:12px;
+    background:#0b0b0b;
+    border:1px solid rgba(0,210,106,.18);
+    text-decoration:none;
+    color:var(--green);
+    font-size:.92rem;
+    font-weight:600;
+    transition:.25s ease;
+}
+
+.back-btn:hover{
+    transform:translateY(-2px);
+    background:rgba(0,210,106,.05);
+}
+
+.footer-note{
+    text-align:center;
+    margin-top:24px;
+    font-size:.82rem;
+    color:var(--muted);
+}
+
+@media(max-width:640px){
+
+    .account-page{
+        padding:22px 14px 40px;
     }
 
-    .account-hero::before {
-        content: '';
-        position: absolute;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background: radial-gradient(ellipse at 30% 20%, rgba(16, 185, 129, 0.08) 0%, transparent 50%),
-                    radial-gradient(ellipse at 70% 80%, rgba(52, 211, 153, 0.06) 0%, transparent 50%);
-        animation: floatGradient 20s ease-in-out infinite;
-        pointer-events: none;
+    .account-header{
+        align-items:flex-start;
     }
 
-    @keyframes floatGradient {
-        0%, 100% { transform: translate(0, 0) rotate(0deg); }
-        50% { transform: translate(-2%, 2%) rotate(1deg); }
+    .field-grid{
+        grid-template-columns:1fr;
     }
 
-    .account-hero h1 {
-        font-size: 2.8rem;
-        font-weight: 800;
-        color: #10b981;
-        margin-bottom: 16px;
-        position: relative;
-        z-index: 1;
+    .account-card{
+        padding:18px;
     }
 
-    .account-hero p {
-        font-size: 1.1rem;
-        color: rgba(255, 255, 255, 0.7);
-        max-width: 500px;
-        margin: 0 auto;
-        position: relative;
-        z-index: 1;
+    .account-title h1{
+        font-size:1.3rem;
     }
-
-    .account-container {
-        max-width: 600px;
-        margin: 0 auto;
-        padding: 0 20px 80px;
-    }
-
-    /* Profile Summary Card */
-    .profile-card {
-        background: rgba(255, 255, 255, 0.03);
-        border: 1px solid rgba(16, 185, 129, 0.15);
-        border-radius: 20px;
-        padding: 40px;
-        margin-bottom: 24px;
-        position: relative;
-        overflow: hidden;
-        transition: all 0.3s ease;
-    }
-
-    .profile-card:hover {
-        border-color: rgba(16, 185, 129, 0.3);
-        transform: translateY(-2px);
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .profile-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #10b981, #34d399, #10b981);
-        background-size: 200% 100%;
-        animation: shimmer 3s ease-in-out infinite;
-    }
-
-    @keyframes shimmer {
-        0%, 100% { background-position: 0% 50%; }
-        50% { background-position: 100% 50%; }
-    }
-
-    .avatar-section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-bottom: 32px;
-    }
-
-    .avatar-circle {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #10b981, #059669);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 2.2rem;
-        font-weight: 700;
-        color: #ffffff;
-        margin-bottom: 16px;
-        box-shadow: 0 8px 24px rgba(16, 185, 129, 0.3);
-        position: relative;
-    }
-
-    .avatar-circle::after {
-        content: '';
-        position: absolute;
-        inset: -4px;
-        border-radius: 50%;
-        border: 2px solid rgba(16, 185, 129, 0.3);
-    }
-
-    .avatar-name {
-        font-size: 1.4rem;
-        font-weight: 700;
-        color: #ffffff;
-    }
-
-    /* Form Fields */
-    .field-group {
-        margin-bottom: 24px;
-    }
-
-    .field-label {
-        display: block;
-        font-size: 0.85rem;
-        font-weight: 600;
-        color: rgba(255, 255, 255, 0.5);
-        text-transform: uppercase;
-        letter-spacing: 1px;
-        margin-bottom: 8px;
-    }
-
-    .field-input {
-        width: 100%;
-        padding: 16px 20px;
-        background: rgba(0, 0, 0, 0.2);
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        border-radius: 12px;
-        font-size: 1rem;
-        color: #ffffff;
-        transition: all 0.3s ease;
-    }
-
-    .field-input:focus {
-        outline: none;
-        border-color: rgba(16, 185, 129, 0.5);
-        background: rgba(0, 0, 0, 0.3);
-    }
-
-    .field-with-badge {
-        position: relative;
-    }
-
-    .field-with-badge .field-input {
-        padding-right: 120px;
-    }
-
-    .verified-badge {
-        position: absolute;
-        right: 16px;
-        top: 50%;
-        transform: translateY(-50%);
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        background: rgba(16, 185, 129, 0.15);
-        padding: 6px 12px;
-        border-radius: 20px;
-        font-size: 0.8rem;
-        color: #10b981;
-        font-weight: 600;
-    }
-
-    .verified-badge svg {
-        width: 14px;
-        height: 14px;
-    }
-
-    .field-hint {
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.4);
-        margin-top: 8px;
-        line-height: 1.5;
-    }
-
-    /* Security Notice Card */
-    .security-card {
-        background: rgba(16, 185, 129, 0.05);
-        border: 1px solid rgba(16, 185, 129, 0.2);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-        display: flex;
-        gap: 16px;
-        align-items: flex-start;
-        transition: all 0.3s ease;
-    }
-
-    .security-card:hover {
-        background: rgba(16, 185, 129, 0.08);
-        border-color: rgba(16, 185, 129, 0.3);
-    }
-
-    .security-icon {
-        width: 48px;
-        height: 48px;
-        background: rgba(16, 185, 129, 0.15);
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-    }
-
-    .security-icon svg {
-        width: 24px;
-        height: 24px;
-        color: #10b981;
-    }
-
-    .security-content h4 {
-        font-size: 1rem;
-        font-weight: 600;
-        color: #ffffff;
-        margin-bottom: 6px;
-    }
-
-    .security-content p {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.6);
-        line-height: 1.6;
-        margin: 0;
-    }
-
-    /* Guidance Card */
-    .guidance-card {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 24px;
-        margin-bottom: 24px;
-        text-align: center;
-    }
-
-    .guidance-card p {
-        font-size: 0.9rem;
-        color: rgba(255, 255, 255, 0.5);
-        line-height: 1.6;
-        margin: 0;
-    }
-
-    .guidance-card a {
-        color: #10b981;
-        text-decoration: none;
-        font-weight: 600;
-        transition: color 0.3s ease;
-    }
-
-    .guidance-card a:hover {
-        color: #34d399;
-    }
-
-    /* Account Status Badge */
-    .status-section {
-        display: flex;
-        justify-content: center;
-        margin-bottom: 32px;
-    }
-
-    .status-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        background: rgba(16, 185, 129, 0.1);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        padding: 12px 24px;
-        border-radius: 30px;
-        font-size: 0.95rem;
-        font-weight: 600;
-        color: #10b981;
-    }
-
-    .status-dot {
-        width: 10px;
-        height: 10px;
-        background: #10b981;
-        border-radius: 50%;
-        animation: pulse 2s ease-in-out infinite;
-    }
-
-    @keyframes pulse {
-        0%, 100% { opacity: 1; transform: scale(1); }
-        50% { opacity: 0.6; transform: scale(0.9); }
-    }
-
-    /* Back Button */
-    .back-section {
-        text-align: center;
-        padding-top: 16px;
-    }
-
-    .back-btn {
-        display: inline-flex;
-        align-items: center;
-        gap: 8px;
-        padding: 14px 32px;
-        background: transparent;
-        border: 2px solid rgba(16, 185, 129, 0.4);
-        border-radius: 30px;
-        color: #10b981;
-        font-size: 1rem;
-        font-weight: 600;
-        text-decoration: none;
-        transition: all 0.3s ease;
-    }
-
-    .back-btn:hover {
-        background: rgba(16, 185, 129, 0.1);
-        border-color: #10b981;
-        transform: translateX(-4px);
-        color: #10b981;
-    }
-
-    .back-btn svg {
-        width: 18px;
-        height: 18px;
-        transition: transform 0.3s ease;
-    }
-
-    .back-btn:hover svg {
-        transform: translateX(-4px);
-    }
-
-    /* Footer Divider */
-    .footer-divider {
-        height: 1px;
-        background: linear-gradient(90deg, transparent, rgba(16, 185, 129, 0.2), transparent);
-        margin: 60px 0 40px;
-    }
-
-    .footer-text {
-        text-align: center;
-        font-size: 0.85rem;
-        color: rgba(255, 255, 255, 0.4);
-    }
-
-    /* Responsive */
-    @media (max-width: 640px) {
-        .account-hero h1 {
-            font-size: 2rem;
-        }
-
-        .profile-card {
-            padding: 28px 20px;
-        }
-
-        .avatar-circle {
-            width: 80px;
-            height: 80px;
-            font-size: 1.8rem;
-        }
-
-        .field-with-badge .field-input {
-            padding-right: 16px;
-            padding-bottom: 50px;
-        }
-
-        .verified-badge {
-            top: auto;
-            bottom: 12px;
-            right: 12px;
-            transform: none;
-        }
-
-        .security-card {
-            flex-direction: column;
-            text-align: center;
-            align-items: center;
-        }
-    }
+}
 </style>
 
-<!-- Hero Section -->
-<section class="account-hero">
-    <h1>Account Information</h1>
-    <p>Manage your basic account identity and login details.</p>
-</section>
+<div class="account-page">
 
-<!-- Main Content -->
-<div class="account-container">
+    <div class="account-header">
 
-    <!-- Account Status Badge -->
-    <div class="status-section">
-        <div class="status-badge">
-            <span class="status-dot"></span>
+        <div class="account-title">
+            <h1>Account Information</h1>
+            <p>Basic account details connected to your Waapfolio profile.</p>
+        </div>
+
+        <div class="account-status">
             Active Account
         </div>
+
     </div>
 
-    <!-- Profile Summary Card -->
-    <div class="profile-card">
-        <!-- Avatar Section -->
-        <div class="avatar-section">
-            <div class="avatar-circle">
+    <div class="account-card">
+
+        <div class="profile-top">
+
+            <div class="avatar">
                 {{ user.username|first|upper }}
             </div>
-            <span class="avatar-name">{{ user.username }}</span>
-        </div>
 
-        <!-- Username Field -->
-        <div class="field-group">
-            <label class="field-label">Username</label>
-            <input type="text" class="field-input" value="{{ user.username }}" readonly>
-        </div>
-
-        <!-- Email Field -->
-        <div class="field-group">
-            <label class="field-label">Email Address</label>
-            <div class="field-with-badge">
-                <input type="email" class="field-input" value="{{ user.email }}" readonly>
-                <span class="verified-badge">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
-                        <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                    Verified
-                </span>
+            <div class="profile-name">
+                <h3>{{ user.username }}</h3>
+                <span>Waapfolio member</span>
             </div>
-            <p class="field-hint">This email is used for login, notifications, and security updates.</p>
+
         </div>
-    </div>
 
-    <!-- Security Notice Card -->
-    <div class="security-card">
-        <div class="security-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
-                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
-            </svg>
+        <div class="field-grid">
+
+            <div class="field">
+                <label>Username</label>
+                <div class="field-value">
+                    {{ user.username }}
+                </div>
+            </div>
+
+            <div class="field">
+                <label>Email Address</label>
+                <div class="field-value">
+                    {{ user.email }}
+                </div>
+            </div>
+
         </div>
-        <div class="security-content">
-            <h4>Your Data is Protected</h4>
-            <p>Your account information is securely stored and protected. To change sensitive details, additional verification may be required.</p>
+
+        <div class="security-box">
+            <h4>Protected Account</h4>
+            <p>
+                Your profile details are secured and used for login,
+                account access and notifications.
+            </p>
         </div>
+
+        <div class="back-wrap">
+            <a href="{% url 'profile' %}" class="back-btn">
+                ← Back to Profile
+            </a>
+        </div>
+
     </div>
 
-    <!-- Change Access Guidance -->
-    <div class="guidance-card">
-        <p>To update your email or username, please <a href="#">contact support</a> or complete identity verification when available.</p>
+    <div class="footer-note">
+        Waapfolio • Social Commerce Made Simple
     </div>
 
-    <!-- Back Button -->
-    <div class="back-section">
-        <a href="{% url 'profile' %}" class="back-btn">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <line x1="19" y1="12" x2="5" y2="12"/>
-                <polyline points="12 19 5 12 12 5"/>
-            </svg>
-            Back to Profile
-        </a>
-    </div>
-
-    <!-- Footer Divider -->
-    <div class="footer-divider"></div>
-    <p class="footer-text">Waapfolio — Social Commerce Made Simple</p>
 </div>
 
 {% endblock body %}
