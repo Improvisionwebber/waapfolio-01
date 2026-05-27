@@ -801,9 +801,12 @@ body {
                 <a href="{% url 'profile' %}" class="btn-waap btn-waap-secondary">
                     <i class="bi bi-gear"></i> Settings
                 </a>
-                <a href="{% url 'logout' %}" class="btn-waap btn-waap-primary">
-                    <i class="bi bi-box-arrow-right"></i> Logout
-                </a>
+                <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-waap btn-waap-primary">
+                        <i class="bi bi-box-arrow-right"></i> Logout
+                    </button>
+                </form>
                 {% else %}
                 <a href="{% url 'login' %}" class="btn-waap btn-waap-secondary">Login</a>
                 <a href="{% url 'register' %}" class="btn-waap btn-waap-primary">Get Started</a>
@@ -828,7 +831,7 @@ body {
             <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
             {% endif %}
 
-            <li><a href="#templates">Templates</a></li>
+            <li><a href="{% url 'templates_page' %}">Templates</a></li>
 
             {% if request.user.is_authenticated %}
             <li><a href="{% url 'profile' %}">Settings</a></li>
@@ -837,9 +840,12 @@ body {
 
         <div class="mobile-menu-cta">
             {% if request.user.is_authenticated %}
-            <a href="{% url 'logout' %}" class="btn-waap btn-waap-primary w-100">
-                <i class="bi bi-box-arrow-right"></i> Logout
-            </a>
+            <form method="post" action="{% url 'logout' %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn-waap btn-waap-primary">
+                    <i class="bi bi-box-arrow-right"></i> Logout
+                </button>
+            </form>
             {% else %}
             <a href="{% url 'login' %}" class="btn-waap btn-waap-secondary w-100">Login</a>
             <a href="{% url 'register' %}" class="btn-waap btn-waap-primary w-100">Get Started</a>
@@ -864,7 +870,7 @@ body {
                     </div>
                     <p>Build your dream online store, and turn your skills into cash, all from your phone or laptop.</p>
                     <div class="footer-social">
-                        <a href="https://wa.me/2349161453058" class="social-icon whatsapp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+                        <a href="https://wa.me/2347026831861" class="social-icon whatsapp" title="WhatsApp"><i class="bi bi-whatsapp"></i></a>
                         <a href="https://instagram.com/waapfolio" class="social-icon instagram" title="Instagram"><i class="bi bi-instagram"></i></a>
                         <a href="https://t.me/waapfolio" class="social-icon telegram" title="Telegram"><i class="bi bi-telegram"></i></a>
                         <a href="https://tiktok.com/@waapfolio" class="social-icon tiktok" title="TikTok"><i class="bi bi-tiktok"></i></a>
@@ -873,7 +879,7 @@ body {
                 </div>
 
                 <div class="footer-column">
-                    <h4>Product</h4>
+ <h4>Product</h4>
                     <ul class="footer-links">
                         <li><a href="{% url 'templates_page' %}">Templates</a></li>
                         <li><a href="/pricing">Pricing</a></li>
