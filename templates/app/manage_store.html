@@ -701,10 +701,10 @@
                   <img src="{{ file.image_url }}" alt="extra" />
                 </a>
               {% endif %}
-              <a href="{% url 'delete_extra_image'  store.slug file.id%}" class="del">🗑 Delete</a>
+              <a href="{% url 'delete_extra_image' store.slug file.id %}" class="del">🗑 Delete</a>
             {% elif file.youtube_url %}
               <iframe src="https://www.youtube.com/embed/{{ file.youtube_id }}" allowfullscreen></iframe>
-              <a href="{% url 'delete_extra_image' file.id store.slug %}" class="del">🗑 Delete</a>
+              <a href="{% url 'delete_extra_image' store.slug file.id %}" class="del">🗑 Delete</a>
             {% endif %}
           </div>
         {% endfor %}
@@ -841,6 +841,7 @@ document.addEventListener("DOMContentLoaded", function () {
     btn.addEventListener("click", function (e) {
       e.preventDefault();
       const url = this.href;
+
       Swal.fire({
         title: 'Delete this product?',
         text: "This action cannot be undone.",
@@ -851,7 +852,9 @@ document.addEventListener("DOMContentLoaded", function () {
         confirmButtonText: 'Yes, delete it',
         cancelButtonText: 'Cancel',
         background: '#fff',
-      }).then(r => { if (r.isConfirmed) window.location.href = url; });
+      }).then(r => {
+        if (r.isConfirmed) window.location.href = url;
+      });
     });
   });
 
@@ -865,12 +868,14 @@ document.addEventListener("DOMContentLoaded", function () {
       e.preventDefault();
       const storeId = this.getAttribute("data-store-id");
       const storeName = this.getAttribute("data-store-name");
+
       storeNameElem.textContent = storeName;
       deleteForm.action = `/store/delete/${storeId}/`;
       deleteModal.classList.add('open');
     });
   });
-  deleteModal.addEventListener('click', e => {
+
+  deleteModal?.addEventListener('click', e => {
     if (e.target === deleteModal) deleteModal.classList.remove('open');
   });
 
@@ -882,12 +887,18 @@ document.addEventListener("DOMContentLoaded", function () {
 
   /* auto-hide toasts */
   document.querySelectorAll('.waap-toast').forEach((t, i) => {
-    setTimeout(() => { t.style.transition = 'opacity .4s'; t.style.opacity = '0'; setTimeout(() => t.remove(), 400); }, 4000 + i * 300);
+    setTimeout(() => {
+      t.style.transition = 'opacity .4s';
+      t.style.opacity = '0';
+      setTimeout(() => t.remove(), 400);
+    }, 4000 + i * 300);
   });
 });
 
+
 /* ---------- Product form behavior ---------- */
 (function () {
+
   const currencySelect = document.getElementById("currency");
   const priceInput     = document.getElementById("price");
   const coverInput     = document.getElementById("imageInput");
@@ -899,45 +910,73 @@ document.addEventListener("DOMContentLoaded", function () {
 
   if (!productForm) return;
 
-  function sanitizePriceInput() {
-    if (priceInput) priceInput.value = priceInput.value.replace(/[^0-9]/g, "");
-  }
-  if (priceInput) {
-    priceInput.addEventListener("input", sanitizePriceInput);
-    currencySelect && currencySelect.addEventListener("change", sanitizePriceInput);
-    window.addEventListener("pageshow", sanitizePriceInput);
+  /* ---------- PRICE FIX (your working style) ---------- */
+  const currencySymbols = { NG:"₦", US:"$", GB:"£" };
+
+  function keepCurrency() {
+    const symbol = currencySymbols[currencySelect?.value] || "";
+    let numericValue = priceInput.value.replace(/[^0-9.]/g,"");
+    priceInput.value = numericValue ? symbol + numericValue : symbol;
   }
 
+  if (currencySelect) currencySelect.addEventListener("change", keepCurrency);
+  if (priceInput) priceInput.addEventListener("input", keepCurrency);
+  document.addEventListener("DOMContentLoaded", keepCurrency);
+
+  /* ---------- COVER IMAGE PREVIEW ---------- */
   if (coverInput && coverPreview) {
     coverInput.addEventListener("change", function () {
-      const file = this.files[0]; if (!file) return;
+      const file = this.files[0];
+      if (!file) return;
+
       const reader = new FileReader();
-      reader.onload = e => { coverPreview.src = e.target.result; coverPreview.style.display = "block"; };
+      reader.onload = e => {
+        coverPreview.src = e.target.result;
+        coverPreview.style.display = "block";
+      };
       reader.readAsDataURL(file);
     });
   }
 
+  /* ---------- EXTRA MEDIA PREVIEW ---------- */
   if (extraInput && previewCards) {
     extraInput.addEventListener("change", function () {
       previewCards.innerHTML = "";
+
       Array.from(this.files).forEach(file => {
-        const cell = document.createElement("div");
-        cell.className = "extra-img-card";
+        const col = document.createElement("div");
+        col.className = "extra-img-card";
+
+        let html = "";
+
         if (file.type.startsWith("image/")) {
-          cell.innerHTML = `<a href="#" data-lightbox="preview-gallery" data-title="${file.name}">
-            <img src="${URL.createObjectURL(file)}" alt="${file.name}">
-          </a>`;
-        } else if (file.type.startsWith("video/")) {
-          cell.innerHTML = `<video src="${URL.createObjectURL(file)}" controls muted></video>`;
+          html = `
+            <a href="#" data-lightbox="preview-gallery" data-title="${file.name}">
+              <img src="${URL.createObjectURL(file)}" alt="${file.name}">
+            </a>`;
         }
-        previewCards.appendChild(cell);
+
+        if (file.type.startsWith("video/")) {
+          html = `
+            <video src="${URL.createObjectURL(file)}" controls muted></video>`;
+        }
+
+        col.innerHTML = html;
+        previewCards.appendChild(col);
       });
     });
   }
 
-  productForm.addEventListener("submit", async function () {
+  /* ---------- FORM SUBMIT (FIXED PROPER FLOW) ---------- */
+  productForm.addEventListener("submit", async function (e) {
+    e.preventDefault(); // IMPORTANT FIX (prevents empty submit)
+
     if (loadingOverlay) loadingOverlay.style.display = "flex";
-    const files = extraInput ? Array.from(extraInput.files).filter(f => f.type.startsWith("video/")) : [];
+
+    const files = extraInput
+      ? Array.from(extraInput.files).filter(f => f.type.startsWith("video/"))
+      : [];
+
     try {
       for (let f of files) {
         const { youtube_id, youtube_url } = await uploadVideoToYoutube(
@@ -945,26 +984,49 @@ document.addEventListener("DOMContentLoaded", function () {
           priceInput?.value || "Untitled Product",
           document.getElementById("description")?.value || ""
         );
-        const hId = document.createElement("input");  hId.type = "hidden";  hId.name = "youtube_ids";  hId.value = youtube_id;
-        const hUrl = document.createElement("input"); hUrl.type = "hidden"; hUrl.name = "youtube_urls"; hUrl.value = youtube_url;
-        productForm.appendChild(hId); productForm.appendChild(hUrl);
+
+        const hId = document.createElement("input");
+        hId.type = "hidden";
+        hId.name = "youtube_ids";
+        hId.value = youtube_id;
+
+        const hUrl = document.createElement("input");
+        hUrl.type = "hidden";
+        hUrl.name = "youtube_urls";
+        hUrl.value = youtube_url;
+
+        productForm.appendChild(hId);
+        productForm.appendChild(hUrl);
       }
+
+      /* ✅ FINAL SUBMIT AFTER EVERYTHING */
+      productForm.submit();
+
     } catch (err) {
       if (loadingOverlay) loadingOverlay.style.display = "none";
-      Swal.fire({ icon: 'error', title: 'Video upload failed', text: err?.message || String(err) });
+
+      Swal.fire({
+        icon: 'error',
+        title: 'Upload failed',
+        text: err?.message || String(err)
+      });
     }
   });
+
 })();
 
-/* ---------- YouTube pipeline ---------- */
+
+/* ---------- YOUTUBE PIPELINE (UNCHANGED, SAFE) ---------- */
 async function getYoutubeToken() {
   const res = await fetch("/youtube-token/");
   const data = await res.json();
   if (!data.access_token) throw new Error(data.error || "Failed to fetch token");
   return data.access_token;
 }
+
 async function uploadVideoToYoutube(file, title, description) {
   const token = await getYoutubeToken();
+
   const initRes = await fetch(
     "https://www.googleapis.com/upload/youtube/v3/videos?uploadType=resumable&part=snippet,status",
     {
@@ -980,16 +1042,32 @@ async function uploadVideoToYoutube(file, title, description) {
       }),
     }
   );
-  if (!initRes.ok) throw new Error(`YouTube init failed: ${initRes.status} ${await initRes.text()}`);
+
+  if (!initRes.ok) {
+    throw new Error(`YouTube init failed: ${initRes.status} ${await initRes.text()}`);
+  }
+
   const uploadUrl = initRes.headers.get("Location");
   if (!uploadUrl) throw new Error("Failed to get upload URL");
-  const uploadRes = await fetch(uploadUrl, { method: "PUT", headers: { "Content-Type": file.type }, body: file });
-  if (!uploadRes.ok) throw new Error(`Upload failed: ${uploadRes.status} ${await uploadRes.text()}`);
+
+  const uploadRes = await fetch(uploadUrl, {
+    method: "PUT",
+    headers: { "Content-Type": file.type },
+    body: file
+  });
+
+  if (!uploadRes.ok) {
+    throw new Error(`Upload failed: ${uploadRes.status} ${await uploadRes.text()}`);
+  }
+
   const result = await uploadRes.json();
   if (!result.id) throw new Error("Upload failed: no video ID returned");
-  return { youtube_id: result.id, youtube_url: `https://www.youtube.com/watch?v=${result.id}` };
+
+  return {
+    youtube_id: result.id,
+    youtube_url: `https://www.youtube.com/watch?v=${result.id}`
+  };
 }
 </script>
-
 
 {% endblock %}

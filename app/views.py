@@ -702,8 +702,10 @@ def manage_store(request, slug, item_id=None):
             if product:
                 for f in extra_files:
                     try:
+                        # ---------- IMAGE HANDLING ----------
                         if f.content_type.startswith("image/"):
                             img_url = upload_to_imgbb(f)
+
                             if img_url:
                                 StoreImage.objects.create(
                                     store=store,
@@ -713,43 +715,35 @@ def manage_store(request, slug, item_id=None):
                                     price=product.price
                                 )
 
-                        elif f.content_type.startswith("video/"):
-                            with tempfile.NamedTemporaryFile(delete=False) as tmp:
-                                for chunk in f.chunks():
-                                    tmp.write(chunk)
-                                tmp_path = tmp.name
-
-                            response = upload_to_youtube(
-                                tmp_path,
-                                title=product.name,
-                                description=product.description or ""
-                            )
-
-                            os.remove(tmp_path)
-
-                            youtube_id = response.get("id")
-                            youtube_url = (
-                                f"https://www.youtube.com/watch?v={youtube_id}"
-                                if youtube_id else None
-                            )
-
-                            ProductMedia.objects.create(
-                                product=product,
-                                youtube_id=youtube_id,
-                                youtube_url=youtube_url,
-                                label=product.name,
-                                description=product.description or ""
-                            )
-
                     except Exception as e:
                         messages.warning(
                             request,
                             f"Failed to process {getattr(f, 'name', 'file')}: {e}"
                         )
 
+                # ---------- VIDEO HANDLING (FROM FRONTEND YOUTUBE UPLOAD) ----------
+                youtube_ids = request.POST.getlist("youtube_ids")
+                youtube_urls = request.POST.getlist("youtube_urls")
+                print("YOUTUBE IDS:", request.POST.getlist("youtube_ids"))
+                print("YOUTUBE URLS:", request.POST.getlist("youtube_urls"))
+                for yt_id, yt_url in zip(youtube_ids, youtube_urls):
+                    try:
+                        if yt_id and yt_url:
+                            ProductMedia.objects.create(
+                                product=product,
+                                youtube_id=yt_id,
+                                youtube_url=yt_url,
+                                label=product.name,
+                                description=product.description or ""
+                            )
+                    except Exception as e:
+                        messages.warning(
+                            request,
+                            f"Failed to save video: {e}"
+                        )
+
             messages.success(request, "Product saved successfully!")
             return redirect("manage_store", slug=slug)
-
         # -------- Load Items --------
         if edit_mode and item:
             old_files = list(StoreImage.objects.filter(item=item))
