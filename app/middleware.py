@@ -8,7 +8,22 @@ logger = logging.getLogger(__name__)
 class StoreSubdomainMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+    def __call__(self, request):
+        request.store = None
 
+        # Ignore system routes
+        ignored_prefixes = [
+            "/payment/",
+            "/paystack/",
+            "/admin/",
+            "/account/",
+            "/pricing/",
+            "/register/",
+            "/store/",
+        ]
+
+        if any(request.path.startswith(x) for x in ignored_prefixes):
+            return self.get_response(request)
     def __call__(self, request):
         request.store = None  # default, always safe
 
@@ -21,14 +36,20 @@ class StoreSubdomainMiddleware:
         # Ignore localhost for dev
         # -----------------------------
         if settings.DEBUG:
-            # Optional: for local testing with subdomains like store1.localhost
+            if host in ["127.0.0.1", "localhost"]:
+                return self.get_response(request)
+
             parts = host.split('.')
-            if len(parts) >= 2:
+
+            # local subdomain testing only
+            # example: mystore.localhost
+            if len(parts) >= 2 and parts[-1] == "localhost":
                 subdomain = parts[0]
                 try:
                     request.store = Store.objects.get(slug=subdomain)
                 except Store.DoesNotExist:
                     request.store = None
+
             return self.get_response(request)
 
         # -----------------------------

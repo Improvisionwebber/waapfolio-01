@@ -291,8 +291,98 @@ class Item(models.Model):
 
     def get_store_url(self):
         return self.store.get_absolute_url()
+# subscription
+class Subscription(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+    PLAN_CHOICES = [
+        ("free", "Free"),
+        ("premium", "Premium"),
+    ]
 
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="free")
+
+    is_active = models.BooleanField(default=True)
+    started_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField(null=True, blank=True)
+
+    paystack_customer_id = models.CharField(max_length=100, blank=True, null=True)
+    paystack_subscription_id = models.CharField(max_length=100, blank=True, null=True)
+
+    def is_premium(self):
+        return self.plan == "premium" and self.is_active
+#wallet
+class Wallet(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+    total_earned = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+class Transaction(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    TYPE_CHOICES = [
+        ("earning", "Earning"),
+        ("withdrawal", "Withdrawal"),
+        ("commission", "Commission"),
+        ("subscription", "Subscription"),
+    ]
+
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    amount = models.DecimalField(max_digits=12, decimal_places=2)
+
+    reference = models.CharField(max_length=100, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+class CustomDomain(models.Model):
+    store = models.OneToOneField(Store, on_delete=models.CASCADE)
+
+    domain = models.CharField(max_length=255)
+
+    is_verified = models.BooleanField(default=False)
+
+    purchased_from_waapfolio = models.BooleanField(default=True)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+class WithdrawalRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    account_name = models.CharField(max_length=255)
+
+    account_number = models.CharField(max_length=20)
+
+    bank_name = models.CharField(max_length=100)
+
+    status = models.CharField(
+        max_length=20,
+        default="pending"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
+class Order(models.Model):
+    store = models.ForeignKey(Store, on_delete=models.CASCADE)
+
+    product = models.ForeignKey(Item, on_delete=models.CASCADE)
+
+    buyer_name = models.CharField(max_length=255)
+
+    buyer_phone = models.CharField(max_length=50)
+
+    quantity = models.PositiveIntegerField(default=1)
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    status = models.CharField(
+        max_length=20,
+        default="pending"
+    )
+
+    created_at = models.DateTimeField(auto_now_add=True)
 # Product Media
 class ProductMedia(models.Model):
     product = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='media')

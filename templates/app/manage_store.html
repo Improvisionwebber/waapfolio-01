@@ -594,8 +594,44 @@
     min-width:unset;
   }
 }
-</style>
+.manage-store-actions{
+    display:flex;
+    gap:10px;
+    align-items:center;
+    margin-bottom:20px;
+}
 
+.manage-store-actions .btn{
+    padding:10px 16px;
+    border-radius:10px;
+    text-decoration:none;
+}
+
+.store-switcher select{
+    padding:10px;
+    border-radius:10px;
+}
+</style>
+<div class="manage-store-actions">
+    <a href="{% url 'create_store' %}" class="btn btn-primary">
+        + Add Store
+    </a>
+
+    {% if user.stores.count > 1 %}
+    <div class="store-switcher">
+        <select onchange="if(this.value) window.location=this.value;">
+            {% for s in user.stores.all %}
+                <option
+                    value="{% url 'manage_store' s.slug %}"
+                    {% if store.id == s.id %}selected{% endif %}
+                >
+                    {{ s.brand_name }}
+                </option>
+            {% endfor %}
+        </select>
+    </div>
+    {% endif %}
+</div>
 <div class="waap-shell">
 
   <!-- ============ MESSAGES ============ -->

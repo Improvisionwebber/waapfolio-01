@@ -75,6 +75,24 @@ urlpatterns = [
     path('notifications/', views.notifications_view, name='notifications'),
     path("record-order/<int:store_id>/", views.record_order, name="record_order"),
     path("marketplace/", views.marketplace_view, name="marketplace"),
+path(
+    "paystack/init/",
+    views.paystack_initialize,
+    name="paystack_initialize"
+),
+
+path(
+    "payment/success/",
+    views.payment_success,
+    name="payment_success"
+),
+
+path(
+    "paystack/webhook/",
+    views.paystack_webhook,
+    name="paystack_webhook"
+),
+    path("pricing/", views.pricing, name="pricing"),
     # Store Home
     path('<str:store_slug>/', StoreHomeView.as_view(), name='store_home'),
     path('<str:store_slug>/<str:template_slug>/', StoreHomeView.as_view(), name='store_template_home'),
@@ -94,6 +112,7 @@ urlpatterns = [
     # Product Detail
     path('<str:store_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_product_detail'),
     path('<str:store_slug>/<str:template_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_template_product_detail'),
+
 ]
 handler404 = 'app.views.custom_404'
 handler500 = 'app.views.custom_500'

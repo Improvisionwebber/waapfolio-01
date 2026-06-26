@@ -1,6 +1,11 @@
 from django.contrib import admin
 from .models import (
-    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike,Report,StoreTemplate
+    EmailOTP, Store, StoreImage, Item, ProductMedia, ItemView, ItemLike,Report,StoreTemplate, Subscription,
+    Wallet,
+    Transaction,
+    WithdrawalRequest,
+    Order,
+    CustomDomain,
 )
 from .forms import  StoreForm
 # Email OTP
@@ -67,3 +72,10 @@ class StoreTemplateAdmin(admin.ModelAdmin):
     list_filter = ("is_active",)
     search_fields = ("name", "slug")
     prepopulated_fields = {"slug": ("name",)}
+
+admin.site.register(Subscription)
+admin.site.register(Wallet)
+admin.site.register(Transaction)
+admin.site.register(WithdrawalRequest)
+admin.site.register(Order)
+admin.site.register(CustomDomain)

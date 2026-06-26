@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+{% block body %}
+
+<style>
+    :root{
+        --waap-green:#16a34a;
+        --waap-dark:#111827;
+        --waap-border:#e5e7eb;
+        --waap-muted:#6b7280;
+        --waap-bg:#ffffff;
+    }
+
+    .pricing-section{
+        background:#fff;
+        min-height:100vh;
+        padding:80px 0;
+    }
+
+    .pricing-title{
+        font-size:3rem;
+        font-weight:800;
+        color:var(--waap-dark);
+    }
+
+    .pricing-subtitle{
+        color:var(--waap-muted);
+        max-width:600px;
+        margin:auto;
+    }
+
+    .pricing-card{
+        background:#fff;
+        border:1px solid var(--waap-border);
+        border-radius:20px;
+        padding:40px;
+        height:100%;
+        transition:.3s;
+        position:relative;
+    }
+
+    .pricing-card:hover{
+        transform:translateY(-6px);
+        box-shadow:0 20px 40px rgba(0,0,0,.08);
+    }
+
+    .pricing-card.featured{
+        border:2px solid var(--waap-green);
+        box-shadow:0 20px 40px rgba(22,163,74,.08);
+    }
+
+    .featured-badge{
+        position:absolute;
+        top:-14px;
+        left:50%;
+        transform:translateX(-50%);
+        background:var(--waap-green);
+        color:white;
+        padding:8px 18px;
+        border-radius:999px;
+        font-size:13px;
+        font-weight:600;
+    }
+
+    .plan-name{
+        font-size:28px;
+        font-weight:700;
+        color:var(--waap-dark);
+    }
+
+    .plan-price{
+        font-size:52px;
+        font-weight:800;
+        color:var(--waap-dark);
+    }
+
+    .plan-price small{
+        font-size:18px;
+        color:var(--waap-muted);
+        font-weight:500;
+    }
+
+    .feature-list{
+        list-style:none;
+        padding:0;
+        margin:30px 0;
+    }
+
+    .feature-list li{
+        padding:12px 0;
+        border-bottom:1px solid #f3f4f6;
+        color:#374151;
+    }
+
+    .btn-waap{
+        background:var(--waap-green);
+        color:#fff;
+        border:none;
+        padding:14px;
+        border-radius:12px;
+        font-weight:600;
+        width:100%;
+        text-decoration:none;
+        display:block;
+        text-align:center;
+        transition:.2s;
+    }
+
+    .btn-waap:hover{
+        background:#15803d;
+        color:white;
+    }
+
+    .btn-current{
+        background:#111827;
+        color:white;
+        padding:14px;
+        border-radius:12px;
+        width:100%;
+        border:none;
+    }
+
+    .btn-disabled{
+        background:#e5e7eb;
+        color:#6b7280;
+        padding:14px;
+        border:none;
+        border-radius:12px;
+        width:100%;
+    }
+
+    .annual{
+        margin-top:15px;
+        font-size:14px;
+        color:var(--waap-green);
+        font-weight:600;
+    }
+</style>
+
+<section class="pricing-section">
+
+    <div class="container">
+
+        <div class="text-center mb-5">
+            <h1 class="pricing-title">
+                Simple, Transparent Pricing
+            </h1>
+
+            <p class="pricing-subtitle">
+                Start free and upgrade whenever you're ready to unlock
+                premium storefront features, unlimited stores and custom domains.
+            </p>
+        </div>
+
+        <div class="row justify-content-center g-4">
+
+    <!-- FREE -->
+    <div class="col-lg-4">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body p-5">
+
+                <h3 class="fw-bold mb-3">Free</h3>
+
+                <div class="mb-4">
+                    <span class="display-4 fw-bold">₦0</span>
+                    <span class="text-muted">/forever</span>
+                </div>
+
+                <p class="text-muted mb-4">
+                    Perfect for individuals starting their online business.
+                </p>
+
+                <hr>
+
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3">✓ 1 Store</li>
+                    <li class="mb-3">✓ 2 Templates</li>
+                    <li class="mb-3">✓ Product Uploads</li>
+                    <li class="mb-3">✓ WhatsApp Ordering</li>
+                    <li class="mb-3 text-muted">✕ Custom Domain</li>
+                    <li class="mb-3 text-muted">✕ Premium Templates</li>
+                    <li class="mb-3 text-muted">✕ Priority Support</li>
+                </ul>
+
+                <button class="btn btn-outline-dark w-100 mt-3" disabled>
+                    Current Plan
+                </button>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- PREMIUM MONTHLY -->
+    <div class="col-lg-4">
+        <div class="card border-success border-2 shadow h-100">
+
+            <div class="card-header bg-success text-white text-center py-3">
+                MOST POPULAR
+            </div>
+
+            <div class="card-body p-5">
+
+                <h3 class="fw-bold mb-3">Premium Monthly</h3>
+
+                <div class="mb-4">
+                    <span class="display-4 fw-bold">₦5,000</span>
+                    <span class="text-muted">/month</span>
+                </div>
+
+                <p class="text-muted mb-4">
+                    For serious businesses ready to scale.
+                </p>
+
+                <hr>
+
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3">✓ Unlimited Stores</li>
+                    <li class="mb-3">✓ Unlimited Templates</li>
+                    <li class="mb-3">✓ Premium Templates</li>
+                    <li class="mb-3">✓ Custom Domains</li>
+                    <li class="mb-3">✓ Lower Commission Rate</li>
+                    <li class="mb-3">✓ Priority Support</li>
+                    <li class="mb-3">✓ Future Premium Features</li>
+                </ul>
+
+                <a href="{% url 'paystack_initialize' %}?plan=monthly"
+                   class="btn btn-success w-100 mt-3">
+                    Upgrade Monthly
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+
+    <!-- PREMIUM YEARLY -->
+    <div class="col-lg-4">
+        <div class="card border-dark shadow-sm h-100">
+
+            <div class="card-body p-5">
+
+                <div class="mb-2">
+                    <span class="badge bg-dark">
+                        SAVE ₦10,000
+                    </span>
+                </div>
+
+                <h3 class="fw-bold mb-3">Premium Yearly</h3>
+
+                <div class="mb-4">
+                    <span class="display-4 fw-bold">₦50,000</span>
+                    <span class="text-muted">/year</span>
+                </div>
+
+                <p class="text-muted mb-4">
+                    Best value for growing businesses.
+                </p>
+
+                <hr>
+
+                <ul class="list-unstyled mt-4">
+                    <li class="mb-3">✓ Everything in Monthly</li>
+                    <li class="mb-3">✓ Unlimited Stores</li>
+                    <li class="mb-3">✓ Premium Templates</li>
+                    <li class="mb-3">✓ Custom Domains</li>
+                    <li class="mb-3">✓ Lower Commission Rate</li>
+                    <li class="mb-3">✓ Priority Support</li>
+                    <li class="mb-3">✓ Early Access Features</li>
+                </ul>
+
+                <a href="{% url 'paystack_initialize' %}?plan=yearly"
+                   class="btn btn-dark w-100 mt-3">
+                    Upgrade Yearly
+                </a>
+
+            </div>
+        </div>
+    </div>
+
+</div>
+
+    </div>
+
+</section>
+
+{% endblock %}

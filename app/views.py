@@ -317,18 +317,34 @@ from django.utils.text import slugify
 from .models import Store
 from .forms import StoreForm
 
+from .services.permissions import check_store_limit  # 👈 IMPORTANT
+
 def create_store(request, slug=None):
     store = None
+
     if slug:
         store = get_object_or_404(Store, slug=slug)
 
+    # =========================
+    # PLAN LIMIT CHECK (NEW)
+    # =========================
+    if request.method == "POST" and not store:
+        current_store_count = Store.objects.filter(owner=request.user).count()
+
+        if not check_store_limit(request.user, current_store_count):
+            return render(request, "store/limit_reached.html", {
+                "message": "You have reached your store limit. Upgrade to premium."
+            })
+
+    # =========================
+    # FORM HANDLING
+    # =========================
     if request.method == "POST":
         form = StoreForm(request.POST, request.FILES, instance=store)
 
         if form.is_valid():
             store = form.save(commit=False)
 
-            # REQUIRED FIELDS
             store.owner = request.user
             store.total_views = store.total_views or 0
             store.total_orders = store.total_orders or 0
@@ -338,129 +354,24 @@ def create_store(request, slug=None):
                 base_slug = slugify(store.brand_name)
                 slug_val = base_slug
                 counter = 1
+
                 while Store.objects.filter(slug=slug_val).exclude(id=store.id).exists():
                     slug_val = f"{base_slug}-{counter}"
                     counter += 1
+
                 store.slug = slug_val
 
             store.save()
-            print("STORE SAVED")
-            return redirect("manage_store", slug=store.slug)
 
-        else:
-            print(" FORM NOT VALID")
-            print(form.errors)
+            return redirect("manage_store", slug=store.slug)
 
     else:
         form = StoreForm(instance=store)
 
-    return render(request, "store/create_store.html", {"form": form, "store": store})
-# def view_store(request, slug):
-#     store = get_object_or_404(Store, slug=slug)
-#     items = Item.objects.filter(store=store)
-
-#     # -------------------------------
-#     # Search logic
-#     # -------------------------------
-#     query = request.GET.get("q")
-#     if query:
-#         items = items.filter(
-#             Q(name__icontains=query) | Q(description__icontains=query)
-#         )
-
-#     full_url = request.build_absolute_uri()
-#     whatsapp_link = f"https://wa.me/{store.whatsapp_number}"
-
-#     # -------------------------------
-#     # Session / unique views tracking
-#     # -------------------------------
-#     session_key = request.session.session_key
-#     if not session_key:
-#         request.session.create()
-#         session_key = request.session.session_key
-
-#     store_viewed_key = f"viewed_store_{store.id}"
-#     if not request.session.get(store_viewed_key) and request.user != store.owner:
-#         store.total_views += 1
-#         store.save()
-#         viewer_name = request.user.username if request.user.is_authenticated else "Someone"
-#         Notification.objects.create(
-#             user=store.owner,
-#             message=f"{viewer_name} just viewed your store!",
-#             link=request.build_absolute_uri()
-#         )
-
-#         request.session[store_viewed_key] = True
-
-#     for item in items:
-#         view_filter = Q(session_key=session_key)
-#         if request.user.is_authenticated:
-#             view_filter |= Q(user=request.user)
-
-#         if not ItemView.objects.filter(item=item).filter(view_filter).exists():
-#             item.views += 1
-#             item.save()
-#             ItemView.objects.create(
-#                 item=item,
-#                 user=request.user if request.user.is_authenticated else None,
-#                 session_key=session_key
-#             )
-
-#     # -------------------------------
-#     # Helper: get item cover image
-#     # -------------------------------
-#     def get_cover_url(item):
-#         if item.image_url:
-#             return item.image_url
-#         if item.image:
-#             try:
-#                 return item.image.url
-#             except Exception:
-#                 pass
-#         extra = StoreImage.objects.filter(store=store, name=item.name).first()
-#         if extra:
-#             if extra.image_url:
-#                 return extra.image_url
-#             if extra.file:
-#                 try:
-#                     return extra.file.url
-#                 except Exception:
-#                     pass
-#         pm = ProductMedia.objects.filter(product=item).first()
-#         if pm:
-#             if pm.file:
-#                 return pm.file.url
-#             if pm.youtube_id:
-#                 return f"https://img.youtube.com/vi/{pm.youtube_id}/hqdefault.jpg"
-#         return static('images/no-image.png')
-
-#     # -------------------------------
-#     # Build items meta
-#     # -------------------------------
-#     items_meta = []
-#     for item in items:
-#         product_path = reverse('product_detail', kwargs={'id': item.id})
-#         absolute_product_url = request.build_absolute_uri(product_path)
-#         items_meta.append({
-#             'item': item,
-#             'cover_url': get_cover_url(item),
-#             'product_url': absolute_product_url,
-#             'likes_count': item.likes.count() if hasattr(item, 'likes') else 0,
-#             'user_liked': request.user.is_authenticated and item.likes.filter(id=request.user.id).exists(),
-#         })
-
-#     gallery_images = store.images.filter(item__isnull=True)
-#     user_has_store = request.user.is_authenticated and Store.objects.filter(owner=request.user).exists()
-
-#     return render(request, 'store/view_store.html', {
-#         'store': store,
-#         'items_meta': items_meta,
-#         'full_url': full_url,
-#         'whatsapp_link': whatsapp_link,
-#         'gallery_images': gallery_images,
-#         'user_has_store': user_has_store,
-#     })
-
+    return render(request, "store/create_store.html", {
+        "form": form,
+        "store": store
+    })
 import logging
 import traceback
 from django.shortcuts import render, get_object_or_404
@@ -1576,3 +1487,115 @@ def full_url(request):
     return {
         "full_url": request.build_absolute_uri()
     }
+import requests
+from django.conf import settings
+from django.shortcuts import redirect
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+
+
+PAYSTACK_SECRET_KEY = settings.PAYSTACK_SECRET_KEY
+
+
+@login_required
+def paystack_initialize(request):
+    user = request.user
+
+    plan = request.GET.get("plan", "monthly")
+
+    if plan == "yearly":
+        amount = 3000000   # ₦30,000
+        plan_name = "premium_yearly"
+    else:
+        amount = 500000    # ₦5,000
+        plan_name = "premium_monthly"
+
+    url = "https://api.paystack.co/transaction/initialize"
+
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type": "application/json",
+    }
+
+    data = {
+        "email": user.email,
+        "amount": amount,
+        "callback_url": "https://waapfolio.com/payment/success/",
+        "metadata": {
+            "user_id": user.id,
+            "plan": plan_name,
+        }
+    }
+
+    response = requests.post(url, json=data, headers=headers)
+    res = response.json()
+
+    if res.get("status"):
+        return redirect(res["data"]["authorization_url"])
+
+    return JsonResponse(res, status=400)
+
+@login_required
+def payment_success(request):
+    reference = request.GET.get("reference")
+
+    print("PAYMENT SUCCESS VIEW HIT")
+    print("REFERENCE:", reference)
+    print("USER:", request.user)
+
+    return HttpResponse(
+        f"""
+        <h1>Payment Success Page Reached</h1>
+        <p>User: {request.user}</p>
+        <p>Reference: {reference}</p>
+        """
+    )
+import json
+import hmac
+import hashlib
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.conf import settings
+
+from django.contrib.auth.models import User
+from .models import Subscription
+
+
+@csrf_exempt
+def paystack_webhook(request):
+    payload = request.body
+    signature = request.headers.get("x-paystack-signature")
+
+    # verify Paystack signature
+    computed_hash = hmac.new(
+        settings.PAYSTACK_SECRET_KEY.encode("utf-8"),
+        payload,
+        hashlib.sha512
+    ).hexdigest()
+
+    if computed_hash != signature:
+        return JsonResponse({"error": "invalid signature"}, status=400)
+
+    event = json.loads(payload)
+
+    if event.get("event") == "charge.success":
+        data = event["data"]
+
+        # we will send user_id in metadata when initializing payment
+        user_id = data.get("metadata", {}).get("user_id")
+
+        if user_id:
+            try:
+                user = User.objects.get(id=user_id)
+
+                sub, _ = Subscription.objects.get_or_create(user=user)
+                sub.plan = "premium"
+                sub.save()
+
+            except User.DoesNotExist:
+                pass
+
+    return JsonResponse({"status": "ok"})
+@login_required
+def pricing(request):
+    return render(request, "pricing.html")

@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Store Limit Reached</title>
+
+    <style>
+        body{
+            font-family: Arial, sans-serif;
+            background:#f5f7fb;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            height:100vh;
+            margin:0;
+        }
+
+        .card{
+            background:#fff;
+            padding:40px;
+            border-radius:20px;
+            box-shadow:0 10px 30px rgba(0,0,0,.08);
+            text-align:center;
+            max-width:500px;
+            width:90%;
+        }
+
+        .icon{
+            font-size:60px;
+            margin-bottom:15px;
+        }
+
+        h1{
+            margin-bottom:10px;
+        }
+
+        p{
+            color:#666;
+            line-height:1.6;
+        }
+
+        .btn{
+            display:inline-block;
+            margin-top:20px;
+            padding:12px 25px;
+            border-radius:10px;
+            background:#000;
+            color:#fff;
+            text-decoration:none;
+        }
+
+        .btn:hover{
+            opacity:.9;
+        }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <div class="icon">🚫</div>
+
+    <h1>Store Limit Reached</h1>
+
+    <p>
+        {{ message }}
+    </p>
+
+    <a href="/pricing/" class="btn">
+        Upgrade to Premium
+    </a>
+
+    <br><br>
+
+</div>
+
+</body>
+</html>

@@ -103,7 +103,7 @@ LOGGING = {
         },
     },
 }
-
+PAYSTACK_SECRET_KEY = os.getenv("PAYSTACK_SECRET_KEY")
 # Templates
 ROOT_URLCONF = 'project.urls'
 TEMPLATES = [
