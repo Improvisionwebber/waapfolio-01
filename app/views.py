@@ -1539,16 +1539,52 @@ def paystack_initialize(request):
 def payment_success(request):
     reference = request.GET.get("reference")
 
-    print("PAYMENT SUCCESS VIEW HIT")
-    print("REFERENCE:", reference)
-    print("USER:", request.user)
+    if not reference:
+        return HttpResponse("No payment reference found.")
+
+    url = f"https://api.paystack.co/transaction/verify/{reference}"
+
+    headers = {
+        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+    }
+
+    response = requests.get(url, headers=headers)
+    res = response.json()
+
+    print(res)  # TEMP DEBUG
+
+    if (
+        res.get("status")
+        and res["data"]["status"] == "success"
+    ):
+        sub, created = Subscription.objects.get_or_create(
+            user=request.user
+        )
+
+        plan = res["data"]["metadata"].get(
+            "plan",
+            "premium_monthly"
+        )
+
+        if plan == "premium_yearly":
+            sub.plan = "premium_yearly"
+        else:
+            sub.plan = "premium"
+
+        sub.is_active = True
+        sub.save()
+
+        return HttpResponse(
+            f"""
+            Payment verified successfully.<br>
+            User: {request.user.username}<br>
+            Plan: {sub.plan}<br>
+            Active: {sub.is_active}
+            """
+        )
 
     return HttpResponse(
-        f"""
-        <h1>Payment Success Page Reached</h1>
-        <p>User: {request.user}</p>
-        <p>Reference: {reference}</p>
-        """
+        f"Payment verification failed.<br>{res}"
     )
 import json
 import hmac
