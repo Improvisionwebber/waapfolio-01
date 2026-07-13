@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-6">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body text-center p-5">
+
+                    <h1 class="fw-bold text-danger">
+                        Payment Failed
+                    </h1>
+
+                    <p class="text-muted mt-3">
+                        We could not verify your payment.
+                    </p>
+
+                    <div class="alert alert-danger mt-4">
+                        {{ message }}
+                    </div>
+
+                    <a href="{% url 'pricing' %}"
+                       class="btn btn-dark">
+                        Return To Pricing
+                    </a>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

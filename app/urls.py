@@ -92,6 +92,106 @@ path(
     views.paystack_webhook,
     name="paystack_webhook"
 ),
+path(
+    "payments/",
+    views.payment_history,
+    name="payment_history"
+),
+path(
+    "order/accept/<uuid:token>/",
+    views.accept_order_view,
+    name="accept_order",
+),
+path(
+    "order/verify/<uuid:token>/",
+    views.verify_order,
+    name="verify_order"
+),
+path(
+    "checkout/<slug:slug>/",
+    views.store_checkout,
+    name="store_checkout",
+),
+path(
+    "cart/add/<int:product_id>/",
+    views.add_to_cart,
+    name="add_to_cart",
+),
+path(
+    "cart/",
+    views.cart_view,
+    name="cart",
+),
+# path(
+#     "cart/update/<int:item_id>/",
+#     views.update_cart_item,
+#     name="update_cart_item",
+# # ),
+# path(
+#     "cart/remove/<int:item_id>/",
+#     views.remove_cart_item,
+#     name="remove_cart_item",
+# ),
+path(
+    "cart/clear/",
+    views.clear_cart,
+    name="clear_cart",
+),
+path(
+    "checkout/",
+    views.checkout,
+    name="checkout",
+),
+path(
+    "order/payment/success/",
+    views.order_payment_success,
+    name="order_payment_success",
+),
+path(
+    "wallet/",
+    views.wallet_dashboard,
+    name="wallet_dashboard",
+),
+path(
+    "wallet/withdraw/",
+    views.withdraw,
+    name="withdraw",
+),
+path(
+    "wallet/bank/",
+    views.bank_account,
+    name="bank_account",
+),
+path(
+    "suppliers/add/",
+    views.add_supplier,
+    name="add_supplier",
+),
+
+path(
+    "suppliers/remove/<int:pk>/",
+    views.remove_supplier,
+    name="remove_supplier",
+),
+path(
+    "cart/add/<slug:slug>/",
+    views.add_to_cart,
+    name="add_to_cart",
+),
+path(
+
+    "cart/remove/<int:item_id>/",
+
+    views.remove_from_cart,
+
+    name="remove_from_cart",
+
+),
+path("cart/", views.cart_view, name="cart"),
+path("cart/increase/<int:item_id>/", views.increase_cart_item, name="increase_cart_item"),
+path("cart/decrease/<int:item_id>/", views.decrease_cart_item, name="decrease_cart_item"),
+path("cart/remove/<int:item_id>/", views.remove_from_cart, name="remove_from_cart"),
+
     path("pricing/", views.pricing, name="pricing"),
     # Store Home
     path('<str:store_slug>/', StoreHomeView.as_view(), name='store_home'),

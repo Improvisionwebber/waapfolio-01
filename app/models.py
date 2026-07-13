@@ -264,7 +264,7 @@ class Item(models.Model):
     facebook_link = models.URLField(max_length=255, blank=True, null=True)
     tiktok_link = models.URLField(max_length=255, blank=True, null=True)
     depop_link = models.URLField(max_length=255, blank=True, null=True)
-    slug = models.SlugField(unique=True, blank=True, max_length=1000,)
+    slug = models.SlugField(unique=True, blank=True, max_length=255,)
 
     def __str__(self):
         return self.name
@@ -292,30 +292,70 @@ class Item(models.Model):
     def get_store_url(self):
         return self.store.get_absolute_url()
 # subscription
-class Subscription(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
+class Subscription(models.Model):
     PLAN_CHOICES = [
         ("free", "Free"),
-        ("premium", "Premium"),
+        ("premium_monthly", "Premium Monthly"),
+        ("premium_yearly", "Premium Yearly"),
     ]
 
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="free")
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    plan = models.CharField(
+        max_length=30,
+        choices=PLAN_CHOICES,
+        default="free"
+    )
 
     is_active = models.BooleanField(default=True)
-    started_at = models.DateTimeField(auto_now_add=True)
-    expires_at = models.DateTimeField(null=True, blank=True)
 
-    paystack_customer_id = models.CharField(max_length=100, blank=True, null=True)
-    paystack_subscription_id = models.CharField(max_length=100, blank=True, null=True)
+    started_at = models.DateTimeField(
+        default=timezone.now
+    )
+
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    paystack_customer_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    paystack_subscription_id = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    last_payment_reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    auto_renew = models.BooleanField(
+        default=False
+    )
 
     def is_premium(self):
-        return self.plan == "premium" and self.is_active
-#wallet
-class Wallet(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    balance = models.DecimalField(max_digits=12, decimal_places=2, default=0)
-    total_earned = models.DecimalField(max_digits=12, decimal_places=2, default=0)
+        if not self.is_active:
+            return False
+
+        return self.plan in [
+            "premium_monthly",
+            "premium_yearly",
+        ]
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan}"
+
 class Transaction(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
@@ -361,28 +401,7 @@ class WithdrawalRequest(models.Model):
     )
 
     created_at = models.DateTimeField(auto_now_add=True)
-class Order(models.Model):
-    store = models.ForeignKey(Store, on_delete=models.CASCADE)
 
-    product = models.ForeignKey(Item, on_delete=models.CASCADE)
-
-    buyer_name = models.CharField(max_length=255)
-
-    buyer_phone = models.CharField(max_length=50)
-
-    quantity = models.PositiveIntegerField(default=1)
-
-    amount = models.DecimalField(
-        max_digits=12,
-        decimal_places=2
-    )
-
-    status = models.CharField(
-        max_length=20,
-        default="pending"
-    )
-
-    created_at = models.DateTimeField(auto_now_add=True)
 # Product Media
 class ProductMedia(models.Model):
     product = models.ForeignKey(Item, on_delete=models.CASCADE, related_name='media')
@@ -457,3 +476,590 @@ class Comment(models.Model):
 
     def __str__(self):
         return f"{self.user.username} on {self.product.name}"
+class Payment(models.Model):
+    PLAN_CHOICES = [
+        ("premium_monthly", "Premium Monthly"),
+        ("premium_yearly", "Premium Yearly"),
+    ]
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("success", "Success"),
+        ("failed", "Failed"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="user_payments"
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    plan = models.CharField(
+        max_length=30,
+        choices=PLAN_CHOICES
+    )
+
+    reference = models.CharField(
+        max_length=150,
+        unique=True
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    paid_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    def __str__(self):
+        return f"{self.user.username} - {self.reference}"
+
+
+class PaymentHistory(models.Model):
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("success", "Success"),
+        ("failed", "Failed"),
+        ("refunded", "Refunded"),
+    ]
+
+    PLAN_CHOICES = [
+        ("free", "Free"),
+        ("premium_monthly", "Premium Monthly"),
+        ("premium_yearly", "Premium Yearly"),
+        ("store_order", "Store Order"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="payment_history"
+    )
+
+    reference = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    plan = models.CharField(
+        max_length=50,
+        choices=PLAN_CHOICES
+    )
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="pending"
+    )
+
+    paystack_response = models.JSONField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+class Wallet(models.Model):
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    pending_balance = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
+
+    available_balance = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
+
+    lifetime_earnings = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
+
+    total_withdrawn = models.DecimalField(
+        max_digits=14,
+        decimal_places=2,
+        default=0
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return f"{self.user.username} wallet"
+class WalletTransaction(models.Model):
+
+    TYPES = [
+        ("sale", "Sale"),
+        ("withdrawal", "Withdrawal"),
+        ("refund", "Refund"),
+        ("commission", "Commission"),
+        ("hold_release", "Hold Release"),
+    ]
+
+    wallet = models.ForeignKey(
+        Wallet,
+        on_delete=models.CASCADE
+    )
+
+    transaction_type = models.CharField(
+        max_length=30,
+        choices=TYPES
+    )
+
+    amount = models.DecimalField(
+        max_digits=14,
+        decimal_places=2
+    )
+
+    description = models.TextField()
+
+    reference = models.CharField(
+        max_length=100,
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+class SellerTrust(models.Model):
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    successful_orders = models.IntegerField(
+        default=0
+    )
+
+    disputes = models.IntegerField(
+        default=0
+    )
+
+    chargebacks = models.IntegerField(
+        default=0
+    )
+
+    fraud_flags = models.IntegerField(
+        default=0
+    )
+
+    instant_withdrawal = models.BooleanField(
+        default=False
+    )
+
+    risk_score = models.IntegerField(
+        default=0
+    )
+
+    def evaluate(self):
+
+        self.instant_withdrawal = (
+            self.successful_orders >= 10
+            and self.disputes == 0
+            and self.chargebacks == 0
+            and self.fraud_flags == 0
+        )
+
+        self.save()
+import uuid
+import random
+
+from django.db import models
+from django.contrib.auth.models import User
+from django.utils import timezone
+
+
+class Order(models.Model):
+
+    STATUS_CHOICES = [
+        ("PENDING_PAYMENT", "Pending Payment"),
+        ("PAID", "Paid"),
+        ("ACCEPTED", "Accepted"),
+        ("ON_HOLD", "On Hold"),
+        ("AVAILABLE_FOR_WITHDRAWAL", "Available For Withdrawal"),
+        ("WITHDRAWN", "Withdrawn"),
+        ("REFUNDED", "Refunded"),
+        ("DISPUTED", "Disputed"),
+    ]
+
+    order_id = models.CharField(
+        max_length=20,
+        unique=True,
+        editable=False
+    )
+
+    store = models.ForeignKey(
+        "Store",
+        on_delete=models.CASCADE,
+        related_name="orders"
+    )
+
+    seller = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="sales"
+    )
+
+    customer_name = models.CharField(
+        max_length=255
+    )
+
+    customer_email = models.EmailField()
+
+    customer_phone = models.CharField(
+        max_length=30
+    )
+
+    delivery_address = models.TextField()
+
+    delivery_city = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    delivery_state = models.CharField(
+        max_length=100,
+        blank=True
+    )
+
+    delivery_note = models.TextField(
+        blank=True
+    )
+
+    amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    commission = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    seller_amount = models.DecimalField(
+        max_digits=12,
+        decimal_places=2,
+        default=0
+    )
+
+    paystack_reference = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    verification_token = models.UUIDField(
+        default=uuid.uuid4,
+        unique=True,
+        editable=False
+    )
+
+    status = models.CharField(
+        max_length=35,
+        choices=STATUS_CHOICES,
+        default="PENDING_PAYMENT"
+    )
+
+    accepted_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="accepted_orders"
+    )
+
+    accepted_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    hold_until = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    withdrawn_at = models.DateTimeField(
+        null=True,
+        blank=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def save(self, *args, **kwargs):
+        if not self.order_id:
+            while True:
+                order = f"WPF-{random.randint(10000000, 99999999)}"
+                if not Order.objects.filter(order_id=order).exists():
+                    self.order_id = order
+                    break
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f"{self.order_id} - {self.store.brand_name}"
+class OrderItem(models.Model):
+
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+
+    product = models.ForeignKey(
+        Item,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True
+    )
+
+    product_name = models.CharField(
+        max_length=255
+    )
+
+    product_price = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    quantity = models.PositiveIntegerField(
+        default=1
+    )
+
+    subtotal = models.DecimalField(
+        max_digits=12,
+        decimal_places=2
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    def __str__(self):
+        return f"{self.product_name} x {self.quantity}"
+
+class Cart(models.Model):
+
+    customer_session = models.CharField(
+        max_length=100,
+        unique=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+
+        return self.customer_session
+
+    @property
+    def total(self):
+
+        return sum(
+
+            item.product.price * item.quantity
+
+            for item in self.items.all()
+
+        )
+
+    @property
+    def total(self):
+
+        return sum(
+
+            item.product.price * item.quantity
+
+            for item in self.items.all()
+
+        )
+
+        
+class CartItem(models.Model):
+
+    cart = models.ForeignKey(
+        Cart,
+        on_delete=models.CASCADE,
+        related_name="items"
+    )
+
+    product = models.ForeignKey(
+        Item,
+        on_delete=models.CASCADE
+    )
+
+    quantity = models.PositiveIntegerField(
+        default=1
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        unique_together = (
+            "cart",
+            "product",
+        )
+
+    @property
+    def subtotal(self):
+        return self.product.price * self.quantity
+
+    def __str__(self):
+        return f"{self.product.name} × {self.quantity}"
+
+class AuditLog(models.Model):
+
+    user = models.ForeignKey(
+        User,
+        null=True,
+        on_delete=models.SET_NULL
+    )
+
+    action = models.CharField(
+        max_length=255
+    )
+
+    object_type = models.CharField(
+        max_length=100
+    )
+
+    object_id = models.CharField(
+        max_length=100
+    )
+
+    ip_address = models.GenericIPAddressField(
+        null=True
+    )
+
+    metadata = models.JSONField(
+        default=dict
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+class BankAccount(models.Model):
+
+    user = models.OneToOneField(
+        User,
+        on_delete=models.CASCADE
+    )
+
+    bank_name = models.CharField(
+        max_length=100
+    )
+
+    bank_code = models.CharField(
+        max_length=20
+    )
+
+    account_number = models.CharField(
+        max_length=20
+    )
+
+    account_name = models.CharField(
+        max_length=255
+    )
+
+    recipient_code = models.CharField(
+        max_length=255,
+        unique=True
+    )
+
+    is_verified = models.BooleanField(
+        default=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True
+    )
+
+    def __str__(self):
+        return (
+            f"{self.user.username} - "
+            f"{self.bank_name} "
+            f"({self.account_number})"
+        )
+class SupplierAccess(models.Model):
+
+    seller = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="suppliers"
+    )
+
+    supplier = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name="supplier_for"
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+
+        unique_together = (
+            "seller",
+            "supplier",
+        )
+
+    def __str__(self):
+
+        return (
+            f"{self.seller.username} → "
+            f"{self.supplier.username}"
+        )

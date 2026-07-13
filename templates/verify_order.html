@@ -1,0 +1,399 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<style>
+
+body{
+    background:#f8fafc;
+}
+
+.verify-card{
+
+    max-width:850px;
+
+    margin:60px auto;
+
+    background:#fff;
+
+    border-radius:18px;
+
+    padding:40px;
+
+    box-shadow:0 10px 40px rgba(0,0,0,.08);
+
+}
+
+.badge-paid{
+
+    background:#16a34a;
+
+    color:white;
+
+    padding:10px 20px;
+
+    border-radius:999px;
+
+    display:inline-block;
+
+    font-weight:600;
+
+}
+
+.badge-accepted{
+
+    background:#2563eb;
+
+    color:white;
+
+    padding:10px 20px;
+
+    border-radius:999px;
+
+    display:inline-block;
+
+    font-weight:600;
+
+}
+
+.info-box{
+
+    background:#f9fafb;
+
+    border:1px solid #e5e7eb;
+
+    border-radius:12px;
+
+    padding:18px;
+
+    margin-bottom:20px;
+
+}
+
+.info-title{
+
+    font-size:13px;
+
+    color:#6b7280;
+
+}
+
+.info-value{
+
+    font-size:18px;
+
+    font-weight:700;
+
+    color:#111827;
+
+}
+
+.product-table{
+
+    width:100%;
+
+}
+
+.product-table th{
+
+    background:#f3f4f6;
+
+    padding:14px;
+
+}
+
+.product-table td{
+
+    padding:14px;
+
+    border-top:1px solid #eee;
+
+}
+
+.accept-btn{
+
+    background:#16a34a;
+
+    color:white;
+
+    width:100%;
+
+    border:none;
+
+    padding:16px;
+
+    border-radius:12px;
+
+    font-size:18px;
+
+    font-weight:700;
+
+}
+
+.accept-btn:hover{
+
+    background:#15803d;
+
+}
+
+.accepted-box{
+
+    background:#ecfdf5;
+
+    border:1px solid #16a34a;
+
+    color:#166534;
+
+    border-radius:12px;
+
+    padding:20px;
+
+    text-align:center;
+
+    font-size:18px;
+
+    font-weight:700;
+
+}
+
+</style>
+
+<div class="container">
+
+<div class="verify-card">
+
+<h2 class="mb-4">
+
+Order Verification
+
+</h2>
+
+{% if order.status == "PAID" %}
+
+<span class="badge-paid">
+
+Payment Verified
+
+</span>
+
+{% elif order.status == "ACCEPTED" %}
+
+<span class="badge-accepted">
+
+Order Accepted
+
+</span>
+
+{% endif %}
+
+<hr class="my-4">
+
+<div class="row">
+
+<div class="col-md-6">
+
+<div class="info-box">
+
+<div class="info-title">
+
+Customer Name
+
+</div>
+
+<div class="info-value">
+
+{{ order.customer_name }}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="info-box">
+
+<div class="info-title">
+
+WhatsApp Number
+
+</div>
+
+<div class="info-value">
+
+{{ order.customer_phone }}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="info-box">
+
+<div class="info-title">
+
+Order Number
+
+</div>
+
+<div class="info-value">
+
+{{ order.order_id }}
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-6">
+
+<div class="info-box">
+
+<div class="info-title">
+
+Amount Paid
+
+</div>
+
+<div class="info-value">
+
+₦{{ order.amount }}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<h4 class="mt-5 mb-3">
+
+Products Purchased
+
+</h4>
+
+<table class="table product-table">
+
+<thead>
+
+<tr>
+
+<th>Product</th>
+
+<th>Qty</th>
+
+<th>Price</th>
+
+<th>Total</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for item in order.items.all %}
+
+<tr>
+
+<td>
+
+{{ item.product_name }}
+
+</td>
+
+<td>
+
+{{ item.quantity }}
+
+</td>
+
+<td>
+
+₦{{ item.product_price }}
+
+</td>
+
+<td>
+
+₦{{ item.subtotal }}
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+<hr class="my-4">
+
+{% if order.status == "PAID" %}
+
+<a
+
+href="{% url 'accept_order' order.verification_token %}"
+
+class="btn accept-btn"
+
+>
+
+Accept Order
+
+</a>
+
+{% elif order.status == "ACCEPTED" %}
+
+<div class="accepted-box">
+
+✓ This Order Has Already Been Accepted
+
+<br><br>
+
+Accepted At
+
+<br>
+
+{{ order.accepted_at }}
+
+</div>
+
+{% elif order.status == "ON_HOLD" %}
+
+<div class="accepted-box">
+
+Order Accepted
+
+<br>
+
+Funds Currently On Hold
+
+</div>
+
+{% elif order.status == "AVAILABLE_FOR_WITHDRAWAL" %}
+
+<div class="accepted-box">
+
+Order Completed
+
+<br>
+
+Funds Available In Wallet
+
+</div>
+
+{% endif %}
+
+</div>
+
+</div>
+
+{% endblock %}

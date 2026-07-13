@@ -119,6 +119,7 @@ TEMPLATES = [
                 'app.context_processors.user_store',
                 'social_django.context_processors.backends',
                 'social_django.context_processors.login_redirect',
+                'app.context_processors.cart',
             ],
         },
     },

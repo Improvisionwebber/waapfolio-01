@@ -1,0 +1,91 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container py-5">
+
+```
+<div class="row justify-content-center">
+
+    <div class="col-lg-6">
+
+        <div class="card shadow-sm border-0">
+
+            <div class="card-body p-4">
+
+                <h3 class="mb-4">
+                    Complete Your Purchase
+                </h3>
+
+                <div class="text-center mb-4">
+
+                    {% if item.image %}
+                        <img
+                            src="{{ item.image.url }}"
+                            class="img-fluid rounded mb-3"
+                            style="max-height: 250px;"
+                        >
+                    {% endif %}
+
+                    <h4>
+                        {{ item.name }}
+                    </h4>
+
+                    {% if item.description %}
+                        <p class="text-muted">
+                            {{ item.description }}
+                        </p>
+                    {% endif %}
+
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>Product</strong>
+                    <span>{{ item.name }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-2">
+                    <strong>Store</strong>
+                    <span>{{ item.store.brand_name }}</span>
+                </div>
+
+                <div class="d-flex justify-content-between mb-4">
+                    <strong>Total Amount</strong>
+                    <h4 class="mb-0">
+                        ₦{{ item.price }}
+                    </h4>
+                </div>
+
+                <div class="alert alert-light border">
+                    After payment, you will be redirected to WhatsApp
+                    with a pre-filled message containing your verified
+                    order details.
+                </div>
+
+                <form method="post">
+
+                    {% csrf_token %}
+
+                    <button
+                        type="submit"
+                        class="btn btn-success w-100 py-3"
+                    >
+                        Pay ₦{{ item.price }} Securely
+                    </button>
+
+                </form>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+```
+
+</div>
+
+{% endblock %}

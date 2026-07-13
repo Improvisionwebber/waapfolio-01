@@ -327,6 +327,41 @@
 
     /* Selection */
     ::selection{background:var(--wf-ink);color:#fff}
+    .wf-cart-badge{
+
+    position:absolute;
+
+    top:4px;
+
+    right:2px;
+
+    min-width:18px;
+
+    height:18px;
+
+    border-radius:50%;
+
+    background:#111;
+
+    color:#fff;
+
+    font-size:10px;
+
+    font-weight:700;
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+    padding:0 5px;
+
+    border:2px solid #fff;
+
+    line-height:1;
+
+}
   </style>
 
   {% block head %}{% endblock %}
@@ -377,6 +412,29 @@
           <li><a class="wf-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
           <li><a class="wf-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Products</a></li>
           <li><a class="wf-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li>
+
+              <a
+                  href="{% url 'cart' %}"
+                  class="wf-icon-btn position-relative"
+                  aria-label="Shopping Cart"
+              >
+
+                  <i class="bi bi-bag"></i>
+
+                  {% if cart_count %}
+
+                      <span class="wf-cart-badge">
+
+                          {{ cart_count }}
+
+                      </span>
+
+                  {% endif %}
+
+              </a>
+
+          </li>
         </ul>
       </nav>
 
@@ -512,7 +570,7 @@
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body"> 
           <div class="wf-link-field">
             <input type="text" readonly value="{{ full_url }}" id="wfShareUrl">
             <button class="wf-btn" type="button" onclick="wfCopy('wfShareUrl', this)">

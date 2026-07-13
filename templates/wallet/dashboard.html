@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container py-5">
+
+<h2 class="mb-4">
+My Wallet
+</h2>
+
+<div class="row g-4">
+
+<div class="col-md-4">
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<h6 class="text-muted">
+Available Balance
+</h6>
+
+<h2>
+₦{{ wallet.available_balance }}
+</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<h6 class="text-muted">
+Pending Balance
+</h6>
+
+<h2>
+₦{{ wallet.pending_balance }}
+</h2>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="col-md-4">
+
+<div class="card shadow-sm">
+
+<div class="card-body">
+
+<h6 class="text-muted">
+Lifetime Earnings
+</h6>
+
+<h2>
+₦{{ wallet.lifetime_earnings }}
+</h2>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<div class="mt-5">
+
+<h4>
+
+Withdrawal Status
+
+</h4>
+
+{% if trust.instant_withdrawal %}
+
+<div class="alert alert-success">
+
+✅ Instant withdrawals are enabled.
+
+</div>
+
+{% else %}
+
+<div class="alert alert-warning">
+
+You currently have
+
+<strong>
+
+{{ trust.successful_orders }}
+
+</strong>
+
+successful orders.
+
+Complete
+
+<strong>
+
+{{ 10|add:"-trust.successful_orders" }}
+
+</strong>
+
+more successful orders to unlock instant withdrawals.
+
+</div>
+
+{% endif %}
+
+</div>
+
+<div class="mt-5">
+
+<h4>
+
+Recent Transactions
+
+</h4>
+
+<table class="table">
+
+<thead>
+
+<tr>
+
+<th>Type</th>
+
+<th>Amount</th>
+
+<th>Description</th>
+
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+<tbody>
+
+{% for tx in transactions %}
+
+<tr>
+
+<td>
+
+{{ tx.get_transaction_type_display }}
+
+</td>
+
+<td>
+
+₦{{ tx.amount }}
+
+</td>
+
+<td>
+
+{{ tx.description }}
+
+</td>
+
+<td>
+
+{{ tx.created_at }}
+
+</td>
+
+</tr>
+
+{% empty %}
+
+<tr>
+
+<td colspan="4">
+
+No transactions yet.
+
+</td>
+
+</tr>
+
+{% endfor %}
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+{% endblock %}

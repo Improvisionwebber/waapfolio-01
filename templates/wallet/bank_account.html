@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block body %}
+
+<div class="container py-5">
+
+<div class="col-lg-6 mx-auto">
+
+<div class="card shadow">
+
+<div class="card-body p-4">
+
+<h3>
+
+Bank Account
+
+</h3>
+
+<hr>
+
+<form method="post">
+
+{% csrf_token %}
+
+<label>
+
+Bank
+
+</label>
+
+<select
+name="bank_code"
+class="form-select"
+required
+>
+
+{% for bank in banks %}
+
+<option value="{{ bank.code }}">
+
+{{ bank.name }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<br>
+
+<label>
+
+Account Number
+
+</label>
+
+<input
+type="text"
+name="account_number"
+class="form-control"
+maxlength="10"
+required
+>
+
+<button
+class="btn btn-success w-100 mt-4"
+>
+
+Save Bank Account
+
+</button>
+
+</form>
+
+{% if account %}
+
+<hr>
+
+<h5>
+
+Current Account
+
+</h5>
+
+<strong>
+
+{{ account.bank_name }}
+
+</strong>
+
+<br>
+
+{{ account.account_number }}
+
+<br>
+
+{{ account.account_name }}
+
+{% endif %}
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

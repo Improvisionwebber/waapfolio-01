@@ -37,7 +37,7 @@ from django.urls import reverse
 from django.templatetags.static import static
 from django.db.models import Q
 import re
-
+from app.models import Cart, CartItem, Order, OrderItem
 # -------------------------
 # Forms
 # -------------------------
@@ -1144,7 +1144,7 @@ def record_order(request, store_id):
             return JsonResponse({"success": False, "error": "Store not found"}, status=404)
     return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
 import random
-from itertools import chain
+from itertools import chain, product
 from django.db.models import Q
 from django.http import JsonResponse
 from django.shortcuts import render
@@ -1326,7 +1326,6 @@ def root_dispatch(request):
         return view_store(request)
 
     return home(request)
-from django.shortcuts import render, get_object_or_404
 from django.views import View
 from .models import Store, Item, StoreTemplate, StoreImage, ProductMedia, Comment
 # Helper function
@@ -1487,14 +1486,15 @@ def full_url(request):
     return {
         "full_url": request.build_absolute_uri()
     }
+import uuid
 import requests
+
 from django.conf import settings
 from django.shortcuts import redirect
+from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
-from django.http import JsonResponse
 
-
-PAYSTACK_SECRET_KEY = settings.PAYSTACK_SECRET_KEY
+from .models import Payment
 
 
 @login_required
@@ -1503,88 +1503,203 @@ def paystack_initialize(request):
 
     plan = request.GET.get("plan", "monthly")
 
+    # ==========================
+    # PLAN CONFIGURATION
+    # ==========================
     if plan == "yearly":
-        amount = 3000000   # ₦30,000
+        amount = 5000000  # ₦50,000
         plan_name = "premium_yearly"
     else:
-        amount = 500000    # ₦5,000
+        amount = 500000   # ₦5,000
         plan_name = "premium_monthly"
+
+    # ==========================
+    # UNIQUE REFERENCE
+    # ==========================
+    reference = str(uuid.uuid4())
+
+    # ==========================
+    # SAVE PAYMENT RECORD
+    # ==========================
+    Payment.objects.create(
+        user=user,
+        amount=amount / 100,
+        plan=plan_name,
+        reference=reference,
+        status="pending"
+    )
 
     url = "https://api.paystack.co/transaction/initialize"
 
     headers = {
-        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
-        "Content-Type": "application/json",
+        "Authorization":
+            f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        "Content-Type":
+            "application/json",
     }
 
     data = {
         "email": user.email,
         "amount": amount,
-        "callback_url": "https://waapfolio.com/payment/success/",
+        "reference": reference,
+        "callback_url":
+            "https://waapfolio.com/payment/success/",
+
         "metadata": {
             "user_id": user.id,
             "plan": plan_name,
         }
     }
 
-    response = requests.post(url, json=data, headers=headers)
+    response = requests.post(
+        url,
+        json=data,
+        headers=headers
+    )
+
     res = response.json()
 
     if res.get("status"):
-        return redirect(res["data"]["authorization_url"])
+        return redirect(
+            res["data"]["authorization_url"]
+        )
 
-    return JsonResponse(res, status=400)
+    return HttpResponse(
+        f"Payment initialization failed:<br><br>{res}"
+    )
+import requests
+
+from datetime import timedelta
+
+from django.conf import settings
+from django.shortcuts import render
+from django.utils import timezone
+from django.contrib.auth.decorators import login_required
+
+from .models import Subscription, Payment
+
 
 @login_required
 def payment_success(request):
     reference = request.GET.get("reference")
 
     if not reference:
-        return HttpResponse("No payment reference found.")
+        return render(
+            request,
+            "payment/payment_failed.html",
+            {
+                "message":
+                    "No payment reference found."
+            }
+        )
 
-    url = f"https://api.paystack.co/transaction/verify/{reference}"
+    url = (
+        "https://api.paystack.co/"
+        f"transaction/verify/{reference}"
+    )
 
     headers = {
-        "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+        "Authorization":
+            f"Bearer {settings.PAYSTACK_SECRET_KEY}"
     }
 
-    response = requests.get(url, headers=headers)
-    res = response.json()
-
-    print(res)  # TEMP DEBUG
-
-    if (
-        res.get("status")
-        and res["data"]["status"] == "success"
-    ):
-        sub, created = Subscription.objects.get_or_create(
-            user=request.user
+    try:
+        response = requests.get(
+            url,
+            headers=headers
         )
 
-        plan = res["data"]["metadata"].get(
-            "plan",
-            "premium_monthly"
+        res = response.json()
+
+        if (
+            res.get("status")
+            and
+            res["data"]["status"] == "success"
+        ):
+
+            purchased_plan = (
+                res["data"]
+                .get("metadata", {})
+                .get("plan")
+            )
+
+            # ==========================
+            # UPDATE SUBSCRIPTION
+            # ==========================
+            sub, _ = (
+                Subscription.objects
+                .get_or_create(
+                    user=request.user
+                )
+            )
+
+            sub.is_active = True
+            sub.started_at = timezone.now()
+
+            if purchased_plan == "premium_yearly":
+
+                sub.plan = "premium_yearly"
+
+                sub.expires_at = (
+                    timezone.now()
+                    + timedelta(days=365)
+                )
+
+            else:
+
+                sub.plan = "premium_monthly"
+
+                sub.expires_at = (
+                    timezone.now()
+                    + timedelta(days=30)
+                )
+
+            sub.last_payment_reference = reference
+
+            sub.save()
+
+            # ==========================
+            # UPDATE PAYMENT RECORD
+            # ==========================
+            payment = (
+                Payment.objects
+                .filter(
+                    reference=reference
+                )
+                .first()
+            )
+
+            if payment:
+                payment.status = "success"
+                payment.paid_at = timezone.now()
+                payment.save()
+
+            return render(
+                request,
+                "payment/success.html",
+                {
+                    "subscription": sub,
+                    "reference": reference,
+                }
+            )
+
+    except Exception as e:
+
+        return render(
+            request,
+            "payment/payment_failed.html",
+            {
+                "message": str(e)
+            }
         )
 
-        if plan == "premium_yearly":
-            sub.plan = "premium_yearly"
-        else:
-            sub.plan = "premium"
-
-        sub.is_active = True
-        sub.save()
-
-        return HttpResponse(
-            f"""
-            Payment verified successfully.<br>
-            User: {request.user.username}<br>
-            Plan: {sub.plan}<br>
-            Active: {sub.is_active}
-            """
-        )
-
-    return HttpResponse(
-        f"Payment verification failed.<br>{res}"
+    return render(
+        request,
+        "payment/payment_failed.html",
+        {
+            "message":
+                "Payment verification failed."
+        }
     )
 import json
 import hmac
@@ -1635,3 +1750,1381 @@ def paystack_webhook(request):
 @login_required
 def pricing(request):
     return render(request, "pricing.html")
+@login_required
+def payment_history(request):
+    payments = Payment.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "payment_history.html",
+        {
+            "payments": payments
+        }
+    )
+
+from django.contrib import messages
+
+from app.models import Order
+from app.services.wallet_service import accept_order
+
+from app.services.wallet_service import (
+    accept_order,
+    process_paid_order,
+)
+
+
+@login_required
+def accept_order_view(request, token):
+
+    order = get_object_or_404(
+        Order,
+        verification_token=token
+    )
+
+    authorized = (
+
+        request.user == order.seller
+
+        or
+
+        SupplierAccess.objects.filter(
+
+            seller=order.seller,
+
+            supplier=request.user
+
+        ).exists()
+
+    )
+
+    if not authorized:
+
+        messages.error(
+
+            request,
+
+            "You are not authorized to accept this order."
+
+        )
+
+        return redirect("/")
+
+    if order.status == "ACCEPTED":
+
+        messages.info(
+            request,
+            "This order has already been accepted."
+        )
+
+        return redirect(
+            "verify_order",
+            token=token
+        )
+
+    if order.status != "PAID":
+
+        messages.error(
+            request,
+            "This order cannot be accepted."
+        )
+
+        return redirect(
+            "verify_order",
+            token=token
+        )
+
+    try:
+
+        accept_order(order)
+
+        release = process_paid_order(
+            order
+        )
+
+        if release == "instant":
+
+            messages.success(
+                request,
+                "Order accepted. Funds are now available in your wallet."
+            )
+
+        else:
+
+            messages.success(
+                request,
+                "Order accepted. Funds are now on a 72-hour hold."
+            )
+
+    except Exception as e:
+
+        messages.error(
+            request,
+            str(e)
+        )
+
+    return redirect(
+        "verify_order",
+        token=token
+    )
+from django.shortcuts import render, get_object_or_404
+from app.models import Order
+
+
+from app.models import SupplierAccess
+
+@login_required
+def verify_order(request, token):
+
+    order = get_object_or_404(
+        Order,
+        verification_token=token
+    )
+
+    authorized = (
+
+        request.user == order.seller
+
+        or
+
+        SupplierAccess.objects.filter(
+
+            seller=order.seller,
+
+            supplier=request.user
+
+        ).exists()
+
+    )
+
+    if not authorized:
+
+        return render(
+
+            request,
+
+            "order_not_authorized.html",
+
+            status=403
+
+        )
+
+    return render(
+
+        request,
+
+        "verify_order.html",
+
+        {
+            "order": order
+        }
+
+    )
+@login_required
+def store_checkout(request, slug):
+
+    item = get_object_or_404(
+        Item,
+        slug=slug
+    )
+
+    if request.method == "POST":
+
+        headers = {
+            "Authorization":
+                f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+            "Content-Type":
+                "application/json",
+        }
+
+        payload = {
+            "email":
+                request.POST["email"],
+
+            "amount":
+                int(item.price * 100),
+
+            "callback_url":
+                request.build_absolute_uri(
+                    reverse(
+                        "order_payment_success"
+                    )
+                ),
+
+            "metadata": {
+                "type": "store_order",
+
+                "store_id":
+                    item.store.id,
+
+                "item_id":
+                    item.id,
+
+                "name":
+                    request.POST["name"],
+
+                "phone":
+                    request.POST["phone"],
+
+                "email":
+                    request.POST["email"],
+            },
+        }
+
+        response = requests.post(
+            "https://api.paystack.co/transaction/initialize",
+            json=payload,
+            headers=headers,
+        )
+
+        res = response.json()
+
+        if res["status"]:
+            return redirect(
+                res["data"]["authorization_url"]
+            )
+
+    return render(
+        request,
+        "store_checkout.html",
+        {
+            "item": item,
+        },
+    )
+from django.http import JsonResponse
+
+
+from django.shortcuts import get_object_or_404, redirect, render
+from django.http import JsonResponse
+from django.contrib import messages
+
+from .models import Cart, CartItem, Item
+
+
+def get_cart(request):
+    """
+    Returns the current session cart.
+    Creates one if it doesn't exist.
+    """
+    if not request.session.session_key:
+        request.session.create()
+
+    cart, created = Cart.objects.get_or_create(
+        customer_session=request.session.session_key
+    )
+
+    return cart
+
+
+def add_to_cart(request, slug):
+
+    product = get_object_or_404(
+        Item,
+        slug=slug
+    )
+
+    cart = get_cart(request)
+
+    cart_item, created = CartItem.objects.get_or_create(
+        cart=cart,
+        product=product,
+        defaults={
+            "quantity": 1
+        }
+    )
+
+    if not created:
+        cart_item.quantity += 1
+        cart_item.save()
+
+    messages.success(
+        request,
+        "Added to cart."
+    )
+
+    return redirect(
+        request.META.get(
+            "HTTP_REFERER",
+            "/"
+        )
+    )
+
+
+def cart_view(request):
+
+    cart = get_cart(request)
+
+    items = cart.items.select_related(
+        "product"
+    )
+
+    total = sum(
+        item.subtotal
+        for item in items
+    )
+
+    return render(
+        request,
+        "cart.html",
+        {
+            "cart": cart,
+            "items": items,
+            "total": total,
+        }
+    )
+
+
+def remove_from_cart(request, item_id):
+
+    cart = get_cart(request)
+
+    cart_item = get_object_or_404(
+        CartItem,
+        id=item_id,
+        cart=cart
+    )
+
+    cart_item.delete()
+
+    messages.success(
+        request,
+        "Item removed from cart."
+    )
+
+    return redirect(
+        "cart"
+    )
+
+
+def increase_cart_item(request, item_id):
+
+    cart = get_cart(request)
+
+    cart_item = get_object_or_404(
+        CartItem,
+        id=item_id,
+        cart=cart
+    )
+
+    cart_item.quantity += 1
+    cart_item.save()
+
+    return redirect(
+        "cart"
+    )
+
+
+def decrease_cart_item(request, item_id):
+
+    cart = get_cart(request)
+
+    cart_item = get_object_or_404(
+        CartItem,
+        id=item_id,
+        cart=cart
+    )
+
+    if cart_item.quantity > 1:
+
+        cart_item.quantity -= 1
+        cart_item.save()
+
+    else:
+
+        cart_item.delete()
+
+    return redirect(
+        "cart"
+    )
+def clear_cart(request):
+
+    cart = get_cart(request)
+
+    cart.items.all().delete()
+
+    return redirect("cart")
+import requests
+
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import redirect, render
+from django.utils import timezone
+
+from app.models import (
+    Order,
+    PaymentHistory,
+)
+
+from app.services.wallet_service import (
+    process_paid_order,
+)
+
+
+def payment_success(request):
+
+    reference = request.GET.get(
+        "reference"
+    )
+
+    if not reference:
+
+        messages.error(
+            request,
+            "Missing payment reference."
+        )
+
+        return redirect("cart")
+
+    headers = {
+
+        "Authorization":
+        f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+
+    }
+
+    response = requests.get(
+
+        f"https://api.paystack.co/transaction/verify/{reference}",
+
+        headers=headers,
+
+    )
+
+    res = response.json()
+
+    if not res["status"]:
+
+        messages.error(
+            request,
+            "Unable to verify payment."
+        )
+
+        return redirect("cart")
+
+    data = res["data"]
+
+    if data["status"] != "success":
+
+        messages.error(
+            request,
+            "Payment failed."
+        )
+
+        return redirect("cart")
+
+    metadata = data.get(
+        "metadata",
+        {}
+    )
+
+    if metadata.get("type") != "store_order":
+
+        messages.error(
+            request,
+            "Invalid payment."
+        )
+
+        return redirect("cart")
+
+    order = Order.objects.get(
+        id=metadata["order_id"]
+    )
+
+    if order.status != "PENDING_PAYMENT":
+
+        return redirect(
+            "verify_order",
+            token=order.verification_token
+        )
+
+    order.status = "PAID"
+
+    order.paystack_reference = reference
+
+    order.save()
+
+    PaymentHistory.objects.create(
+
+        user=order.seller,
+
+        reference=reference,
+
+        amount=order.amount,
+
+        plan="store_order",
+
+        status="success",
+
+        paystack_response=data,
+
+    )
+
+    process_paid_order(order)
+
+    cart = get_cart(request)
+
+    cart.items.all().delete()
+
+    verification_url = request.build_absolute_uri(
+        reverse(
+            "verify_order",
+            kwargs={
+                "token":
+                order.verification_token
+            }
+        )
+    )
+
+    whatsapp_message = (
+        f"Hello, I just placed an order from your Waapfolio store.%0A%0A"
+        f"Order Number: {order.order_id}%0A"
+        f"Customer: {order.customer_name}%0A%0A"
+        f"Please confirm and arrange delivery.%0A%0A"
+        f"{verification_url}"
+    )
+
+    whatsapp_link = (
+        f"https://wa.me/{order.store.whatsapp_number}"
+        f"?text={whatsapp_message}"
+    )
+
+    return render(
+
+        request,
+
+        "payment_success.html",
+
+        {
+
+            "order": order,
+
+            "whatsapp_link": whatsapp_link,
+
+        },
+
+    )
+import requests
+from decimal import Decimal
+
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import render, redirect, get_object_or_404
+from django.urls import reverse
+
+from app.models import (
+    Order,
+    OrderItem,
+)
+
+
+def checkout(request):
+
+    cart = get_cart(request)
+
+    items = cart.items.select_related(
+        "product",
+        "product__store",
+    )
+
+    if not items.exists():
+
+        messages.error(
+            request,
+            "Your cart is empty."
+        )
+
+        return redirect("cart")
+
+    total = sum(
+        item.subtotal
+        for item in items
+    )
+
+    if request.method == "POST":
+
+        first_product = items.first()
+
+        store = first_product.product.store
+
+        commission = total * Decimal("0.05")
+
+        seller_amount = total - commission
+
+        order = Order.objects.create(
+
+            store=store,
+
+            seller=store.owner,
+
+            customer_name=request.POST["name"],
+
+            customer_email=request.POST["email"],
+
+            customer_phone=request.POST["phone"],
+
+            amount=total,
+
+            commission=commission,
+
+            seller_amount=seller_amount,
+
+            paystack_reference="pending",
+
+            status="PENDING_PAYMENT",
+
+        )
+
+        for item in items:
+
+            OrderItem.objects.create(
+
+                order=order,
+
+                product=item.product,
+
+                product_name=item.product.name,
+
+                product_price=item.product.price,
+
+                quantity=item.quantity,
+
+                subtotal=item.subtotal,
+
+            )
+
+        reference = f"WPF-{order.order_id}"
+
+        order.paystack_reference = reference
+
+        order.save()
+
+        headers = {
+            "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+            "Content-Type": "application/json",
+        }
+
+        payload = {
+
+            "email": order.customer_email,
+
+            "amount": int(order.amount * 100),
+
+            "reference": reference,
+
+            "callback_url": request.build_absolute_uri(
+                reverse("payment_success")
+            ),
+
+            "metadata": {
+
+                "type": "store_order",
+
+                "order_id": order.id,
+
+            },
+
+        }
+
+        response = requests.post(
+            "https://api.paystack.co/transaction/initialize",
+            json=payload,
+            headers=headers,
+        )
+
+        res = response.json()
+
+        if not res["status"]:
+
+            order.delete()
+
+            messages.error(
+                request,
+                "Unable to initialize payment."
+            )
+
+            return redirect("cart")
+
+        return redirect(
+            res["data"]["authorization_url"]
+        )
+
+    return render(
+        request,
+        "checkout.html",
+        {
+            "items": items,
+            "total": total,
+        },
+    )
+import requests
+
+from django.conf import settings
+from django.contrib import messages
+from django.shortcuts import (
+    render,
+    redirect,
+    get_object_or_404,
+)
+from django.urls import reverse
+from django.utils import timezone
+
+from app.models import (
+    Order,
+    PaymentHistory,
+)
+
+
+def order_payment_success(request):
+
+    reference = request.GET.get("reference")
+
+    if not reference:
+
+        messages.error(
+            request,
+            "Missing payment reference."
+        )
+
+        return redirect("cart")
+
+    headers = {
+        "Authorization":
+        f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+    }
+
+    response = requests.get(
+        f"https://api.paystack.co/transaction/verify/{reference}",
+        headers=headers
+    )
+
+    res = response.json()
+
+    if not res.get("status"):
+
+        messages.error(
+            request,
+            "Unable to verify payment."
+        )
+
+        return redirect("cart")
+
+    data = res["data"]
+
+    if data["status"] != "success":
+
+        messages.error(
+            request,
+            "Payment failed."
+        )
+
+        return redirect("cart")
+
+    metadata = data.get(
+        "metadata",
+        {}
+    )
+
+    if metadata.get("type") != "store_order":
+
+        messages.error(
+            request,
+            "Invalid payment."
+        )
+
+        return redirect("cart")
+
+    order = get_object_or_404(
+        Order,
+        id=metadata["order_id"]
+    )
+
+    if order.status != "PENDING_PAYMENT":
+
+        return redirect(
+            "verify_order",
+            token=order.verification_token
+        )
+
+    order.status = "PAID"
+
+    order.paystack_reference = reference
+
+    order.save()
+
+    PaymentHistory.objects.create(
+
+        user=order.seller,
+
+        reference=reference,
+
+        amount=order.amount,
+
+        plan="store_order",
+
+        status="success",
+
+        paystack_response=data,
+
+    )
+
+    cart = get_cart(request)
+
+    cart.items.all().delete()
+
+    verification_link = request.build_absolute_uri(
+
+        reverse(
+
+            "verify_order",
+
+            kwargs={
+                "token":
+                order.verification_token
+            }
+
+        )
+
+    )
+
+    whatsapp_message = (
+
+        f"Hello 👋%0A%0A"
+
+        f"I have successfully paid for my order on your Waapfolio store.%0A%0A"
+
+        f"Kindly click the verification link below to confirm the payment and accept the order.%0A%0A"
+
+        f"{verification_link}"
+
+    )
+
+    whatsapp_link = (
+
+        f"https://wa.me/{order.store.whatsapp_number}"
+
+        f"?text={whatsapp_message}"
+
+    )
+
+    return render(
+
+        request,
+
+        "order_payment_success.html",
+
+        {
+
+            "order": order,
+
+            "verification_link": verification_link,
+
+            "whatsapp_link": whatsapp_link,
+
+        }
+
+    )
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import (
+    render,
+    get_object_or_404,
+)
+
+from app.models import Order
+
+
+@login_required
+def verify_order(request, token):
+
+    order = get_object_or_404(
+        Order,
+        verification_token=token
+    )
+
+    # TODO:
+    # Replace this when SupplierAccess model is built
+    authorized = (
+        request.user == order.seller
+    )
+
+    if not authorized:
+
+        return render(
+            request,
+            "order_not_authorized.html",
+            status=403,
+        )
+
+    return render(
+        request,
+        "verify_order.html",
+        {
+            "order": order,
+            "accepted":
+                order.status == "ACCEPTED",
+        },
+    )
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render
+
+from app.models import (
+    Wallet,
+    WalletTransaction,
+    SellerTrust,
+)
+
+
+@login_required
+def wallet_dashboard(request):
+
+    wallet, created = Wallet.objects.get_or_create(
+        user=request.user
+    )
+
+    trust, created = SellerTrust.objects.get_or_create(
+        user=request.user
+    )
+
+    transactions = WalletTransaction.objects.filter(
+        wallet=wallet
+    ).order_by("-created_at")
+
+    return render(
+        request,
+        "wallet/dashboard.html",
+        {
+            "wallet": wallet,
+            "trust": trust,
+            "transactions": transactions,
+        },
+    )
+from decimal import Decimal
+
+import requests
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import (
+    redirect,
+    render,
+)
+
+from app.models import (
+    Wallet,
+    BankAccount,
+    WalletTransaction,
+)
+
+
+@login_required
+def withdraw(request):
+
+    wallet = Wallet.objects.get(
+        user=request.user
+    )
+
+    try:
+
+        bank = BankAccount.objects.get(
+            user=request.user
+        )
+
+    except BankAccount.DoesNotExist:
+
+        messages.error(
+            request,
+            "Please add your bank account first."
+        )
+
+        return redirect(
+            "bank_account"
+        )
+
+    if request.method == "POST":
+
+        amount = Decimal(
+            request.POST["amount"]
+        )
+
+        if amount <= 0:
+
+            messages.error(
+                request,
+                "Invalid amount."
+            )
+
+            return redirect(
+                "withdraw"
+            )
+
+        if amount > wallet.available_balance:
+
+            messages.error(
+                request,
+                "Insufficient balance."
+            )
+
+            return redirect(
+                "withdraw"
+            )
+
+        headers = {
+
+            "Authorization":
+            f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+
+            "Content-Type":
+            "application/json",
+
+        }
+
+        payload = {
+
+            "source": "balance",
+
+            "amount": int(
+                amount * 100
+            ),
+
+            "recipient":
+            bank.recipient_code,
+
+            "reason":
+            "Waapfolio Withdrawal",
+
+        }
+
+        response = requests.post(
+
+            "https://api.paystack.co/transfer",
+
+            json=payload,
+
+            headers=headers,
+
+        )
+
+        res = response.json()
+
+        if not res["status"]:
+
+            messages.error(
+                request,
+                res["message"]
+            )
+
+            return redirect(
+                "withdraw"
+            )
+
+        wallet.available_balance -= amount
+
+        wallet.total_withdrawn += amount
+
+        wallet.save()
+
+        WalletTransaction.objects.create(
+
+            wallet=wallet,
+
+            transaction_type="withdrawal",
+
+            amount=amount,
+
+            description="Withdrawal to bank",
+
+            reference=res["data"]["reference"],
+
+        )
+
+        messages.success(
+
+            request,
+
+            "Withdrawal sent successfully."
+
+        )
+
+        return redirect(
+            "wallet_dashboard"
+        )
+
+    return render(
+
+        request,
+
+        "wallet/withdraw.html",
+
+        {
+
+            "wallet": wallet,
+
+            "bank": bank,
+
+        }
+
+    )
+import requests
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import (
+    render,
+    redirect,
+)
+
+from app.models import BankAccount
+
+
+@login_required
+def bank_account(request):
+
+    account = BankAccount.objects.filter(
+        user=request.user
+    ).first()
+
+    if request.method == "POST":
+
+        bank_code = request.POST["bank_code"]
+
+        account_number = request.POST["account_number"]
+
+        # Verify account
+        verify = requests.get(
+
+            "https://api.paystack.co/bank/resolve",
+
+            headers={
+                "Authorization":
+                f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+            },
+
+            params={
+                "account_number": account_number,
+                "bank_code": bank_code,
+            }
+
+        )
+
+        verify = verify.json()
+
+        if not verify["status"]:
+
+            messages.error(
+                request,
+                verify["message"]
+            )
+
+            return redirect(
+                "bank_account"
+            )
+
+        account_name = verify["data"]["account_name"]
+
+        # Create recipient
+        recipient = requests.post(
+
+            "https://api.paystack.co/transferrecipient",
+
+            headers={
+                "Authorization":
+                f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+
+                "Content-Type":
+                "application/json",
+            },
+
+            json={
+
+                "type": "nuban",
+
+                "name": account_name,
+
+                "account_number": account_number,
+
+                "bank_code": bank_code,
+
+                "currency": "NGN",
+
+            }
+
+        )
+
+        recipient = recipient.json()
+
+        if not recipient["status"]:
+
+            messages.error(
+                request,
+                recipient["message"]
+            )
+
+            return redirect(
+                "bank_account"
+            )
+
+        BankAccount.objects.update_or_create(
+
+            user=request.user,
+
+            defaults={
+
+                "bank_code": bank_code,
+
+                "account_number": account_number,
+
+                "account_name": account_name,
+
+                "recipient_code":
+                recipient["data"]["recipient_code"],
+
+            }
+
+        )
+
+        messages.success(
+
+            request,
+
+            "Bank account saved successfully."
+
+        )
+
+        return redirect(
+            "wallet_dashboard"
+        )
+
+    # Fetch banks
+    banks = requests.get(
+
+        "https://api.paystack.co/bank",
+
+        headers={
+            "Authorization":
+            f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+        }
+
+    ).json()["data"]
+
+    return render(
+
+        request,
+
+        "wallet/bank_account.html",
+
+        {
+
+            "banks": banks,
+
+            "account": account,
+
+        }
+
+    )
+from app.models import SupplierAccess
+
+
+@login_required
+def add_supplier(request):
+
+    if request.method != "POST":
+        return redirect("profile")
+
+    username = request.POST.get(
+        "username"
+    ).strip()
+
+    try:
+
+        supplier = User.objects.get(
+            username=username
+        )
+
+    except User.DoesNotExist:
+
+        messages.error(
+            request,
+            "Supplier not found."
+        )
+
+        return redirect("profile")
+
+    if supplier == request.user:
+
+        messages.error(
+            request,
+            "You cannot add yourself."
+        )
+
+        return redirect("profile")
+
+    SupplierAccess.objects.get_or_create(
+
+        seller=request.user,
+
+        supplier=supplier,
+
+    )
+
+    messages.success(
+
+        request,
+
+        f"{supplier.username} added successfully."
+
+    )
+
+    return redirect("profile")
+@login_required
+def remove_supplier(request, pk):
+
+    supplier = get_object_or_404(
+
+        SupplierAccess,
+
+        id=pk,
+
+        seller=request.user,
+
+    )
+
+    supplier.delete()
+
+    messages.success(
+
+        request,
+
+        "Supplier removed."
+
+    )
+
+    return redirect("profile")
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404, redirect
+from django.contrib import messages
+
+from app.models import Cart
+from app.models import CartItem
+from app.models import Item
+
+
+@property
+def total(self):
+
+    return sum(
+
+        item.item.price * item.quantity
+
+        for item in self.items.all()
+
+    )
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import get_object_or_404
+from django.shortcuts import redirect
+from django.contrib import messages
+
+from app.models import CartItem
+
+

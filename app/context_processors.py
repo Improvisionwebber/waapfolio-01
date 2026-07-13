@@ -26,3 +26,22 @@ def full_url(request):
     return {
         "full_url": request.build_absolute_uri()
     }
+from app.models import Cart
+
+from .models import Cart
+
+def cart(request):
+
+    if not request.session.session_key:
+        request.session.create()
+
+    session_key = request.session.session_key
+
+    cart, created = Cart.objects.get_or_create(
+        customer_session=session_key
+    )
+
+    return {
+        "cart": cart,
+        "cart_count": cart.items.count(),
+    }
