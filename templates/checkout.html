@@ -1,0 +1,177 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block body %}
+
+<div class="container py-5">
+
+    <h2 class="fw-bold mb-4">
+        Checkout
+    </h2>
+
+    {% if cart.items.all %}
+
+    <div class="row">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm border-0 mb-4">
+
+                <div class="card-header bg-white">
+                    <strong>Your Items</strong>
+                </div>
+
+                <div class="card-body">
+
+                    {% for item in cart.items.all %}
+
+                    <div class="d-flex align-items-center mb-3">
+
+                        {% if item.product.image %}
+                        <img src="{{ item.product.image.url }}"
+                             width="70"
+                             height="70"
+                             class="rounded me-3"
+                             style="object-fit:cover;">
+                        {% endif %}
+
+                        <div class="flex-grow-1">
+
+                            <h6 class="mb-1">
+                                {{ item.product.name }}
+                            </h6>
+
+                            <small class="text-muted">
+
+                                Qty:
+                                {{ item.quantity }}
+
+                            </small>
+
+                        </div>
+
+                        <div>
+
+                            ₦{{ item.subtotal|intcomma }}
+
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    {% endfor %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm border-0">
+
+                <div class="card-body">
+
+                    <h5 class="mb-3">
+                        Order Summary
+                    </h5>
+
+                    <div class="d-flex justify-content-between">
+
+                        <span>Total</span>
+
+                        <strong>
+
+                            ₦{{ cart.total|intcomma }}
+
+                        </strong>
+
+                    </div>
+
+                    <hr>
+
+                    <form method="POST">
+
+                        {% csrf_token %}
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Full Name
+
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="name"
+                                required>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Phone Number
+
+                            </label>
+
+                            <input
+                                type="text"
+                                class="form-control"
+                                name="phone"
+                                required>
+
+                        </div>
+
+                        <div class="mb-3">
+
+                            <label class="form-label">
+
+                                Delivery Address
+
+                            </label>
+
+                            <textarea
+                                class="form-control"
+                                rows="3"
+                                name="address"
+                                required></textarea>
+
+                        </div>
+
+                        <button
+                            class="btn btn-success w-100">
+
+                            Continue to Payment
+
+                        </button>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    {% else %}
+
+    <div class="alert alert-warning">
+
+        Your cart is empty.
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

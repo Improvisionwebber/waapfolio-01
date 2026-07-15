@@ -1,0 +1,225 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block body %}
+
+<div class="container py-5">
+
+    <div class="row justify-content-center">
+
+        <div class="col-lg-8">
+
+            <div class="card shadow border-0">
+
+                <div class="card-body p-5 text-center">
+
+                    <div class="mb-4">
+
+                        <div class="mx-auto d-flex align-items-center justify-content-center"
+                             style="width:90px;height:90px;background:#16a34a;border-radius:50%;">
+
+                            <span style="font-size:48px;color:white;">
+                                ✓
+                            </span>
+
+                        </div>
+
+                    </div>
+
+                    <h2 class="fw-bold mb-3">
+
+                        Payment Successful
+
+                    </h2>
+
+                    <p class="text-muted fs-5">
+
+                        Your payment has been confirmed successfully.
+
+                    </p>
+
+                    <div class="alert alert-warning mt-4">
+
+                        <strong>One Final Step</strong>
+
+                        <br><br>
+
+                        Your order has <strong>NOT</strong> been sent to the seller yet.
+
+                        Click the WhatsApp button below to send your paid order.
+
+                    </div>
+
+                    <hr class="my-4">
+
+                    <div class="row text-start">
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Order Number</strong>
+
+                            <br>
+
+                            {{ order.order_id }}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Status</strong>
+
+                            <br>
+
+                            <span class="badge bg-success">
+
+                                PAID
+
+                            </span>
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Customer</strong>
+
+                            <br>
+
+                            {{ order.customer_name }}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>WhatsApp</strong>
+
+                            <br>
+
+                            {{ order.customer_phone }}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Total Paid</strong>
+
+                            <br>
+
+                            ₦{{ order.amount|intcomma }}
+
+                        </div>
+
+                        <div class="col-md-6 mb-3">
+
+                            <strong>Reference</strong>
+
+                            <br>
+
+                            {{ order.paystack_reference }}
+
+                        </div>
+
+                    </div>
+
+                    <hr>
+
+                    <h5 class="mb-3">
+
+                        Products Purchased
+
+                    </h5>
+
+                    <div class="table-responsive">
+
+                        <table class="table align-middle">
+
+                            <thead>
+
+                                <tr>
+
+                                    <th>Product</th>
+
+                                    <th class="text-center">Qty</th>
+
+                                    <th class="text-end">Price</th>
+
+                                    <th class="text-end">Total</th>
+
+                                </tr>
+
+                            </thead>
+
+                            <tbody>
+
+                                {% for item in order.items.all %}
+
+                                <tr>
+
+                                    <td>
+
+                                        {{ item.product_name }}
+
+                                    </td>
+
+                                    <td class="text-center">
+
+                                        {{ item.quantity }}
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        ₦{{ item.product_price|intcomma }}
+
+                                    </td>
+
+                                    <td class="text-end">
+
+                                        ₦{{ item.subtotal|intcomma }}
+
+                                    </td>
+
+                                </tr>
+
+                                {% endfor %}
+
+                            </tbody>
+
+                        </table>
+
+                    </div>
+
+                    <div class="d-grid gap-3 mt-5">
+
+                        <a href="{{ whatsapp_link }}"
+                           class="btn btn-success btn-lg">
+
+                            Continue to WhatsApp
+
+                        </a>
+
+                        <a href="/"
+                           class="btn btn-outline-secondary">
+
+                            Back to Home
+
+                        </a>
+
+                    </div>
+
+                    <p class="text-muted small mt-4 mb-0">
+
+                        After sending the message, the seller will receive your paid order and can accept it for processing.
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}

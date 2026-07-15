@@ -147,6 +147,18 @@ path(
     views.order_payment_success,
     name="order_payment_success",
 ),
+
+path(
+    "verify/<uuid:token>/",
+    views.verify_order,
+    name="verify_order",
+),
+
+path(
+    "verify/<uuid:token>/accept/",
+    views.accept_order,
+    name="accept_order",
+),
 path(
     "wallet/",
     views.wallet_dashboard,

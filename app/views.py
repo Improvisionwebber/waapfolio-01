@@ -2244,20 +2244,15 @@ def payment_success(request):
 
     order.save()
 
-    PaymentHistory.objects.create(
-
-        user=order.seller,
-
+    PaymentHistory.objects.get_or_create(
         reference=reference,
-
-        amount=order.amount,
-
-        plan="store_order",
-
-        status="success",
-
-        paystack_response=data,
-
+        defaults={
+            "user": order.seller,
+            "amount": order.amount,
+            "plan": "store_order",
+            "status": "success",
+            "paystack_response": data,
+        },
     )
 
     process_paid_order(order)
@@ -2276,17 +2271,47 @@ def payment_success(request):
         )
     )
 
-    whatsapp_message = (
-        f"Hello, I just placed an order from your Waapfolio store.%0A%0A"
-        f"Order Number: {order.order_id}%0A"
-        f"Customer: {order.customer_name}%0A%0A"
-        f"Please confirm and arrange delivery.%0A%0A"
-        f"{verification_url}"
-    )
+    from urllib.parse import quote
+
+    items_text = ""
+
+    for item in order.items.all():
+        items_text += (
+            f"• {item.product_name} × {item.quantity}"
+            f" - ₦{item.subtotal}\n"
+        )
+
+    message = f"""Hello 👋
+
+    I have completed payment on Waapfolio.
+
+    Order Number:
+    {order.order_id}
+
+    Customer:
+    {order.customer_name}
+
+    Phone:
+    {order.customer_phone}
+
+    Products:
+    {items_text}
+
+    Total Paid:
+    ₦{order.amount}
+
+    Payment Status:
+    PAID
+
+    View Order:
+    {verification_url}
+
+    Thank you.
+    """
 
     whatsapp_link = (
         f"https://wa.me/{order.store.whatsapp_number}"
-        f"?text={whatsapp_message}"
+        f"?text={quote(message)}"
     )
 
     return render(
@@ -2359,9 +2384,11 @@ def checkout(request):
 
             customer_name=request.POST["name"],
 
-            customer_email=request.POST["email"],
-
             customer_phone=request.POST["phone"],
+
+            # Customer isn't providing an email.
+            # We save the seller's email instead.
+            customer_email=store.owner.email,
 
             amount=total,
 
@@ -2400,13 +2427,18 @@ def checkout(request):
         order.save()
 
         headers = {
+
             "Authorization": f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+
             "Content-Type": "application/json",
+
         }
 
         payload = {
 
-            "email": order.customer_email,
+            # Paystack requires an email.
+            # Customer doesn't enter one, so use the seller's.
+            "email": store.owner.email,
 
             "amount": int(order.amount * 100),
 
@@ -2453,6 +2485,7 @@ def checkout(request):
         request,
         "checkout.html",
         {
+            "cart": cart,
             "items": items,
             "total": total,
         },
