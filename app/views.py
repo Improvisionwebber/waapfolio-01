@@ -2671,7 +2671,7 @@ def verify_order(request, token):
 
     order = get_object_or_404(
         Order,
-        verification_token=token
+        verification_token=token,
     )
 
     # TODO:
@@ -2688,14 +2688,46 @@ def verify_order(request, token):
             status=403,
         )
 
+    now = timezone.now()
+
+    delta = now - order.created_at
+
+    if delta.days == 0:
+
+        if delta.seconds < 60:
+
+            paid_since = "Just now"
+
+        elif delta.seconds < 3600:
+
+            paid_since = f"{delta.seconds // 60} minute(s) ago"
+
+        else:
+
+            paid_since = f"{delta.seconds // 3600} hour(s) ago"
+
+    elif delta.days == 1:
+
+        paid_since = "Yesterday"
+
+    else:
+
+        paid_since = f"{delta.days} day(s) ago"
+
     return render(
+
         request,
+
         "verify_order.html",
+
         {
+
             "order": order,
-            "accepted":
-                order.status == "ACCEPTED",
+
+            "paid_since": paid_since,
+
         },
+
     )
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render

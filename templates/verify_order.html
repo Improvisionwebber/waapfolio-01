@@ -1,296 +1,193 @@
 {% extends "base.html" %}
+{% load humanize %}
 
-{% block body %}
-
-<style>
-
-body{
-    background:#f8fafc;
-}
-
-.verify-card{
-
-    max-width:850px;
-
-    margin:60px auto;
-
-    background:#fff;
-
-    border-radius:18px;
-
-    padding:40px;
-
-    box-shadow:0 10px 40px rgba(0,0,0,.08);
-
-}
-
-.badge-paid{
-
-    background:#16a34a;
-
-    color:white;
-
-    padding:10px 20px;
-
-    border-radius:999px;
-
-    display:inline-block;
-
-    font-weight:600;
-
-}
-
-.badge-accepted{
-
-    background:#2563eb;
-
-    color:white;
-
-    padding:10px 20px;
-
-    border-radius:999px;
-
-    display:inline-block;
-
-    font-weight:600;
-
-}
-
-.info-box{
-
-    background:#f9fafb;
-
-    border:1px solid #e5e7eb;
-
-    border-radius:12px;
-
-    padding:18px;
-
-    margin-bottom:20px;
-
-}
-
-.info-title{
-
-    font-size:13px;
-
-    color:#6b7280;
-
-}
-
-.info-value{
-
-    font-size:18px;
-
-    font-weight:700;
-
-    color:#111827;
-
-}
-
-.product-table{
-
-    width:100%;
-
-}
-
-.product-table th{
-
-    background:#f3f4f6;
-
-    padding:14px;
-
-}
-
-.product-table td{
-
-    padding:14px;
-
-    border-top:1px solid #eee;
-
-}
-
-.accept-btn{
-
-    background:#16a34a;
-
-    color:white;
-
-    width:100%;
-
-    border:none;
-
-    padding:16px;
-
-    border-radius:12px;
-
-    font-size:18px;
-
-    font-weight:700;
-
-}
-
-.accept-btn:hover{
-
-    background:#15803d;
-
-}
-
-.accepted-box{
-
-    background:#ecfdf5;
-
-    border:1px solid #16a34a;
-
-    color:#166534;
-
-    border-radius:12px;
-
-    padding:20px;
-
-    text-align:center;
-
-    font-size:18px;
-
-    font-weight:700;
-
-}
-
-</style>
-
-<div class="container">
-
-<div class="verify-card">
-
-<h2 class="mb-4">
+{% block title %}
 
 Order Verification
 
+{% endblock %}
+
+{% block content %}
+
+<div class="container py-5" style="max-width:900px;">
+
+<div class="card shadow border-0">
+
+<div class="card-body p-5">
+
+<div class="text-center">
+
+<div style="font-size:70px;">
+
+🟢
+
+</div>
+
+<h2 class="fw-bold">
+
+Verified Payment
+
 </h2>
 
-{% if order.status == "PAID" %}
+<p class="text-success">
 
-<span class="badge-paid">
+This payment was successfully verified by Waapfolio.
 
-Payment Verified
+</p>
 
-</span>
+</div>
 
-{% elif order.status == "ACCEPTED" %}
+<hr>
 
-<span class="badge-accepted">
+<div class="alert alert-success">
 
-Order Accepted
+<strong>
 
-</span>
+Paid
 
-{% endif %}
+</strong>
 
-<hr class="my-4">
+<br>
+
+{{ paid_since }}
+
+<br>
+
+{{ order.created_at|date:"F d, Y" }}
+
+<br>
+
+{{ order.created_at|time:"g:i A" }}
+
+</div>
 
 <div class="row">
 
-<div class="col-md-6">
+<div class="col-md-6 mb-3">
 
-<div class="info-box">
+<div class="border rounded p-3">
 
-<div class="info-title">
-
-Customer Name
-
-</div>
-
-<div class="info-value">
-
-{{ order.customer_name }}
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-6">
-
-<div class="info-box">
-
-<div class="info-title">
-
-WhatsApp Number
-
-</div>
-
-<div class="info-value">
-
-{{ order.customer_phone }}
-
-</div>
-
-</div>
-
-</div>
-
-<div class="col-md-6">
-
-<div class="info-box">
-
-<div class="info-title">
+<small class="text-muted">
 
 Order Number
 
-</div>
+</small>
 
-<div class="info-value">
+<h5>
 
 {{ order.order_id }}
 
+</h5>
+
+</div>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<div class="border rounded p-3">
+
+<small class="text-muted">
+
+Payment Status
+
+</small>
+
+<h5>
+
+<span class="badge bg-success">
+
+PAID
+
+</span>
+
+</h5>
+
+</div>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<div class="border rounded p-3">
+
+<small class="text-muted">
+
+Customer
+
+</small>
+
+<h5>
+
+{{ order.customer_name }}
+
+</h5>
+
+</div>
+
+</div>
+
+<div class="col-md-6 mb-3">
+
+<div class="border rounded p-3">
+
+<small class="text-muted">
+
+WhatsApp
+
+</small>
+
+<h5>
+
+{{ order.customer_phone }}
+
+</h5>
+
 </div>
 
 </div>
 
 </div>
 
-<div class="col-md-6">
+<hr>
 
-<div class="info-box">
+<h4>
 
-<div class="info-title">
-
-Amount Paid
-
-</div>
-
-<div class="info-value">
-
-₦{{ order.amount }}
-
-</div>
-
-</div>
-
-</div>
-
-</div>
-
-<h4 class="mt-5 mb-3">
-
-Products Purchased
+Products
 
 </h4>
 
-<table class="table product-table">
+<div class="table-responsive">
+
+<table class="table">
 
 <thead>
 
 <tr>
 
-<th>Product</th>
+<th>
 
-<th>Qty</th>
+Product
 
-<th>Price</th>
+</th>
 
-<th>Total</th>
+<th>
+
+Qty
+
+</th>
+
+<th>
+
+Price
+
+</th>
+
+<th>
+
+Total
+
+</th>
 
 </tr>
 
@@ -316,13 +213,13 @@ Products Purchased
 
 <td>
 
-₦{{ item.product_price }}
+₦{{ item.product_price|intcomma }}
 
 </td>
 
 <td>
 
-₦{{ item.subtotal }}
+₦{{ item.subtotal|intcomma }}
 
 </td>
 
@@ -334,63 +231,43 @@ Products Purchased
 
 </table>
 
-<hr class="my-4">
+</div>
 
-{% if order.status == "PAID" %}
+<hr>
 
-<a
+<div class="d-flex justify-content-between">
 
-href="{% url 'accept_order' order.verification_token %}"
+<h4>
 
-class="btn accept-btn"
+Grand Total
 
->
+</h4>
 
-Accept Order
+<h4>
 
-</a>
+₦{{ order.amount|intcomma }}
 
-{% elif order.status == "ACCEPTED" %}
-
-<div class="accepted-box">
-
-✓ This Order Has Already Been Accepted
-
-<br><br>
-
-Accepted At
-
-<br>
-
-{{ order.accepted_at }}
+</h4>
 
 </div>
 
-{% elif order.status == "ON_HOLD" %}
+<div class="alert alert-info mt-4">
 
-<div class="accepted-box">
+<strong>
 
-Order Accepted
+Tip
 
-<br>
-
-Funds Currently On Hold
-
-</div>
-
-{% elif order.status == "AVAILABLE_FOR_WITHDRAWAL" %}
-
-<div class="accepted-box">
-
-Order Completed
+</strong>
 
 <br>
 
-Funds Available In Wallet
+The payment above has already been verified by Waapfolio.
+
+Check the payment time shown above to easily identify whether this is a new or older order.
 
 </div>
 
-{% endif %}
+</div>
 
 </div>
 

@@ -511,10 +511,32 @@
         </ul>
         </div>
 
-        <!-- Mobile burger -->
-        <button class="wf-icon-btn wf-burger" type="button" id="wfBurger" aria-label="Open menu">
-          <i class="bi bi-list" style="font-size:22px"></i>
-        </button>
+<!-- Mobile Cart -->
+<a
+    href="{% url 'cart' %}"
+    class="wf-icon-btn d-inline-grid d-md-none position-relative"
+    aria-label="Shopping Cart"
+>
+
+    <i class="bi bi-bag"></i>
+
+    {% if cart_count %}
+    <span class="wf-cart-badge">
+        {{ cart_count }}
+    </span>
+    {% endif %}
+
+</a>
+
+  <!-- Mobile burger -->
+  <button
+      class="wf-icon-btn wf-burger"
+      type="button"
+      id="wfBurger"
+      aria-label="Open menu"
+  >
+      <i class="bi bi-list" style="font-size:22px"></i>
+  </button>
       </div>
 
     </div>

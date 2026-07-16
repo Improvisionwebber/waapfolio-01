@@ -1,216 +1,262 @@
 {% extends "base.html" %}
 {% load humanize %}
 
+{% block title %}Payment Successful{% endblock %}
+
 {% block body %}
 
-<div class="container py-5">
+<div class="container py-5" style="max-width:900px;">
 
-    <div class="row justify-content-center">
+    <div class="card shadow-sm border-0">
 
-        <div class="col-lg-8">
+        <div class="card-body p-5">
 
-            <div class="card shadow border-0">
+            <div class="text-center">
 
-                <div class="card-body p-5 text-center">
+                <div style="font-size:70px;">✅</div>
 
-                    <div class="mb-4">
+                <h2 class="fw-bold mt-3">
+                    Payment Successful
+                </h2>
 
-                        <div class="mx-auto d-flex align-items-center justify-content-center"
-                             style="width:90px;height:90px;background:#16a34a;border-radius:50%;">
+                <p class="text-muted">
+                    Your payment has been verified successfully.
+                </p>
 
-                            <span style="font-size:48px;color:white;">
-                                ✓
-                            </span>
+            </div>
 
-                        </div>
+            <hr class="my-4">
 
-                    </div>
+            <div class="row">
 
-                    <h2 class="fw-bold mb-3">
+                <div class="col-md-6 mb-4">
 
-                        Payment Successful
+                    <div class="border rounded p-3 h-100">
 
-                    </h2>
+                        <small class="text-muted">
+                            Order Number
+                        </small>
 
-                    <p class="text-muted fs-5">
-
-                        Your payment has been confirmed successfully.
-
-                    </p>
-
-                    <div class="alert alert-warning mt-4">
-
-                        <strong>One Final Step</strong>
-
-                        <br><br>
-
-                        Your order has <strong>NOT</strong> been sent to the seller yet.
-
-                        Click the WhatsApp button below to send your paid order.
-
-                    </div>
-
-                    <hr class="my-4">
-
-                    <div class="row text-start">
-
-                        <div class="col-md-6 mb-3">
-
-                            <strong>Order Number</strong>
-
-                            <br>
-
+                        <h5 class="mt-2">
                             {{ order.order_id }}
+                        </h5>
 
-                        </div>
+                    </div>
 
-                        <div class="col-md-6 mb-3">
+                </div>
 
-                            <strong>Status</strong>
+                <div class="col-md-6 mb-4">
 
-                            <br>
+                    <div class="border rounded p-3 h-100">
 
-                            <span class="badge bg-success">
+                        <small class="text-muted">
+                            Amount Paid
+                        </small>
 
-                                PAID
-
-                            </span>
-
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-
-                            <strong>Customer</strong>
-
-                            <br>
-
-                            {{ order.customer_name }}
-
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-
-                            <strong>WhatsApp</strong>
-
-                            <br>
-
-                            {{ order.customer_phone }}
-
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-
-                            <strong>Total Paid</strong>
-
-                            <br>
+                        <h5 class="mt-2">
 
                             ₦{{ order.amount|intcomma }}
 
-                        </div>
-
-                        <div class="col-md-6 mb-3">
-
-                            <strong>Reference</strong>
-
-                            <br>
-
-                            {{ order.paystack_reference }}
-
-                        </div>
+                        </h5>
 
                     </div>
 
-                    <hr>
+                </div>
 
-                    <h5 class="mb-3">
+                <div class="col-md-6 mb-4">
 
-                        Products Purchased
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            Customer
+                        </small>
+
+                        <h5 class="mt-2">
+
+                            {{ order.customer_name }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+                <div class="col-md-6 mb-4">
+
+                    <div class="border rounded p-3 h-100">
+
+                        <small class="text-muted">
+                            WhatsApp Number
+                        </small>
+
+                        <h5 class="mt-2">
+
+                            {{ order.customer_phone }}
+
+                        </h5>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <hr>
+
+            <h4 class="fw-bold mb-3">
+
+                Products Purchased
+
+            </h4>
+
+            <div class="table-responsive">
+
+                <table class="table align-middle">
+
+                    <thead>
+
+                        <tr>
+
+                            <th>Product</th>
+
+                            <th>Qty</th>
+
+                            <th>Price</th>
+
+                            <th>Total</th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        {% for item in order.items.all %}
+
+                        <tr>
+
+                            <td>{{ item.product_name }}</td>
+
+                            <td>{{ item.quantity }}</td>
+
+                            <td>
+
+                                ₦{{ item.product_price|intcomma }}
+
+                            </td>
+
+                            <td>
+
+                                ₦{{ item.subtotal|intcomma }}
+
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+            <div class="alert alert-warning mt-4">
+
+                <h5 class="fw-bold">
+
+                    One Final Step
+
+                </h5>
+
+                <p class="mb-0">
+
+                    Your payment has been received successfully.
+
+                    <strong>The seller has not been notified yet.</strong>
+
+                    Click the button below to automatically open WhatsApp with your order details already filled in.
+
+                </p>
+
+            </div>
+
+            <a href="{{ whatsapp_link }}"
+               class="btn btn-success btn-lg w-100 py-3 mt-3">
+
+                Open WhatsApp & Send Order
+
+            </a>
+
+            <div class="alert alert-light border mt-4">
+
+                <strong>Important</strong>
+
+                <br><br>
+
+                Do not edit or remove the verification link inside the WhatsApp message.
+
+                It allows the seller to instantly verify your payment and begin processing your order.
+
+            </div>
+
+            <div class="mt-4">
+
+                <label class="fw-bold">
+
+                    WhatsApp Link
+
+                </label>
+
+                <div class="input-group mt-2">
+
+                    <input
+
+                        id="whatsappLink"
+
+                        class="form-control"
+
+                        readonly
+
+                        value="{{ whatsapp_link }}">
+
+                    <button
+
+                        class="btn btn-outline-primary"
+
+                        onclick="copyLink()">
+
+                        Copy
+
+                    </button>
+
+                </div>
+
+            </div>
+
+            <div class="card border-success mt-5">
+
+                <div class="card-body">
+
+                    <h5 class="text-success">
+
+                        What Happens Next?
 
                     </h5>
 
-                    <div class="table-responsive">
+                    <ul class="mb-0">
 
-                        <table class="table align-middle">
+                        <li>Send the WhatsApp message.</li>
 
-                            <thead>
+                        <li>The seller receives your order.</li>
 
-                                <tr>
+                        <li>The seller verifies your payment.</li>
 
-                                    <th>Product</th>
+                        <li>The seller prepares your order.</li>
 
-                                    <th class="text-center">Qty</th>
+                        <li>The seller contacts you for delivery or pickup.</li>
 
-                                    <th class="text-end">Price</th>
-
-                                    <th class="text-end">Total</th>
-
-                                </tr>
-
-                            </thead>
-
-                            <tbody>
-
-                                {% for item in order.items.all %}
-
-                                <tr>
-
-                                    <td>
-
-                                        {{ item.product_name }}
-
-                                    </td>
-
-                                    <td class="text-center">
-
-                                        {{ item.quantity }}
-
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        ₦{{ item.product_price|intcomma }}
-
-                                    </td>
-
-                                    <td class="text-end">
-
-                                        ₦{{ item.subtotal|intcomma }}
-
-                                    </td>
-
-                                </tr>
-
-                                {% endfor %}
-
-                            </tbody>
-
-                        </table>
-
-                    </div>
-
-                    <div class="d-grid gap-3 mt-5">
-
-                        <a href="{{ whatsapp_link }}"
-                           class="btn btn-success btn-lg">
-
-                            Continue to WhatsApp
-
-                        </a>
-
-                        <a href="/"
-                           class="btn btn-outline-secondary">
-
-                            Back to Home
-
-                        </a>
-
-                    </div>
-
-                    <p class="text-muted small mt-4 mb-0">
-
-                        After sending the message, the seller will receive your paid order and can accept it for processing.
-
-                    </p>
+                    </ul>
 
                 </div>
 
@@ -221,5 +267,23 @@
     </div>
 
 </div>
+
+<script>
+
+function copyLink(){
+
+    const input=document.getElementById("whatsappLink");
+
+    input.select();
+
+    input.setSelectionRange(0,99999);
+
+    navigator.clipboard.writeText(input.value);
+
+    alert("Link copied.");
+
+}
+
+</script>
 
 {% endblock %}
