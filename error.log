@@ -25285,3 +25285,29 @@ Traceback (most recent call last):
     ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^
 django.db.utils.OperationalError: (2002, "Can't connect to server on '198.251.89.201' (138)")
 "GET /favicon.ico/ HTTP/1.1" 500 245691
+Internal Server Error: /wallet/
+Traceback (most recent call last):
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\app\views.py", line 2755, in wallet_dashboard
+    release_held_funds(order)
+    ^^^^^^^^^^^^^^^^^^
+NameError: name 'release_held_funds' is not defined
+"GET /wallet/ HTTP/1.1" 500 887
+Internal Server Error: /wallet/
+Traceback (most recent call last):
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\Users\test\AppData\Local\Programs\Python\Python313\Lib\site-packages\django\contrib\auth\decorators.py", line 59, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\Users\test\OneDrive\Desktop\waap-folio\app\views.py", line 2755, in wallet_dashboard
+    release_held_funds(order)
+    ^^^^^^^^^^^^^^^^^^
+NameError: name 'release_held_funds' is not defined
+"GET /wallet/ HTTP/1.1" 500 78357

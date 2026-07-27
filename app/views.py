@@ -1772,6 +1772,7 @@ from app.services.wallet_service import accept_order
 from app.services.wallet_service import (
     accept_order,
     process_paid_order,
+    release_held_funds
 )
 
 
@@ -2738,9 +2739,21 @@ from app.models import (
     SellerTrust,
 )
 
-
 @login_required
 def wallet_dashboard(request):
+
+    orders = Order.objects.filter(
+        seller=request.user,
+        status="ON_HOLD"
+    )
+
+    for order in orders:
+
+        if (
+            order.hold_until
+            and order.hold_until <= timezone.now()
+        ):
+            release_held_funds(order)
 
     wallet, created = Wallet.objects.get_or_create(
         user=request.user
@@ -3188,6 +3201,23 @@ def total(self):
 @login_required
 def dashboard(request):
 
+    orders = Order.objects.filter(
+        seller=request.user,
+        status="ON_HOLD"
+    )
+
+    for order in orders:
+
+        if (
+            order.hold_until
+            and order.hold_until <= timezone.now()
+        ):
+            release_held_funds(order)
+
+    wallet, created = Wallet.objects.get_or_create(
+        user=request.user
+    )
+
     stores = Store.objects.filter(
         owner=request.user
     )
@@ -3200,9 +3230,8 @@ def dashboard(request):
 
     total_sales = orders.filter(
         status__in=[
-            "PAID",
-            "ACCEPTED",
-            "COMPLETED",
+            "AVAILABLE_FOR_WITHDRAWAL",
+            "WITHDRAWN",
         ]
     ).count()
 
@@ -3210,26 +3239,11 @@ def dashboard(request):
         order.amount
         for order in orders.filter(
             status__in=[
-                "PAID",
-                "ACCEPTED",
-                "COMPLETED",
+                "AVAILABLE_FOR_WITHDRAWAL",
+                "WITHDRAWN",
+                "ON_HOLD",
             ]
         )
-    )
-
-    wallet_balance = sum(
-        order.seller_amount
-        for order in orders.filter(
-            status="COMPLETED"
-        )
-    )
-
-    total_withdrawn = Decimal("0.00")
-
-    available_balance = wallet_balance
-
-    available_balance = (
-        wallet_balance - total_withdrawn
     )
 
     pending_orders = orders.filter(
@@ -3242,7 +3256,9 @@ def dashboard(request):
 
         "stores": stores,
 
-        "wallet_balance": available_balance,
+        "wallet_balance": wallet.available_balance,
+
+        "pending_balance": wallet.pending_balance,
 
         "total_revenue": total_revenue,
 
@@ -3252,7 +3268,9 @@ def dashboard(request):
 
         "recent_orders": recent_orders,
 
-        "total_withdrawn": total_withdrawn,
+        "total_withdrawn": wallet.total_withdrawn,
+
+        "wallet": wallet,
 
     }
 
