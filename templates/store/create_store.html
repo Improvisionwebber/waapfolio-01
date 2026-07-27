@@ -218,37 +218,16 @@
 
           <div class="wf-channels" id="wfChannels">
             <div class="wf-channel" data-val="whatsapp">WhatsApp<small>Best for chat</small></div>
-            <div class="wf-channel" data-val="telegram">Telegram<small>Username link</small></div>
-            <div class="wf-channel" data-val="facebook">Facebook<small>Messenger</small></div>
-            <div class="wf-channel" data-val="instagram">Instagram<small>Direct DM</small></div>
           </div>
 
           <select id="id_order_system" name="order_system">
             <option value="whatsapp">WhatsApp</option>
-            <option value="telegram">Telegram</option>
-            <option value="facebook">Facebook Messenger</option>
-            <option value="instagram">Instagram DM</option>
           </select>
 
           <p id="whatsapp-field" style="display:none">
             {{ form.whatsapp_number.label_tag }}
             {{ form.whatsapp_number }}
             {{ form.whatsapp_number.errors }}
-          </p>
-          <p id="telegram-field" style="display:none">
-            {{ form.telegram_username.label_tag }}
-            {{ form.telegram_username }}
-            {{ form.telegram_username.errors }}
-          </p>
-          <p id="facebook-field" style="display:none">
-            {{ form.facebook_link.label_tag }}
-            {{ form.facebook_link }}
-            {{ form.facebook_link.errors }}
-          </p>
-          <p id="instagram-field" style="display:none">
-            {{ form.instagram_link.label_tag }}
-            {{ form.instagram_link }}
-            {{ form.instagram_link.errors }}
           </p>
         </div>
 

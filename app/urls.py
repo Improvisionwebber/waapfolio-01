@@ -153,7 +153,11 @@ path(
     views.verify_order,
     name="verify_order",
 ),
-
+path(
+    "dashboard/",
+    views.dashboard,
+    name="dashboard",
+),
 path(
     "verify/<uuid:token>/accept/",
     views.accept_order,

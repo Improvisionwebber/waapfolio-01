@@ -3185,11 +3185,79 @@ def total(self):
         for item in self.items.all()
 
     )
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
-from django.contrib import messages
+@login_required
+def dashboard(request):
 
-from app.models import CartItem
+    stores = Store.objects.filter(
+        owner=request.user
+    )
 
+    orders = Order.objects.filter(
+        seller=request.user
+    ).order_by(
+        "-created_at"
+    )
 
+    total_sales = orders.filter(
+        status__in=[
+            "PAID",
+            "ACCEPTED",
+            "COMPLETED",
+        ]
+    ).count()
+
+    total_revenue = sum(
+        order.amount
+        for order in orders.filter(
+            status__in=[
+                "PAID",
+                "ACCEPTED",
+                "COMPLETED",
+            ]
+        )
+    )
+
+    wallet_balance = sum(
+        order.seller_amount
+        for order in orders.filter(
+            status="COMPLETED"
+        )
+    )
+
+    total_withdrawn = Decimal("0.00")
+
+    available_balance = wallet_balance
+
+    available_balance = (
+        wallet_balance - total_withdrawn
+    )
+
+    pending_orders = orders.filter(
+        status="PAID"
+    ).count()
+
+    recent_orders = orders[:10]
+
+    context = {
+
+        "stores": stores,
+
+        "wallet_balance": available_balance,
+
+        "total_revenue": total_revenue,
+
+        "total_sales": total_sales,
+
+        "pending_orders": pending_orders,
+
+        "recent_orders": recent_orders,
+
+        "total_withdrawn": total_withdrawn,
+
+    }
+
+    return render(
+        request,
+        "dashboard.html",
+        context,
+    )

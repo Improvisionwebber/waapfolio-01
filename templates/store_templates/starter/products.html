@@ -151,7 +151,6 @@
 
   /* ===== EDITORIAL BAND ===== */
   .lux-editorial {
-    margin-top: 110px;
     display: grid; grid-template-columns: 1fr auto 1fr; gap: 40px;
     align-items: center;
   }
@@ -470,153 +469,194 @@
 
 <div class="lux">
 
-  <!-- ============ HERO ============ -->
-  <section class="lux-hero">
-    <div class="lux-container">
-      <div class="lux-hero-grid">
-        <div class="lux-reveal">
-          <span class="lux-eyebrow"><span class="dot"></span> The Collection &middot; SS / Curated</span>
-          <h1>Objects of<br><em>quiet desire.</em></h1>
-          <p class="lead">
-            A considered edit of premium goods — selected for their craft, character and
-            longevity. Each piece is chosen with the same care you bring to your space,
-            your wardrobe, your life.
-          </p>
+    <!-- ========= COLLECTION HEADER ========= -->
+    <section class="lux-container">
 
-          <div class="lux-cats">
-            <span class="lux-cat is-active">All</span>
-            <span class="lux-cat">New Arrivals</span>
-            <span class="lux-cat">Editor's Picks</span>
-            <span class="lux-cat">Bestsellers</span>
-            <span class="lux-cat">Limited</span>
-          </div>
-        </div>
+        <div class="lux-editorial lux-reveal">
+            <span class="line"></span>
 
-        <aside class="lux-hero-meta lux-reveal">
-          <div class="lux-meta-row"><span class="k">Edition</span><span class="v">Vol. 04</span></div>
-          <div class="lux-meta-row"><span class="k">Curated by</span><span class="v">{{ store.name|default:"The Atelier" }}</span></div>
-          <div class="lux-meta-row"><span class="k">Shipping</span><span class="v">Worldwide</span></div>
-          <div class="lux-meta-row"><span class="k">Returns</span><span class="v">30 Days</span></div>
-        </aside>
-      </div>
-
-      <!-- Sticky filter -->
-      <div class="lux-filter-wrap lux-reveal">
-        <div class="lux-filter">
-          <div class="lux-search">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-            <input type="text" placeholder="Search the collection" aria-label="Search products">
-          </div>
-          <span class="divider"></span>
-          <select class="lux-select" aria-label="Category">
-            <option>Category</option><option>Apparel</option><option>Objects</option><option>Living</option>
-          </select>
-          <span class="divider"></span>
-          <select class="lux-select" aria-label="Sort">
-            <option>Featured</option><option>Newest</option><option>Price: Low</option><option>Price: High</option>
-          </select>
-          <button class="lux-icon-btn" aria-label="Filters">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="13" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/></svg>
-          </button>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- ============ EDITORIAL BAND ============ -->
-  <section class="lux-container">
-    <div class="lux-editorial lux-reveal">
-      <span class="line"></span>
-      <span class="title">A thoughtful selection, presented honestly.</span>
-      <span class="line"></span>
-    </div>
-
-    <div class="lux-section-head lux-reveal">
-      <h2>The Collection</h2>
-      <span class="count">{{ products|length }} {% if products|length == 1 %}piece{% else %}pieces{% endif %}</span>
-    </div>
-
-    <!-- ============ PRODUCT GRID ============ -->
-    <div class="lux-grid">
-      {% for product in products %}
-        <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card lux-reveal">
-          <div class="media">
-            <span class="lux-badge">N&deg; {{ forloop.counter|stringformat:"02d" }}</span>
-            <button type="button" class="lux-fav" aria-label="Save" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
-            </button>
-
-            {% if product.image %}
-              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-            {% elif product.image_url %}
-              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-            {% else %}
-              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
-            {% endif %}
-
-            <span class="lux-quick">
-              <span>Quick View</span>
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+            <span class="title">
+                Browse Products
             </span>
-          </div>
 
-          <div class="lux-info">
-            <div>
-              <h6 class="name">{{ product.name }}</h6>
-              <div class="meta">{{ store.name|default:"Atelier" }}</div>
-            </div>
-            <div class="lux-price">
-              {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% endif %}{{ product.price|intcomma }}
-            </div>
-          </div>
-
-          <span class="lux-details">
-            Details
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-          </span>
-        </a>
-      {% empty %}
-        <div style="grid-column: 1 / -1;">
-          <div class="lux-empty">
-            <div class="mark">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
-                <path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/>
-                <path d="M9 7V5a3 3 0 0 1 6 0v2"/>
-              </svg>
-            </div>
-            <h3>The shelves are being restocked.</h3>
-            <p>No products found at this moment. New arrivals are curated weekly — please return shortly for the latest edit.</p>
-            <p>No products found.</p>
-          </div>
+            <span class="line"></span>
         </div>
-      {% endfor %}
-    </div>
-  </section>
 
-  <!-- ============ BOTTOM CTA ============ -->
-  <section class="lux-cta">
-    <div class="lux-container">
-      <div class="lux-cta-grid">
-        <div class="lux-reveal">
-          <span class="lux-eyebrow"><span class="dot"></span> The Atelier &middot; Members</span>
-          <h2>Considered<br>commerce, <em>refined.</em></h2>
-          <p>Join a private circle of collectors and tastemakers. Receive early access to limited editions, editorial dispatches, and invitations to private viewings.</p>
-          <div class="lux-cta-btns">
-            <a href="#" class="lux-btn solid">Join the Circle
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+        <div class="lux-filter-wrap lux-reveal">
+            <div class="lux-filter">
+
+                <div class="lux-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="11" cy="11" r="7"/>
+                        <path d="M21 21l-4.3-4.3"/>
+                    </svg>
+
+                    <input
+                        type="text"
+                        placeholder="Search products..."
+                        aria-label="Search products">
+                </div>
+
+                <span class="divider"></span>
+
+                <button
+                    class="lux-icon-btn"
+                    aria-label="Filter products">
+
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <line x1="4" y1="6" x2="20" y2="6"/>
+                        <line x1="7" y1="12" x2="20" y2="12"/>
+                        <line x1="10" y1="18" x2="20" y2="18"/>
+                        <circle cx="7" cy="6" r="1.5" fill="currentColor"/>
+                        <circle cx="13" cy="12" r="1.5" fill="currentColor"/>
+                        <circle cx="16" cy="18" r="1.5" fill="currentColor"/>
+                    </svg>
+
+                </button>
+
+            </div>
+        </div>
+
+        <div class="lux-section-head lux-reveal">
+
+            <span class="count">
+                {{ products|length }}
+                {% if products|length == 1 %}
+                    Product
+                {% else %}
+                    Products
+                {% endif %}
+            </span>
+
+        </div>
+
+        <!-- ========= PRODUCT GRID ========= -->
+
+        <div class="lux-grid">
+
+            {% for product in products %}
+
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card lux-reveal">
+
+                <div class="media">
+
+                    {% if product.is_featured %}
+                    <span class="lux-badge">
+                        Featured
+                    </span>
+                    {% endif %}
+
+                    <button
+                        type="button"
+                        class="lux-fav"
+                        aria-label="Save product"
+                        onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                            <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>
+                        </svg>
+
+                    </button>
+
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    {% elif product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+                    {% endif %}
+
+                    <span class="lux-quick">
+
+                        <span>
+                            View Product
+                        </span>
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                            <path d="M5 12h14"/>
+                            <path d="M13 6l6 6-6 6"/>
+                        </svg>
+
+                    </span>
+
+                </div>
+
+                <div class="lux-info">
+
+                    <div>
+
+                        <h6 class="name">
+                            {{ product.name }}
+                        </h6>
+
+                        {% if product.category %}
+                        <div class="meta">
+                            {{ product.category.name }}
+                        </div>
+                        {% endif %}
+
+                    </div>
+
+                    <div class="lux-price">
+                        {% if product.currency == "NGN" %}
+                            &#8358;
+                        {% elif product.currency == "USD" %}
+                            $
+                        {% elif product.currency == "EUR" %}
+                            €
+                        {% elif product.currency == "GBP" %}
+                            £
+                        {% endif %}
+                        {{ product.price|intcomma }}
+                    </div>
+
+                </div>
+
+                <span class="lux-details">
+
+                    View Details
+
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M5 12h14"/>
+                        <path d="M13 6l6 6-6 6"/>
+                    </svg>
+
+                </span>
+
             </a>
-            <a href="#" class="lux-btn ghost">Read the Journal</a>
-          </div>
+
+            {% empty %}
+
+            <div style="grid-column:1/-1;">
+
+                <div class="lux-empty">
+
+                    <div class="mark">
+
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4">
+                            <path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/>
+                            <path d="M9 7V5a3 3 0 0 1 6 0v2"/>
+                        </svg>
+
+                    </div>
+
+                    <h3>
+                        No Products Available
+                    </h3>
+
+                    <p>
+                        Products added by the store owner will appear here.
+                    </p>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
         </div>
 
-        <div class="lux-stat-stack lux-reveal">
-          <div class="lux-stat"><span class="num">04</span><span class="lbl">Editions released this season</span></div>
-          <div class="lux-stat"><span class="num">120+</span><span class="lbl">Independent makers represented</span></div>
-          <div class="lux-stat"><span class="num">38</span><span class="lbl">Countries shipped to worldwide</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
 </div>
 

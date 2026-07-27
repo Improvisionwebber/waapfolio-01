@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block body %}
+<div class="container py-5">
+<div class="d-flex justify-content-between align-items-center mb-4">
+<div><h2 class="fw-bold text-success">Dashboard</h2><p class="text-muted">Welcome back.</p></div>
+<div>
+<a href="{% url 'wallet_dashboard' %}" class="btn btn-success">Wallet</a>
+<a href="{% url 'withdraw' %}" class="btn btn-outline-success">Withdraw</a>
+</div></div>
+<div class="row g-4 mb-4">
+<div class="col-md-3"><div class="card"><div class="card-body"><small>Available Balance</small><h3 class="text-success">₦{{ wallet_balance }}</h3></div></div></div>
+<div class="col-md-3"><div class="card"><div class="card-body"><small>Total Revenue</small><h3>₦{{ total_revenue }}</h3></div></div></div>
+<div class="col-md-3"><div class="card"><div class="card-body"><small>Total Sales</small><h3>{{ total_sales }}</h3></div></div></div>
+<div class="col-md-3"><div class="card"><div class="card-body"><small>Pending Orders</small><h3>{{ pending_orders }}</h3></div></div></div>
+</div>
+<div class="row">
+<div class="col-lg-8">
+<div class="card"><div class="card-header bg-white"><b>Recent Orders</b></div>
+<div class="table-responsive"><table class="table mb-0">
+<thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Amount</th><th></th></tr></thead>
+<tbody>
+{% for order in recent_orders %}
+<tr>
+<td>{{ order.order_id }}</td>
+<td>{{ order.customer_name }}</td>
+<td>{{ order.status }}</td>
+<td>₦{{ order.amount }}</td>
+<td><a href="{% url 'verify_order' token=order.verification_token %}" class="btn btn-sm btn-outline-success">View</a></td>
+</tr>
+{% empty %}
+<tr><td colspan="5" class="text-center">No orders found.</td></tr>
+{% endfor %}
+</tbody></table></div></div></div>
+<div class="col-lg-4">
+<div class="card mb-3"><div class="card-header bg-white"><b>Quick Actions</b></div>
+<div class="list-group list-group-flush">
+<a class="list-group-item" href="{% url 'wallet_dashboard' %}">Wallet</a>
+<a class="list-group-item" href="{% url 'payment_history' %}">Payment History</a>
+<a class="list-group-item" href="{% url 'bank_account' %}">Bank Account</a>
+<a class="list-group-item" href="{% url 'withdraw' %}">Withdraw</a>
+</div></div>
+<div class="card"><div class="card-body"><small>Total Withdrawn</small><h3 class="text-danger">₦{{ total_withdrawn }}</h3></div></div>
+</div></div></div>
+{% endblock %}
