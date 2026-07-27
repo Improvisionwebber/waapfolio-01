@@ -1348,9 +1348,21 @@ def get_template_path(template_slug, store, page):
 #         }
 #         return render(request, template_name, context)
 
+from django.conf import settings
+from django.shortcuts import get_object_or_404, render
+from django.views import View
+
+
+# -----------------------------
+# Home
+# -----------------------------
 class StoreHomeView(View):
-    def get(self, request, store_slug, template_slug=None):
-        store = get_object_or_404(Store, slug=store_slug)
+    def get(self, request, store_slug=None, template_slug=None):
+
+        if not settings.DEBUG and hasattr(request, "store") and request.store:
+            store = request.store
+        else:
+            store = get_object_or_404(Store, slug=store_slug)
 
         resolved_template = template_slug or (
             store.template.slug if store.template else "starter"
@@ -1358,7 +1370,6 @@ class StoreHomeView(View):
 
         template_name = f"store_templates/{resolved_template}/home.html"
 
-        # 🔥 ADD THIS (same logic as ProductListView)
         products = Item.objects.filter(store=store)
 
         return render(
@@ -1366,7 +1377,7 @@ class StoreHomeView(View):
             template_name,
             {
                 "store": store,
-                "products": products,  # 🔥 THIS FIXES YOUR ISSUE
+                "products": products,
                 "template_slug": resolved_template,
             }
         )
@@ -1376,10 +1387,15 @@ class StoreHomeView(View):
 # About Page
 # -----------------------------
 class StoreAboutView(View):
-    def get(self, request, store_slug, template_slug=None):
-        store = get_object_or_404(Store, slug=store_slug)
+    def get(self, request, store_slug=None, template_slug=None):
+
+        if not settings.DEBUG and hasattr(request, "store") and request.store:
+            store = request.store
+        else:
+            store = get_object_or_404(Store, slug=store_slug)
+
         products = Item.objects.filter(store=store)
-        
+
         resolved_template = template_slug or (
             store.template.slug if store.template else "starter"
         )
@@ -1400,8 +1416,12 @@ class StoreAboutView(View):
 # Contact Page
 # -----------------------------
 class StoreContactView(View):
-    def get(self, request, store_slug, template_slug=None):
-        store = get_object_or_404(Store, slug=store_slug)
+    def get(self, request, store_slug=None, template_slug=None):
+
+        if not settings.DEBUG and hasattr(request, "store") and request.store:
+            store = request.store
+        else:
+            store = get_object_or_404(Store, slug=store_slug)
 
         resolved_template = template_slug or (
             store.template.slug if store.template else "starter"
@@ -1423,8 +1443,13 @@ class StoreContactView(View):
 # Product List
 # -----------------------------
 class ProductListView(View):
-    def get(self, request, store_slug, template_slug=None):
-        store = get_object_or_404(Store, slug=store_slug)
+    def get(self, request, store_slug=None, template_slug=None):
+
+        if not settings.DEBUG and hasattr(request, "store") and request.store:
+            store = request.store
+        else:
+            store = get_object_or_404(Store, slug=store_slug)
+
         products = Item.objects.filter(store=store)
 
         resolved_template = template_slug or (
@@ -1443,13 +1468,24 @@ class ProductListView(View):
             }
         )
 
+
 # -----------------------------
 # Product Detail
 # -----------------------------
 class ProductDetailView(View):
-    def get(self, request, store_slug, product_slug, template_slug=None):
-        store = get_object_or_404(Store, slug=store_slug)
-        product = get_object_or_404(Item, slug=product_slug, store=store)
+    def get(self, request, store_slug=None, product_slug=None, template_slug=None):
+
+        if not settings.DEBUG and hasattr(request, "store") and request.store:
+            store = request.store
+        else:
+            store = get_object_or_404(Store, slug=store_slug)
+
+        product = get_object_or_404(
+            Item,
+            slug=product_slug,
+            store=store
+        )
+
         products = Item.objects.filter(store=store)
 
         extra_files = product.extra_files.all()
