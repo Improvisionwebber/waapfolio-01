@@ -1319,11 +1319,23 @@ def delete_store(request, store_id):
 def root_dispatch(request):
     """
     Handles homepage:
-    - Subdomain → store homepage
-    - Main domain → normal home page
+    - Subdomain → Template-based store homepage
+    - Main domain → Waapfolio homepage
     """
+
     if hasattr(request, "store") and request.store:
-        return view_store(request)
+
+        template_slug = (
+            request.store.template.slug
+            if request.store.template
+            else "starter"
+        )
+
+        return StoreHomeView.as_view()(
+            request,
+            store_slug=request.store.slug,
+            template_slug=template_slug,
+        )
 
     return home(request)
 from django.views import View
