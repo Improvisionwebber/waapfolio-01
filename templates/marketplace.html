@@ -1,390 +1,885 @@
-<!-- UPDATED WAAPFOLIO MARKETPLACE FRONTEND (FULL REWRITE) -->
 {% extends "base.html" %}
 {% load static %}
 
 {% block body %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
 <style>
-/* =============================================
-      ⭐ WAAPFOLIO MARKETPLACE – ULTRA CLEAN UI
-   With 10 Professional Features Included
-============================================= */
-
-/* GLOBAL */
-body {
-  font-family: "Inter", sans-serif;
+/* =============================================================
+   WAAPFOLIO MARKETPLACE — DESIGN TOKENS
+============================================================= */
+:root{
+  --wf-primary:#0FA80F;
+  --wf-primary-dark:#0C8C0C;
+  --wf-primary-tint:#EAF8EA;
+  --wf-ink:#101913;
+  --wf-muted:#5C6B60;
+  --wf-border:#E7ECE7;
+  --wf-bg:#FFFFFF;
+  --wf-radius:18px;
+  --wf-radius-sm:12px;
+  --wf-shadow:0 6px 20px rgba(16,25,19,.06);
+  --wf-shadow-hover:0 18px 40px rgba(16,25,19,.12);
 }
 
-h4 {
-  font-weight: 800;
-  color: #0fa80f;
+body{
+  font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  color:var(--wf-ink);
+  background:var(--wf-bg);
 }
 
-/* ==========================
-    🔍 FIXED SEARCH BAR
-========================== */
-.market-header {
-  position: sticky;
-  top: 0;
-  z-index: 999;
-  background: white;
-  padding: 12px 0;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+a{ text-decoration:none; }
+.wf-muted{ color:var(--wf-muted); }
+
+/* =============================================================
+   HERO
+============================================================= */
+.wf-hero{
+  background:linear-gradient(180deg,var(--wf-primary-tint) 0%,#ffffff 100%);
+  padding:56px 0 28px;
+  border-bottom:1px solid var(--wf-border);
+}
+.wf-hero h1{
+  font-weight:800;
+  font-size:clamp(1.8rem,4vw,2.75rem);
+  letter-spacing:-0.02em;
+  margin-bottom:12px;
+}
+.wf-hero p.lead{
+  color:var(--wf-muted);
+  font-size:1.05rem;
+  max-width:640px;
+  margin:0 auto 22px;
+}
+.wf-hero-cta .btn{
+  border-radius:999px;
+  padding:.7rem 1.6rem;
+  font-weight:600;
+}
+.wf-stats{
+  display:flex;
+  flex-wrap:wrap;
+  gap:28px;
+  justify-content:center;
+  margin-top:32px;
+}
+.wf-stat{ text-align:center; min-width:100px; }
+.wf-stat .num{
+  font-weight:800;
+  font-size:1.5rem;
+  color:var(--wf-ink);
+  display:block;
+}
+.wf-stat .label{
+  font-size:.78rem;
+  color:var(--wf-muted);
+  text-transform:uppercase;
+  letter-spacing:.06em;
 }
 
-.search-box {
-  border-radius: 30px;
-  overflow: hidden;
-  border: 1px solid #d9d9d9;
+/* =============================================================
+   SEARCH BAR (sticky)
+============================================================= */
+.wf-searchbar{
+  position:sticky;
+  top:0;
+  z-index:1030;
+  background:rgba(255,255,255,.92);
+  backdrop-filter:saturate(180%) blur(10px);
+  border-bottom:1px solid var(--wf-border);
+  padding:14px 0;
+}
+.wf-search-input-group{
+  background:#fff;
+  border:1px solid var(--wf-border);
+  border-radius:999px;
+  box-shadow:var(--wf-shadow);
+  display:flex;
+  align-items:center;
+  padding:6px 6px 6px 18px;
+  gap:8px;
+}
+.wf-search-input-group i{ color:var(--wf-muted); }
+.wf-search-input-group input{
+  border:none;
+  outline:none;
+  flex:1;
+  font-size:.95rem;
+  padding:8px 4px;
+  background:transparent;
+}
+.wf-search-input-group input:focus{ box-shadow:none; }
+.wf-icon-btn{
+  border:none;
+  background:var(--wf-primary-tint);
+  color:var(--wf-primary-dark);
+  width:40px;
+  height:40px;
+  border-radius:50%;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+  transition:.2s;
+}
+.wf-icon-btn:hover{ background:var(--wf-primary); color:#fff; }
+.wf-search-submit{
+  background:var(--wf-primary);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:9px 22px;
+  font-weight:600;
+  font-size:.9rem;
+  flex:0 0 auto;
+  transition:.2s;
+}
+.wf-search-submit:hover{ background:var(--wf-primary-dark); color:#fff; }
+.wf-sort-select{
+  border-radius:999px;
+  border:1px solid var(--wf-border);
+  padding:8px 14px;
+  font-size:.85rem;
+  color:var(--wf-ink);
+  background:#fff;
 }
 
-.search-box input {
-  border: none;
-  padding: 12px;
-  font-size: 0.9rem;
+/* =============================================================
+   CATEGORY CHIPS
+============================================================= */
+.wf-categories{
+  padding:20px 0 6px;
+}
+.category-scroll{
+  display:flex;
+  gap:12px;
+  overflow-x:auto;
+  padding-bottom:10px;
+  scroll-snap-type:x proximity;
+}
+.category-scroll::-webkit-scrollbar{ height:6px; }
+.category-scroll::-webkit-scrollbar-thumb{ background:var(--wf-border); border-radius:6px; }
+
+.cat-chip{
+  scroll-snap-align:start;
+  flex:0 0 auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  background:#fff;
+  border:1px solid var(--wf-border);
+  border-radius:999px;
+  padding:10px 18px;
+  font-size:.85rem;
+  font-weight:600;
+  color:var(--wf-ink);
+  transition:.2s;
+}
+.cat-chip i{ font-size:1.05rem; color:var(--wf-primary); transition:.2s; }
+.cat-chip:hover{
+  border-color:var(--wf-primary);
+  background:var(--wf-primary-tint);
+  transform:translateY(-2px);
+}
+.cat-chip.active{
+  background:var(--wf-primary);
+  border-color:var(--wf-primary);
+  color:#fff;
+}
+.cat-chip.active i{ color:#fff; }
+
+/* =============================================================
+   PROMO BANNER
+============================================================= */
+.wf-banner{
+  margin:28px 0;
+  border-radius:var(--wf-radius);
+  background:linear-gradient(120deg,var(--wf-primary) 0%,var(--wf-primary-dark) 100%);
+  color:#fff;
+  padding:34px 32px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:18px;
+  box-shadow:var(--wf-shadow);
+}
+.wf-banner h3{ font-weight:800; margin-bottom:6px; }
+.wf-banner p{ margin:0; opacity:.92; max-width:480px; }
+.wf-banner .btn{
+  background:#fff;
+  color:var(--wf-primary-dark);
+  border-radius:999px;
+  font-weight:700;
+  padding:.65rem 1.5rem;
+  white-space:nowrap;
+}
+.wf-banner .btn:hover{ background:var(--wf-ink); color:#fff; }
+
+/* =============================================================
+   LAYOUT: SIDEBAR + GRID
+============================================================= */
+.wf-layout{ display:flex; gap:28px; align-items:flex-start; margin-top:8px; }
+.wf-sidebar{
+  width:264px;
+  flex:0 0 264px;
+  position:sticky;
+  top:96px;
+  background:#fff;
+  border:1px solid var(--wf-border);
+  border-radius:var(--wf-radius);
+  padding:20px;
+}
+.wf-sidebar h6{
+  font-weight:700;
+  font-size:.8rem;
+  text-transform:uppercase;
+  letter-spacing:.06em;
+  color:var(--wf-muted);
+  margin:18px 0 10px;
+}
+.wf-sidebar h6:first-child{ margin-top:0; }
+.wf-sidebar .form-check{ margin-bottom:8px; }
+.wf-sidebar .form-check-label{ font-size:.88rem; }
+.wf-main{ flex:1 1 auto; min-width:0; }
+
+@media (max-width:991.98px){
+  .wf-sidebar{ display:none; }
 }
 
-.search-box button {
-  border-radius: 0 !important;
-  padding: 0 20px;
+/* =============================================================
+   PRODUCT GRID
+============================================================= */
+.wf-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:18px;
+}
+@media (min-width:768px){
+  .wf-grid{ grid-template-columns:repeat(3,1fr); }
+}
+@media (min-width:1200px){
+  .wf-grid{ grid-template-columns:repeat(4,1fr); }
 }
 
-/* ==========================
-   CATEGORY SCROLLER (FIXED)
-============================ */
-.category-scroll {
-  white-space: nowrap;
-  overflow-x: auto;
-  padding-bottom: 6px;
-  {% comment %} margin-top: -5px; {% endcomment %}
+.wf-card{
+  position:relative;
+  background:#fff;
+  border:1px solid var(--wf-border);
+  border-radius:var(--wf-radius);
+  overflow:hidden;
+  box-shadow:var(--wf-shadow);
+  transition:transform .25s ease, box-shadow .25s ease;
+  display:flex;
+  flex-direction:column;
+  height:100%;
+}
+.wf-card:hover{
+  transform:translateY(-5px);
+  box-shadow:var(--wf-shadow-hover);
 }
 
-.cat-chip {
-  flex: 0 0 auto;
-  background: #fff;
-  border-radius: 22px;
-  padding: 4px 7px;
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: black;
-  border: 1px solid #e8e8e8;
-  text-decoration: none;
-  transition: 0.2s;
+.wf-card-media{
+  position:relative;
+  aspect-ratio:1/1;
+  overflow:hidden;
+  background:#F3F5F3;
+}
+.wf-card-media img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  transition:transform .45s ease;
+}
+.wf-card:hover .wf-card-media img{ transform:scale(1.07); }
+
+.wf-badge-row{
+  position:absolute;
+  top:10px;
+  left:10px;
+  right:10px;
+  display:flex;
+  justify-content:space-between;
+  align-items:flex-start;
+  gap:6px;
+  pointer-events:none;
+}
+.wf-discount-badge{
+  background:var(--wf-primary);
+  color:#fff;
+  font-size:.72rem;
+  font-weight:700;
+  padding:4px 9px;
+  border-radius:999px;
+  pointer-events:auto;
+}
+.wf-wishlist-btn{
+  pointer-events:auto;
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:none;
+  background:rgba(255,255,255,.92);
+  color:var(--wf-ink);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 2px 8px rgba(0,0,0,.12);
+  transition:.2s;
+}
+.wf-wishlist-btn:hover{ background:#fff; transform:scale(1.08); }
+.wf-wishlist-btn.active i{ color:#e0245e; }
+.wf-wishlist-btn.active i::before{ content:"\f415"; } /* bi-heart-fill fallback handled via class swap in JS */
+
+.wf-quickview-btn{
+  position:absolute;
+  left:50%;
+  bottom:10px;
+  transform:translate(-50%,14px);
+  opacity:0;
+  background:var(--wf-ink);
+  color:#fff;
+  font-size:.78rem;
+  font-weight:600;
+  padding:8px 16px;
+  border-radius:999px;
+  border:none;
+  white-space:nowrap;
+  transition:.25s;
+}
+.wf-card:hover .wf-quickview-btn{ opacity:1; transform:translate(-50%,0); }
+
+.wf-card-body{
+  padding:14px 14px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  flex:1;
+}
+.wf-store-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:.74rem;
+  color:var(--wf-muted);
+  font-weight:600;
+}
+.wf-store-row .bi-patch-check-fill{ color:var(--wf-primary); font-size:.85rem; }
+
+.wf-card-title{
+  font-size:.95rem;
+  font-weight:700;
+  color:var(--wf-ink);
+  margin:2px 0 0;
+  line-height:1.3;
+  display:-webkit-box;
+  -webkit-line-clamp:1;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.wf-card-desc{
+  font-size:.78rem;
+  color:var(--wf-muted);
+  margin:0;
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+  min-height:2.2em;
 }
 
-.cat-chip:hover {
-  background: #0fa80f;
-  color: white;
-  border-color: #0fa80f;
+.wf-rating-row{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-size:.76rem;
+  color:var(--wf-muted);
+}
+.wf-rating-row .bi-star-fill{ color:#F5A623; font-size:.78rem; }
+
+.wf-price-row{
+  display:flex;
+  align-items:baseline;
+  gap:8px;
+  margin-top:2px;
+}
+.wf-price{
+  font-weight:800;
+  font-size:1.02rem;
+  color:var(--wf-ink);
+}
+.wf-price-original{
+  font-size:.8rem;
+  color:#B5BDB6;
+  text-decoration:line-through;
 }
 
-.cat-icon {
-  width: 20px;
-  height: 20px;
+.wf-card-actions{
+  display:flex;
+  gap:8px;
+  margin-top:10px;
 }
+.wf-btn-view{
+  flex:1;
+  background:var(--wf-primary);
+  color:#fff;
+  border:none;
+  border-radius:var(--wf-radius-sm);
+  padding:9px 0;
+  font-weight:600;
+  font-size:.84rem;
+  text-align:center;
+  transition:.2s;
+}
+.wf-btn-view:hover{ background:var(--wf-primary-dark); color:#fff; }
+.wf-btn-store{
+  flex:0 0 auto;
+  border:1px solid var(--wf-border);
+  color:var(--wf-ink);
+  background:#fff;
+  border-radius:var(--wf-radius-sm);
+  padding:9px 12px;
+  font-weight:600;
+  font-size:.84rem;
+  transition:.2s;
+}
+.wf-btn-store:hover{ background:var(--wf-primary-tint); border-color:var(--wf-primary); color:var(--wf-primary-dark); }
 
-/* ==========================
-       PRODUCT CARDS
-============================ */
+/* =============================================================
+   SKELETON LOADER
+============================================================= */
+.wf-skeleton{ position:relative; overflow:hidden; background:#EEF1EE; }
+.wf-skeleton::after{
+  content:"";
+  position:absolute; inset:0;
+  background:linear-gradient(90deg,transparent,rgba(255,255,255,.6),transparent);
+  transform:translateX(-100%);
+  animation:wf-shimmer 1.3s infinite;
+}
+@keyframes wf-shimmer{ 100%{ transform:translateX(100%); } }
 
-.store-badge {
-  display: inline-block;
-  background: #e5f8e5;
-  color: #0fa80f;
-  font-size: 0.75rem;
-  padding: 5px 12px;
-  border-radius: 12px;
-  margin-bottom: 6px;
-  font-weight: 600;
+/* =============================================================
+   EMPTY STATE
+============================================================= */
+.wf-empty{
+  text-align:center;
+  padding:70px 20px;
+  grid-column:1 / -1;
 }
-/* ==========================
-       PRODUCT CARDS
-============================ */
-.card {
-  border-radius: 20px;
-  border: none;
-  background: white;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.07);
-  transition: 0.25s;
-  overflow: hidden;
-}
+.wf-empty i{ font-size:3rem; color:var(--wf-border); }
+.wf-empty h5{ font-weight:700; margin-top:14px; }
+.wf-empty p{ color:var(--wf-muted); }
 
-.card:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+/* =============================================================
+   PAGINATION
+============================================================= */
+.wf-pagination{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap:8px;
+  margin-top:36px;
+  flex-wrap:wrap;
 }
+.wf-pagination a, .wf-pagination span{
+  min-width:42px;
+  height:42px;
+  padding:0 14px;
+  border-radius:999px;
+  border:1px solid var(--wf-border);
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:600;
+  font-size:.88rem;
+  color:var(--wf-ink);
+  background:#fff;
+  transition:.2s;
+}
+.wf-pagination a:hover{ background:var(--wf-primary-tint); border-color:var(--wf-primary); color:var(--wf-primary-dark); }
+.wf-pagination .active{ background:var(--wf-primary); border-color:var(--wf-primary); color:#fff; }
+.wf-pagination .disabled{ opacity:.4; pointer-events:none; }
 
-.card-img-top {
-  border-radius: 20px 20px 0 0; /* keep top rounded */
-  width: 100%;
-  height: 200px; /* slightly taller so images fill more area */
-  object-fit: cover; /* fills container, crops if needed */
-  display: block;
-  background: #f0f0f0;
+/* =============================================================
+   MOBILE
+============================================================= */
+@media (max-width:575.98px){
+  .wf-hero{ padding:36px 0 20px; }
+  .wf-stats{ gap:18px; }
+  .wf-banner{ padding:26px 20px; }
+  .wf-layout{ gap:0; }
 }
-/* make smaller on mobile */
-@media (max-width: 575px) {
-  .card-img-top {
-    height: 150px;
-  }
-}
-/* CARD BODY */
-.card-body {
-  padding: 10px 12px;
-}
-
-.card-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.card-text {
-  font-size: 0.8rem;
-  color: #666;
-  margin-bottom: 6px;
-}
-
-.fw-bold {
-  font-size: 0.85rem;
-  color: #0fa80f;
-}
-
-/* RESPONSIVE GRID - more columns on larger screens */
-@media (min-width: 992px) {
-  .col-md-4 {
-    flex: 0 0 25%; /* 4 cards per row on large desktops */
-    max-width: 25%;
-  }
-}
-
-@media (max-width: 575px) {
-  .col-6 {
-    flex: 0 0 50%;
-    max-width: 50%;
-  }
-  .card-img-top {
-    height: 120px;
-  }
-  .card-title {
-    font-size: 0.85rem;
-  }
-  .card-text {
-    font-size: 0.75rem;
-  }
-  .fw-bold {
-    font-size: 0.8rem;
-  }
-}
-.btn-success, .btn-outline-success {
-  border-radius: 10px;
-}
-
-/* ==========================
-      PAGINATION
-============================ */
-.pagination-container {
-  display: flex;
-  justify-content: center;
-  margin-top: 25px;
-}
-
-.pagination-container a {
-  padding: 8px 14px;
-  background: #fff;
-  border-radius: 10px;
-  border: 1px solid #d9d9d9;
-  margin: 0 5px;
-  color: #0fa80f;
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.pagination-container a:hover {
-  background: #0fa80f;
-  color: white;
-}
-
+.wf-mobile-bottom-space{ height:24px; }
 </style>
 
+<!-- =================================================================
+     HERO
+================================================================== -->
+<section class="wf-hero">
+  <div class="container text-center">
+    <h1>Discover Amazing Products</h1>
+    <p class="lead mx-auto">Thousands of products from independent businesses across Nigeria.</p>
 
-
-
-
-<!-- =================================================== -->
-<!--                 🛒 MARKETPLACE BODY                 -->
-<!-- =================================================== -->
- <center>
-<div class="container mt-4">
-
-  <h4 class="mb-3">WAAPFOLIO MARKETPLACE</h4>
-  <p class="text-muted" style="margin-top:-10px;font-size:0.9rem;">Waapfolio Marketplace is the best marketplace. Easy to create a store & products automatically appear here. All orders go directly to WhatsApp.</p>
-<div class="mb-2">
-        {% if not user.is_authenticated %}
-          <a href="{% url 'register' %}" class="btn btn-success px-4 py-2">Sign Up & Create Store, Your products will appear here automatically</a>
+    <div class="wf-hero-cta">
+      {% if not user.is_authenticated %}
+        <a href="{% url 'register' %}" class="btn btn-success">Sign Up &amp; Create Your Store</a>
+      {% else %}
+        {% if store %}
+          <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-success">Visit Your Store</a>
         {% else %}
-          {% if store %}
-            <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-primary px-4 py-2">Visit Your Store</a>
-          {% else %}
-            <a href="{% url 'create_store' %}" class="btn btn-success px-4 py-2">Create Your Store</a>
-          {% endif %}
+          <a href="{% url 'create_store' %}" class="btn btn-success">Create Your Store</a>
         {% endif %}
-</div>
-</center>
-<!-- =================================================== -->
-<!--                🔎 NORMAL SEARCH HEADER            -->
-<!-- =================================================== -->
-<header class="market-header py-2" style="position: relative; z-index: 1;">
+      {% endif %}
+    </div>
+
+    <!-- TODO Backend: wire these up to real aggregate counts (store count, product count, category count, customer count) -->
+    <div class="wf-stats">
+      <div class="wf-stat"><span class="num">500+</span><span class="label">Stores</span></div>
+      <div class="wf-stat"><span class="num">10,000+</span><span class="label">Products</span></div>
+      <div class="wf-stat"><span class="num">12</span><span class="label">Categories</span></div>
+      <div class="wf-stat"><span class="num">25,000+</span><span class="label">Happy Customers</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- =================================================================
+     SEARCH BAR
+================================================================== -->
+<header class="wf-searchbar">
   <div class="container">
-    <form method="get" action="">
-      <div class="input-group">
-        <input type="text" name="q" placeholder="Search products..." value="{{ query }}" class="form-control">
-        <button class="btn btn-success" type="submit">Search</button>
+    <form method="get" action="" class="d-flex align-items-center gap-2 flex-wrap flex-lg-nowrap">
+      <div class="wf-search-input-group flex-grow-1">
+        <i class="bi bi-search"></i>
+        <input type="text" name="q" placeholder="Search products, stores..." value="{{ query }}" aria-label="Search products">
+        <!-- TODO Backend: voice search is UI-only, no recognition wired up yet -->
+        <button type="button" class="wf-icon-btn" aria-label="Voice search" title="Voice search (coming soon)">
+          <i class="bi bi-mic"></i>
+        </button>
+        <button type="submit" class="wf-search-submit">Search</button>
       </div>
+
+      <button type="button" class="wf-icon-btn flex-shrink-0" data-bs-toggle="offcanvas" data-bs-target="#wfFilterOffcanvas" aria-label="Open filters" title="Filters">
+        <i class="bi bi-sliders"></i>
+      </button>
+
+      <!-- TODO Backend: sort field is not yet handled server-side -->
+      <select class="wf-sort-select flex-shrink-0" name="sort" aria-label="Sort products">
+        <option value="">Sort: Featured</option>
+        <option value="newest">Newest</option>
+        <option value="price_asc">Price: Low to High</option>
+        <option value="price_desc">Price: High to Low</option>
+        <option value="popular">Most Popular</option>
+      </select>
     </form>
   </div>
 </header>
 
-
-
-<!-- =================================================== -->
-<!--             🧭 CATEGORY SLIDER CLEANED              -->
-<!-- =================================================== -->
-<div class="container ">
-  <div class="category-scroll d-flex gap-3">
-
-    <a href="?category=food" class="cat-chip">
-      <img src="https://img.icons8.com/color/48/meal.png" class="cat-icon"> Food
-    </a>
-
-    <a href="?category=clothing" class="cat-chip">
-      <img src="https://img.icons8.com/color/48/t-shirt.png" class="cat-icon"> Clothing
-    </a>
-
-    <a href="?category=tech" class="cat-chip">
-      <img src="https://img.icons8.com/color/48/laptop.png" class="cat-icon"> Tech
-    </a>
-
-    <a href="?category=home" class="cat-chip">
-      <img src="https://img.icons8.com/color/48/sofa.png" class="cat-icon"> Home
-    </a>
-
-    <a href="?category=beauty" class="cat-chip">
-       <img src="https://static.vecteezy.com/system/resources/thumbnails/053/013/629/small/featuring-sleek-lines-and-a-clean-design-the-makeup-brush-beauty-icon-represents-a-contemporary-graphic-style-vector.jpg" class="cat-icon"> Beauty
-    </a>
-
-    <a href="?category=gaming" class="cat-chip">
-      <img src="https://img.icons8.com/color/48/controller.png" class="cat-icon"> Gaming
-    </a>
-
-    <a href="?category=accessories" class="cat-chip">
-        <i class="bi bi-bag" style="font-size: 24px;"></i> Accessories
-    </a>
-
-  </div>
-</div>
-<div class="row">
-  {% for item in results %}
-  <div class="col-6 col-md-4 mb-4">
-    <div class="card h-100 position-relative overflow-hidden">
-
-      <!-- Store Badge overlay -->
-      {% if item.store.name %}
-      <span class="store-badge position-absolute top-2 start-2">{{ item.store.name|truncatechars:18 }}</span>
-      {% endif %}
-
-      <!-- Product Image -->
-      {% if item.image %}
-      <img src="{{ item.image.url }}" class="card-img-top" alt="{{ item.name }}">
-      {% elif item.image_url %}
-      <img src="{{ item.image_url }}" class="card-img-top" alt="{{ item.name }}">
-      {% else %}
-      <img src="{% static 'images/placeholder.png' %}" class="card-img-top" alt="No image available">
-      {% endif %}
-
-      <div class="card-body">
-        <h5 class="card-title">{{ item.name }}</h5>
-        <p class="card-text">{{ item.description|default:"No description"|truncatewords:12 }}</p>
-        <p class="fw-bold">{{ item.price }} {{ item.currency }}</p>
-
-        <div class="d-flex justify-content-between">
-          <a href="{{ item.get_absolute_url }}" class="btn btn-sm btn-success">View</a>
-          <a href="{{ item.store.get_absolute_url }}" class="btn btn-sm btn-outline-success">Store</a>
-        </div>
-      </div>
-
+<!-- =================================================================
+     CATEGORIES
+================================================================== -->
+<section class="wf-categories">
+  <div class="container">
+    <div class="category-scroll">
+      <a href="?category=food" class="cat-chip"><i class="bi bi-egg-fried"></i> Food</a>
+      <a href="?category=clothing" class="cat-chip"><i class="bi bi-bag-heart"></i> Clothing</a>
+      <a href="?category=tech" class="cat-chip"><i class="bi bi-laptop"></i> Tech</a>
+      <a href="?category=home" class="cat-chip"><i class="bi bi-house-heart"></i> Home</a>
+      <a href="?category=beauty" class="cat-chip"><i class="bi bi-stars"></i> Beauty</a>
+      <a href="?category=gaming" class="cat-chip"><i class="bi bi-controller"></i> Gaming</a>
+      <a href="?category=accessories" class="cat-chip"><i class="bi bi-bag"></i> Accessories</a>
+      <!-- TODO Backend: replace hardcoded categories with a real category queryset when available -->
     </div>
   </div>
-  {% endfor %}
-</div>
+</section>
 
-
-  <!-- ============================= -->
-  <!--        PAGINATION BUTTONS     -->
-  <!-- ============================= -->
-  {% if page_obj.has_other_pages %}
-  <div class="pagination-container">
-    {% if page_obj.has_previous %}
-      <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}">Prev</a>
-    {% endif %}
-
-    {% if page_obj.has_next %}
-      <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}">Next</a>
-    {% endif %}
+<!-- =================================================================
+     PROMO BANNER
+================================================================== -->
+<div class="container">
+  <div class="wf-banner">
+    <div>
+      <h3>Support Local Businesses</h3>
+      <p>Shop directly from verified sellers on Waapfolio.</p>
+    </div>
+    <a href="#wfProductGrid" class="btn">Explore Products</a>
   </div>
-  {% endif %}
-
 </div>
 
-<!-- =================================================== -->
-<!--        AJAX LIVE SEARCH (SMOOTH, FIXED)             -->
-<!-- =================================================== -->
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const input = document.querySelector('input[name="q"]');
-  const resultsContainer = document.querySelector('.row');
-  let timeout = null;
+<!-- =================================================================
+     MAIN LAYOUT: FILTER SIDEBAR + PRODUCT GRID
+================================================================== -->
+<div class="container" id="wfProductGrid">
+  <div class="wf-layout">
 
-  input.addEventListener('keyup', function() {
-    clearTimeout(timeout);
+    <!-- DESKTOP SIDEBAR (UI only — not yet wired to backend filtering) -->
+    <aside class="wf-sidebar d-none d-lg-block">
+      <h6>Price Range</h6>
+      <!-- TODO Backend: connect to real min/max price filtering -->
+      <input type="range" class="form-range" min="0" max="100000" disabled title="Coming soon">
+
+      <h6>Categories</h6>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Food</label></div>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Clothing</label></div>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Tech</label></div>
+
+      <h6>Availability</h6>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">In Stock</label></div>
+
+      <h6>Sort &amp; Status</h6>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Newest</label></div>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Popular</label></div>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Verified Stores</label></div>
+      <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Discounted</label></div>
+      <!-- TODO Backend: hook these controls up to real querystring filters once supported -->
+    </aside>
+
+    <!-- MAIN GRID -->
+    <main class="wf-main">
+
+      <div class="wf-grid" id="wfResultsGrid">
+        {% for item in results %}
+        <div class="wf-card" data-name="{{ item.name }}" data-price="{{ item.price }}" data-currency="{{ item.currency }}" data-description="{{ item.description|default:'' }}" data-store="{{ item.store.name }}" data-product-url="{{ item.get_absolute_url }}" data-store-url="{{ item.store.get_absolute_url }}" data-image="{% if item.image %}{{ item.image.url }}{% elif item.image_url %}{{ item.image_url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}">
+
+          <div class="wf-card-media">
+            <div class="wf-badge-row">
+              <!-- TODO Backend: discount percentage not available yet -->
+              <span></span>
+              <button type="button" class="wf-wishlist-btn" aria-label="Add to wishlist" onclick="wfToggleWishlist(this)">
+                <i class="bi bi-heart"></i>
+              </button>
+            </div>
+
+            {% if item.image %}
+            <img src="{{ item.image.url }}" alt="{{ item.name }}" loading="lazy">
+            {% elif item.image_url %}
+            <img src="{{ item.image_url }}" alt="{{ item.name }}" loading="lazy">
+            {% else %}
+            <img src="{% static 'images/placeholder.png' %}" alt="No image available for {{ item.name }}" loading="lazy">
+            {% endif %}
+
+            <button type="button" class="wf-quickview-btn" data-bs-toggle="modal" data-bs-target="#wfQuickViewModal" onclick="wfOpenQuickView(this)">
+              Quick View
+            </button>
+          </div>
+
+          <div class="wf-card-body">
+            <div class="wf-store-row">
+              {% if item.store.name %}
+                <span>{{ item.store.name|truncatechars:20 }}</span>
+                <!-- TODO Backend: verified-seller flag not available yet -->
+              {% endif %}
+            </div>
+
+            <h3 class="wf-card-title">{{ item.name }}</h3>
+            <p class="wf-card-desc">{{ item.description|default:"No description"|truncatewords:14 }}</p>
+
+            <!-- TODO Backend: rating and units-sold data not available yet -->
+            <div class="wf-rating-row">
+              <i class="bi bi-star-fill"></i><span class="wf-muted">New listing</span>
+            </div>
+
+            <div class="wf-price-row">
+              <span class="wf-price">{{ item.price }} {{ item.currency }}</span>
+              <!-- TODO Backend: original (pre-discount) price not available yet -->
+            </div>
+
+            <div class="wf-card-actions">
+              <a href="{{ item.get_absolute_url }}" class="wf-btn-view">View Product</a>
+              <a href="{{ item.store.get_absolute_url }}" class="wf-btn-store" aria-label="Visit store"><i class="bi bi-shop"></i></a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="wf-empty">
+          <i class="bi bi-search"></i>
+          <h5>No products found.</h5>
+          <p>Try another search.</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- =================================================================
+           PAGINATION
+      ================================================================== -->
+      {% if page_obj.has_other_pages %}
+      <nav class="wf-pagination" aria-label="Product pagination">
+        {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Previous page"><i class="bi bi-chevron-left"></i></a>
+        {% else %}
+          <span class="disabled"><i class="bi bi-chevron-left"></i></span>
+        {% endif %}
+
+        {% for num in page_obj.paginator.page_range %}
+          {% if num == page_obj.number %}
+            <span class="active">{{ num }}</span>
+          {% else %}
+            <a href="?page={{ num }}{% if query %}&q={{ query }}{% endif %}">{{ num }}</a>
+          {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" aria-label="Next page"><i class="bi bi-chevron-right"></i></a>
+        {% else %}
+          <span class="disabled"><i class="bi bi-chevron-right"></i></span>
+        {% endif %}
+      </nav>
+      {% endif %}
+
+      <div class="wf-mobile-bottom-space"></div>
+    </main>
+  </div>
+</div>
+
+<!-- =================================================================
+     MOBILE FILTER OFFCANVAS (UI only)
+================================================================== -->
+<div class="offcanvas offcanvas-start" tabindex="-1" id="wfFilterOffcanvas" aria-labelledby="wfFilterOffcanvasLabel">
+  <div class="offcanvas-header">
+    <h5 class="offcanvas-title" id="wfFilterOffcanvasLabel">Filters</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <h6>Price Range</h6>
+    <input type="range" class="form-range" min="0" max="100000" disabled title="Coming soon">
+
+    <h6>Categories</h6>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Food</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Clothing</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Tech</label></div>
+
+    <h6>Availability</h6>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">In Stock</label></div>
+
+    <h6>Sort &amp; Status</h6>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Newest</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Popular</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Verified Stores</label></div>
+    <div class="form-check"><input class="form-check-input" type="checkbox" disabled><label class="form-check-label">Discounted</label></div>
+    <!-- TODO Backend: hook these controls up to real querystring filters once supported -->
+  </div>
+</div>
+
+<!-- =================================================================
+     QUICK VIEW MODAL
+================================================================== -->
+<div class="modal fade" id="wfQuickViewModal" tabindex="-1" aria-labelledby="wfQuickViewLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content" style="border-radius:var(--wf-radius); border:none; overflow:hidden;">
+      <div class="modal-header border-0">
+        <h5 class="modal-title fw-bold" id="wfQuickViewLabel">Quick View</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row g-4">
+          <div class="col-md-6">
+            <img id="wfQvImage" src="" alt="" class="img-fluid rounded-4" style="width:100%; aspect-ratio:1/1; object-fit:cover; background:#F3F5F3;">
+          </div>
+          <div class="col-md-6 d-flex flex-column">
+            <p class="wf-muted small mb-1" id="wfQvStore"></p>
+            <h4 class="fw-bold" id="wfQvName"></h4>
+            <p class="wf-muted" id="wfQvDescription"></p>
+            <p class="fs-4 fw-bold" style="color:var(--wf-primary-dark);" id="wfQvPrice"></p>
+            <div class="d-flex gap-2 mt-auto">
+              <a href="#" id="wfQvViewLink" class="wf-btn-view">View Full Product</a>
+              <a href="#" id="wfQvStoreLink" class="wf-btn-store"><i class="bi bi-shop"></i></a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- =================================================================
+     SCRIPTS
+================================================================== -->
+<script>
+function wfToggleWishlist(btn){
+  // TODO Backend: persist wishlist state server-side once a Wishlist model/endpoint exists
+  btn.classList.toggle('active');
+  const icon = btn.querySelector('i');
+  icon.classList.toggle('bi-heart');
+  icon.classList.toggle('bi-heart-fill');
+  btn.animate([{ transform:'scale(1)' },{ transform:'scale(1.3)' },{ transform:'scale(1)' }], { duration:280, easing:'ease-out' });
+}
+
+function wfOpenQuickView(btn){
+  const card = btn.closest('.wf-card');
+  document.getElementById('wfQvImage').src = card.dataset.image;
+  document.getElementById('wfQvImage').alt = card.dataset.name;
+  document.getElementById('wfQvStore').textContent = card.dataset.store || '';
+  document.getElementById('wfQvName').textContent = card.dataset.name;
+  document.getElementById('wfQvDescription').textContent = card.dataset.description || 'No description';
+  document.getElementById('wfQvPrice').textContent = card.dataset.price + ' ' + card.dataset.currency;
+  document.getElementById('wfQvViewLink').href = card.dataset.productUrl;
+  document.getElementById('wfQvStoreLink').href = card.dataset.storeUrl;
+}
+
+document.addEventListener('DOMContentLoaded', function () {
+  const input = document.querySelector('input[name="q"]');
+  const grid = document.getElementById('wfResultsGrid');
+  let debounce = null;
+
+  if (!input || !grid) return;
+
+  input.addEventListener('keyup', function () {
+    clearTimeout(debounce);
     const query = this.value.trim();
 
-    timeout = setTimeout(() => {
+    debounce = setTimeout(() => {
       if (query.length < 2) return;
+
+      grid.classList.add('wf-loading');
+
       fetch(`?q=${encodeURIComponent(query)}`, {
         headers: { 'x-requested-with': 'XMLHttpRequest' }
       })
       .then(res => res.json())
       .then(data => {
-        resultsContainer.innerHTML = '';
+        grid.innerHTML = '';
+
+        if (!data.results || data.results.length === 0) {
+          grid.innerHTML = `
+            <div class="wf-empty">
+              <i class="bi bi-search"></i>
+              <h5>No products found.</h5>
+              <p>Try another search.</p>
+            </div>`;
+          return;
+        }
 
         data.results.forEach(item => {
           const card = `
-            <div class="col-6 col-md-4 mb-4">
-              <div class="card h-100">
-                <div class="p-3 pb-0">
-                  <span class="store-badge">${item.store_name}</span>
+            <div class="wf-card" data-name="${item.name}" data-price="${item.price}" data-currency="" data-description="" data-store="${item.store_name || ''}" data-product-url="${item.product_url}" data-store-url="${item.store_url}" data-image="${item.image}">
+              <div class="wf-card-media">
+                <div class="wf-badge-row">
+                  <span></span>
+                  <button type="button" class="wf-wishlist-btn" aria-label="Add to wishlist" onclick="wfToggleWishlist(this)">
+                    <i class="bi bi-heart"></i>
+                  </button>
                 </div>
-                <img src="${item.image}" class="card-img-top">
-                <div class="card-body">
-                  <h5 class="card-title">${item.name}</h5>
-                  <p class="fw-bold">${item.price}</p>
-                  <div class="d-flex justify-content-between">
-                    <a href="${item.product_url}" class="btn btn-sm btn-success">View</a>
-                    <a href="${item.store_url}" class="btn btn-sm btn-outline-success">Store</a>
-                  </div>
+                <img src="${item.image}" alt="${item.name}" loading="lazy">
+                <button type="button" class="wf-quickview-btn" data-bs-toggle="modal" data-bs-target="#wfQuickViewModal" onclick="wfOpenQuickView(this)">Quick View</button>
+              </div>
+              <div class="wf-card-body">
+                <div class="wf-store-row"><span>${item.store_name || ''}</span></div>
+                <h3 class="wf-card-title">${item.name}</h3>
+                <p class="wf-card-desc"></p>
+                <div class="wf-price-row"><span class="wf-price">${item.price}</span></div>
+                <div class="wf-card-actions">
+                  <a href="${item.product_url}" class="wf-btn-view">View Product</a>
+                  <a href="${item.store_url}" class="wf-btn-store" aria-label="Visit store"><i class="bi bi-shop"></i></a>
                 </div>
               </div>
             </div>`;
-
-          resultsContainer.insertAdjacentHTML('beforeend', card);
+          grid.insertAdjacentHTML('beforeend', card);
         });
-      });
+      })
+      .finally(() => grid.classList.remove('wf-loading'));
     }, 400);
   });
 });
 </script>
-
 {% endblock %}

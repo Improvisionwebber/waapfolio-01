@@ -1,79 +1,480 @@
 {% extends "store_templates/real_estate_basic/base.html" %}
 {% load static %}
 {% load humanize %}
+
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
 {% block body %}
-<section class="py-5">
-  <div class="row g-5 align-items-start">
+<!-- ============================================================
+     WAAPFOLIO • REAL ESTATE — PROPERTY DETAIL
+     Editorial, architectural, considered.
+     ============================================================ -->
+<style>
+  :root{
+    --lux-ink: var(--re-ink);
+    --lux-muted: var(--re-muted);
+  }
+  .wf-shell{ font-family:var(--re-sans); color:var(--re-ink); background:var(--re-bg); overflow-x:hidden; }
+  .wf-shell *{ box-sizing:border-box; }
+  .wf-container{ max-width:1280px; margin:0 auto; padding:0 32px; }
+  @media (max-width:900px){ .wf-container{ padding:0 20px; } }
 
-    <!-- IMAGE -->
-    <div class="col-lg-6">
-{% if product.image %}
-  <div class="card border-0 shadow-sm">
-    <img src="{{ product.image.url }}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% elif product.image_url %}
-  <div class="card border-0 shadow-sm">
-    <img src="{{ product.image_url }}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% else %}
-  <div class="card border-0 shadow-sm">
-    <img src="{% static 'images/placeholder.png' %}"
-         class="img-fluid rounded"
-         style="object-fit:cover;">
-  </div>
-{% endif %}
+  .wf-reveal{ opacity:0; transform:translateY(20px); transition:opacity .8s var(--re-ease), transform .8s var(--re-ease); }
+  .wf-reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .wf-reveal{ opacity:1; transform:none; transition:none; } }
 
+  /* Scroll progress bar */
+  .wf-scroll-progress{
+    position:fixed; top:0; left:0; height:2px; width:0%;
+    background:var(--re-olive); z-index:1090; transition: width .1s linear;
+  }
+
+  /* Breadcrumbs */
+  .wf-crumbs{
+    display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    padding: 2.6rem 0 1.8rem;
+    font-size:.76rem; letter-spacing:.04em; color:var(--re-muted);
+  }
+  .wf-crumbs a{ color:var(--re-muted); transition:color .2s var(--re-ease); }
+  .wf-crumbs a:hover{ color:var(--re-olive-deep); }
+  .wf-crumbs .sep{ color:var(--re-faint); }
+  .wf-crumbs .now{ color:var(--re-ink); font-weight:500; }
+
+  /* Hero: gallery + info */
+  .wf-hero{ display:grid; grid-template-columns:1.15fr 1fr; gap:60px; padding-bottom:6rem; }
+  @media (max-width:980px){ .wf-hero{ grid-template-columns:1fr; gap:32px; } }
+
+  .wf-stage{
+    position:relative; aspect-ratio:4/3.1; border-radius:3px; overflow:hidden;
+    background:var(--re-surface); border:1px solid var(--re-line); box-shadow:var(--re-shadow-md);
+  }
+  .wf-stage-media{ width:100%; height:100%; }
+  .wf-stage-media img{ width:100%; height:100%; object-fit:cover; display:block; transition:transform .5s var(--re-ease); }
+  .wf-stage-badge{
+    position:absolute; top:16px; left:16px; z-index:2;
+    display:flex; align-items:center; gap:7px;
+    background:var(--re-glass-strong); backdrop-filter:blur(10px);
+    border:1px solid var(--re-line); border-radius:999px;
+    padding:7px 14px 7px 10px; font-size:.68rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--re-ink-soft);
+  }
+  .wf-stage-badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--re-olive); }
+  .wf-stage-zoom{
+    position:absolute; bottom:16px; right:16px; z-index:2;
+    width:40px; height:40px; border-radius:50%; border:1px solid var(--re-line);
+    background:var(--re-glass-strong); backdrop-filter:blur(10px);
+    display:grid; place-items:center; cursor:pointer; color:var(--re-ink);
+    transition: background .25s var(--re-ease);
+  }
+  .wf-stage-zoom:hover{ background:#fff; }
+  .wf-stage-zoom svg{ width:17px; height:17px; }
+
+  .wf-thumbs{ display:flex; gap:12px; margin-top:14px; overflow-x:auto; padding-bottom:4px; }
+  .wf-thumb{
+    flex:0 0 auto; width:78px; height:78px; border-radius:3px; overflow:hidden; cursor:pointer;
+    border:1.5px solid var(--re-line); position:relative; background:var(--re-surface);
+    transition: border-color .25s var(--re-ease);
+  }
+  .wf-thumb img{ width:100%; height:100%; object-fit:cover; }
+  .wf-thumb.active{ border-color:var(--re-olive); }
+  .wf-thumb .vthumb{ width:100%; height:100%; }
+  .wf-thumb .play{
+    position:absolute; inset:0; display:grid; place-items:center; background:rgba(20,20,15,.32); color:#fff;
+  }
+  .wf-thumb .play svg{ width:18px; height:18px; fill:#fff; }
+
+  /* Info panel */
+  .wf-info{ display:flex; flex-direction:column; }
+  .wf-store-chip{
+    display:inline-flex; align-items:center; gap:9px; align-self:flex-start;
+    padding:7px 14px 7px 8px; border-radius:999px; border:1px solid var(--re-line);
+    font-size:.78rem; font-weight:500; color:var(--re-ink-soft); margin-bottom:1.6rem;
+    transition: border-color .2s var(--re-ease);
+  }
+  .wf-store-chip:hover{ border-color:var(--re-line-strong); }
+  .wf-store-chip .avatar{
+    width:22px; height:22px; border-radius:50%; background:var(--re-olive); color:#fff;
+    display:grid; place-items:center; font-size:.68rem; font-weight:700;
+  }
+
+  .wf-title{ font-size:clamp(1.9rem,3.4vw,2.7rem); line-height:1.12; letter-spacing:-0.02em; margin:0 0 1rem; }
+
+  .wf-meta-row{ display:flex; align-items:center; gap:18px; flex-wrap:wrap; font-size:.82rem; color:var(--re-muted); margin-bottom:1.8rem; }
+  .wf-avail{ display:inline-flex; align-items:center; gap:7px; color:var(--re-olive-deep); font-weight:600; }
+  .wf-avail .dot{ width:6px; height:6px; border-radius:50%; background:var(--re-olive); }
+
+  .wf-price-wrap{ display:flex; align-items:baseline; gap:4px; margin-bottom:2rem; padding-bottom:2rem; border-bottom:1px solid var(--re-line); }
+  .wf-currency{ font-family:var(--re-serif); font-size:1.5rem; color:var(--re-ink); }
+  .wf-price{ font-family:var(--re-serif); font-size:2.4rem; font-weight:400; letter-spacing:-0.01em; color:var(--re-ink); }
+
+  .wf-desc{ margin-bottom:2.2rem; }
+  .wf-desc-title{ font-size:.7rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--re-olive-deep); margin-bottom:.9rem; }
+  .wf-desc-body{
+    font-size:.96rem; line-height:1.75; color:var(--re-ink-soft);
+    max-height:8.4em; overflow:hidden; position:relative;
+  }
+  .wf-desc-body.expanded{ max-height:none; }
+  .wf-desc-toggle{
+    margin-top:10px; background:none; border:none; padding:0; cursor:pointer;
+    font-size:.8rem; font-weight:600; color:var(--re-olive-deep); border-bottom:1px solid currentColor;
+  }
+
+  .wf-order{ margin-top:auto; padding-top:1rem; }
+  .wf-btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:12px;
+    width:100%; padding:18px 24px; border-radius:2px;
+    background:var(--re-ink); color:#fff; border:1px solid var(--re-ink);
+    font-size:.82rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    transition: background .3s var(--re-ease), transform .3s var(--re-ease);
+  }
+  .wf-btn:hover{ background:var(--re-olive-deep); border-color:var(--re-olive-deep); color:#fff; transform:translateY(-2px); }
+  .wf-btn .ic svg{ width:19px; height:19px; fill:currentColor; }
+  .wf-btn .arrow{ margin-left:auto; }
+
+  /* Trust & Safety */
+  .wf-section{ padding: 5.5rem 0; border-top:1px solid var(--re-line); }
+  .wf-section-head{ margin-bottom:3.2rem; }
+  .wf-eyebrow{ font-size:.68rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--re-olive-deep); margin-bottom:.9rem; }
+  .wf-h2{ font-size:clamp(1.6rem,2.6vw,2.1rem); margin:0; }
+
+  .wf-trust-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:2.4rem; }
+  @media (max-width:900px){ .wf-trust-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .wf-trust-grid{ grid-template-columns:1fr; } }
+  .wf-trust-num{ display:block; font-family:var(--re-serif); font-size:1.1rem; color:var(--re-olive); margin-bottom:.9rem; }
+  .wf-trust-card h4{ font-size:1rem; margin:0 0 .6rem; }
+  .wf-trust-card p{ font-size:.88rem; color:var(--re-muted); line-height:1.65; margin:0; }
+
+  /* Related */
+  .lux-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:2rem; }
+  @media (max-width:980px){ .lux-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .lux-grid{ grid-template-columns:1fr; } }
+  .lux-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; transition:transform .5s var(--re-ease); }
+  .lux-card:hover{ transform:translateY(-5px); color:inherit; }
+  .media{ position:relative; aspect-ratio:4/5; overflow:hidden; background:var(--re-surface); border:1px solid var(--re-line); border-radius:3px; margin-bottom:1rem; }
+  .media img{ width:100%; height:100%; object-fit:cover; transition:transform 1.2s var(--re-ease); }
+  .lux-card:hover .media img{ transform:scale(1.05); }
+  .lux-info{ display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+  .lux-info .name{ font-size:.94rem; font-weight:500; margin:0 0 3px; }
+  .lux-info .meta{ font-size:.74rem; color:var(--re-faint); text-transform:uppercase; letter-spacing:.04em; }
+  .lux-price{ font-family:var(--re-serif); font-size:.98rem; white-space:nowrap; }
+
+  @media (max-width:560px){
+    .wf-price{ font-size:1.9rem; }
+    .lux-price{ font-size:.88rem; }
+  }
+</style>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="wf-scroll-progress" id="wfProgress"></div>
+
+<div class="wf-shell">
+  <div class="wf-container">
+
+    <!-- BREADCRUMBS -->
+    <nav class="wf-crumbs wf-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Store" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Collection</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="wf-hero">
+
+      <!-- ============ GALLERY ============ -->
+      <div class="wf-gallery wf-reveal">
+        <div class="wf-stage" id="wfStage">
+          <div class="wf-stage-badge"><span class="dot"></span> Available</div>
+          <button class="wf-stage-zoom" id="wfZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="wf-stage-media" id="wfStageMedia">
+            {% if product.image %}
+              <img id="wfMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="wfMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="wfMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="wf-thumbs" id="wfThumbs">
+          {% if product.image %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image.url }}">
+              <img src="{{ product.image.url }}" alt="">
+            </div>
+          {% elif product.image_url %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image_url }}">
+              <img src="{{ product.image_url }}" alt="">
+            </div>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image.url }}">
+                <img src="{{ img.image.url }}" alt="">
+              </div>
+            {% elif img.image_url %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image_url }}">
+                <img src="{{ img.image_url }}" alt="">
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="wf-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb">
+                  <img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt="">
+                </div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ============ INFO PANEL ============ -->
+      <div class="wf-info wf-reveal">
+
+        <a href="{{ product.store.get_absolute_url }}" class="wf-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="wf-title">{{ product.name }}</h1>
+
+        <div class="wf-meta-row">
+          <span class="wf-avail"><span class="dot"></span> Available Now</span>
+          <span>Listed {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="wf-price-wrap">
+          <span class="wf-currency">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="wf-price" id="wfPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="wf-desc">
+          <div class="wf-desc-title">Property Description</div>
+          <div class="wf-desc-body" id="wfDescBody">
+            {{ product.description|default:"No description available."|linebreaks }}
+          </div>
+          <button class="wf-desc-toggle" id="wfDescToggle">Read more</button>
+        </div>
+
+<!-- ORDER SYSTEM -->
+<div class="wf-order">
+
+    <a
+        class="wf-btn"
+        href="{% url 'add_to_cart' product.slug %}"
+    >
+
+        <span class="ic">
+            <svg viewBox="0 0 24 24">
+                <path d="M12 2 2 9l10 7 10-7-10-7zM2 15l10 7 10-7M2 12l10 7 10-7"/>
+            </svg>
+        </span>
+
+        Enquire About This Property
+
+        <span class="arrow">→</span>
+
+    </a>
+
+</div>
+
+      </div>
     </div>
 
-    <!-- DETAILS -->
-    <div class="col-lg-6">
-      <span class="hero-badge mb-3 d-inline-block">Property Details</span>
+    <!-- ============ TRUST & SAFETY ============ -->
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div class="wf-eyebrow">Trust & Safety</div>
+        <h2 class="wf-h2">Enquire with confidence.</h2>
+      </div>
+      <div class="wf-trust-grid">
+        <div class="wf-trust-card"><span class="wf-trust-num">01</span><h4>Verify the seller</h4><p>Always confirm the seller's identity before sending payment.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">02</span><h4>Request a video call</h4><p>Ask to view the property live before completing any arrangement.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">03</span><h4>Confirm the details</h4><p>Clarify terms, timelines, and documentation up front.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">04</span><h4>Avoid upfront payments</h4><p>Never pay in full without proper verification.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">05</span><h4>Meet in person</h4><p>Where possible, arrange an in-person viewing before proceeding.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">06</span><h4>Too good to be true?</h4><p>Be cautious of deals that look suspiciously below market.</p></div>
+      </div>
+    </section>
 
-      <h2 class="fw-bold mb-2">
-        {{ product.name }}
-      </h2>
+    {% comment %} <!-- ============ COMMENTS ============ -->
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div>
+          <div class="wf-eyebrow">Community</div>
+          <h2 class="wf-h2">Leave a comment</h2>
+        </div>
+      </div>
 
-      <h4 class="text-primary fw-semibold mb-3">
-        {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% endif %}
-        {{ product.price|intcomma }}
-        </h4>
+      {% if user.is_authenticated %}
+        <form method="post" class="wf-comment-form">
+          {% csrf_token %}
+          <label class="wf-comment-label" for="wfCommentInput">Share your thoughts</label>
+          <textarea
+            id="wfCommentInput"
+            name="text"
+            placeholder="Write your comment here..."
+            required>{% if form.text.value %}{{ form.text.value }}{% endif %}</textarea>
+          {% if form.text.errors %}
+            <div style="color:#b00020;font-size:13px;margin-top:8px;font-weight:600">{{ form.text.errors|join:", " }}</div>
+          {% endif %}
+          <button type="submit" class="wf-comment-submit">Post Comment</button>
+        </form>
+      {% else %}
+        <div class="wf-login-prompt">
+          Please <a href="{% url 'login' %}?next={{ request.path }}">log in</a> to leave a comment.
+        </div>
+      {% endif %}
 
-      <p class="text-muted mb-4">
-        {{ product.description }}
-      </p>
+      <div class="wf-comments-wrap">
+        {% if comments %}
+          {% for c in comments %}
+            <div class="wf-comment-card" style="animation-delay:{{ forloop.counter0 }}00ms">
+              <div class="wf-avatar">{{ c.user.username|slice:":1"|upper }}</div>
+              <div>
+                <div class="wf-comment-head">
+                  <span class="wf-comment-user">{{ c.user.username }}</span>
+                  <span class="wf-comment-time">{{ c.created_at|timesince }} ago</span>
+                </div>
+                <div class="wf-comment-body">{{ c.text|linebreaks }}</div>
+              </div>
+            </div>
+          {% endfor %}
+        {% endif %}
+      </div>
+    </section> {% endcomment %}
 
-{% if product.store.order_system == 'whatsapp' %}
-  <a href="https://wa.me/{{ product.store.whatsapp_number }}?text=Hi%2C%20I%20found%20you%20on%20Waapfolio%20and%20I%20want%20to%20order%20{{ product.name|urlencode }} for           {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}  {{ product.price|intcomma }}" 
-     class="order-btn whatsapp-btn">Order on WhatsApp</a>
+    <!-- ============ RELATED PROPERTIES ============ -->
+    {% if products %}
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div class="wf-eyebrow">More From This Agency</div>
+        <h2 class="wf-h2">Discover more considered properties from {{ product.store.brand_name }}</h2>
+      </div>
 
-{% elif product.store.order_system == 'facebook' %}
-  {% if product.store.facebook_username %}
-    <a href="https://m.me/{{ product.store.facebook_username }}?ref={{ product.name|urlencode }}" 
-       class="order-btn facebook-btn">Order on Facebook</a>
-  {% else %}
-    <p class="text-muted">Facebook Messenger link not set.</p>
-  {% endif %}
+      <div class="lux-grid">
 
-{% elif product.store.order_system == 'tiktok' %}
-  <div class="d-flex flex-column gap-2">
-    <a href="{{ product.store.tiktok_link }}" target="_blank" class="order-btn tiktok-btn">Order on TikTok</a>
-    <input type="text" id="tiktokMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
-    <button onclick="copyMessage('tiktokMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
+        {% for product in products|slice:":4" %}
+
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card">
+
+            <div class="media">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+            </div>
+
+            <div class="lux-info">
+              <div>
+                <h6 class="name">{{ product.name }}</h6>
+                <div class="meta">{{ store.brand_name }}</div>
+              </div>
+              <div class="lux-price">
+                {% if product.currency == "NGN" %}₦
+                {% elif product.currency == "USD" %}$
+                {% elif product.currency == "EUR" %}€
+                {% elif product.currency == "GBP" %}£
+                {% elif product.currency == "GHS" %}₵
+                {% endif %}
+                {{ product.price|intcomma }}
+              </div>
+            </div>
+
+          </a>
+
+        {% endfor %}
+
+      </div>
+    </section>
+    {% endif %}
+
   </div>
+</div>
 
-{% elif product.store.order_system == 'depop' %}
-  <div class="d-flex flex-column gap-2">
-    <a href="{{ product.store.depop_link }}" target="_blank" class="order-btn depop-btn">Order on Depop</a>
-    <input type="text" id="depopMessage" value="Hi, I found you on Waapfolio and I want to order {{ product.name }}" readonly class="form-control">
-    <button onclick="copyMessage('depopMessage')" class="btn btn-secondary btn-sm mt-1">Copy Order Message</button>
-  </div>
+<script>
+  (function(){
+    // Reveal
+    var els = document.querySelectorAll('.wf-reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(function(e){ io.observe(e); });
+    } else {
+      els.forEach(function(e){ e.classList.add('in'); });
+    }
+
+    // Scroll progress
+    var bar = document.getElementById('wfProgress');
+    function onScroll(){
+      var h = document.documentElement;
+      var pct = (h.scrollTop) / (h.scrollHeight - h.clientHeight) * 100;
+      if (bar) bar.style.width = (isFinite(pct) ? pct : 0) + '%';
+    }
+    document.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    // Thumbnail switching
+    var main = document.getElementById('wfMainImg');
+    document.querySelectorAll('.wf-thumb').forEach(function(t){
+      t.addEventListener('click', function(){
+        document.querySelectorAll('.wf-thumb').forEach(function(x){ x.classList.remove('active'); });
+        t.classList.add('active');
+        var type = t.getAttribute('data-type');
+        var src = t.getAttribute('data-src');
+        var stageMedia = document.getElementById('wfStageMedia');
+        if (type === 'yt') {
+          stageMedia.innerHTML = '<iframe style="width:100%;height:100%;border:0" src="https://www.youtube.com/embed/' + src + '?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+        } else {
+          stageMedia.innerHTML = '<img id="wfMainImg" src="' + src + '" alt="">';
+        }
+      });
+    });
+
+    // Description expand/collapse
+    var descBody = document.getElementById('wfDescBody');
+    var descToggle = document.getElementById('wfDescToggle');
+    if (descBody && descToggle) {
+      if (descBody.scrollHeight <= descBody.clientHeight + 4) {
+        descToggle.style.display = 'none';
+      }
+      descToggle.addEventListener('click', function(){
+        var expanded = descBody.classList.toggle('expanded');
+        descToggle.textContent = expanded ? 'Show less' : 'Read more';
+      });
+    }
+
+    // Zoom toggle (simple)
+    var zoomBtn = document.getElementById('wfZoomBtn');
+    var stage = document.getElementById('wfStage');
+    if (zoomBtn && stage) {
+      zoomBtn.addEventListener('click', function(){
+        stage.classList.toggle('zoomed');
+        var img = document.getElementById('wfMainImg');
+        if (img) img.style.transform = stage.classList.contains('zoomed') ? 'scale(1.35)' : '';
+      });
+    }
+  })();
+</script>
+
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
 {% endif %}
-    </div>
 
-  </div>
-</section>
 {% endblock %}

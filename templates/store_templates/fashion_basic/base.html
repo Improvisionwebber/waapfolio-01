@@ -1,0 +1,518 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{{ store.brand_name }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#ffffff">
+  <meta name="description" content="{{ store.brand_name }} — a fashion house, powered by Waapfolio.">
+
+  <!-- Bootstrap (kept for compatibility with dropdowns / modals / collapse) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- Typography: fashion editorial — Bodoni Moda display + Archivo utility -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400;1,6..96,500&family=Archivo:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- GSAP + ScrollTrigger for cinematic scroll choreography -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    :root{
+      --fb-white:#ffffff;
+      --fb-off:#fafaf9;
+      --fb-black:#0d0d0d;
+      --fb-ink:#161616;
+      --fb-pink:#c2386a;
+      --fb-pink-deep:#9c2952;
+      --fb-pink-soft:#e7a9c1;
+      --fb-pink-pale:#fbeef3;
+      --fb-line:rgba(13,13,13,0.10);
+      --fb-line-strong:rgba(13,13,13,0.18);
+      --fb-hover:rgba(13,13,13,0.04);
+      --fb-gray:rgba(13,13,13,0.58);
+      --fb-gray-soft:rgba(13,13,13,0.40);
+      --fb-shadow-lg:0 40px 90px -35px rgba(13,13,13,0.20);
+      --fb-radius:2px;
+      --fb-display:'Bodoni Moda','Times New Roman',serif;
+      --fb-sans:'Archivo','Helvetica Neue',Arial,sans-serif;
+      --fb-ease:cubic-bezier(.16,.8,.24,1);
+      --fb-nav-h:76px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--fb-white);color:var(--fb-black);}
+    body{
+      font-family:var(--fb-sans);
+      font-size:15px;
+      line-height:1.6;
+      letter-spacing:.005em;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    h1,h2,h3,h4{font-family:var(--fb-display);font-weight:500;letter-spacing:-.01em;color:var(--fb-black);margin:0}
+
+    @media (prefers-reduced-motion: reduce){
+      *{animation-duration:0.001s !important; animation-iteration-count:1 !important; transition-duration:0.001s !important; scroll-behavior:auto !important;}
+    }
+
+    /* ============ NAVBAR ============ */
+    .wf-nav{
+      position:sticky;top:0;z-index:1030;
+      background:rgba(255,255,255,0.7);
+      backdrop-filter:saturate(160%) blur(18px);
+      -webkit-backdrop-filter:saturate(160%) blur(18px);
+      border-bottom:1px solid transparent;
+      transition:border-color .3s var(--fb-ease), box-shadow .3s var(--fb-ease), background .3s var(--fb-ease);
+    }
+    .wf-nav.is-scrolled{
+      border-bottom-color:var(--fb-line);
+      box-shadow:0 20px 50px -35px rgba(13,13,13,0.15);
+      background:rgba(255,255,255,0.94);
+    }
+    .wf-nav-inner{
+      max-width:1360px;margin:0 auto;
+      height:var(--fb-nav-h);
+      padding:0 32px;
+      display:flex;align-items:center;justify-content:space-between;gap:24px;
+    }
+
+    /* Logo */
+    .wf-brand{display:flex;align-items:center;gap:14px;min-width:0}
+    .wf-brand-mark{
+      width:40px;height:40px;border-radius:50%;
+      background:transparent;
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;border:1px solid var(--fb-line-strong);
+      flex-shrink:0;position:relative;
+    }
+    .wf-brand-mark img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;}
+    .wf-brand-mark .wf-mono{font-family:var(--fb-display);font-style:italic;font-size:16px;font-weight:500;color:var(--fb-black);}
+    .wf-brand-name{
+      font-family:var(--fb-display);font-size:20px;font-weight:500;font-style:italic;
+      letter-spacing:0;color:var(--fb-black);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px;
+    }
+
+    /* Desktop links */
+    .wf-links{display:flex;align-items:center;gap:6px;list-style:none;margin:0;padding:0}
+    .wf-link{
+      position:relative;padding:10px 16px;
+      font-size:11.5px;font-weight:600;color:var(--fb-gray);
+      letter-spacing:.18em;text-transform:uppercase;
+      transition:color .25s var(--fb-ease);
+    }
+    .wf-link::after{
+      content:"";position:absolute;left:16px;right:16px;bottom:4px;height:1px;
+      background:var(--fb-pink);transform:scaleX(0);transform-origin:left;
+      transition:transform .4s var(--fb-ease);
+    }
+    .wf-link:hover{color:var(--fb-black)}
+    .wf-link:hover::after,.wf-link.active::after{transform:scaleX(1)}
+    .wf-link.active{color:var(--fb-black)}
+
+    /* Right cluster */
+    .wf-actions{display:flex;align-items:center;gap:6px}
+    .wf-icon-btn{
+      width:40px;height:40px;border-radius:50%;
+      display:inline-grid;place-items:center;
+      background:transparent;border:1px solid transparent;color:var(--fb-black);
+      transition:background .25s var(--fb-ease),border-color .25s var(--fb-ease),transform .25s var(--fb-ease);
+      cursor:pointer;
+    }
+    .wf-icon-btn:hover{background:var(--fb-hover);border-color:var(--fb-line)}
+    .wf-icon-btn:active{transform:scale(.96)}
+    .wf-icon-btn i{font-size:18px;line-height:1}
+
+    /* Dropdown */
+    .wf-menu{
+      border:1px solid var(--fb-line-strong);border-radius:var(--fb-radius);
+      box-shadow:var(--fb-shadow-lg);padding:8px;
+      background:rgba(255,255,255,0.98);
+      backdrop-filter:saturate(160%) blur(20px);-webkit-backdrop-filter:saturate(160%) blur(20px);
+      min-width:240px;margin-top:10px !important;
+      animation:wfMenuIn .22s var(--fb-ease);
+    }
+    @keyframes wfMenuIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .wf-menu .dropdown-item{
+      display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:2px;
+      font-size:12.5px;letter-spacing:.04em;font-weight:500;color:var(--fb-gray);
+      transition:background .2s var(--fb-ease),color .2s var(--fb-ease);
+    }
+    .wf-menu .dropdown-item i{font-size:16px;color:var(--fb-pink);transition:color .2s var(--fb-ease)}
+    .wf-menu .dropdown-item:hover,.wf-menu .dropdown-item:focus{background:var(--fb-pink-pale);color:var(--fb-black);}
+    .wf-menu .dropdown-divider{border-top:1px solid var(--fb-line);margin:6px 4px}
+
+    /* Mobile menu toggle */
+    .wf-burger{display:none}
+    @media (max-width:900px){
+      .wf-links-wrap{display:none}
+      .wf-burger{display:inline-grid}
+      .wf-nav-inner{padding:0 18px;height:64px}
+      :root{--fb-nav-h:64px}
+      .wf-brand-name{font-size:18px;max-width:160px}
+    }
+
+    /* Mobile drawer */
+    .wf-drawer{
+      position:fixed;inset:0;z-index:1050;
+      background:rgba(13,13,13,0.35);backdrop-filter:blur(4px);
+      opacity:0;pointer-events:none;transition:opacity .3s var(--fb-ease);
+    }
+    .wf-drawer.open{opacity:1;pointer-events:auto}
+    .wf-drawer-panel{
+      position:absolute;top:0;right:0;bottom:0;width:min(420px,86vw);
+      background:var(--fb-white);
+      transform:translateX(100%);transition:transform .5s var(--fb-ease);
+      display:flex;flex-direction:column;box-shadow:var(--fb-shadow-lg);
+      border-left:1px solid var(--fb-line);
+    }
+    .wf-drawer.open .wf-drawer-panel{transform:translateX(0)}
+    .wf-drawer-head{display:flex;align-items:center;justify-content:space-between;padding:24px 26px;border-bottom:1px solid var(--fb-line);}
+    .wf-drawer-eyebrow{font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--fb-gray-soft)}
+    .wf-drawer-body{padding:16px 14px;flex:1;overflow-y:auto}
+    .wf-drawer-link{
+      display:flex;align-items:center;justify-content:space-between;padding:18px 16px;border-radius:2px;
+      font-family:var(--fb-display);font-style:italic;font-size:24px;font-weight:500;
+      color:var(--fb-black);letter-spacing:-.01em;transition:background .2s var(--fb-ease), color .2s var(--fb-ease);
+    }
+    .wf-drawer-link:hover,.wf-drawer-link.active{background:var(--fb-pink-pale);color:var(--fb-pink-deep)}
+    .wf-drawer-link i{font-size:16px;color:var(--fb-pink)}
+    .wf-drawer-foot{padding:20px 26px 28px;border-top:1px solid var(--fb-line);display:flex;flex-direction:column;gap:10px;}
+    .wf-drawer-action{
+      display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:2px;
+      font-size:13px;letter-spacing:.04em;color:var(--fb-gray);font-weight:500;
+      transition:background .2s var(--fb-ease);
+    }
+    .wf-drawer-action:hover{background:var(--fb-hover);color:var(--fb-black)}
+    .wf-drawer-action i{font-size:16px}
+
+    /* ============ MAIN ============ */
+    .wf-main{
+      max-width:100%;margin:0 auto;
+      padding:0;
+      min-height:calc(100vh - var(--fb-nav-h) - 180px);
+    }
+
+    /* ============ MODAL ============ */
+    .wf-modal .modal-dialog{max-width:480px;margin:6vh auto}
+    .wf-modal .modal-content{
+      border:1px solid var(--fb-line-strong);border-radius:var(--fb-radius);
+      box-shadow:var(--fb-shadow-lg);background:rgba(255,255,255,0.99);
+      backdrop-filter:saturate(160%) blur(16px);overflow:hidden;color:var(--fb-black);
+    }
+    .wf-modal .modal-header{border-bottom:1px solid var(--fb-line);padding:24px 26px;align-items:flex-start;}
+    .wf-modal .modal-title{font-family:var(--fb-display);font-style:italic;font-size:22px;font-weight:500;letter-spacing:-.01em;color:var(--fb-black);}
+    .wf-modal .modal-body{padding:26px}
+    .wf-modal .modal-subtitle{font-size:13px;color:var(--fb-gray-soft);margin:0 0 16px;}
+    .wf-modal .btn-close{opacity:.55}
+    .wf-modal .btn-close:hover{opacity:1}
+
+    .wf-link-field{
+      display:flex;align-items:center;gap:8px;border:1px solid var(--fb-line);border-radius:2px;
+      padding:6px 6px 6px 14px;background:var(--fb-off);
+      transition:border-color .2s var(--fb-ease),background .2s var(--fb-ease);
+    }
+    .wf-link-field:focus-within{border-color:var(--fb-pink);background:var(--fb-white)}
+    .wf-link-field input{
+      flex:1;min-width:0;border:0;outline:0;background:transparent;
+      font-family:var(--fb-sans);font-size:13.5px;color:var(--fb-black);padding:10px 0;
+    }
+    .wf-btn{
+      display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:2px;
+      font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+      border:1px solid var(--fb-black);background:var(--fb-black);color:var(--fb-white);
+      transition:transform .2s var(--fb-ease),background .2s var(--fb-ease),color .2s var(--fb-ease),border-color .2s var(--fb-ease);cursor:pointer;
+    }
+    .wf-btn:hover{background:var(--fb-pink);border-color:var(--fb-pink);color:var(--fb-white)}
+    .wf-btn:active{transform:scale(.97)}
+    .wf-btn-ghost{background:transparent;color:var(--fb-black);border-color:var(--fb-line-strong);}
+    .wf-btn-ghost:hover{background:var(--fb-hover)}
+    .wf-helper{font-size:12.5px;color:var(--fb-gray-soft);margin-top:14px;line-height:1.5}
+
+    /* ============ FOOTER ============ */
+    .wf-footer{border-top:1px solid var(--fb-line);background:var(--fb-white);}
+    .wf-footer-inner{
+      max-width:1360px;margin:0 auto;padding:44px 32px;
+      display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    }
+    .wf-footer-brand{font-family:var(--fb-display);font-style:italic;font-size:17px;color:var(--fb-black);letter-spacing:-.01em;}
+    .wf-footer-meta{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--fb-gray-soft);}
+    .wf-footer-meta a{color:var(--fb-gray);font-weight:600;border-bottom:1px solid var(--fb-line);padding-bottom:1px;transition:color .2s var(--fb-ease),border-color .2s var(--fb-ease);}
+    .wf-footer-meta a:hover{color:var(--fb-pink);border-color:var(--fb-pink)}
+    @media (max-width:600px){.wf-footer-inner{padding:32px 18px;flex-direction:column;align-items:flex-start;gap:10px}}
+
+    /* Toast */
+    .wf-toast{
+      position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);
+      background:var(--fb-black);color:var(--fb-white);padding:12px 20px;border-radius:999px;
+      font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+      box-shadow:var(--fb-shadow-lg);opacity:0;pointer-events:none;
+      transition:opacity .3s var(--fb-ease),transform .3s var(--fb-ease);z-index:1080;
+    }
+    .wf-toast.show{opacity:1;transform:translate(-50%,0)}
+
+    ::selection{background:var(--fb-pink-soft);color:var(--fb-black)}
+    .wf-cart-badge{
+      position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:50%;
+      background:var(--fb-pink);color:#fff;font-size:10px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;padding:0 5px;
+      border:2px solid var(--fb-white);line-height:1;
+    }
+  </style>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ============== NAVBAR ============== -->
+  <header class="wf-nav" id="wfNav">
+    <div class="wf-nav-inner">
+
+<a class="wf-brand" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+ <span class="wf-brand-mark">
+
+{% if "http" in store.brand_logo.name %}
+    <img src="{{ store.brand_logo }}"
+         alt="{{ store.brand_name }}"
+         class="wf-logo">
+
+{% elif store.brand_logo %}
+    <img src="{{ store.brand_logo.url }}"
+         alt="{{ store.brand_name }}"
+         class="wf-logo">
+
+{% elif store.brand_logo_url %}
+    <img src="{{ store.brand_logo_url }}"
+         alt="{{ store.brand_name }}"
+         class="wf-logo">
+
+{% else %}
+    <span class="wf-mono">
+        {{ store.brand_name|first|upper }}
+    </span>
+{% endif %}
+
+  </span>
+  <span class="wf-brand-name">{{ store.brand_name }}</span>
+</a>
+
+      <!-- Desktop nav -->
+      <nav class="wf-links-wrap" aria-label="Primary">
+        <ul class="wf-links">
+          <li><a class="wf-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Collection</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li>
+              <a href="{% url 'cart' %}" class="wf-icon-btn position-relative" aria-label="Shopping Cart">
+                  <i class="bi bi-bag"></i>
+                  {% if cart_count %}
+                      <span class="wf-cart-badge">{{ cart_count }}</span>
+                  {% endif %}
+              </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Actions -->
+      <div class="wf-actions">
+<button class="wf-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#wfShareModal" aria-label="Share store">
+    <i class="bi bi-share"></i>
+</button>
+<button class="wf-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#wfProLinkModal" aria-label="Get professional link">
+        <i class="bi bi-link-45deg"></i>
+    </button>
+        <div class="dropdown d-none d-md-inline-block">
+          <button class="wf-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end wf-menu">
+            {% if request.user.is_authenticated and request.user == store.owner %}
+            <li>
+                <a class="dropdown-item" href="{% url 'create_store' store.slug %}">
+                    <i class="bi bi-pencil-square me-2"></i>Edit Store
+                </a>
+            </li>
+            <li>
+                <a class="dropdown-item" href="{% url 'manage_store' store.slug %}">
+                    <i class="bi bi-gear me-2"></i>Manage Store
+                </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            {% if not request.user.is_authenticated or request.user != store.owner %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+                <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
+                    <i class="bi bi-flag me-2"></i>Report Store
+                </button>
+            </li>
+            {% endif %}
+          </ul>
+        </div>
+
+<a href="{% url 'cart' %}" class="wf-icon-btn d-inline-grid d-md-none position-relative" aria-label="Shopping Cart">
+    <i class="bi bi-bag"></i>
+    {% if cart_count %}
+    <span class="wf-cart-badge">{{ cart_count }}</span>
+    {% endif %}
+</a>
+
+  <button class="wf-icon-btn wf-burger" type="button" id="wfBurger" aria-label="Open menu">
+      <i class="bi bi-list" style="font-size:22px"></i>
+  </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============== MOBILE DRAWER ============== -->
+  <div class="wf-drawer" id="wfDrawer" aria-hidden="true">
+    <div class="wf-drawer-panel" role="dialog" aria-label="Menu">
+      <div class="wf-drawer-head">
+        <span class="wf-drawer-eyebrow">Menu</span>
+        <button class="wf-icon-btn" type="button" id="wfDrawerClose" aria-label="Close menu">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="wf-drawer-body">
+        <a class="wf-drawer-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Collection <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact <i class="bi bi-arrow-up-right"></i></a>
+      </div>
+      <div class="wf-drawer-foot">
+        {% if request.user.is_authenticated and request.user == store.owner %}
+          <a class="wf-drawer-action" href="{% url 'create_store' store.slug %}"><i class="bi bi-pencil-square"></i> Edit Store</a>
+          <a class="wf-drawer-action" href="{% url 'manage_store' store.slug %}"><i class="bi bi-gear"></i> Manage Store</a>
+        {% endif %}
+        <a class="wf-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#wfShareModal"><i class="bi bi-share"></i> Share on Socials</a>
+        <a class="wf-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#wfProLinkModal"><i class="bi bi-link-45deg"></i> Get Professional Link</a>
+        {% if not request.user.is_authenticated or request.user != store.owner %}
+          <a class="wf-drawer-action" href="#"><i class="bi bi-flag"></i> Report Store</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SHARE MODAL ============== -->
+  <div class="modal fade wf-modal" id="wfShareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Share {{ store.brand_name }}</h5>
+            <p class="modal-subtitle">Send your storefront to clients and audiences.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="wf-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="wfShareUrl">
+            <button class="wf-btn" type="button" onclick="wfCopy('wfShareUrl', this)"><i class="bi bi-clipboard"></i> Copy</button>
+          </div>
+          <p class="wf-helper">Share the link across WhatsApp, Instagram, X, and your professional channels.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== PROFESSIONAL LINK MODAL ============== -->
+  <div class="modal fade wf-modal" id="wfProLinkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Professional Link</h5>
+            <p class="modal-subtitle">A polished, client-ready storefront URL.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="wf-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="wfProUrl">
+            <button class="wf-btn" type="button" onclick="wfCopy('wfProUrl', this)"><i class="bi bi-clipboard"></i> Copy</button>
+          </div>
+          <p class="wf-helper">Add this link to your social media bios and share it directly with your clients.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== MAIN CONTENT ============== -->
+  <main class="wf-main">
+    {% block body %}{% endblock %}
+  </main>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="wf-footer">
+    <div class="wf-footer-inner">
+      <div class="wf-footer-brand">{{ store.brand_name }}</div>
+      <div class="wf-footer-meta">Powered by <a href="https://waapfolio.com" target="_blank" rel="noopener">Waapfolio</a></div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="wf-toast" id="wfToast">Link copied</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    if (window.gsap && window.ScrollTrigger) { gsap.registerPlugin(ScrollTrigger); }
+
+    (function(){
+      var nav = document.getElementById('wfNav');
+      var onScroll = function(){
+        if(window.scrollY > 6) nav.classList.add('is-scrolled');
+        else nav.classList.remove('is-scrolled');
+      };
+      document.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+
+    (function(){
+      var drawer = document.getElementById('wfDrawer');
+      var openBtn = document.getElementById('wfBurger');
+      var closeBtn = document.getElementById('wfDrawerClose');
+      function open(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function close(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+      if(openBtn) openBtn.addEventListener('click', open);
+      if(closeBtn) closeBtn.addEventListener('click', close);
+      drawer.addEventListener('click', function(e){ if(e.target === drawer) close(); });
+      drawer.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+    })();
+
+    (function(){
+      var here = window.location.pathname.replace(/\/+$/,'');
+      document.querySelectorAll('.wf-link, .wf-drawer-link').forEach(function(a){
+        var p = (a.getAttribute('href')||'').replace(/\/+$/,'');
+        if(p && p === here) a.classList.add('active');
+      });
+    })();
+
+    function wfCopy(id, btn){
+      var input = document.getElementById(id);
+      if(!input) return;
+      input.select(); input.setSelectionRange(0,99999);
+      try { navigator.clipboard.writeText(input.value); } catch(e){ document.execCommand('copy'); }
+      var original = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+      var toast = document.getElementById('wfToast');
+      toast.classList.add('show');
+      setTimeout(function(){ btn.innerHTML = original; toast.classList.remove('show'); }, 1800);
+    }
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,64 +1,734 @@
 {% extends "store_templates/real_estate_basic/base.html" %}
-{% block title %}{{ store.brand_name }}{% endblock %}
+{% block title %}{{ store.brand_name }} — Considered Properties{% endblock %}
 
 {% block body %}
+{% load static %}
+{% load humanize %}
+<style>
+  :root{
+    --re-hero-h: 100svh;
+  }
 
-<!-- HERO -->
-<section class="py-5 text-center">
-  <span class="hero-badge mb-3 d-inline-block">Real Estate</span>
+  .re-page{
+    font-family: var(--re-sans);
+    color: var(--re-ink);
+    background: var(--re-bg);
+    overflow-x: hidden;
+  }
+  .re-page *{ box-sizing:border-box; }
+  .re-container{ max-width:1360px; margin:0 auto; padding:0 32px; }
+  @media (max-width:900px){ .re-container{ padding:0 20px; } }
 
-  <h1 class="fw-bold display-6">
-    {{ store.brand_name }}
-  </h1>
+  /* ─── Reveal on scroll ─── */
+  .re-reveal{
+    opacity:0; transform:translateY(26px);
+    transition:opacity 1s var(--re-ease), transform 1s var(--re-ease);
+    will-change:opacity,transform;
+  }
+  .re-reveal.is-visible{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){
+    .re-reveal{ opacity:1; transform:none; transition:none; }
+  }
 
-  <p class="text-muted col-lg-8 mx-auto">
-    {{ store.bio }}
-  </p>
+  /* ══════════════════════ HERO ══════════════════════ */
+  .re-hero{
+    position:relative;
+    min-height:var(--re-hero-h);
+    display:flex;
+    align-items:center;
+    padding: calc(var(--re-nav-h) + 40px) 0 80px;
+    background:
+      radial-gradient(1100px 620px at 85% -8%, #eee9dc 0%, transparent 60%),
+      radial-gradient(900px 520px at -5% 15%, #f2efe6 0%, transparent 55%),
+      var(--re-bg);
+    perspective: 1400px;
+    overflow:hidden;
+  }
+  .re-hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background-image:
+      linear-gradient(rgba(20,20,15,.028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(20,20,15,.028) 1px, transparent 1px);
+    background-size: 88px 88px;
+    mask-image: radial-gradient(ellipse at 60% 25%, #000 35%, transparent 78%);
+    opacity:.5; pointer-events:none;
+  }
+  .re-hero-grid{
+    position:relative; z-index:2;
+    display:grid;
+    grid-template-columns: 1.05fr 0.95fr;
+    gap: 56px;
+    align-items:center;
+    width:100%;
+  }
+  @media (max-width:1080px){
+    .re-hero-grid{ grid-template-columns:1fr; gap:44px; }
+  }
 
-  {% if store.whatsapp %}
-  <a href="https://wa.me/{{ store.whatsapp }}"
-     class="btn btn-primary btn-lg mt-3 px-4">
-    <i class="bi bi-whatsapp me-2"></i>
-    Book Inspection
-  </a>
-  {% endif %}
-</section>
+  .re-hero-copy{ max-width:560px; }
+  .re-eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:8px 16px 8px 12px;
+    background:var(--re-glass);
+    border:1px solid var(--re-line);
+    border-radius:999px;
+    font-size:.68rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--re-muted);
+    margin-bottom:2rem;
+    backdrop-filter: blur(6px);
+  }
+  .re-eyebrow .dot{
+    width:6px;height:6px;border-radius:50%;
+    background:var(--re-olive);
+    box-shadow:0 0 0 4px rgba(74,90,61,.14);
+    animation: re-pulse 2.6s ease-in-out infinite;
+  }
+  @keyframes re-pulse{ 0%,100%{opacity:1} 50%{opacity:.5} }
+  @media (prefers-reduced-motion: reduce){ .re-eyebrow .dot{ animation:none; } }
 
-<!-- LISTINGS -->
-<section class="pb-5">
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-semibold mb-0">Featured Properties</h3>
-  </div>
+  .re-hero h1{
+    font-size: clamp(2.6rem, 5.2vw, 4.6rem);
+    line-height: 1.03;
+    letter-spacing:-0.025em;
+    font-weight:400;
+    margin:0 0 1.6rem;
+    color:var(--re-ink);
+  }
+  .re-hero h1 em{
+    font-style:italic;
+    color:var(--re-olive-deep);
+  }
+  .re-hero .re-bio{
+    font-size: clamp(1rem, 1.4vw, 1.12rem);
+    line-height:1.7;
+    color:var(--re-ink-soft);
+    max-width:480px;
+    margin:0 0 2.6rem;
+    font-weight:400;
+  }
 
-  <div class="row g-4">
-    {% for product in products|slice:":6" %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm">
+  .re-cta-row{ display:flex; flex-wrap:wrap; align-items:center; gap:20px; }
+  .re-cta{
+    display:inline-flex; align-items:center; gap:11px;
+    padding:17px 30px;
+    background:var(--re-ink);
+    color:#fff;
+    border:1px solid var(--re-ink);
+    border-radius:2px;
+    font-size:.78rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+    text-decoration:none;
+    transition: transform .4s var(--re-ease), background .4s var(--re-ease);
+  }
+  .re-cta:hover{ background:var(--re-olive-deep); border-color:var(--re-olive-deep); color:#fff; transform:translateY(-2px); }
+  .re-cta svg{ width:16px; height:16px; }
+  .re-cta-ghost{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
+    color:var(--re-ink-soft);
+    padding-bottom:2px; border-bottom:1px solid var(--re-line-strong);
+    transition: color .3s var(--re-ease), border-color .3s var(--re-ease);
+  }
+  .re-cta-ghost:hover{ color:var(--re-olive-deep); border-color:var(--re-olive-deep); }
 
-          {% if product.image %}
-          <img src="{{ product.image.url }}"
-               class="card-img-top"
-               style="height:190px; object-fit:cover;">
+  .re-hero-stats{
+    display:flex; gap:2.6rem;
+    margin-top:3.4rem;
+    padding-top:2rem;
+    border-top:1px solid var(--re-line);
+  }
+  .re-hero-stat b{
+    display:block; font-family:var(--re-serif); font-size:1.7rem; font-weight:400; color:var(--re-ink);
+  }
+  .re-hero-stat span{
+    display:block; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; color:var(--re-muted); margin-top:4px;
+  }
+
+  /* ─── Hero visual: layered 3D architectural frame ─── */
+  .re-hero-visual{
+    position:relative;
+    height: clamp(420px, 52vw, 620px);
+    transform-style: preserve-3d;
+  }
+  .re-frame{
+    position:absolute;
+    border-radius: 3px;
+    overflow:hidden;
+    box-shadow: var(--re-shadow-lg);
+    background: var(--re-surface);
+    border:1px solid var(--re-line);
+    transition: transform .7s var(--re-ease);
+  }
+  .re-frame img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .re-frame-main{
+    inset: 0 8% 6% 0;
+    z-index:2;
+    transform: rotateY(-6deg) rotateX(2deg) translateZ(0);
+  }
+  .re-frame-back{
+    inset: 10% 0 0 12%;
+    z-index:1;
+    opacity:.55;
+    filter:saturate(.8);
+    transform: rotateY(-6deg) rotateX(2deg) translateZ(-90px) translateY(14px);
+  }
+  .re-hero-visual:hover .re-frame-main{ transform: rotateY(-2deg) rotateX(1deg) translateZ(20px); }
+  .re-hero-visual:hover .re-frame-back{ transform: rotateY(-2deg) rotateX(1deg) translateZ(-70px) translateY(10px); }
+  @media (prefers-reduced-motion: reduce){
+    .re-frame{ transition:none; }
+  }
+
+  .re-frame-empty{
+    display:flex; align-items:center; justify-content:center;
+    background:
+      repeating-linear-gradient(135deg, rgba(20,20,15,.035) 0 2px, transparent 2px 26px),
+      var(--re-surface);
+  }
+  .re-frame-empty .mark{
+    font-family:var(--re-serif); font-size:1.1rem; color:var(--re-muted); letter-spacing:.02em;
+  }
+
+  .re-floating-card{
+    position:absolute;
+    z-index:3;
+    background:var(--re-glass-strong);
+    backdrop-filter: blur(16px) saturate(160%);
+    border:1px solid var(--re-line);
+    border-radius:3px;
+    box-shadow: var(--re-shadow-md);
+    padding:18px 20px;
+    transform: translateZ(60px);
+    max-width:230px;
+  }
+  .re-floating-card--price{
+    left:-6%; bottom:10%;
+  }
+  .re-floating-card .k{
+    font-size:.63rem; letter-spacing:.12em; text-transform:uppercase; color:var(--re-muted); margin-bottom:6px;
+  }
+  .re-floating-card .v{
+    font-family:var(--re-serif); font-size:1.35rem; color:var(--re-ink); font-weight:400;
+  }
+  .re-floating-card .name{
+    font-size:.82rem; color:var(--re-ink-soft); margin-top:4px; font-weight:500;
+  }
+
+  .re-floating-badge{
+    position:absolute; top:6%; right:2%;
+    z-index:3;
+    display:flex; align-items:center; gap:8px;
+    background:var(--re-glass-strong);
+    backdrop-filter: blur(16px);
+    border:1px solid var(--re-line);
+    border-radius:999px;
+    padding:9px 16px 9px 10px;
+    box-shadow: var(--re-shadow-md);
+    transform: translateZ(70px);
+    font-size:.72rem; font-weight:600; color:var(--re-ink-soft); letter-spacing:.03em;
+  }
+  .re-floating-badge .ic{
+    width:22px; height:22px; border-radius:50%;
+    background:var(--re-olive); color:#fff;
+    display:grid; place-items:center; font-size:11px;
+  }
+
+  .re-scroll-cue{
+    position:absolute; left:32px; bottom:28px; z-index:2;
+    display:flex; align-items:center; gap:10px;
+    font-size:.68rem; letter-spacing:.14em; text-transform:uppercase; color:var(--re-muted);
+  }
+  .re-scroll-cue .line{
+    width:36px; height:1px; background:var(--re-line-strong);
+    position:relative; overflow:hidden;
+  }
+  .re-scroll-cue .line::after{
+    content:""; position:absolute; left:-100%; top:0; bottom:0; width:100%;
+    background:var(--re-olive);
+    animation: re-scrollline 2.2s var(--re-ease) infinite;
+  }
+  @keyframes re-scrollline{ 0%{left:-100%} 60%,100%{left:100%} }
+  @media (max-width:1080px){ .re-scroll-cue{ display:none; } }
+
+  /* ══════════════════════ TRUST STRIP ══════════════════════ */
+  .re-trust{
+    padding:1.9rem 0;
+    border-top:1px solid var(--re-line);
+    border-bottom:1px solid var(--re-line);
+    background:var(--re-bg);
+  }
+  .re-trust-row{
+    display:flex; flex-wrap:wrap; justify-content:center; align-items:center;
+    gap:.6rem 2.8rem;
+    color:var(--re-muted);
+    font-size:.76rem; font-weight:500; letter-spacing:.06em; text-transform:uppercase;
+  }
+  .re-trust-item{ display:inline-flex; align-items:center; gap:9px; }
+  .re-trust-item svg{ width:14px; height:14px; stroke:var(--re-olive); }
+
+  /* ══════════════════════ SECTION SHELL ══════════════════════ */
+  .re-section{ padding:7.5rem 0; background:var(--re-bg); }
+  .re-section--alt{ background:var(--re-surface); }
+  .re-section-head{
+    display:flex; align-items:flex-end; justify-content:space-between; gap:2rem;
+    margin-bottom:4.2rem; flex-wrap:wrap;
+  }
+  .re-section-head__left{ max-width:560px; }
+  .re-section-label{
+    display:inline-block; font-size:.68rem; font-weight:600; letter-spacing:.18em; text-transform:uppercase;
+    color:var(--re-olive-deep); margin-bottom:1.1rem;
+  }
+  .re-section-title{
+    font-size:clamp(2rem,3.6vw,2.9rem); line-height:1.12; letter-spacing:-0.02em; font-weight:400; color:var(--re-ink); margin:0;
+  }
+  .re-section-sub{ font-size:1rem; color:var(--re-muted); line-height:1.65; max-width:380px; margin:0; }
+
+  /* ══════════════════════ WALKTHROUGH ══════════════════════ */
+  .re-walk{ background:var(--re-bg); }
+  .re-walk-intro{ text-align:center; max-width:640px; margin:0 auto 5rem; }
+  .re-walk-item{
+    display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center;
+    padding:4rem 0;
+    border-top:1px solid var(--re-line);
+  }
+  .re-walk-item:first-of-type{ border-top:none; padding-top:0; }
+  .re-walk-item.rev{ direction: rtl; }
+  .re-walk-item.rev > *{ direction: ltr; }
+  @media (max-width:900px){
+    .re-walk-item{ grid-template-columns:1fr; gap:28px; direction:ltr !important; }
+    .re-walk-item > *{ direction:ltr !important; }
+  }
+  .re-walk-media{
+    position:relative; aspect-ratio:5/4; border-radius:3px; overflow:hidden;
+    box-shadow:var(--re-shadow-md); border:1px solid var(--re-line);
+    transform-style:preserve-3d;
+    transition: transform .6s var(--re-ease);
+  }
+  .re-walk-media img{ width:100%; height:100%; object-fit:cover; transition: transform 1.4s var(--re-ease); }
+  .re-walk-item:hover .re-walk-media img{ transform:scale(1.05); }
+  .re-walk-media-empty{
+    display:flex; align-items:center; justify-content:center;
+    background: repeating-linear-gradient(135deg, rgba(20,20,15,.035) 0 2px, transparent 2px 26px), var(--re-surface);
+    color:var(--re-muted); font-family:var(--re-serif); font-size:1.1rem;
+  }
+  .re-walk-tag{
+    position:absolute; top:18px; left:18px;
+    background:var(--re-glass-strong); backdrop-filter:blur(10px);
+    border:1px solid var(--re-line); border-radius:999px;
+    padding:7px 14px; font-size:.66rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; color:var(--re-ink-soft);
+  }
+  .re-walk-num{
+    font-family:var(--re-serif); font-size:.85rem; color:var(--re-faint); letter-spacing:.06em; margin-bottom:1.1rem; display:block;
+  }
+  .re-walk-copy h3{ font-size:clamp(1.5rem,2.4vw,2rem); margin:0 0 1rem; line-height:1.18; }
+  .re-walk-copy p{ font-size:.98rem; color:var(--re-muted); line-height:1.7; margin:0 0 1.6rem; max-width:420px; }
+  .re-walk-price{ font-family:var(--re-serif); font-size:1.5rem; color:var(--re-ink); margin-bottom:1.4rem; }
+  .re-walk-link{
+    display:inline-flex; align-items:center; gap:8px;
+    font-size:.78rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    color:var(--re-olive-deep); padding-bottom:2px; border-bottom:1px solid currentColor;
+  }
+
+  /* ══════════════════════ PROPERTY GRID ══════════════════════ */
+  .re-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:2.6rem 2rem; }
+  @media (max-width:980px){ .re-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:620px){ .re-grid{ grid-template-columns:1fr; } }
+
+  .re-card{
+    display:flex; flex-direction:column; text-decoration:none; color:inherit;
+    transition: transform .55s var(--re-ease);
+  }
+  .re-card:hover{ transform:translateY(-6px); color:inherit; }
+  .re-card-media{
+    position:relative; aspect-ratio:4/5; overflow:hidden;
+    background:var(--re-surface); border:1px solid var(--re-line); border-radius:3px; margin-bottom:1.3rem;
+  }
+  .re-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1.3s var(--re-ease); }
+  .re-card:hover .re-card-media img{ transform:scale(1.06); }
+  .re-card-media--empty{
+    display:flex; align-items:center; justify-content:center; color:var(--re-faint);
+    font-size:.78rem; letter-spacing:.08em; text-transform:uppercase;
+    background: repeating-linear-gradient(135deg, rgba(20,20,15,.035) 0 2px, transparent 2px 26px), var(--re-surface);
+  }
+  .re-card-index{
+    position:absolute; top:14px; left:14px;
+    background:var(--re-glass-strong); backdrop-filter:blur(8px);
+    border:1px solid var(--re-line); border-radius:999px;
+    padding:5px 11px; font-size:.66rem; font-weight:600; letter-spacing:.08em; color:var(--re-ink-soft);
+  }
+  .re-card-view{
+    position:absolute; left:14px; right:14px; bottom:14px;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px; background:var(--re-glass-strong); backdrop-filter:blur(10px);
+    border:1px solid var(--re-line); border-radius:2px;
+    font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--re-ink);
+    opacity:0; transform:translateY(8px);
+    transition: opacity .4s var(--re-ease), transform .4s var(--re-ease);
+  }
+  .re-card:hover .re-card-view{ opacity:1; transform:none; }
+  .re-card-body{ display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+  .re-card-name{ font-size:1.02rem; font-weight:500; color:var(--re-ink); margin:0 0 4px; line-height:1.35; letter-spacing:-0.005em; }
+  .re-card-meta{ font-size:.78rem; color:var(--re-faint); letter-spacing:.04em; text-transform:uppercase; }
+  .re-card-price{ font-family:var(--re-serif); font-size:1.08rem; color:var(--re-ink); white-space:nowrap; }
+
+  .re-empty{
+    text-align:center; padding:5rem 2rem; border:1px dashed var(--re-line-strong); border-radius:4px;
+  }
+  .re-empty .mark{ width:52px; height:52px; margin:0 auto 1.4rem; border-radius:50%; background:var(--re-surface); display:grid; place-items:center; color:var(--re-olive); }
+  .re-empty h3{ font-size:1.3rem; margin:0 0 .5rem; }
+  .re-empty p{ color:var(--re-muted); font-size:.92rem; margin:0; }
+
+  .re-view-all{ text-align:center; margin-top:4rem; }
+
+  /* ══════════════════════ VALUE PROPS ══════════════════════ */
+  .re-values{ display:grid; grid-template-columns:repeat(4,1fr); gap:2.6rem; }
+  @media (max-width:980px){ .re-values{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .re-values{ grid-template-columns:1fr; } }
+  .re-value-num{ font-family:var(--re-serif); font-size:1.2rem; color:var(--re-olive); margin-bottom:1rem; }
+  .re-values h4{ font-size:1.06rem; margin:0 0 .7rem; line-height:1.35; }
+  .re-values p{ font-size:.9rem; color:var(--re-muted); line-height:1.65; margin:0; }
+
+  /* ══════════════════════ FINAL CTA ══════════════════════ */
+  .re-final{
+    position:relative;
+    padding:8rem 2rem; text-align:center;
+    background: linear-gradient(180deg, var(--re-ink) 0%, var(--re-ink) 100%);
+    color:#fff; overflow:hidden;
+  }
+  .re-final::before{
+    content:""; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:70px 70px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  }
+  .re-final-inner{ position:relative; max-width:640px; margin:0 auto; }
+  .re-final h2{ color:#fff; font-size:clamp(2rem,3.6vw,2.8rem); margin:0 0 1.1rem; line-height:1.16; }
+  .re-final p{ color:rgba(255,255,255,.62); font-size:1.02rem; margin:0 0 2.4rem; }
+  .re-final .re-cta{ background:#fff; color:var(--re-ink); border-color:#fff; }
+  .re-final .re-cta:hover{ background:var(--re-olive-soft); border-color:var(--re-olive-soft); color:#fff; }
+  .re-final .re-cta svg{ fill:currentColor; }
+</style>
+
+<div class="re-page">
+
+  {% with hero_p=products.0 %}
+  <!-- ══════════════ HERO ══════════════ -->
+  <section class="re-hero">
+    <div class="re-container">
+      <div class="re-hero-grid">
+
+        <div class="re-hero-copy re-reveal">
+          <span class="re-eyebrow">
+            <span class="dot"></span>
+            Currently accepting enquiries
+          </span>
+
+          <h1>The art of finding <em>where you belong.</em></h1>
+
+          {% if store.bio %}
+            <p class="re-bio">{{ store.bio }}</p>
+          {% else %}
+            <p class="re-bio">{{ store.brand_name }} curates a considered collection of properties — presented with the clarity they deserve, and available to view by direct conversation.</p>
           {% endif %}
 
-          <div class="card-body">
-            <h6 class="mb-1">{{ product.name }}</h6>
+          <div class="re-cta-row">
+            {% if store.whatsapp %}
+              <a href="https://wa.me/{{ store.whatsapp }}" class="re-cta" target="_blank" rel="noopener">
+                Speak with {{ store.brand_name }}
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+              </a>
+            {% endif %}
+            <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="re-cta-ghost">
+              View the Collection
+            </a>
+          </div>
 
-            <p class="fw-bold text-primary mb-2">
-              {{ product.price }}
-            </p>
+          <div class="re-hero-stats">
+            <div class="re-hero-stat">
+              <b>{{ products|length }}</b>
+              <span>{% if products|length == 1 %}Property Listed{% else %}Properties Listed{% endif %}</span>
+            </div>
+            <div class="re-hero-stat">
+              <b>1:1</b>
+              <span>Personal Consultation</span>
+            </div>
+            <div class="re-hero-stat">
+              <b>&lt;5m</b>
+              <span>Average Response</span>
+            </div>
+          </div>
+        </div>
 
-            <a href="{% url 'store_template_product_detail' store.slug template_slug product.slug %}"
-               class="btn btn-outline-primary btn-sm w-100">
-              View Property
+        <div class="re-hero-visual re-reveal">
+          <div class="re-frame re-frame-back">
+            {% if hero_p.image %}
+              <img src="{{ hero_p.image.url }}" alt="">
+            {% elif hero_p.image_url %}
+              <img src="{{ hero_p.image_url }}" alt="">
+            {% else %}
+              <div class="re-frame-empty" style="height:100%"></div>
+            {% endif %}
+          </div>
+          <div class="re-frame re-frame-main">
+            {% if hero_p.image %}
+              <img src="{{ hero_p.image.url }}" alt="{{ hero_p.name }}">
+            {% elif hero_p.image_url %}
+              <img src="{{ hero_p.image_url }}" alt="{{ hero_p.name }}">
+            {% else %}
+              <div class="re-frame-empty" style="height:100%">
+                <span class="mark">{{ store.brand_name }}</span>
+              </div>
+            {% endif %}
+          </div>
+
+          {% if hero_p %}
+            <div class="re-floating-card re-floating-card--price">
+              <div class="k">Featured</div>
+              <div class="v">
+                {% if hero_p.currency == "NGN" %}₦{% elif hero_p.currency == "USD" %}${% elif hero_p.currency == "EUR" %}€{% elif hero_p.currency == "GBP" %}£{% elif hero_p.currency == "GHS" %}₵{% endif %}{{ hero_p.price|intcomma }}
+              </div>
+              <div class="name">{{ hero_p.name }}</div>
+            </div>
+            <div class="re-floating-badge">
+              <span class="ic"><i class="bi bi-check2"></i></span>
+              Verified Listing
+            </div>
+          {% endif %}
+        </div>
+
+      </div>
+    </div>
+
+    <div class="re-scroll-cue">
+      <span class="line"></span>
+      Scroll to explore
+    </div>
+  </section>
+  {% endwith %}
+
+  <!-- ══════════════ TRUST STRIP ══════════════ -->
+  <section class="re-trust">
+    <div class="re-container">
+      <div class="re-trust-row re-reveal">
+        <span class="re-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          Curated properties
+        </span>
+        <span class="re-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          Verified storefront · Waapfolio
+        </span>
+        <span class="re-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          Direct WhatsApp consultation
+        </span>
+        <span class="re-trust-item">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Private, secure enquiries
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ WALKTHROUGH ══════════════ -->
+  {% if products %}
+  <section class="re-section re-walk">
+    <div class="re-container">
+
+      <div class="re-walk-intro re-reveal">
+        <div class="re-section-label">A closer look</div>
+        <h2 class="re-section-title">Step through the collection.</h2>
+        <p class="re-section-sub" style="margin:1.2rem auto 0;">Each listing is presented in full — scroll to move through a handful of properties currently available from {{ store.brand_name }}.</p>
+      </div>
+
+      {% for product in products|slice:":3" %}
+        <div class="re-walk-item re-reveal {% cycle '' 'rev' '' %}">
+          <div class="re-walk-media">
+            <span class="re-walk-tag">{% cycle 'Exterior' 'Interior' 'Featured Space' %}</span>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <div class="re-walk-media-empty" style="height:100%">{{ store.brand_name }}</div>
+            {% endif %}
+          </div>
+          <div class="re-walk-copy">
+            <span class="re-walk-num">{{ forloop.counter|stringformat:"02d" }} / {{ products|length|stringformat:"02d" }}</span>
+            <h3>{{ product.name }}</h3>
+            {% if product.description %}
+              <p>{{ product.description|truncatewords:26 }}</p>
+            {% else %}
+              <p>Presented by {{ store.brand_name }} — enquire directly for full details, availability and viewing arrangements.</p>
+            {% endif %}
+            <div class="re-walk-price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+            </div>
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="re-walk-link">
+              View Property Details →
             </a>
           </div>
         </div>
-      </div>
-    {% empty %}
-      <p class="text-muted">No properties listed yet.</p>
-    {% endfor %}
-  </div>
-</section>
+      {% endfor %}
 
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ══════════════ FEATURED PROPERTIES ══════════════ -->
+  <section class="re-section re-section--alt">
+    <div class="re-container">
+
+      <div class="re-section-head re-reveal">
+        <div class="re-section-head__left">
+          <div class="re-section-label">Our Collection</div>
+          <h2 class="re-section-title">Featured Properties</h2>
+        </div>
+        <p class="re-section-sub">A refined selection from {{ store.brand_name }} — explore each listing, then reach out directly to arrange a viewing.</p>
+      </div>
+
+      <div class="re-grid">
+        {% for product in products|slice:":6" %}
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="re-card re-reveal">
+            <div class="re-card-media">
+              <span class="re-card-index">#{{ forloop.counter|stringformat:"02d" }}</span>
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <span class="re-card-view">View Property</span>
+            </div>
+            <div class="re-card-body">
+              <div>
+                <h3 class="re-card-name">{{ product.name }}</h3>
+                <div class="re-card-meta">{{ store.brand_name }}</div>
+              </div>
+              <div class="re-card-price">
+                {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+              </div>
+            </div>
+          </a>
+        {% empty %}
+          <div style="grid-column:1/-1;">
+            <div class="re-empty">
+              <div class="mark">
+                <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+              </div>
+              <h3>No properties listed yet</h3>
+              <p>Properties will appear here once added to your collection.</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+
+      {% if products|length > 6 %}
+        <div class="re-view-all re-reveal">
+          <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="re-cta-ghost">
+            View the Full Collection →
+          </a>
+        </div>
+      {% endif %}
+
+    </div>
+  </section>
+
+  <!-- ══════════════ VALUE PROPS ══════════════ -->
+  <section class="re-section">
+    <div class="re-container">
+      <div class="re-section-head re-reveal">
+        <div class="re-section-head__left">
+          <div class="re-section-label">Why {{ store.brand_name }}</div>
+          <h2 class="re-section-title">Built on trust. Presented with care.</h2>
+        </div>
+        <p class="re-section-sub">Every enquiry is handled personally over WhatsApp — no listings agents, no automated noise, no waiting rooms.</p>
+      </div>
+
+      <div class="re-values re-reveal">
+        <div class="re-value">
+          <div class="re-value-num">01</div>
+          <h4>Direct consultation</h4>
+          <p>Speak to a real person about any property, from the very first message.</p>
+        </div>
+        <div class="re-value">
+          <div class="re-value-num">02</div>
+          <h4>Fast response</h4>
+          <p>Most enquiries are acknowledged within minutes — every message matters.</p>
+        </div>
+        <div class="re-value">
+          <div class="re-value-num">03</div>
+          <h4>Verified storefront</h4>
+          <p>Hosted on Waapfolio — a verified platform built for direct, trusted commerce.</p>
+        </div>
+        <div class="re-value">
+          <div class="re-value-num">04</div>
+          <h4>Private enquiries</h4>
+          <p>Your conversation and details stay within WhatsApp's encrypted channel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ══════════════ FINAL CTA ══════════════ -->
+  <section class="re-final">
+    <div class="re-final-inner re-reveal">
+      <h2>Ready to see it in person?</h2>
+      <p>Send a message and we'll arrange the rest — personally, directly, without friction.</p>
+      {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" class="re-cta" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M20.52 3.48A11.94 11.94 0 0 0 12.04 0C5.5 0 .2 5.3.2 11.84c0 2.09.55 4.13 1.6 5.93L0 24l6.4-1.68a11.83 11.83 0 0 0 5.64 1.44h.01c6.54 0 11.84-5.3 11.84-11.84 0-3.17-1.24-6.15-3.37-8.44ZM12.05 21.6h-.01a9.78 9.78 0 0 1-4.98-1.37l-.36-.21-3.8 1 .99-3.71-.23-.38a9.78 9.78 0 0 1-1.5-5.09c0-5.4 4.4-9.8 9.8-9.8 2.62 0 5.08 1.02 6.93 2.87a9.74 9.74 0 0 1 2.87 6.93c0 5.4-4.4 9.76-9.71 9.76Zm5.36-7.32c-.29-.15-1.74-.86-2.01-.96-.27-.1-.47-.15-.66.15-.2.29-.76.96-.94 1.16-.17.2-.34.22-.63.07-.29-.15-1.24-.46-2.36-1.45-.87-.78-1.46-1.74-1.63-2.03-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.2-.29.29-.49.1-.2.05-.37-.02-.51-.07-.15-.66-1.59-.9-2.18-.24-.57-.48-.5-.66-.51l-.56-.01c-.2 0-.51.07-.78.37-.27.29-1.02 1-1.02 2.43s1.05 2.82 1.2 3.02c.15.2 2.07 3.16 5.02 4.43.7.3 1.25.48 1.68.62.7.22 1.34.19 1.85.12.56-.08 1.74-.71 1.98-1.4.24-.7.24-1.29.17-1.41-.07-.12-.27-.2-.56-.34Z"/>
+          </svg>
+          Message {{ store.brand_name }}
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Scroll reveal
+  (function() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.re-reveal').forEach(function(el){ el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.re-reveal').forEach(function(el){ io.observe(el); });
+  })();
+
+  // Subtle 3D tilt on hero visual (desktop pointer only)
+  (function(){
+    var visual = document.querySelector('.re-hero-visual');
+    if (!visual || window.matchMedia('(pointer: coarse)').matches) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+    var main = visual.querySelector('.re-frame-main');
+    var back = visual.querySelector('.re-frame-back');
+    if (!main) return;
+    visual.addEventListener('mousemove', function(e){
+      var r = visual.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      main.style.transform = 'rotateY(' + (-6 - px * 6) + 'deg) rotateX(' + (2 + py * 4) + 'deg) translateZ(20px)';
+      if (back) back.style.transform = 'rotateY(' + (-6 - px * 4) + 'deg) rotateX(' + (2 + py * 3) + 'deg) translateZ(-70px) translateY(10px)';
+    });
+    visual.addEventListener('mouseleave', function(){
+      main.style.transform = '';
+      if (back) back.style.transform = '';
+    });
+  })();
+</script>
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
 {% endblock %}

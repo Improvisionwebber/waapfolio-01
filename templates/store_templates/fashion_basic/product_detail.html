@@ -1,0 +1,420 @@
+{% extends "store_templates/fashion_basic/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+:root{
+  --fb-void:#14100d; --fb-void-2:#1c1712; --fb-ivory:#f3ece0;
+  --fb-bronze:#a9906f; --fb-burgundy:#5a1f2b;
+  --fb-line:rgba(243,236,224,0.14); --fb-line-strong:rgba(243,236,224,0.24);
+  --fb-ivory-soft:rgba(243,236,224,0.72); --fb-ivory-faint:rgba(243,236,224,0.46);
+  --fb-display:'Bodoni Moda',serif; --fb-sans:'Archivo',sans-serif;
+  --fb-ease:cubic-bezier(.16,.8,.24,1);
+}
+
+.fb-scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;z-index:9999;background:var(--fb-bronze);transition:width .08s linear}
+
+.fb-shell{position:relative;color:var(--fb-ivory);font-family:var(--fb-sans);background:var(--fb-void);padding:clamp(40px,6vw,90px) 0 160px;}
+.fb-shell *{box-sizing:border-box}
+.fb-container{width:100%;max-width:1360px;margin:0 auto;padding:0 clamp(16px,3vw,32px);position:relative;z-index:2}
+
+.fb-crumbs{display:flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--fb-ivory-faint);margin-bottom:36px;flex-wrap:wrap;font-weight:600}
+.fb-crumbs a{color:var(--fb-ivory-faint);text-decoration:none;transition:color .25s}
+.fb-crumbs a:hover{color:var(--fb-ivory)}
+.fb-crumbs .sep{opacity:.5}
+.fb-crumbs .now{color:var(--fb-ivory);font-weight:700}
+
+/* HERO GRID — perspective product stage */
+.fb-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(28px,4vw,80px);align-items:start;perspective:1600px;}
+@media(max-width:992px){.fb-hero{grid-template-columns:1fr;gap:36px}}
+
+.fb-gallery{position:relative}
+.fb-stage{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--fb-void-2);border:1px solid var(--fb-line);transform-style:preserve-3d;will-change:transform;transition:transform .1s linear;}
+@media(max-width:600px){.fb-stage{aspect-ratio:1/1}}
+.fb-stage-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.fb-stage-media img,.fb-stage-media iframe,.fb-stage-media video{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s;display:block;filter:grayscale(.1) contrast(1.03);}
+.fb-stage:hover .fb-stage-media img{transform:scale(1.04)}
+.fb-stage-badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 13px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;font-weight:700;background:rgba(20,16,13,.85);color:var(--fb-ivory);z-index:3}
+.fb-stage-badge .dot{width:6px;height:6px;border-radius:50%;background:var(--fb-bronze);animation:fbPulse 1.6s ease-in-out infinite}
+@keyframes fbPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.fb-stage-zoom{position:absolute;bottom:14px;right:14px;width:44px;height:44px;border-radius:50%;background:var(--fb-ivory);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--fb-void);z-index:3;transition:transform .3s}
+.fb-stage-zoom:hover{transform:scale(1.08)}
+.fb-stage-zoom svg{width:18px;height:18px}
+
+.fb-thumbs{display:flex;gap:10px;margin-top:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px;}
+.fb-thumb{flex:0 0 80px;height:80px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;background:var(--fb-void-2);transition:transform .3s,border-color .25s;scroll-snap-align:start;}
+@media(max-width:600px){.fb-thumb{flex:0 0 68px;height:68px}}
+.fb-thumb img,.fb-thumb .vthumb{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(.15)}
+.fb-thumb .vthumb{display:flex;align-items:center;justify-content:center;background:#000;color:#fff}
+.fb-thumb:hover{transform:translateY(-3px)}
+.fb-thumb.active{border-color:var(--fb-bronze)}
+.fb-thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);color:#fff}
+.fb-thumb .play svg{width:22px;height:22px;fill:#fff}
+
+/* INFO PANEL */
+.fb-info{padding:0;position:sticky;top:calc(var(--fb-nav-h,76px) + 24px)}
+@media(max-width:992px){.fb-info{position:static}}
+.fb-store-chip{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:transparent;border:1.5px solid var(--fb-line-strong);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--fb-ivory);font-weight:700;margin-bottom:22px;transition:border-color .25s;text-decoration:none}
+.fb-store-chip:hover{border-color:var(--fb-bronze)}
+.fb-store-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--fb-burgundy);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+
+.fb-title{font-family:var(--fb-display);font-style:italic;font-size:clamp(32px,4.6vw,54px);line-height:1.05;letter-spacing:-.01em;font-weight:500;margin:0 0 18px;color:var(--fb-ivory)}
+.fb-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:26px;font-size:12.5px;color:var(--fb-ivory-faint);font-weight:500}
+.fb-avail{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--fb-ivory);color:var(--fb-void);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.fb-avail .dot{width:6px;height:6px;border-radius:50%;background:var(--fb-burgundy);animation:fbPulse 1.6s ease-in-out infinite}
+
+.fb-price-wrap{display:flex;align-items:baseline;gap:8px;margin:8px 0 30px;padding:24px 0;border-top:1px solid var(--fb-line);border-bottom:1px solid var(--fb-line)}
+.fb-currency{font-family:var(--fb-display);font-style:italic;font-size:clamp(22px,2vw,28px);color:var(--fb-bronze);font-weight:500}
+.fb-price{font-family:var(--fb-display);font-style:italic;font-size:clamp(38px,4.4vw,54px);font-weight:500;letter-spacing:-.02em;color:var(--fb-ivory);font-variant-numeric:tabular-nums;line-height:1}
+
+.fb-desc{position:relative;color:var(--fb-ivory-soft);line-height:1.75;font-size:15px;margin-bottom:30px;font-weight:400}
+.fb-desc-title{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--fb-ivory-faint);margin-bottom:12px;font-weight:700}
+.fb-desc-body{max-height:140px;overflow:hidden;position:relative;transition:max-height .6s ease;}
+.fb-desc-body.open{max-height:2000px}
+.fb-desc-body:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,var(--fb-void) 95%);pointer-events:none}
+.fb-desc-toggle{margin-top:10px;background:none;border:none;color:var(--fb-bronze);font-size:11.5px;cursor:pointer;letter-spacing:.14em;text-transform:uppercase;padding:0;font-weight:700;border-bottom:1.5px solid var(--fb-bronze);padding-bottom:2px;transition:opacity .2s}
+.fb-desc-toggle:hover{opacity:.7}
+
+/* ORDER */
+.fb-order{margin-top:8px;display:flex;flex-direction:column;gap:12px}
+.fb-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;padding:19px 26px;border:none;background:var(--fb-ivory);color:var(--fb-void);font-weight:700;font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;cursor:pointer;overflow:hidden;transition:transform .3s var(--fb-ease),background .3s var(--fb-ease),color .3s var(--fb-ease);}
+.fb-btn:hover{transform:translateY(-2px);background:var(--fb-burgundy);color:var(--fb-ivory)}
+.fb-btn:active{transform:translateY(0)}
+.fb-btn .ic svg{width:18px;height:18px;fill:currentColor}
+.fb-btn .arrow{margin-left:6px;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.fb-btn:hover .arrow{transform:translateX(4px)}
+.fb-btn .ripple{position:absolute;border-radius:50%;background:rgba(20,16,13,.25);transform:scale(0);animation:fbRipple .7s ease-out;pointer-events:none}
+@keyframes fbRipple{to{transform:scale(4);opacity:0}}
+
+/* SECTION HEAD */
+.fb-section{margin-top:clamp(70px,9vw,120px)}
+.fb-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1px solid var(--fb-line)}
+.fb-eyebrow{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--fb-bronze);margin-bottom:8px;font-weight:700}
+.fb-h2{font-family:var(--fb-display);font-style:italic;font-size:clamp(26px,3.2vw,42px);letter-spacing:-.01em;line-height:1.05;font-weight:500;margin:0;color:var(--fb-ivory)}
+
+/* TRUST GRID */
+.fb-trust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:0;border-top:1px solid var(--fb-line);border-left:1px solid var(--fb-line)}
+.fb-trust-card{padding:28px 26px;border-right:1px solid var(--fb-line);border-bottom:1px solid var(--fb-line);position:relative;transition:background .3s}
+.fb-trust-card:hover{background:var(--fb-void-2)}
+.fb-trust-num{font-family:var(--fb-display);font-style:italic;font-size:11px;letter-spacing:.05em;color:var(--fb-bronze);font-weight:700;margin-bottom:14px;display:block}
+.fb-trust-card h4{font-size:16px;font-weight:700;margin:0 0 8px;color:var(--fb-ivory);letter-spacing:-.01em;line-height:1.25}
+.fb-trust-card p{font-size:13.5px;color:var(--fb-ivory-faint);line-height:1.6;margin:0}
+
+/* RELATED */
+.lux-grid{display:grid;gap:56px 32px;grid-template-columns:repeat(2,1fr)}
+@media (min-width:768px){.lux-grid{grid-template-columns:repeat(3,1fr);gap:64px 36px}}
+@media (min-width:1100px){.lux-grid{grid-template-columns:repeat(4,1fr);gap:80px 40px}}
+.lux-card{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.lux-card .media{position:relative;overflow:hidden;aspect-ratio:3/4;background:var(--fb-void-2);border:1px solid var(--fb-line)}
+.lux-card .media img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--fb-ease);filter:grayscale(.15) contrast(1.03)}
+.lux-card:hover .media img{transform:scale(1.06);filter:grayscale(0) contrast(1.05)}
+.lux-badge{position:absolute;top:14px;left:14px;z-index:2;padding:6px 10px;font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;background:rgba(20,16,13,.85);color:var(--fb-ivory);font-weight:700}
+.lux-fav{position:absolute;top:12px;right:12px;z-index:2;width:36px;height:36px;border-radius:50%;background:rgba(20,16,13,.7);border:1px solid var(--fb-line-strong);cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-4px);transition:all .4s ease}
+.lux-card:hover .lux-fav{opacity:1;transform:translateY(0)}
+.lux-fav svg{width:14px;height:14px;color:var(--fb-ivory)}
+.lux-quick{position:absolute;left:14px;right:14px;bottom:14px;z-index:2;padding:12px 16px;background:rgba(243,236,224,.96);display:flex;align-items:center;justify-content:center;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--fb-void);font-weight:700;opacity:0;transform:translateY(12px);transition:opacity .5s ease,transform .5s ease}
+.lux-card:hover .lux-quick{opacity:1;transform:translateY(0)}
+.lux-info{padding-top:18px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px}
+.lux-info .name{font-weight:500;font-size:14px;color:var(--fb-ivory);margin:0 0 6px}
+.lux-info .meta{font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--fb-ivory-faint)}
+.lux-price{font-family:var(--fb-display);font-style:italic;font-weight:500;font-size:17px;color:var(--fb-bronze)}
+.lux-details{margin-top:14px;display:inline-flex;align-items:center;gap:8px;font-size:10.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--fb-ivory-soft);padding-bottom:4px;border-bottom:1px solid var(--fb-line-strong);transition:gap .3s ease}
+.lux-card:hover .lux-details{gap:14px;color:var(--fb-ivory);border-color:var(--fb-ivory)}
+.lux-empty{padding:70px 20px;text-align:center;border:1px dashed var(--fb-line-strong)}
+.lux-empty h3{font-family:var(--fb-display);font-style:italic;font-size:28px;margin:16px 0 10px}
+.lux-empty p{color:var(--fb-ivory-faint);margin:0}
+
+.fb-reveal{opacity:0;transform:translateY(24px);transition:opacity .8s var(--fb-ease),transform .8s var(--fb-ease)}
+.fb-reveal.in{opacity:1;transform:none}
+
+/* LIGHTBOX */
+.fb-lightbox{position:fixed;inset:0;background:rgba(10,8,6,.94);z-index:2000;display:none;align-items:center;justify-content:center;padding:40px}
+.fb-lightbox.open{display:flex}
+.fb-lightbox img,.fb-lightbox iframe{max-width:100%;max-height:90vh}
+.fb-lightbox-close{position:absolute;top:24px;right:24px;width:44px;height:44px;border-radius:50%;background:var(--fb-ivory);border:none;color:var(--fb-void);display:flex;align-items:center;justify-content:center;cursor:pointer}
+
+/* STICKY MOBILE CTA */
+.mc-bar{display:none}
+@media (max-width:900px){
+  .mc-bar{display:flex;position:fixed;left:0;right:0;bottom:0;z-index:1000;background:rgba(20,16,13,.96);backdrop-filter:blur(14px);border-top:1px solid var(--fb-line);padding:12px 16px;align-items:center;gap:12px}
+  .mc-thumb{width:48px;height:48px;object-fit:cover;flex-shrink:0}
+  .mc-info{flex:1;min-width:0}
+  .mc-name{font-size:13px;margin:0;color:var(--fb-ivory);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-price{font-family:var(--fb-display);font-style:italic;font-size:15px;color:var(--fb-bronze);margin:0}
+  .mc-btn{padding:12px 20px;background:var(--fb-ivory);color:var(--fb-void);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;text-decoration:none;white-space:nowrap}
+}
+</style>
+
+<div class="fb-scroll-progress" id="fbProgress"></div>
+
+<div class="fb-shell">
+  <div class="fb-container">
+
+    <nav class="fb-crumbs fb-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Store" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Collection</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <div class="fb-hero">
+      <!-- GALLERY -->
+      <div class="fb-gallery fb-reveal">
+        <div class="fb-stage" id="fbStage">
+          <div class="fb-stage-badge"><span class="dot"></span> Live</div>
+          <button class="fb-stage-zoom" id="fbZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="fb-stage-media" id="fbStageMedia">
+            {% if product.image %}
+              <img id="fbMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="fbMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="fbMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="fb-thumbs" id="fbThumbs">
+          {% if product.image %}
+            <div class="fb-thumb active" data-type="img" data-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt=""></div>
+          {% elif product.image_url %}
+            <div class="fb-thumb active" data-type="img" data-src="{{ product.image_url }}"><img src="{{ product.image_url }}" alt=""></div>
+          {% endif %}
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="fb-thumb" data-type="img" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt=""></div>
+            {% elif img.image_url %}
+              <div class="fb-thumb" data-type="img" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt=""></div>
+            {% endif %}
+          {% endfor %}
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="fb-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb"><img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt=""></div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- INFO -->
+      <div class="fb-info fb-reveal">
+        <a href="{{ product.store.get_absolute_url }}" class="fb-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="fb-title">{{ product.name }}</h1>
+
+        <div class="fb-meta-row">
+          <span class="fb-avail"><span class="dot"></span> In Stock</span>
+          <span>Posted {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="fb-price-wrap">
+          <span class="fb-currency">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="fb-price" id="fbPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="fb-desc">
+          <div class="fb-desc-title">Product Description</div>
+          <div class="fb-desc-body" id="fbDescBody">{{ product.description|default:"No description available."|linebreaks }}</div>
+          <button class="fb-desc-toggle" id="fbDescToggle">Read more</button>
+        </div>
+
+        <div class="fb-order">
+          <a class="fb-btn" href="{% url 'add_to_cart' product.slug %}">
+            <span class="ic"><svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14h9.95c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0 0 21.58 5H5.21L4.27 3H1v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 7 18h12v-2H7.42a.25.25 0 0 1-.22-.37L7.17 14z"/></svg></span>
+            Add to Cart
+            <span class="arrow">→</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST & SAFETY -->
+    <section class="fb-section fb-reveal">
+      <div class="fb-section-head">
+        <div>
+          <div class="fb-eyebrow">Trust &amp; Safety</div>
+          <h2 class="fb-h2">Shop with confidence.</h2>
+        </div>
+      </div>
+      <div class="fb-trust-grid">
+        <div class="fb-trust-card"><span class="fb-trust-num">01</span><h4>Verify the seller</h4><p>Always confirm the seller's identity before sending payment.</p></div>
+        <div class="fb-trust-card"><span class="fb-trust-num">02</span><h4>Request a video call</h4><p>Ask to see the piece live before completing your order.</p></div>
+        <div class="fb-trust-card"><span class="fb-trust-num">03</span><h4>Confirm shipping</h4><p>Clarify delivery terms, timelines, and tracking up front.</p></div>
+        <div class="fb-trust-card"><span class="fb-trust-num">04</span><h4>Avoid upfront payments</h4><p>Never pay in full without proper verification.</p></div>
+        <div class="fb-trust-card"><span class="fb-trust-num">05</span><h4>Prefer cash on delivery</h4><p>Where possible, choose COD for maximum safety.</p></div>
+        <div class="fb-trust-card"><span class="fb-trust-num">06</span><h4>Too good to be true?</h4><p>Be cautious of deals that look suspiciously cheap.</p></div>
+      </div>
+    </section>
+
+    <!-- RELATED PRODUCTS -->
+    {% if items_meta %}
+    <section class="fb-section fb-reveal">
+      <div class="fb-section-head">
+        <div>
+          <div class="fb-eyebrow">Curated For You</div>
+          <h2 class="fb-h2">You may also like</h2>
+        </div>
+        <p style="color:var(--fb-ivory-faint);font-size:14px;max-width:340px;">Discover more premium pieces from {{ product.store.brand_name }}</p>
+      </div>
+
+      <div class="lux-grid">
+        {% for product in products|slice:":4" %}
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card fb-reveal">
+            <div class="media">
+              <span class="lux-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+              <button type="button" class="lux-fav" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+              </button>
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <span class="lux-quick">Quick View</span>
+            </div>
+            <div class="lux-info">
+              <div>
+                <h6 class="name">{{ product.name }}</h6>
+                <div class="meta">{{ store.brand_name }}</div>
+              </div>
+              <div class="lux-price">
+                {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+                {{ product.price|intcomma }}
+              </div>
+            </div>
+            <span class="lux-details">View Details →</span>
+          </a>
+        {% empty %}
+          <div style="grid-column: 1 / -1;">
+            <div class="lux-empty">
+              <h3>No more pieces yet</h3>
+              <p>Products will appear here once added to the store.</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+<!-- STICKY MOBILE CTA -->
+<div class="mc-bar">
+  {% if product.image %}
+    <img class="mc-thumb" src="{{ product.image.url }}" alt="{{ product.name }}">
+  {% elif product.image_url %}
+    <img class="mc-thumb" src="{{ product.image_url }}" alt="{{ product.name }}">
+  {% endif %}
+  <div class="mc-info">
+    <p class="mc-name">{{ product.name }}</p>
+    <p class="mc-price">
+      {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+      {{ product.price|intcomma }}
+    </p>
+  </div>
+  <a class="mc-btn" href="{% url 'add_to_cart' product.slug %}">Add to Cart</a>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="fb-lightbox" id="fbLightbox" aria-hidden="true">
+  <button class="fb-lightbox-close" id="fbLbClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div id="fbLbBody"></div>
+</div>
+
+<script>
+(function(){
+  var prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // SCROLL PROGRESS
+  var bar = document.getElementById('fbProgress');
+  if (bar) { window.addEventListener('scroll', function(){ var h = document.documentElement; var sc = (h.scrollTop)/(h.scrollHeight-h.clientHeight)*100; bar.style.width = sc + '%'; }, {passive:true}); }
+
+  // REVEAL
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if(e.isIntersecting) e.target.classList.add('in'); }); }, {threshold:.12});
+  document.querySelectorAll('.fb-reveal').forEach(function(el){ io.observe(el); });
+
+  // 3D TILT ON GALLERY STAGE (depth-based hover, disabled on touch / reduced motion)
+  var stage = document.getElementById('fbStage');
+  if (stage && !prefersReduced && window.matchMedia('(hover:hover)').matches) {
+    stage.addEventListener('mousemove', function(e){
+      var r = stage.getBoundingClientRect();
+      var px = (e.clientX - r.left) / r.width - 0.5;
+      var py = (e.clientY - r.top) / r.height - 0.5;
+      stage.style.transform = 'rotateY(' + (px*6) + 'deg) rotateX(' + (-py*6) + 'deg)';
+    });
+    stage.addEventListener('mouseleave', function(){ stage.style.transform = 'rotateY(0) rotateX(0)'; });
+  }
+
+  // PRICE COUNT-UP
+  var pr = document.getElementById('fbPrice');
+  if (pr) {
+    var target = parseFloat((pr.dataset.value||'0').toString().replace(/,/g,'')) || 0;
+    var cur = 0; var step = Math.max(1, target/40); var fmt = new Intl.NumberFormat();
+    var tick = function(){ cur += step; if (cur >= target) { pr.textContent = fmt.format(target); return; } pr.textContent = fmt.format(Math.floor(cur)); requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  }
+
+  // DESCRIPTION TOGGLE
+  var db = document.getElementById('fbDescBody'), dt = document.getElementById('fbDescToggle');
+  if (db && dt) {
+    if (db.scrollHeight <= 140) { dt.style.display = 'none'; }
+    dt.addEventListener('click', function(){ db.classList.toggle('open'); dt.textContent = db.classList.contains('open') ? 'Show less' : 'Read more'; });
+  }
+
+  // GALLERY THUMBS
+  var stageMedia = document.getElementById('fbStageMedia');
+  document.querySelectorAll('#fbThumbs .fb-thumb').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('#fbThumbs .fb-thumb').forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var type = t.dataset.type, src = t.dataset.src;
+      stageMedia.style.opacity = '0';
+      setTimeout(function(){
+        if (type === 'img') {
+          stageMedia.innerHTML = '<img id="fbMainImg" src="' + src + '" alt="">';
+        } else if (type === 'yt') {
+          stageMedia.innerHTML = '<iframe width="100%" height="100%" src="https://www.youtube.com/embed/' + src + '?autoplay=1&mute=1&playsinline=1&rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>';
+        }
+        stageMedia.style.opacity = '1';
+      }, 200);
+    });
+  });
+
+  // LIGHTBOX
+  var lb = document.getElementById('fbLightbox'), lbBody = document.getElementById('fbLbBody');
+  var zb = document.getElementById('fbZoomBtn');
+  if (zb) { zb.addEventListener('click', function(){ var m = stageMedia.querySelector('img,iframe'); if (!m) return; lbBody.innerHTML = m.outerHTML; lb.classList.add('open'); }); }
+  document.getElementById('fbLbClose').addEventListener('click', function(){ lb.classList.remove('open'); lbBody.innerHTML=''; });
+  lb.addEventListener('click', function(e){ if (e.target === lb) { lb.classList.remove('open'); lbBody.innerHTML=''; } });
+
+  // RIPPLE
+  document.querySelectorAll('.fb-btn').forEach(function(b){
+    b.addEventListener('click', function(e){
+      var r = b.getBoundingClientRect(); var c = document.createElement('span'); c.className = 'ripple';
+      var s = Math.max(r.width, r.height); c.style.width = c.style.height = s + 'px';
+      c.style.left = (e.clientX - r.left - s/2) + 'px'; c.style.top = (e.clientY - r.top - s/2) + 'px';
+      b.appendChild(c); setTimeout(function(){ c.remove(); }, 720);
+    });
+  });
+})();
+</script>
+{% endblock %}

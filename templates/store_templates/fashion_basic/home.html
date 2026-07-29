@@ -1,0 +1,551 @@
+{% extends "store_templates/fashion_basic/base.html" %}
+{% block title %}{{ store.brand_name }} — Fashion Editorial{% endblock %}
+
+{% block body %}
+{% load static %}
+{% load humanize %}
+<style>
+  :root{
+    --fe-white:#ffffff;
+    --fe-off:#fafaf9;
+    --fe-black:#0d0d0d;
+    --fe-pink:#c2386a;
+    --fe-pink-deep:#9c2952;
+    --fe-pink-pale:#fbeef3;
+    --fe-line:rgba(13,13,13,0.10);
+    --fe-line-strong:rgba(13,13,13,0.18);
+    --fe-gray:rgba(13,13,13,0.58);
+    --fe-gray-soft:rgba(13,13,13,0.40);
+    --fe-display:'Bodoni Moda',serif;
+    --fe-sans:'Archivo',sans-serif;
+    --fe-ease:cubic-bezier(.16,.8,.24,1);
+  }
+  .fe-page{background:var(--fe-white);color:var(--fe-black);overflow-x:clip;}
+  .fe-page *{box-sizing:border-box}
+  .fe-container{max-width:1360px;margin:0 auto;padding:0 32px;}
+  @media (max-width:640px){.fe-container{padding:0 20px}}
+
+  /* ================= CINEMATIC SCROLL HERO ================= */
+  .fe-hero-track{
+    position:relative;
+    height:340vh; /* scroll distance that drives the scrub */
+  }
+  .fe-hero-pin{
+    position:sticky; top:0;
+    height:100vh; min-height:600px;
+    width:100%;
+    overflow:hidden;
+    background:var(--fe-black);
+    perspective:1600px;
+  }
+  .fe-hero-stage{
+    position:absolute; inset:0;
+    display:flex; align-items:center; justify-content:center;
+    transform-style:preserve-3d;
+    will-change:transform;
+  }
+  .fe-hero-frame{
+    position:relative;
+    width:min(46vw, 620px);
+    height:92vh;
+    max-height:960px;
+    overflow:hidden;
+    box-shadow:0 70px 160px -50px rgba(0,0,0,.65);
+    will-change:transform;
+    transform-style:preserve-3d;
+    background:#000;
+  }
+  @media (max-width:900px){
+    .fe-hero-frame{ width:88vw; height:78vh; }
+  }
+  .fe-hero-frame video{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit:cover;
+    display:block;
+  }
+  .fe-hero-frame::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,.10) 0%, rgba(0,0,0,0) 30%, rgba(0,0,0,0) 60%, rgba(0,0,0,.55) 100%);
+    pointer-events:none;
+  }
+  .fe-hero-type{
+    position:absolute; inset:0; z-index:3;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; pointer-events:none; will-change:transform,opacity;
+  }
+  .fe-hero-eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:11px; letter-spacing:.4em; text-transform:uppercase;
+    color:var(--fe-white); margin-bottom:24px; font-weight:600;
+  }
+  .fe-hero-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--fe-pink);}
+  .fe-hero-type h1{
+    font-family:var(--fe-display); font-weight:500; font-style:italic;
+    font-size:clamp(2.8rem,9vw,7.2rem); line-height:.94; letter-spacing:-.02em;
+    color:var(--fe-white); margin:0;
+    text-shadow:0 20px 60px rgba(0,0,0,.55);
+  }
+  .fe-hero-type .sub{
+    margin-top:20px; font-family:var(--fe-sans); font-size:13px;
+    letter-spacing:.16em; text-transform:uppercase; color:rgba(255,255,255,.78);
+    max-width:520px; padding:0 20px;
+  }
+  .fe-hero-cta{margin-top:34px; pointer-events:auto;}
+  .fe-cta{
+    display:inline-flex; align-items:center; gap:12px; padding:17px 32px;
+    background:var(--fe-white); color:var(--fe-black); border:1px solid var(--fe-white);
+    font-size:11.5px; font-weight:700; letter-spacing:.16em; text-transform:uppercase;
+    transition:background .35s var(--fe-ease), color .35s var(--fe-ease), transform .35s var(--fe-ease), border-color .35s var(--fe-ease);
+  }
+  .fe-cta:hover{background:var(--fe-pink); color:var(--fe-white); border-color:var(--fe-pink); transform:translateY(-2px);}
+  .fe-cta-dark{background:var(--fe-black); color:var(--fe-white); border-color:var(--fe-black);}
+  .fe-cta-dark:hover{background:var(--fe-pink); border-color:var(--fe-pink);}
+
+  .fe-hero-progress{
+    position:absolute; left:50%; bottom:38px; transform:translateX(-50%);
+    z-index:3; display:flex; flex-direction:column; align-items:center; gap:10px;
+    font-size:10px; letter-spacing:.3em; text-transform:uppercase; color:rgba(255,255,255,.7);
+    pointer-events:none;
+  }
+  .fe-hero-progress .bar{width:1px;height:44px;background:rgba(255,255,255,.25); position:relative; overflow:hidden;}
+  .fe-hero-progress .bar i{position:absolute; left:0; top:0; width:100%; height:0%; background:var(--fe-pink); display:block;}
+
+  /* ================= TRUST STRIP ================= */
+  .fe-trust{padding:26px 0; border-top:1px solid var(--fe-line); border-bottom:1px solid var(--fe-line); background:var(--fe-white); position:relative; z-index:2;}
+  .fe-trust-row{
+    display:flex; flex-wrap:wrap; justify-content:center; gap:14px 44px;
+    font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--fe-gray);
+  }
+  .fe-trust-row span{display:inline-flex;align-items:center;gap:8px;}
+  .fe-trust-row svg{width:14px;height:14px;stroke:var(--fe-pink);}
+
+  /* ================= SECTION HEAD ================= */
+  .fe-section{padding:8.5rem 0; position:relative;}
+  .fe-section--alt{background:var(--fe-off);}
+  .fe-section-head{display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; margin-bottom:4.5rem; flex-wrap:wrap; border-bottom:1px solid var(--fe-line); padding-bottom:28px;}
+  .fe-label{font-size:11px; font-weight:700; letter-spacing:.3em; text-transform:uppercase; color:var(--fe-pink); margin-bottom:14px; display:block;}
+  .fe-title{font-family:var(--fe-display); font-style:italic; font-weight:500; font-size:clamp(2.1rem,5vw,3.7rem); line-height:1.05; letter-spacing:-.02em; color:var(--fe-black);}
+  .fe-sub{font-size:.95rem; color:var(--fe-gray); line-height:1.7; max-width:380px;}
+
+  /* ================= EDITORIAL INTRO ================= */
+  .fe-intro{padding:9rem 0 6rem;}
+  .fe-intro-grid{display:grid; grid-template-columns:1fr 1.4fr; gap:4rem; align-items:end;}
+  @media (max-width:900px){.fe-intro-grid{grid-template-columns:1fr; gap:2rem;}}
+  .fe-intro-num{font-family:var(--fe-display); font-style:italic; color:var(--fe-pink); font-size:1.1rem;}
+  .fe-intro-statement{font-family:var(--fe-display); font-style:italic; font-size:clamp(1.9rem,4.4vw,3.4rem); line-height:1.18; letter-spacing:-.02em; color:var(--fe-black);}
+  .fe-intro-statement .pink{color:var(--fe-pink);}
+
+  /* ================= EDITORIAL PRODUCT GRID (asymmetric) ================= */
+  .fe-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:28px;}
+  .fe-item{grid-column:span 2;}
+  .fe-item.fe-hero-item{grid-column:span 3;}
+  @media (max-width:900px){ .fe-grid{grid-template-columns:repeat(2,1fr);} .fe-item, .fe-item.fe-hero-item{grid-column:span 1;} }
+
+  .fe-card{display:flex; flex-direction:column; text-decoration:none; color:inherit; position:relative;}
+  .fe-card .media{position:relative; overflow:hidden; aspect-ratio:3/4; background:var(--fe-off); border:1px solid var(--fe-line); margin-bottom:1.1rem;}
+  .fe-card.fe-hero-item .media{aspect-ratio:4/5;}
+  .fe-card .media img{width:100%; height:100%; object-fit:cover; transition:transform 1.4s var(--fe-ease), filter .8s ease; filter:grayscale(.1) contrast(1.02);}
+  .fe-card:hover .media img{transform:scale(1.06); filter:grayscale(0) contrast(1.04);}
+  .fe-card .media::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 55%, rgba(13,13,13,.32) 100%); opacity:0; transition:opacity .5s ease;}
+  .fe-card:hover .media::after{opacity:1;}
+  .fe-badge{position:absolute; top:14px; left:14px; z-index:2; padding:6px 11px; font-size:9.5px; letter-spacing:.2em; text-transform:uppercase; background:var(--fe-white); color:var(--fe-black); font-weight:700; border:1px solid var(--fe-line-strong);}
+  .fe-quick{position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding:11px 14px; background:var(--fe-black); color:var(--fe-white); display:flex; align-items:center; justify-content:space-between; font-size:10px; letter-spacing:.18em; text-transform:uppercase; font-weight:700; opacity:0; transform:translateY(10px); transition:opacity .4s ease, transform .4s ease;}
+  .fe-card:hover .fe-quick{opacity:1; transform:translateY(0);}
+  .fe-card-body{display:flex; justify-content:space-between; align-items:flex-start; gap:1rem;}
+  .fe-card-name{font-family:var(--fe-sans); font-size:.95rem; font-weight:500; color:var(--fe-black); margin:0 0 4px;}
+  .fe-card-meta{font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--fe-gray-soft);}
+  .fe-card-price{font-family:var(--fe-display); font-style:italic; font-size:1.15rem; color:var(--fe-pink); white-space:nowrap;}
+
+  .fe-empty{grid-column:1/-1; text-align:center; padding:70px 20px; border:1px dashed var(--fe-line-strong);}
+  .fe-empty h3{font-size:1.6rem; margin:0 0 10px;}
+  .fe-empty p{color:var(--fe-gray-soft); margin:0;}
+
+  /* ================= SPLIT EDITORIAL (parallax) ================= */
+  .fe-split{display:grid; grid-template-columns:1fr 1fr; gap:0; align-items:stretch;}
+  @media (max-width:900px){.fe-split{grid-template-columns:1fr;}}
+  .fe-split-media{position:relative; overflow:hidden; min-height:520px; border:1px solid var(--fe-line);}
+  .fe-split-media video, .fe-split-media img{position:absolute; inset:-6% ; width:112%; height:112%; object-fit:cover; will-change:transform;}
+  .fe-split-copy{display:flex; flex-direction:column; justify-content:center; padding:5rem 4.5rem;}
+  @media (max-width:900px){.fe-split-copy{padding:3.5rem 1.75rem;}}
+  .fe-split-copy p{color:var(--fe-gray); font-size:1rem; line-height:1.8; max-width:440px; margin:26px 0 34px;}
+
+  /* ================= VALUES / BRAND STORY ================= */
+  .fe-values{display:grid; grid-template-columns:repeat(4,1fr); border-top:1px solid var(--fe-line); border-left:1px solid var(--fe-line);}
+  @media (max-width:900px){.fe-values{grid-template-columns:repeat(2,1fr);}}
+  .fe-value{padding:36px 30px; border-right:1px solid var(--fe-line); border-bottom:1px solid var(--fe-line); transition:background .3s var(--fe-ease);}
+  .fe-value:hover{background:var(--fe-pink-pale);}
+  .fe-value .num{font-family:var(--fe-display); font-style:italic; color:var(--fe-pink); font-size:1.1rem; margin-bottom:16px; display:block;}
+  .fe-value h3{font-size:1.15rem; margin:0 0 10px; letter-spacing:-.01em;}
+  .fe-value p{color:var(--fe-gray); font-size:.9rem; line-height:1.65; margin:0;}
+
+  /* ================= CAMPAIGN VISUAL ================= */
+  .fe-campaign{position:relative; height:82vh; min-height:520px; overflow:hidden; background:var(--fe-black);}
+  .fe-campaign img, .fe-campaign video{position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.82; will-change:transform;}
+  .fe-campaign::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(13,13,13,.15), rgba(13,13,13,.6));}
+  .fe-campaign-copy{position:relative; z-index:2; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; padding:0 24px;}
+  .fe-campaign-copy .fe-label{color:var(--fe-pink);}
+  .fe-campaign-copy h2{font-family:var(--fe-display); font-style:italic; color:var(--fe-white); font-size:clamp(2.2rem,6vw,4.6rem); line-height:1.02;}
+
+  /* ================= FINAL CTA ================= */
+  .fe-final{padding:8rem 0; text-align:center; border-top:1px solid var(--fe-line);}
+  .fe-final h2{font-family:var(--fe-display); font-style:italic; font-size:clamp(2rem,5vw,3.4rem); margin-bottom:20px;}
+  .fe-final p{color:var(--fe-gray); max-width:480px; margin:0 auto 34px;}
+
+  /* Reveal utility for scroll-triggered elements */
+  .fe-reveal{opacity:0; transform:translateY(36px);}
+</style>
+
+<div class="fe-page">
+
+  <!-- ================= CINEMATIC SCROLL-SCRUBBED HERO ================= -->
+  <section class="fe-hero-track" id="feHeroTrack">
+    <div class="fe-hero-pin">
+      <div class="fe-hero-stage" id="feHeroStage">
+        <div class="fe-hero-frame" id="feHeroFrame">
+          <video
+            id="feHeroVideo"
+            src="{% static 'videos/fashion_hero.mp4' %}"
+            muted
+            playsinline
+            preload="auto"
+            aria-label="{{ store.brand_name }} campaign film">
+          </video>
+        </div>
+      </div>
+
+      <div class="fe-hero-type" id="feHeroType">
+        <div class="fe-hero-eyebrow"><span class="dot"></span>{{ store.brand_name }} Campaign</div>
+        <h1>{{ store.brand_name }}</h1>
+        {% if store.bio %}
+          <p class="sub">{{ store.bio }}</p>
+        {% else %}
+          <p class="sub">An editorial fashion house, ordered directly.</p>
+        {% endif %}
+        {% if store.whatsapp %}
+          <div class="fe-hero-cta">
+            <a class="fe-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+              Order on WhatsApp
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="fe-hero-progress">
+        <span>Scroll</span>
+        <span class="bar"><i id="feHeroProgressFill"></i></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= TRUST STRIP ================= -->
+  <section class="fe-trust">
+    <div class="fe-container fe-trust-row">
+      <span><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M13 2 3 14h7l-1 8 10-12h-7l1-8z"/></svg>Fast response</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><path d="M20 6 9 17l-5-5"/></svg>Verified store · Waapfolio</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><circle cx="12" cy="12" r="9"/><path d="M8 12h8M8 8h5M8 16h5"/></svg>WhatsApp orders</span>
+      <span><svg viewBox="0 0 24 24" fill="none" stroke-width="1.6"><rect x="4" y="10" width="16" height="10" rx="1"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>Secure communication</span>
+    </div>
+  </section>
+
+  <!-- ================= EDITORIAL INTRODUCTION ================= -->
+  <section class="fe-intro">
+    <div class="fe-container fe-intro-grid">
+      <div class="fe-intro-num fe-reveal">01 — House Note</div>
+      <p class="fe-intro-statement fe-reveal">
+        Every piece from <span class="pink">{{ store.brand_name }}</span> is chosen with intent —
+        {% if store.bio %}{{ store.bio }}{% else %}quiet luxury, made for those who notice detail.{% endif %}
+      </p>
+    </div>
+  </section>
+
+  <!-- ================= FEATURED PRODUCTS ================= -->
+  <section class="fe-section">
+    <div class="fe-container">
+      <div class="fe-section-head fe-reveal">
+        <div>
+          <span class="fe-label">Curated Collection</span>
+          <h2 class="fe-title">Featured Pieces</h2>
+        </div>
+        <p class="fe-sub">A refined selection from {{ store.brand_name }} — handpicked for quick discovery and instant WhatsApp ordering.</p>
+      </div>
+
+      <div class="fe-grid">
+        {% for product in products|slice:":4" %}
+          <div class="fe-item {% if forloop.first %}fe-hero-item{% endif %} fe-reveal">
+            <a class="fe-card" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">
+              <div class="media">
+                <span class="fe-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% elif product.image_url %}
+                  <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="{{ product.name }}" loading="lazy">
+                {% endif %}
+                <span class="fe-quick">Quick View <span>→</span></span>
+              </div>
+              <div class="fe-card-body">
+                <div>
+                  <p class="fe-card-name">{{ product.name }}</p>
+                  <span class="fe-card-meta">{{ store.brand_name }}</span>
+                </div>
+                <span class="fe-card-price">
+                  {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+                </span>
+              </div>
+            </a>
+          </div>
+        {% empty %}
+          <div class="fe-empty">
+            <h3>No featured pieces yet</h3>
+            <p>Products will appear here once added to your store.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= SPLIT EDITORIAL (parallax) ================= -->
+  <section class="fe-split fe-section--alt">
+    <div class="fe-split-media" id="feSplitMedia">
+      {% if store.brand_logo %}
+        <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}" loading="lazy">
+      {% else %}
+        <video src="{% static 'fashion_basic/videos/hero-campaign.mp4' %}" muted loop autoplay playsinline></video>
+      {% endif %}
+    </div>
+    <div class="fe-split-copy fe-reveal">
+      <span class="fe-label">02 — The House</span>
+      <h2 class="fe-title">Built for trust.<br>Designed for speed.</h2>
+      <p>Every order from {{ store.brand_name }} is handled personally over WhatsApp — no checkout friction, no automated noise, no waiting.</p>
+      {% if store.whatsapp %}
+        <a class="fe-cta fe-cta-dark" style="align-self:flex-start" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message {{ store.brand_name }}</a>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ================= BRAND STORY / VALUES ================= -->
+  <section class="fe-section">
+    <div class="fe-container">
+      <div class="fe-section-head fe-reveal">
+        <div>
+          <span class="fe-label">Why This House</span>
+          <h2 class="fe-title">Every detail, considered.</h2>
+        </div>
+        <p class="fe-sub">{% if store.bio %}{{ store.bio }}{% else %}A direct line between the house and its clientele.{% endif %}</p>
+      </div>
+    </div>
+    <div class="fe-container">
+      <div class="fe-values fe-reveal">
+        <div class="fe-value">
+          <span class="num">01</span>
+          <h3>Direct communication</h3>
+          <p>Speak to a real person from the first message. No bots, no scripted replies.</p>
+        </div>
+        <div class="fe-value">
+          <span class="num">02</span>
+          <h3>Fast response system</h3>
+          <p>Most orders are acknowledged within minutes, treated as a customer standing in front of us.</p>
+        </div>
+        <div class="fe-value">
+          <span class="num">03</span>
+          <h3>Verified by Waapfolio</h3>
+          <p>Hosted on a verified commerce platform built specifically for WhatsApp businesses.</p>
+        </div>
+        <div class="fe-value">
+          <span class="num">04</span>
+          <h3>Secure ordering flow</h3>
+          <p>Your conversation, your details, your order — kept inside an encrypted channel start to finish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= LARGE CAMPAIGN VISUAL ================= -->
+  <section class="fe-campaign" id="feCampaign">
+    <video src="{% static 'fashion_basic/videos/hero-campaign.mp4' %}" muted loop autoplay playsinline id="feCampaignVideo"></video>
+    <div class="fe-campaign-copy fe-reveal">
+      <span class="fe-label">Autumn Collection</span>
+      <h2>{{ store.brand_name }}</h2>
+    </div>
+  </section>
+
+  <!-- ================= PRODUCT SHOWCASE (asymmetric catalogue) ================= -->
+  {% if products|length > 4 %}
+  <section class="fe-section fe-section--alt">
+    <div class="fe-container">
+      <div class="fe-section-head fe-reveal">
+        <div>
+          <span class="fe-label">The Catalogue</span>
+          <h2 class="fe-title">More from the House</h2>
+        </div>
+        <a class="fe-cta fe-cta-dark" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">View All</a>
+      </div>
+      <div class="fe-grid">
+        {% for product in products|slice:"4:8" %}
+          <div class="fe-item {% if forloop.counter0|divisibleby:3 %}fe-hero-item{% endif %} fe-reveal">
+            <a class="fe-card" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">
+              <div class="media">
+                {% if product.image %}
+                  <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                {% elif product.image_url %}
+                  <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                {% else %}
+                  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=800&q=80" alt="{{ product.name }}" loading="lazy">
+                {% endif %}
+                <span class="fe-quick">Quick View <span>→</span></span>
+              </div>
+              <div class="fe-card-body">
+                <div>
+                  <p class="fe-card-name">{{ product.name }}</p>
+                  <span class="fe-card-meta">{{ store.brand_name }}</span>
+                </div>
+                <span class="fe-card-price">
+                  {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+                </span>
+              </div>
+            </a>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ================= FINAL CTA ================= -->
+  <section class="fe-final">
+    <div class="fe-container">
+      <span class="fe-label fe-reveal">Start Here</span>
+      <h2 class="fe-reveal">Start your order,<br>instantly.</h2>
+      <p class="fe-reveal">One message is all it takes. We'll handle the rest — personally.</p>
+      {% if store.whatsapp %}
+        <a class="fe-cta fe-cta-dark fe-reveal" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Message {{ store.brand_name }}</a>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+(function(){
+  if (!window.gsap || !window.ScrollTrigger) return;
+  gsap.registerPlugin(ScrollTrigger);
+
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var isMobile = window.matchMedia('(max-width: 700px)').matches;
+
+  var video = document.getElementById('feHeroVideo');
+  var frame = document.getElementById('feHeroFrame');
+  var stage = document.getElementById('feHeroStage');
+  var typeEl = document.getElementById('feHeroType');
+  var progressFill = document.getElementById('feHeroProgressFill');
+  var track = document.getElementById('feHeroTrack');
+
+  /* ---------- Scroll-scrubbed cinematic hero ---------- */
+  if (video && frame && track) {
+    var scrubReady = false;
+
+    function setupScrub(){
+      if (scrubReady) return;
+      scrubReady = true;
+      var duration = video.duration || 0;
+
+      var tl = gsap.timeline({
+        scrollTrigger:{
+          trigger: track,
+          start: 'top top',
+          end: 'bottom bottom',
+          scrub: 0.6,
+          onUpdate: function(self){
+            if (progressFill) progressFill.style.height = (self.progress * 100) + '%';
+            if (duration && !reduceMotion) {
+              video.currentTime = Math.min(duration - 0.05, Math.max(0, self.progress * duration));
+            }
+          }
+        }
+      });
+
+      /* frame: large immersive viewport -> full-bleed cinematic crop */
+      tl.fromTo(frame,
+        { scale: 1, borderRadius: '0px', rotateX: 0, rotateY: 0 },
+        { scale: isMobile ? 1.35 : 1.9, rotateX: -4, rotateY: 3, ease: 'none' }, 0
+      );
+      tl.fromTo(stage,
+        { z: 0 },
+        { z: -80, ease: 'none' }, 0
+      );
+      /* typography: present, then recede into depth and fade as hero unlocks */
+      tl.fromTo(typeEl,
+        { opacity: 1, y: 0, scale: 1 },
+        { opacity: 0, y: -60, scale: 0.92, ease: 'none' }, 0.0
+      );
+      /* release: crossfade the frame into full width/height at the very end */
+      tl.to(frame, { width: '100vw', height: '100vh', ease: 'none' }, 0.7);
+    }
+
+    if (video.readyState >= 1) {
+      setupScrub();
+    } else {
+      video.addEventListener('loadedmetadata', setupScrub, { once:true });
+      /* fallback in case metadata event is delayed */
+      setTimeout(setupScrub, 1200);
+    }
+  }
+
+  /* ---------- Generic scroll reveal ---------- */
+  gsap.utils.toArray('.fe-reveal').forEach(function(el, i){
+    gsap.fromTo(el,
+      { opacity:0, y: 36 },
+      {
+        opacity:1, y:0, duration:0.9, ease:'power3.out',
+        scrollTrigger:{ trigger: el, start:'top 88%' }
+      }
+    );
+  });
+
+  /* ---------- Split editorial parallax ---------- */
+  var splitMedia = document.getElementById('feSplitMedia');
+  if (splitMedia && !isMobile) {
+    var mediaEl = splitMedia.querySelector('img, video');
+    if (mediaEl) {
+      gsap.fromTo(mediaEl,
+        { yPercent: -8 },
+        {
+          yPercent: 8, ease:'none',
+          scrollTrigger:{ trigger: splitMedia, start:'top bottom', end:'bottom top', scrub:true }
+        }
+      );
+    }
+  }
+
+  /* ---------- Campaign section subtle parallax ---------- */
+  var campaignVideo = document.getElementById('feCampaignVideo');
+  if (campaignVideo && !isMobile) {
+    gsap.fromTo(campaignVideo,
+      { scale: 1.08, yPercent: -4 },
+      {
+        scale: 1, yPercent: 4, ease:'none',
+        scrollTrigger:{ trigger:'#feCampaign', start:'top bottom', end:'bottom top', scrub:true }
+      }
+    );
+  }
+
+  /* ---------- Product card gentle depth on hover (desktop only) ---------- */
+  if (!isMobile) {
+    document.querySelectorAll('.fe-card').forEach(function(card){
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        gsap.to(card, { rotateY: px * 4, rotateX: -py * 4, duration:0.4, ease:'power2.out', transformPerspective: 800 });
+      });
+      card.addEventListener('mouseleave', function(){
+        gsap.to(card, { rotateY:0, rotateX:0, duration:0.5, ease:'power2.out' });
+      });
+    });
+  }
+})();
+</script>
+{% endblock %}

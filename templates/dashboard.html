@@ -1,45 +1,908 @@
 {% extends "base.html" %}
-{% block title %}Dashboard{% endblock %}
+{% block title %}Dashboard · WAAP FOLIO{% endblock %}
 {% block body %}
-<div class="container py-5">
-<div class="d-flex justify-content-between align-items-center mb-4">
-<div><h2 class="fw-bold text-success">Dashboard</h2><p class="text-muted">Welcome back.</p></div>
-<div>
-<a href="{% url 'wallet_dashboard' %}" class="btn btn-success">Wallet</a>
-<a href="{% url 'withdraw' %}" class="btn btn-outline-success">Withdraw</a>
-</div></div>
-<div class="row g-4 mb-4">
-<div class="col-md-3"><div class="card"><div class="card-body"><small>Available Balance</small><h3 class="text-success">₦{{ wallet_balance }}</h3></div></div></div>
-<div class="col-md-3"><div class="card"><div class="card-body"><small>Total Revenue</small><h3>₦{{ total_revenue }}</h3></div></div></div>
-<div class="col-md-3"><div class="card"><div class="card-body"><small>Total Sales</small><h3>{{ total_sales }}</h3></div></div></div>
-<div class="col-md-3"><div class="card"><div class="card-body"><small>Pending Orders</small><h3>{{ pending_orders }}</h3></div></div></div>
+{% load humanize %}
+
+
+
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:#ffffff;
+    --surface:#f8f9fb;
+    --surface-2:#f3f4f6;
+    --border:#e5e7eb;
+    --ink:#0a0a0a;
+    --ink-soft:#4b5563;
+    --muted:#6b7280;
+    --green:#059669;
+    --green-deep:#047857;
+    --green-ink:#064e3b;
+    --green-soft:#ecfdf5;
+    --amber:#b45309;
+    --amber-soft:#fef3c7;
+    --danger:#dc2626;
+    --danger-soft:#fef2f2;
+    --radius:14px;
+    --radius-lg:18px;
+    --shadow-sm:0 1px 2px rgba(15,23,42,.04), 0 1px 1px rgba(15,23,42,.03);
+    --shadow-md:0 6px 24px -8px rgba(15,23,42,.10), 0 2px 6px rgba(15,23,42,.04);
+    --shadow-lg:0 24px 60px -20px rgba(15,23,42,.18), 0 8px 20px -10px rgba(15,23,42,.08);
+  }
+
+  *{box-sizing:border-box}
+  body{
+    background:var(--bg)!important;
+    color:var(--ink);
+    font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+    font-feature-settings:"cv11","ss01";
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .waap-shell{max-width:1280px;margin:0 auto;padding:24px 20px 120px}
+  @media(min-width:768px){.waap-shell{padding:32px 32px 120px}}
+
+  /* ---------- Header ---------- */
+  .store-header{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:18px;box-shadow:var(--shadow-sm);
+    display:flex;flex-direction:column;gap:16px;
+  }
+  @media(min-width:900px){
+    .store-header{flex-direction:row;align-items:center;justify-content:space-between;padding:22px 26px}
+  }
+  .store-identity{display:flex;align-items:center;gap:14px;min-width:0}
+  .store-mark{
+    width:52px;height:52px;border-radius:14px;background:var(--ink);color:#fff;
+    display:flex;align-items:center;justify-content:center;
+    font-weight:900;font-size:20px;letter-spacing:.5px;flex-shrink:0;
+  }
+  .store-meta{min-width:0}
+  .store-eyebrow{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--green-deep)}
+  .store-name{
+    font-size:22px;font-weight:800;color:var(--ink);line-height:1.15;margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .store-sub{font-size:13px;color:var(--muted);font-weight:500;margin-top:3px}
+  .store-actions{display:flex;flex-wrap:wrap;gap:10px}
+
+  /* ---------- Buttons ---------- */
+  .btn-w{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    font-family:inherit;font-weight:700;font-size:14px;
+    padding:11px 18px;border-radius:12px;border:1px solid transparent;
+    cursor:pointer;transition:transform .15s ease,box-shadow .2s ease,background .2s;
+    text-decoration:none;line-height:1;white-space:nowrap;
+  }
+  .btn-w:active{transform:translateY(1px)}
+  .btn-ink{background:var(--ink);color:#fff;border-color:var(--ink)}
+  .btn-ink:hover{background:#000;color:#fff;box-shadow:var(--shadow-md)}
+  .btn-green{background:var(--green);color:#fff;border-color:var(--green)}
+  .btn-green:hover{background:var(--green-deep);color:#fff;box-shadow:0 8px 20px -8px rgba(5,150,105,.5)}
+  .btn-ghost{background:#fff;color:var(--ink);border-color:var(--border)}
+  .btn-ghost:hover{border-color:var(--ink);background:var(--surface)}
+  .btn-sm{padding:8px 12px;font-size:12.5px;border-radius:10px}
+  .btn-block{width:100%}
+
+  /* ---------- Store switch ---------- */
+  .store-switch{position:relative}
+  .store-switch-menu{
+    position:absolute;right:0;top:calc(100% + 8px);min-width:280px;background:#fff;
+    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);
+    padding:8px;z-index:50;display:none;
+  }
+  .store-switch.open .store-switch-menu{display:block}
+  .switch-item{
+    display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:10px 12px;border-radius:10px;font-size:14px;font-weight:600;
+    color:var(--ink);text-decoration:none;
+  }
+  .switch-item:hover{background:var(--surface);color:var(--ink)}
+  .switch-item.active{background:var(--green-soft);color:var(--green-ink)}
+  .switch-item .check{color:var(--green);font-weight:900}
+  .switch-divider{height:1px;background:var(--border);margin:6px 4px}
+
+  /* ---------- Section heading ---------- */
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin:40px 0 16px;flex-wrap:wrap}
+  .section-title{font-size:26px;font-weight:900;color:var(--ink);line-height:1.1;letter-spacing:-.02em}
+  .section-title em{font-style:normal;color:var(--green-deep)}
+  .section-sub{font-size:13.5px;color:var(--muted);margin-top:6px;font-weight:500}
+
+  /* ---------- Stat cards ---------- */
+  .stat-grid{display:grid;grid-template-columns:1fr;gap:16px;margin-top:22px}
+  @media(min-width:640px){.stat-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1024px){.stat-grid{grid-template-columns:repeat(4,1fr)}}
+  .stat-card{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:20px;box-shadow:var(--shadow-sm);position:relative;overflow:hidden;
+    transition:transform .2s ease,box-shadow .25s ease,border-color .2s;
+  }
+  .stat-card:hover{transform:translateY(-3px);border-color:#d1d5db;box-shadow:var(--shadow-lg)}
+  .stat-card::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--border)}
+  .stat-card.is-green::after{background:var(--green)}
+  .stat-card.is-ink::after{background:var(--ink)}
+  .stat-card.is-amber::after{background:#f59e0b}
+  .stat-card.is-danger::after{background:var(--danger)}
+  .stat-label{font-size:11px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+  .stat-value{font-size:28px;font-weight:900;letter-spacing:-.02em;margin-top:10px;line-height:1.05;color:var(--ink)}
+  .stat-value.green{color:var(--green-deep)}
+  .stat-value.danger{color:var(--danger)}
+  .stat-foot{font-size:12.5px;color:var(--muted);margin-top:8px;font-weight:500}
+
+  /* ---------- Panels ---------- */
+  .panel{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);overflow:hidden;
+  }
+  .panel-head{
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:16px 20px;border-bottom:1px solid var(--border);background:#fff;
+  }
+  .panel-title{font-size:15px;font-weight:800;color:var(--ink)}
+  .panel-hint{font-size:12px;color:var(--muted);font-weight:500;margin-top:2px}
+  .panel-body{padding:20px}
+
+  .main-grid{display:grid;grid-template-columns:1fr;gap:20px;margin-top:22px}
+  @media(min-width:1024px){.main-grid{grid-template-columns:minmax(0,2fr) minmax(0,1fr)}}
+  .stack{display:flex;flex-direction:column;gap:20px;min-width:0}
+
+  .chart-box{position:relative;height:280px}
+  .chart-box.small{height:230px}
+
+  /* ---------- Table ---------- */
+  .waap-table{width:100%;border-collapse:collapse;font-size:14px}
+  .waap-table thead th{
+    text-align:left;font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--muted);padding:12px 20px;background:var(--surface);border-bottom:1px solid var(--border);
+  }
+  .waap-table tbody td{padding:14px 20px;border-bottom:1px solid var(--border);color:var(--ink);font-weight:600;vertical-align:middle}
+  .waap-table tbody tr:last-child td{border-bottom:none}
+  .waap-table tbody tr:hover{background:var(--surface)}
+  .cell-id{font-variant-numeric:tabular-nums;font-weight:800}
+  .cell-amount{text-align:right;font-variant-numeric:tabular-nums;font-weight:900;color:var(--green-deep)}
+  .th-amount{text-align:right}
+  .cell-action{text-align:right;white-space:nowrap}
+  .table-scroll{overflow-x:auto}
+
+  .pill{
+    display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;
+    font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;
+    background:var(--surface-2);color:var(--ink-soft);
+  }
+  .pill::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .pill.ok{background:var(--green-soft);color:var(--green-ink)}
+  .pill.wait{background:var(--amber-soft);color:var(--amber)}
+  .pill.bad{background:var(--danger-soft);color:var(--danger)}
+
+  /* ---------- Quick actions ---------- */
+  .action-list{display:flex;flex-direction:column}
+  .action-item{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:14px 20px;border-bottom:1px solid var(--border);
+    font-size:14px;font-weight:700;color:var(--ink);text-decoration:none;
+    transition:background .18s,padding-left .18s;
+  }
+  .action-item:last-child{border-bottom:none}
+  .action-item:hover{background:var(--green-soft);color:var(--green-ink);padding-left:24px}
+  .action-item .arrow{color:var(--green);font-weight:900}
+
+  /* ---------- AI panel ---------- */
+  .ai-panel{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+    box-shadow:var(--shadow-sm);overflow:hidden;
+  }
+  .ai-head{
+    padding:16px 20px;border-bottom:1px solid var(--border);
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    background:linear-gradient(180deg,var(--green-soft) 0%,#fff 100%);
+  }
+  .ai-badge{
+    font-size:10px;font-weight:900;letter-spacing:.16em;text-transform:uppercase;
+    background:var(--ink);color:#fff;padding:5px 9px;border-radius:999px;
+  }
+  .ai-list{display:flex;flex-direction:column;gap:12px;padding:18px 20px}
+  .ai-item{
+    border:1px solid var(--border);border-left:3px solid var(--green);
+    border-radius:12px;padding:13px 14px;background:#fff;
+  }
+  .ai-item.warn{border-left-color:#f59e0b}
+  .ai-item.risk{border-left-color:var(--danger)}
+  .ai-item-title{font-size:13.5px;font-weight:800;color:var(--ink);display:flex;align-items:center;gap:8px}
+  .ai-tag{
+    font-size:9.5px;font-weight:900;letter-spacing:.12em;text-transform:uppercase;
+    padding:3px 7px;border-radius:6px;background:var(--green-soft);color:var(--green-ink);
+  }
+  .ai-item.warn .ai-tag{background:var(--amber-soft);color:var(--amber)}
+  .ai-item.risk .ai-tag{background:var(--danger-soft);color:var(--danger)}
+  .ai-item-text{font-size:13px;color:var(--ink-soft);line-height:1.55;margin-top:6px}
+  .ai-foot{
+    padding:12px 20px;border-top:1px solid var(--border);background:var(--surface);
+    font-size:11.5px;color:var(--muted);font-weight:600;
+  }
+
+  /* ---------- Store performance ---------- */
+  .store-grid{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:640px){.store-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1024px){.store-grid{grid-template-columns:repeat(3,1fr)}}
+  .store-card{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
+    padding:18px;box-shadow:var(--shadow-sm);display:flex;flex-direction:column;gap:14px;
+    transition:transform .2s ease,box-shadow .25s ease,border-color .2s;
+  }
+  .store-card:hover{transform:translateY(-3px);border-color:#d1d5db;box-shadow:var(--shadow-lg)}
+  .store-card-top{display:flex;align-items:center;gap:12px;min-width:0}
+  .store-card-mark{
+    width:42px;height:42px;border-radius:12px;background:var(--green-soft);color:var(--green-deep);
+    display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;flex-shrink:0;
+  }
+  .store-card-name{
+    font-size:15px;font-weight:800;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+  .store-card-flag{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px}
+  .store-card-flag.active{color:var(--green-deep)}
+  .store-bar{height:8px;border-radius:999px;background:var(--surface-2);overflow:hidden}
+  .store-bar span{display:block;height:100%;border-radius:999px;background:var(--green)}
+  .store-card-stats{display:flex;justify-content:space-between;gap:10px}
+  .scs{min-width:0}
+  .scs-k{font-size:10.5px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .scs-v{font-size:16px;font-weight:900;color:var(--ink);margin-top:3px;font-variant-numeric:tabular-nums}
+
+  /* ---------- Empty state ---------- */
+  .empty-state{background:#fff;border:1px dashed var(--border);border-radius:var(--radius-lg);padding:48px 24px;text-align:center}
+  .empty-mark{
+    width:64px;height:64px;border-radius:18px;background:var(--green-soft);color:var(--green-deep);
+    display:inline-flex;align-items:center;justify-content:center;font-size:28px;font-weight:900;margin-bottom:16px;
+  }
+  .empty-title{font-size:18px;font-weight:800;color:var(--ink)}
+  .empty-text{font-size:14px;color:var(--muted);margin-top:6px;max-width:360px;margin-inline:auto}
+  .table-empty{padding:44px 20px;text-align:center;color:var(--muted);font-size:14px;font-weight:600}
+
+  /* ---------- Toasts ---------- */
+  .waap-toast-stack{position:fixed;top:20px;right:20px;z-index:9500;display:flex;flex-direction:column;gap:10px;max-width:360px}
+  .waap-toast{
+    background:#fff;border:1px solid var(--border);border-left:4px solid var(--green);
+    border-radius:12px;padding:12px 14px;box-shadow:var(--shadow-md);
+    font-size:14px;font-weight:600;color:var(--ink);
+  }
+
+  /* ---------- Sticky mobile bar ---------- */
+  .mobile-sticky{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    padding:12px 16px calc(12px + env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,rgba(255,255,255,0) 0%,#fff 30%);
+    display:flex;justify-content:center;gap:10px;
+  }
+  .mobile-sticky .btn-w{box-shadow:var(--shadow-lg);flex:1}
+  @media(min-width:900px){.mobile-sticky{display:none}}
+
+  @keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+  .store-header,.stat-card,.panel,.ai-panel,.store-card,.empty-state{animation:fadeUp .4s ease both}
+
+  /* =========================================================
+     MOBILE STRUCTURE FIX
+     ========================================================= */
+  @media (max-width:767px){
+    html,body{overflow-x:hidden !important;width:100%}
+    *{max-width:100%}
+
+    .waap-shell{width:100% !important;max-width:100% !important;padding:14px 14px 110px !important;overflow:hidden}
+
+    .store-header,.stat-card,.panel,.ai-panel,.store-card,.empty-state{
+      width:100% !important;max-width:100% !important;border-radius:14px !important;box-sizing:border-box !important;
+    }
+
+    .store-header{padding:14px !important;gap:12px}
+    .section-head{margin:28px 0 14px !important;gap:10px}
+    .section-title{font-size:21px}
+
+    .store-meta{min-width:0;width:100%}
+    .store-name{font-size:18px !important;white-space:normal !important;overflow-wrap:break-word;word-break:break-word;line-height:1.3}
+
+    .store-actions{width:100%;display:flex;flex-direction:column;gap:10px}
+    .store-actions .btn-w,.store-actions .store-switch{width:100%}
+    .btn-w{width:100%;justify-content:center}
+    .cell-action .btn-w,.store-card .btn-w{width:100%}
+
+    .stat-grid,.store-grid,.main-grid{grid-template-columns:1fr !important}
+    .stat-value{font-size:24px}
+
+    .chart-box{height:230px}
+    .chart-box.small{height:210px}
+
+    .panel-body{padding:16px}
+    .waap-table thead th,.waap-table tbody td{padding:11px 14px}
+    .action-item{padding:13px 16px}
+    .action-item:hover{padding-left:18px}
+
+    .store-switch-menu{width:100%;min-width:100%;right:0;left:0}
+    .waap-toast-stack{left:12px;right:12px;top:12px;max-width:none}
+    .mobile-sticky{padding:10px 14px calc(10px + env(safe-area-inset-bottom))}
+  }
+</style>
+
+<div class="waap-shell">
+
+  {% if messages %}
+    <div class="waap-toast-stack">
+      {% for message in messages %}
+        <div class="waap-toast">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- ============================ HEADER ============================ -->
+  <div class="store-header">
+    <div class="store-identity">
+      <div class="store-mark">
+        {% if active_store %}{{ active_store.brand_name|slice:":2"|upper }}{% else %}WF{% endif %}
+      </div>
+      <div class="store-meta">
+        <div class="store-eyebrow">Dashboard</div>
+        <div class="store-name">
+          {% if active_store %}{{ active_store.brand_name }}{% else %}Welcome back{% endif %}
+        </div>
+        <div class="store-sub">Here is how your business is performing today.</div>
+      </div>
+    </div>
+
+    <div class="store-actions">
+      {% if user.stores.count > 1 %}
+        <div class="store-switch" id="storeSwitch">
+          <button type="button" class="btn-w btn-ghost" id="storeSwitchToggle">
+            Switch store <span aria-hidden="true">▾</span>
+          </button>
+          <div class="store-switch-menu">
+            {% for s in user.stores.all %}
+              {# MANAGE_STORE_LINK #}
+              <a class="switch-item {% if active_store and s.id == active_store.id %}active{% endif %}"
+                 {% comment %} href="{% url 'manage_store' store.slug %}"> {% endcomment %}
+                <span>{{ s.brand_name }}</span>
+                {% if active_store and s.id == active_store.id %}<span class="check">✓</span>{% endif %}
+              </a>
+            {% endfor %}
+            <div class="switch-divider"></div>
+            {# MANAGE_STORE_LINK #}
+            {% comment %} <a class="switch-item" href="{% url 'manage_store' store.slug %}">Manage store</a> {% endcomment %}
+          </div>
+        </div>
+      {% endif %}
+      {# MANAGE_STORE_LINK #}
+      {% comment %} <a href="{% url 'manage_store' store.slug %}" class="btn-w btn-ghost">Manage store</a> {% endcomment %}
+      <a href="{% url 'wallet_dashboard' %}" class="btn-w btn-ink">Wallet</a>
+      <a href="{% url 'withdraw' %}" class="btn-w btn-green">Withdraw</a>
+    </div>
+  </div>
+
+  <!-- ============================ KPI CARDS ============================ -->
+  <div class="stat-grid">
+    <div class="stat-card is-green">
+      <div class="stat-label">Available Balance</div>
+      <div class="stat-value green" data-metric="balance" data-value="{{ wallet_balance|default:0 }}">₦{{ wallet_balance|intcomma }}</div>
+      <div class="stat-foot">Ready to withdraw</div>
+    </div>
+    <div class="stat-card is-ink">
+      <div class="stat-label">Total Revenue</div>
+      <div class="stat-value" data-metric="revenue" data-value="{{ total_revenue|default:0 }}">₦{{ total_revenue|intcomma }}</div>
+      <div class="stat-foot">Lifetime earnings</div>
+    </div>
+    <div class="stat-card is-amber">
+      <div class="stat-label">Total Sales</div>
+      <div class="stat-value" data-metric="sales" data-value="{{ total_sales|default:0 }}">{{ total_sales|intcomma }}</div>
+      <div class="stat-foot">Completed orders</div>
+    </div>
+    <div class="stat-card is-danger">
+      <div class="stat-label">Pending Orders</div>
+      <div class="stat-value" data-metric="pending" data-value="{{ pending_orders|default:0 }}">{{ pending_orders|intcomma }}</div>
+      <div class="stat-foot">Awaiting verification</div>
+    </div>
+  </div>
+
+  <!-- ============================ MAIN GRID ============================ -->
+  <div class="main-grid">
+
+    <!-- LEFT COLUMN -->
+    <div class="stack">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Order Value Trend</div>
+            <div class="panel-hint">Built from your most recent orders</div>
+          </div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-box"><canvas id="revenueChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div>
+            <div class="panel-title">Recent Orders</div>
+            <div class="panel-hint">Latest activity across your catalog</div>
+          </div>
+          <a href="{% url 'payment_history' %}" class="btn-w btn-ghost btn-sm">History</a>
+        </div>
+
+        {% if recent_orders %}
+          <div class="table-scroll">
+            <table class="waap-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th class="th-amount">Amount</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="ordersBody">
+                {% for order in recent_orders %}
+                  <tr data-status="{{ order.status|lower }}" data-amount="{{ order.amount|default:0 }}">
+                    <td class="cell-id">{{ order.order_id }}</td>
+                    <td>{{ order.customer_name }}</td>
+                    <td>
+                      {% if 'paid' in order.status|lower or 'success' in order.status|lower or 'complete' in order.status|lower %}
+                        <span class="pill ok">{{ order.status }}</span>
+                      {% elif 'pending' in order.status|lower or 'process' in order.status|lower %}
+                        <span class="pill wait">{{ order.status }}</span>
+                      {% elif 'fail' in order.status|lower or 'cancel' in order.status|lower or 'refund' in order.status|lower %}
+                        <span class="pill bad">{{ order.status }}</span>
+                      {% else %}
+                        <span class="pill">{{ order.status }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="cell-amount">₦{{ order.amount|intcomma }}</td>
+                    <td class="cell-action">
+                      <a href="{% url 'verify_order' token=order.verification_token %}" class="btn-w btn-ghost btn-sm">View</a>
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <div class="table-empty">No orders found yet — your first sale will appear here.</div>
+        {% endif %}
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div class="stack">
+
+      <!-- AI ASSISTANT -->
+      <div class="ai-panel">
+        <div class="ai-head">
+          <div>
+            <div class="panel-title">Business Assistant</div>
+            <div class="panel-hint">Insights from your live numbers</div>
+          </div>
+          <span class="ai-badge">AI</span>
+        </div>
+        <div class="ai-list" id="aiInsights"></div>
+        <div class="ai-foot">Recomputed on every page load.</div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Order Mix</div>
+        </div>
+        <div class="panel-body">
+          <div class="chart-box small"><canvas id="statusChart"></canvas></div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Quick Actions</div>
+        </div>
+        <div class="action-list">
+          {# MANAGE_STORE_LINK #}
+          {% comment %} <a class="action-item" href="{% url 'manage_store' %}">Manage store &amp; products <span class="arrow">→</span></a> {% endcomment %}
+          <a class="action-item" href="{% url 'wallet_dashboard' %}">Wallet <span class="arrow">→</span></a>
+          <a class="action-item" href="{% url 'payment_history' %}">Payment history <span class="arrow">→</span></a>
+          <a class="action-item" href="{% url 'bank_account' %}">Bank account <span class="arrow">→</span></a>
+          <a class="action-item" href="{% url 'withdraw' %}">Withdraw funds <span class="arrow">→</span></a>
+        </div>
+      </div>
+
+      <div class="stat-card is-danger">
+        <div class="stat-label">Total Withdrawn</div>
+        <div class="stat-value danger" data-metric="withdrawn" data-value="{{ total_withdrawn|default:0 }}">₦{{ total_withdrawn|intcomma }}</div>
+        <div class="stat-foot">Paid out to your bank</div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================ STORE PERFORMANCE ============================ -->
+  <div class="section-head">
+    <div>
+      <div class="section-title">Store <em>Performance</em></div>
+      <div class="section-sub">Every storefront on your account, side by side.</div>
+    </div>
+    {# MANAGE_STORE_LINK #}
+    {% comment %} <a href="{% url 'manage_store' %}" class="btn-w btn-ghost btn-sm">Open manage store</a> {% endcomment %}
+  </div>
+
+  {% if user.stores.count %}
+    <div class="store-grid">
+      {% for s in user.stores.all %}
+        <div class="store-card">
+          <div class="store-card-top">
+            <div class="store-card-mark">{{ s.brand_name|slice:":2"|upper }}</div>
+            <div style="min-width:0">
+              <div class="store-card-name">{{ s.brand_name }}</div>
+              {% if active_store and s.id == active_store.id %}
+                <div class="store-card-flag active">Active store</div>
+              {% else %}
+                <div class="store-card-flag">Storefront</div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="store-card-stats">
+            <div class="scs">
+              <div class="scs-k">Products</div>
+              <div class="scs-v">{{ s.items.count|default:"0" }}</div>
+            </div>
+            <div class="scs">
+              <div class="scs-k">Catalog</div>
+              <div class="scs-v">{% if s.items.count %}Live{% else %}Empty{% endif %}</div>
+            </div>
+          </div>
+
+          <div class="store-bar" data-store-bar="{{ s.items.count|default:0 }}"><span style="width:0%"></span></div>
+
+          {# MANAGE_STORE_LINK #}
+          {% comment %} <a href="{% url 'manage_store' %}?store={{ s.id }}" class="btn-w btn-green btn-sm btn-block">Manage this store</a> {% endcomment %}
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-mark">+</div>
+      <div class="empty-title">No stores yet</div>
+      <div class="empty-text">Create your first storefront to start adding products and taking orders.</div>
+      <div style="margin-top:18px">
+        {# MANAGE_STORE_LINK #}
+        {% comment %} <a href="{% url 'manage_store' %}" class="btn-w btn-green">Create a store</a> {% endcomment %}
+      </div>
+    </div>
+  {% endif %}
+
 </div>
-<div class="row">
-<div class="col-lg-8">
-<div class="card"><div class="card-header bg-white"><b>Recent Orders</b></div>
-<div class="table-responsive"><table class="table mb-0">
-<thead><tr><th>Order</th><th>Customer</th><th>Status</th><th>Amount</th><th></th></tr></thead>
-<tbody>
-{% for order in recent_orders %}
-<tr>
-<td>{{ order.order_id }}</td>
-<td>{{ order.customer_name }}</td>
-<td>{{ order.status }}</td>
-<td>₦{{ order.amount }}</td>
-<td><a href="{% url 'verify_order' token=order.verification_token %}" class="btn btn-sm btn-outline-success">View</a></td>
-</tr>
-{% empty %}
-<tr><td colspan="5" class="text-center">No orders found.</td></tr>
-{% endfor %}
-</tbody></table></div></div></div>
-<div class="col-lg-4">
-<div class="card mb-3"><div class="card-header bg-white"><b>Quick Actions</b></div>
-<div class="list-group list-group-flush">
-<a class="list-group-item" href="{% url 'wallet_dashboard' %}">Wallet</a>
-<a class="list-group-item" href="{% url 'payment_history' %}">Payment History</a>
-<a class="list-group-item" href="{% url 'bank_account' %}">Bank Account</a>
-<a class="list-group-item" href="{% url 'withdraw' %}">Withdraw</a>
-</div></div>
-<div class="card"><div class="card-body"><small>Total Withdrawn</small><h3 class="text-danger">₦{{ total_withdrawn }}</h3></div></div>
-</div></div></div>
+
+<div class="mobile-sticky">
+  <a href="{% url 'wallet_dashboard' %}" class="btn-w btn-ghost">Wallet</a>
+  <a href="{% url 'withdraw' %}" class="btn-w btn-green">Withdraw</a>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+  "use strict";
+
+  /* ---------------- helpers ---------------- */
+  function num(v){ var n = parseFloat(String(v == null ? 0 : v).replace(/[^0-9.\-]/g, "")); return isNaN(n) ? 0 : n; }
+  function metric(name){
+    var el = document.querySelector('[data-metric="' + name + '"]');
+    return el ? num(el.getAttribute("data-value")) : 0;
+  }
+  function money(n){ return "₦" + Math.round(n).toLocaleString("en-NG"); }
+
+  var BAL       = metric("balance");
+  var REVENUE   = metric("revenue");
+  var SALES     = metric("sales");
+  var PENDING   = metric("pending");
+  var WITHDRAWN = metric("withdrawn");
+
+  /* ---------------- read orders straight from the rendered table ---------------- */
+  var rows = Array.prototype.slice.call(document.querySelectorAll("#ordersBody tr"));
+  var orders = rows.map(function (r, i) {
+    return {
+      index: i + 1,
+      id: (r.querySelector(".cell-id") || {}).textContent || ("#" + (i + 1)),
+      status: (r.getAttribute("data-status") || "unknown").trim(),
+      amount: num(r.getAttribute("data-amount"))
+    };
+  });
+
+  function bucket(s){
+    if (/paid|success|complete|deliver/.test(s)) return "Completed";
+    if (/pending|process|await/.test(s))         return "Pending";
+    if (/fail|cancel|refund|declin/.test(s))     return "Failed";
+    return "Other";
+  }
+
+  var buckets = { Completed: 0, Pending: 0, Failed: 0, Other: 0 };
+  orders.forEach(function (o) { buckets[bucket(o.status)] += 1; });
+
+  /* ---------------- charts ---------------- */
+  var GREEN = "#059669", GREEN_DEEP = "#047857", INK = "#0a0a0a",
+      GRID = "#e5e7eb", MUTED = "#6b7280";
+
+  if (window.Chart) {
+    Chart.defaults.font.family = "Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+    Chart.defaults.font.weight = "600";
+    Chart.defaults.color = MUTED;
+
+    /* Order value trend.
+       HOOK: if you later add a context var (e.g. sales_chart_data) simply
+       replace `labels` / `values` below with that JSON. */
+    var trendEl = document.getElementById("revenueChart");
+    if (trendEl) {
+      var labels = orders.length ? orders.map(function (o) { return o.id; }) : ["No data"];
+      var values = orders.length ? orders.map(function (o) { return o.amount; }) : [0];
+
+      var ctx = trendEl.getContext("2d");
+      var fill = ctx.createLinearGradient(0, 0, 0, 280);
+      fill.addColorStop(0, "rgba(5,150,105,.22)");
+      fill.addColorStop(1, "rgba(5,150,105,0)");
+
+      new Chart(trendEl, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [{
+            label: "Order value",
+            data: values,
+            borderColor: GREEN_DEEP,
+            backgroundColor: fill,
+            borderWidth: 2.5,
+            fill: true,
+            tension: .35,
+            pointRadius: 3,
+            pointBackgroundColor: "#fff",
+            pointBorderColor: GREEN_DEEP,
+            pointBorderWidth: 2,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: { mode: "index", intersect: false },
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              backgroundColor: INK, padding: 12, cornerRadius: 10, displayColors: false,
+              callbacks: { label: function (c) { return money(c.parsed.y); } }
+            }
+          },
+          scales: {
+            x: { grid: { display: false }, ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 7, font: { size: 11 } } },
+            y: {
+              beginAtZero: true,
+              grid: { color: GRID, drawBorder: false },
+              ticks: { font: { size: 11 }, callback: function (v) { return "₦" + Number(v).toLocaleString("en-NG"); } }
+            }
+          }
+        }
+      });
+    }
+
+    /* Order mix donut */
+    var mixEl = document.getElementById("statusChart");
+    if (mixEl) {
+      var mixKeys = Object.keys(buckets).filter(function (k) { return buckets[k] > 0; });
+      var hasMix = mixKeys.length > 0;
+      new Chart(mixEl, {
+        type: "doughnut",
+        data: {
+          labels: hasMix ? mixKeys : ["No orders"],
+          datasets: [{
+            data: hasMix ? mixKeys.map(function (k) { return buckets[k]; }) : [1],
+            backgroundColor: hasMix
+              ? mixKeys.map(function (k) {
+                  return k === "Completed" ? GREEN
+                       : k === "Pending"   ? "#f59e0b"
+                       : k === "Failed"    ? "#dc2626"
+                       : "#9ca3af";
+                })
+              : ["#e5e7eb"],
+            borderColor: "#fff",
+            borderWidth: 3,
+            hoverOffset: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: "64%",
+          plugins: {
+            legend: { position: "bottom", labels: { boxWidth: 10, boxHeight: 10, usePointStyle: true, pointStyle: "circle", padding: 16, font: { size: 12 } } },
+            tooltip: { backgroundColor: INK, padding: 12, cornerRadius: 10, displayColors: false }
+          }
+        }
+      });
+    }
+  }
+
+  /* ---------------- store performance bars ---------------- */
+  var bars = Array.prototype.slice.call(document.querySelectorAll("[data-store-bar]"));
+  var maxItems = bars.reduce(function (m, b) { return Math.max(m, num(b.getAttribute("data-store-bar"))); }, 0);
+  bars.forEach(function (b) {
+    var v = num(b.getAttribute("data-store-bar"));
+    var pct = maxItems > 0 ? Math.max(6, Math.round((v / maxItems) * 100)) : 4;
+    setTimeout(function () { b.firstElementChild.style.transition = "width .8s ease"; b.firstElementChild.style.width = pct + "%"; }, 120);
+  });
+
+  /* =========================================================================
+     BUSINESS ASSISTANT
+     Rule-based engine over the numbers already on this page. No API key is
+     exposed in the browser.
+     HOOK — to switch to a real model later, replace renderInsights(build())
+     with:
+       fetch("/your-ai-view/", {method:"POST",
+         headers:{"Content-Type":"application/json","X-CSRFToken": csrf},
+         body: JSON.stringify(snapshot)})
+         .then(r => r.json()).then(d => renderInsights(d.insights));
+     where `snapshot` is the object returned by buildSnapshot() below.
+     ========================================================================= */
+
+  function buildSnapshot(){
+    return {
+      balance: BAL, revenue: REVENUE, sales: SALES,
+      pending_orders: PENDING, withdrawn: WITHDRAWN,
+      recent: orders, status_mix: buckets,
+      stores: document.querySelectorAll("[data-store-bar]").length
+    };
+  }
+
+  function build(){
+    var s = buildSnapshot();
+    var out = [];
+
+    var pendingValue = orders.filter(function (o) { return bucket(o.status) === "Pending"; })
+                             .reduce(function (a, o) { return a + o.amount; }, 0);
+
+    /* 1. pending orders */
+    if (s.pending_orders > 0) {
+      out.push({
+        level: s.pending_orders >= 5 ? "risk" : "warn",
+        tag: "Action",
+        title: s.pending_orders + " order" + (s.pending_orders === 1 ? "" : "s") + " awaiting verification",
+        text: (pendingValue > 0 ? money(pendingValue) + " is sitting unconfirmed. " : "") +
+              "Verify them from Recent Orders — unconfirmed orders are the most common reason revenue looks lower than sales."
+      });
+    }
+
+    /* 2. failed orders */
+    if (buckets.Failed > 0) {
+      var failShare = Math.round((buckets.Failed / Math.max(orders.length, 1)) * 100);
+      out.push({
+        level: failShare >= 30 ? "risk" : "warn",
+        tag: "Risk",
+        title: failShare + "% of recent orders failed or were cancelled",
+        text: "Check your payment method and delivery notes on those orders. A failure rate above 15% usually points to a checkout or pricing problem, not demand."
+      });
+    }
+
+    /* 3. payout hygiene */
+    if (s.revenue > 0) {
+      var wShare = Math.round((s.withdrawn / s.revenue) * 100);
+      if (wShare >= 80) {
+        out.push({
+          level: "warn", tag: "Cashflow",
+          title: "You have withdrawn " + wShare + "% of lifetime revenue",
+          text: "Keep a working buffer in your wallet for refunds and restocking so a single dispute does not stall fulfilment."
+        });
+      } else if (s.balance >= 20000) {
+        out.push({
+          level: "good", tag: "Cashflow",
+          title: money(s.balance) + " is idle in your wallet",
+          text: "Move it to your bank or reinvest it in your best selling item. Confirm your bank account is up to date before withdrawing."
+        });
+      }
+    }
+
+    /* 4. average order value */
+    if (orders.length > 0) {
+      var total = orders.reduce(function (a, o) { return a + o.amount; }, 0);
+      var avg = total / orders.length;
+      var best = orders.slice().sort(function (a, b) { return b.amount - a.amount; })[0];
+      if (avg > 0) {
+        out.push({
+          level: "good", tag: "Insight",
+          title: "Average recent order is " + money(avg),
+          text: "Your strongest recent order is " + best.id + " at " + money(best.amount) +
+                ". Bundle or upsell around that item to pull the average up."
+        });
+      }
+    }
+
+    /* 5. sales vs revenue sanity */
+    if (s.sales > 0 && s.revenue > 0) {
+      var perSale = s.revenue / s.sales;
+      out.push({
+        level: "good", tag: "Metric",
+        title: "Revenue per completed sale: " + money(perSale),
+        text: "Track this over time — raising it by 10% is usually easier than winning 10% more customers."
+      });
+    }
+
+    /* 6. multi-store guidance */
+    if (s.stores > 1) {
+      out.push({
+        level: "good", tag: "Stores",
+        title: "You are running " + s.stores + " storefronts",
+        text: "Compare them in Store Performance below. Concentrate new products in the store that already converts, and keep the quieter one focused on a single niche."
+      });
+    }
+
+    /* 7. cold start */
+    if (orders.length === 0 && s.sales === 0) {
+      out.push({
+        level: "warn", tag: "Getting started",
+        title: "No sales recorded yet",
+        text: "Add products in Manage Store, then share your storefront link. Listings with a clear cover image and a real price convert far better than placeholders."
+      });
+    }
+
+    if (out.length === 0) {
+      out.push({
+        level: "good", tag: "All clear",
+        title: "Nothing needs your attention",
+        text: "No pending or failed orders and your balance is healthy. Keep adding products to widen your catalog."
+      });
+    }
+
+    var rank = { risk: 0, warn: 1, good: 2 };
+    return out.sort(function (a, b) { return rank[a.level] - rank[b.level]; }).slice(0, 5);
+  }
+
+  function renderInsights(items){
+    var box = document.getElementById("aiInsights");
+    if (!box) return;
+    box.innerHTML = "";
+    items.forEach(function (i) {
+      var el = document.createElement("div");
+      el.className = "ai-item " + (i.level === "risk" ? "risk" : i.level === "warn" ? "warn" : "");
+      var t = document.createElement("div");
+      t.className = "ai-item-title";
+      var tag = document.createElement("span");
+      tag.className = "ai-tag";
+      tag.textContent = i.tag;
+      t.appendChild(tag);
+      t.appendChild(document.createTextNode(i.title));
+      var p = document.createElement("div");
+      p.className = "ai-item-text";
+      p.textContent = i.text;
+      el.appendChild(t);
+      el.appendChild(p);
+      box.appendChild(el);
+    });
+  }
+
+  renderInsights(build());
+
+  /* ---------------- store switch dropdown ---------------- */
+  var sw = document.getElementById("storeSwitch");
+  var swToggle = document.getElementById("storeSwitchToggle");
+  if (sw && swToggle) {
+    swToggle.addEventListener("click", function (e) {
+      e.stopPropagation();
+      sw.classList.toggle("open");
+    });
+    document.addEventListener("click", function (e) {
+      if (!sw.contains(e.target)) sw.classList.remove("open");
+    });
+  }
+
+  /* ---------------- auto-hide toasts ---------------- */
+  document.querySelectorAll(".waap-toast").forEach(function (t, i) {
+    setTimeout(function () {
+      t.style.transition = "opacity .4s";
+      t.style.opacity = "0";
+      setTimeout(function () { t.remove(); }, 400);
+    }, 4000 + i * 300);
+  });
+
+})();
+</script>
+
 {% endblock %}

@@ -2,80 +2,272 @@
 {% load static %}
 {% load humanize %}
 
-{% block body %}
-<section class="py-5">
+{% block title %}Collection — {{ store.brand_name }}{% endblock %}
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <span class="hero-badge mb-2 d-inline-block bg-success text-white px-2 py-1 rounded">Listings</span>
-      <h2 class="fw-bold mb-0">Available Properties</h2>
+{% block body %}
+
+<style>
+  :root{
+    --re-hero-h-sm: 46vh;
+  }
+  .re{ font-family:var(--re-sans); color:var(--re-ink); background:var(--re-bg); overflow-x:hidden; }
+  .re *{ box-sizing:border-box; }
+  .re-container{ max-width:1360px; margin:0 auto; padding:0 32px; }
+  @media (max-width:900px){ .re-container{ padding:0 20px; } }
+
+  .re-reveal{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--re-ease), transform .9s var(--re-ease); }
+  .re-reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .re-reveal{ opacity:1; transform:none; transition:none; } }
+
+  /* ─── HERO ─── */
+  .re-p-hero{
+    position:relative;
+    padding: calc(var(--re-nav-h) + 64px) 0 72px;
+    background:
+      radial-gradient(1200px 600px at 80% -10%, #eee9dc 0 , transparent 60%),
+      radial-gradient(800px 500px at 0% 20%, #f2efe6 0%, transparent 55%),
+      var(--re-bg);
+    overflow:hidden;
+  }
+  .re-p-hero::before{
+    content:""; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(20,20,15,.025) 1px, transparent 1px), linear-gradient(90deg, rgba(20,20,15,.025) 1px, transparent 1px);
+    background-size:80px 80px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 40%, transparent 75%);
+    opacity:.4; pointer-events:none;
+  }
+  .re-p-eyebrow{
+    display:inline-flex; align-items:center; gap:10px;
+    font-size:.68rem; letter-spacing:.3em; text-transform:uppercase; color:var(--re-muted);
+    margin-bottom:1.6rem;
+  }
+  .re-p-eyebrow .line{ width:32px; height:1px; background:var(--re-olive); }
+  .re-p-hero h1{
+    font-size:clamp(2.4rem,5.4vw,4.2rem); font-weight:400; line-height:1.05; letter-spacing:-0.025em;
+    max-width:780px; margin:0 0 1.4rem;
+  }
+  .re-p-hero h1 em{ font-style:italic; color:var(--re-olive-deep); }
+  .re-p-hero p.lead{ font-size:1.05rem; color:var(--re-muted); max-width:520px; line-height:1.7; margin:0; }
+
+  /* ─── FILTER BAR ─── */
+  .re-filter-wrap{ margin-top:3.4rem; }
+  .re-filter{
+    display:flex; align-items:center; gap:14px;
+    background:var(--re-glass-strong); backdrop-filter:blur(14px);
+    border:1px solid var(--re-line); border-radius:2px;
+    padding:8px 8px 8px 20px;
+    max-width:620px;
+    box-shadow:var(--re-shadow-sm);
+  }
+  .re-search{ display:flex; align-items:center; gap:12px; flex:1; min-width:0; }
+  .re-search svg{ width:17px; height:17px; stroke:var(--re-muted); flex-shrink:0; }
+  .re-search input{
+    border:0; outline:0; background:transparent; width:100%;
+    font-family:var(--re-sans); font-size:.92rem; color:var(--re-ink); padding:12px 0;
+  }
+  .re-search input::placeholder{ color:var(--re-faint); }
+  .re-divider{ width:1px; height:22px; background:var(--re-line-strong); }
+  .re-icon-btn{
+    width:40px; height:40px; border-radius:2px; display:grid; place-items:center;
+    background:transparent; border:1px solid transparent; color:var(--re-ink); cursor:pointer;
+    transition: background .25s var(--re-ease), border-color .25s var(--re-ease);
+  }
+  .re-icon-btn:hover{ background:var(--re-hover); border-color:var(--re-line); }
+  .re-icon-btn svg{ width:17px; height:17px; }
+
+  .re-p-section-head{
+    display:flex; align-items:center; justify-content:space-between; gap:1.4rem; flex-wrap:wrap;
+    margin: 3.6rem 0 2.6rem;
+    padding-top:2.2rem; border-top:1px solid var(--re-line);
+  }
+  .re-count{ font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; color:var(--re-muted); }
+  .re-count b{ color:var(--re-ink); font-weight:600; }
+
+  /* ─── GRID ─── */
+  .re-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:2.6rem 2rem; padding-bottom:7rem; }
+  @media (max-width:980px){ .re-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:620px){ .re-grid{ grid-template-columns:1fr; } }
+
+  .re-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; transition: transform .55s var(--re-ease); }
+  .re-card:hover{ transform:translateY(-6px); color:inherit; }
+  .re-card-media{ position:relative; aspect-ratio:4/5; overflow:hidden; background:var(--re-surface); border:1px solid var(--re-line); border-radius:3px; margin-bottom:1.25rem; }
+  .re-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1.3s var(--re-ease); }
+  .re-card:hover .re-card-media img{ transform:scale(1.06); }
+  .re-badge{
+    position:absolute; top:14px; left:14px; z-index:2;
+    background:var(--re-ink); color:#fff; border-radius:999px;
+    padding:6px 13px; font-size:.63rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
+  }
+  .re-fav{
+    position:absolute; top:12px; right:12px; z-index:2;
+    width:34px; height:34px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--re-glass-strong); backdrop-filter:blur(8px);
+    display:grid; place-items:center; color:var(--re-ink-soft);
+    transition: color .25s var(--re-ease), transform .2s var(--re-ease);
+  }
+  .re-fav svg{ width:16px; height:16px; }
+  .re-fav.on{ color:var(--re-olive); }
+  .re-fav.on svg{ fill:currentColor; }
+  .re-fav:active{ transform:scale(.9); }
+  .re-quick{
+    position:absolute; left:14px; right:14px; bottom:14px; z-index:2;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+    padding:12px; background:var(--re-glass-strong); backdrop-filter:blur(10px);
+    border:1px solid var(--re-line); border-radius:2px;
+    font-size:.7rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--re-ink);
+    opacity:0; transform:translateY(8px);
+    transition: opacity .4s var(--re-ease), transform .4s var(--re-ease);
+  }
+  .re-card:hover .re-quick{ opacity:1; transform:none; }
+  .re-card-body{ display:flex; justify-content:space-between; align-items:flex-start; gap:1rem; }
+  .re-card-name{ font-size:1.02rem; font-weight:500; margin:0 0 4px; line-height:1.35; letter-spacing:-0.005em; }
+  .re-card-meta{ font-size:.78rem; color:var(--re-faint); letter-spacing:.04em; text-transform:uppercase; }
+  .re-card-price{ font-family:var(--re-serif); font-size:1.06rem; white-space:nowrap; }
+  .re-card-details{
+    margin-top:10px; display:inline-flex; align-items:center; gap:6px;
+    font-size:.74rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--re-olive-deep);
+  }
+
+  .re-empty{ grid-column:1/-1; text-align:center; padding:6rem 2rem; border:1px dashed var(--re-line-strong); border-radius:4px; }
+  .re-empty .mark{ width:56px; height:56px; margin:0 auto 1.5rem; border-radius:50%; background:var(--re-surface); display:grid; place-items:center; color:var(--re-olive); }
+  .re-empty h3{ font-size:1.4rem; margin:0 0 .6rem; }
+  .re-empty p{ color:var(--re-muted); font-size:.94rem; margin:0; }
+</style>
+
+<div class="re">
+
+  <!-- ─── HERO ─── -->
+  <section class="re-p-hero">
+    <div class="re-container">
+      <div class="re-p-eyebrow re-reveal">
+        <span class="line"></span>
+        The Collection
+      </div>
+      <h1 class="re-reveal">Properties, presented with <em>clarity.</em></h1>
+      <p class="lead re-reveal">Every listing from {{ store.brand_name }} in one place — browse, then reach out directly for full details or to arrange a viewing.</p>
+
+      <div class="re-filter-wrap re-reveal">
+        <div class="re-filter">
+          <div class="re-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" placeholder="Search the collection..." aria-label="Search properties">
+          </div>
+          <span class="re-divider"></span>
+          <button class="re-icon-btn" aria-label="Filter properties" type="button">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/>
+              <circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="13" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GRID ─── -->
+  <div class="re-container">
+
+    <div class="re-p-section-head re-reveal">
+      <span class="re-count">
+        <b>{{ products|length }}</b> {% if products|length == 1 %}Property{% else %}Properties{% endif %} Available
+      </span>
+    </div>
+
+    <div class="re-grid">
+
+      {% for product in products %}
+        <a href="{% url 'store_product_detail' store.slug product.slug %}" class="re-card re-reveal">
+
+          <div class="re-card-media">
+
+            {% if product.is_featured %}
+              <span class="re-badge">Featured</span>
+            {% endif %}
+
+            <button type="button" class="re-fav" aria-label="Save property"
+                    onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>
+              </svg>
+            </button>
+
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+
+            <span class="re-quick">
+              View Property
+              <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </span>
+
+          </div>
+
+          <div class="re-card-body">
+            <div>
+              <h3 class="re-card-name">{{ product.name }}</h3>
+              {% if product.category %}
+                <div class="re-card-meta">{{ product.category.name }}</div>
+              {% endif %}
+            </div>
+            <div class="re-card-price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% endif %}{{ product.price|intcomma }}
+            </div>
+          </div>
+
+          <span class="re-card-details">
+            View Details
+            <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </span>
+
+        </a>
+
+      {% empty %}
+
+        <div class="re-empty">
+          <div class="mark">
+            <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/></svg>
+          </div>
+          <h3>No Properties Available</h3>
+          <p>Properties added by the store owner will appear here.</p>
+        </div>
+
+      {% endfor %}
+
     </div>
   </div>
 
-  <div class="row g-4 mt-2">
-    {% for product in products %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <div class="card h-100 border-0 shadow-sm hover-scale">
-
-          <!-- Product Image -->
-    {% if product.image %}
-    <img src="{{ product.image.url }}" class="card-img-top" style="height:200px; object-fit:cover;">
-    {% elif product.image_url %}
-    <img src="{{ product.image_url }}" class="card-img-top" style="height:200px; object-fit:cover;">
-    {% else %}
-    <img src="{% static 'images/placeholder.png' %}" class="card-img-top" style="height:200px; object-fit:cover;">
-    {% endif %}
-
-
-          <div class="card-body text-center d-flex flex-column justify-content-between">
-            <h6 class="mb-1">{{ product.name }}</h6>
-
-            <p class="fw-bold text-primary mb-2">
-              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% endif %}
-              {{ product.price|intcomma }}
-            </p>
-
-            <div class="d-flex justify-content-between align-items-center mt-2">
-              <a href="{% url 'store_template_product_detail' store.slug template_slug product.slug %}"
-                 class="btn btn-outline-primary btn-sm flex-grow-1 me-1">
-                View Property
-              </a>
-              <button class="btn btn-outline-success btn-sm" onclick="shareProperty('{{ product.get_absolute_url }}', '{{ product.name|escapejs }}')">
-                <i class="bi bi-share-fill"></i>
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    {% empty %}
-      <p class="text-muted">No properties available at the moment.</p>
-    {% endfor %}
-  </div>
-
-</section>
+</div>
 
 <script>
-  function shareProperty(url, name) {
-    const text = `Check out ${name} on our listings: ${url}`;
-    if (navigator.share) {
-      navigator.share({ title: name, text, url }).catch(() => {});
-    } else {
-      const wa = `https://wa.me/?text=${encodeURIComponent(text)}`;
-      window.open(wa, "_blank");
+  (function(){
+    var els = document.querySelectorAll('.re-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+
+    // Client-side search filter
+    var input = document.querySelector('.re-search input');
+    if (input) {
+      input.addEventListener('input', function(){
+        var q = this.value.trim().toLowerCase();
+        document.querySelectorAll('.re-grid .re-card').forEach(function(card){
+          var name = (card.querySelector('.re-card-name')||{}).innerText || '';
+          card.style.display = name.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+        });
+      });
     }
-  }
+  })();
 </script>
 
-<style>
-  /* Hover scale effect */
-  .hover-scale:hover img {
-    transform: scale(1.05);
-  }
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
 
-  .card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 8px 20px rgba(0,128,0,0.15);
-    transition: all 0.3s ease;
-  }
-</style>
 {% endblock %}

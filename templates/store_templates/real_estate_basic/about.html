@@ -1,35 +1,286 @@
 {% extends "store_templates/real_estate_basic/base.html" %}
 
 {% block body %}
-<section class="py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-9">
+{% load static %}
 
-      <span class="hero-badge mb-3 d-inline-block">About Us</span>
+<style>
+  .re-a{ font-family:var(--re-sans); color:var(--re-ink); background:var(--re-bg); overflow-x:hidden; }
+  .re-a *{ box-sizing:border-box; }
+  .re-a-container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+  @media (max-width:900px){ .re-a-container{ padding:0 20px; } }
 
-      <h2 class="fw-bold mb-3">
-        {{ store.brand_name }}
-      </h2>
+  .re-a-reveal{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--re-ease), transform .9s var(--re-ease); }
+  .re-a-reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .re-a-reveal{ opacity:1; transform:none; transition:none; } }
 
-      <p class="text-muted fs-6">
-        {{ store.about }}
-      </p>
+  /* ─── HERO ─── */
+  .re-a-hero{
+    position:relative;
+    padding: calc(var(--re-nav-h) + 70px) 0 5rem;
+    text-align:center;
+    background:
+      radial-gradient(1100px 600px at 50% -20%, #eee9dc 0%, transparent 60%),
+      var(--re-bg);
+    overflow:hidden;
+  }
+  .re-a-crumb{ font-size:.72rem; letter-spacing:.1em; color:var(--re-muted); margin-bottom:2rem; }
+  .re-a-crumb strong{ color:var(--re-ink); font-weight:600; }
+  .re-a-hero h1{
+    font-size:clamp(2.6rem,6vw,5rem); line-height:1.03; letter-spacing:-0.025em; font-weight:400;
+    max-width:820px; margin:0 auto;
+  }
+  .re-a-hero h1 em{ font-style:italic; color:var(--re-olive-deep); }
 
-      {% if store.mission %}
-      <div class="card border-0 shadow-sm mt-4">
-        <div class="card-body">
-          <h5 class="fw-semibold mb-2">
-            <i class="bi bi-bullseye me-2 text-primary"></i>
-            Our Mission
-          </h5>
-          <p class="mb-0 text-muted">
-            {{ store.mission }}
-          </p>
-        </div>
+  {% if store.whatsapp %}
+  .re-a-hero-cta{ margin-top:2.6rem; }
+  {% endif %}
+  .re-cta{
+    display:inline-flex; align-items:center; gap:10px;
+    padding:16px 28px; background:var(--re-ink); color:#fff; border:1px solid var(--re-ink); border-radius:2px;
+    font-size:.76rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase;
+    transition: background .3s var(--re-ease), transform .3s var(--re-ease);
+  }
+  .re-cta:hover{ background:var(--re-olive-deep); border-color:var(--re-olive-deep); color:#fff; transform:translateY(-2px); }
+
+  /* ─── MARQUEE ─── */
+  .re-a-marquee{ border-top:1px solid var(--re-line); border-bottom:1px solid var(--re-line); padding:1.4rem 0; overflow:hidden; background:var(--re-surface); }
+  .re-a-marquee-track{ display:flex; gap:3rem; white-space:nowrap; animation: re-marquee 32s linear infinite; width:max-content; }
+  @keyframes re-marquee{ from{ transform:translateX(0);} to{ transform:translateX(-50%);} }
+  @media (prefers-reduced-motion: reduce){ .re-a-marquee-track{ animation:none; } }
+  .re-a-marquee span{ font-family:var(--re-serif); font-size:1.15rem; color:var(--re-muted); display:inline-flex; align-items:center; gap:1rem; }
+  .re-a-marquee .dot{ width:5px; height:5px; border-radius:50%; background:var(--re-olive); }
+
+  /* ─── GALLERY STRIP (uses real product imagery) ─── */
+  .re-a-gallery{ display:grid; grid-template-columns:repeat(4,1fr); gap:1.2rem; padding:5.5rem 0; }
+  @media (max-width:900px){ .re-a-gallery{ grid-template-columns:repeat(2,1fr); } }
+  .re-a-g-item{ aspect-ratio:3/4; border-radius:3px; overflow:hidden; border:1px solid var(--re-line); background:var(--re-surface); }
+  .re-a-g-item:nth-child(2n){ margin-top:2.4rem; }
+  @media (max-width:900px){ .re-a-g-item:nth-child(2n){ margin-top:0; } }
+  .re-a-g-item img{ width:100%; height:100%; object-fit:cover; }
+  .re-a-g-empty{ display:flex; align-items:center; justify-content:center; height:100%; color:var(--re-faint); font-family:var(--re-serif); font-size:.95rem;
+    background: repeating-linear-gradient(135deg, rgba(20,20,15,.035) 0 2px, transparent 2px 26px), var(--re-surface); }
+
+  /* ─── EDITORIAL SECTION ─── */
+  .re-a-editorial{ padding:5rem 0; border-top:1px solid var(--re-line); display:grid; grid-template-columns:280px 1fr; gap:60px; }
+  @media (max-width:900px){ .re-a-editorial{ grid-template-columns:1fr; gap:24px; } }
+  .re-a-tag{ font-size:.7rem; font-weight:600; letter-spacing:.16em; text-transform:uppercase; color:var(--re-olive-deep); }
+  .re-a-editorial h2{ font-size:clamp(1.7rem,3vw,2.5rem); line-height:1.22; margin:0 0 1.4rem; letter-spacing:-0.015em; }
+  .re-a-editorial p{ font-size:1.02rem; line-height:1.8; color:var(--re-ink-soft); margin:0 0 1.2rem; max-width:640px; }
+  .re-a-editorial p:last-child{ margin-bottom:0; }
+
+  /* ─── FOUNDER ─── */
+  .re-a-founder{ padding:6rem 0; border-top:1px solid var(--re-line); background:var(--re-surface); }
+  .re-a-founder-inner{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; align-items:center; }
+  @media (max-width:900px){ .re-a-founder-inner{ grid-template-columns:1fr; gap:32px; } }
+  .re-a-founder-frame{
+    aspect-ratio:4/5; border-radius:3px; overflow:hidden; border:1px solid var(--re-line);
+    box-shadow:var(--re-shadow-md); position:relative; background:var(--re-bg);
+  }
+  .re-a-founder-frame img{ width:100%; height:100%; object-fit:cover; }
+  .re-a-founder-frame .fallback{
+    width:100%; height:100%; display:flex; align-items:center; justify-content:center;
+    font-family:var(--re-serif); font-size:3.4rem; color:var(--re-olive); background:var(--re-bg);
+  }
+  .re-a-founder-quote-mark{ font-family:var(--re-serif); font-size:4rem; color:var(--re-olive-soft); line-height:1; margin-bottom:1rem; }
+  .re-a-founder blockquote{ margin:0 0 1.6rem; font-family:var(--re-serif); font-size:clamp(1.4rem,2.4vw,1.9rem); line-height:1.42; font-weight:400; color:var(--re-ink); font-style:italic; }
+  .re-a-founder-sig{ display:flex; align-items:center; gap:12px; }
+  .re-a-founder-sig .av{ width:38px; height:38px; border-radius:50%; background:var(--re-olive); color:#fff; display:grid; place-items:center; font-size:.85rem; font-weight:700; }
+  .re-a-founder-sig .name{ font-weight:600; font-size:.92rem; }
+  .re-a-founder-sig .role{ font-size:.76rem; color:var(--re-muted); }
+
+  /* ─── WHY US ─── */
+  .re-a-why{ padding:6rem 0; }
+  .re-a-why-head{ text-align:center; max-width:600px; margin:0 auto 4rem; }
+  .re-a-why-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:2.4rem; }
+  @media (max-width:900px){ .re-a-why-grid{ grid-template-columns:1fr; } }
+  .re-a-why-card{ padding:2.4rem; border:1px solid var(--re-line); border-radius:3px; transition: border-color .3s var(--re-ease), transform .3s var(--re-ease); }
+  .re-a-why-card:hover{ border-color:var(--re-line-strong); transform:translateY(-4px); }
+  .re-a-why-num{ font-family:var(--re-serif); font-size:1.1rem; color:var(--re-olive); margin-bottom:1.1rem; }
+  .re-a-why-card h4{ font-size:1.06rem; margin:0 0 .7rem; }
+  .re-a-why-card p{ font-size:.9rem; color:var(--re-muted); line-height:1.65; margin:0; }
+
+  /* ─── FINAL CTA ─── */
+  .re-a-final{
+    position:relative; padding:8rem 2rem; text-align:center;
+    background:var(--re-ink); color:#fff; overflow:hidden;
+  }
+  .re-a-final::before{
+    content:""; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:70px 70px;
+    mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  }
+  .re-a-final-inner{ position:relative; max-width:640px; margin:0 auto; }
+  .re-a-final h2{ color:#fff; font-size:clamp(2rem,3.6vw,2.8rem); margin:0 0 1.1rem; line-height:1.16; }
+  .re-a-final p{ color:rgba(255,255,255,.62); font-size:1.02rem; margin:0 0 2.4rem; }
+  .re-a-final .re-cta{ background:#fff; color:var(--re-ink); border-color:#fff; }
+  .re-a-final .re-cta:hover{ background:var(--re-olive-soft); border-color:var(--re-olive-soft); color:#fff; }
+</style>
+
+<div class="re-a">
+
+  <!-- ─── HERO ─── -->
+  <section class="re-a-hero">
+    <div class="re-a-container">
+      <div class="re-a-crumb re-a-reveal"><strong>{{ store.brand_name }}</strong> &nbsp;/&nbsp; The Agency</div>
+      <h1 class="re-a-reveal">A considered approach to <em>{{ store.brand_name }}.</em></h1>
+
+      {% if store.whatsapp %}
+      <div class="re-a-hero-cta re-a-reveal">
+        <a class="re-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+          Speak with our team
+        </a>
       </div>
       {% endif %}
+    </div>
+  </section>
 
+  <!-- ─── MARQUEE ─── -->
+  <div class="re-a-marquee">
+    <div class="re-a-marquee-track">
+      <span>Considered listings <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Quiet expertise <span class="dot"></span> Personal service <span class="dot"></span> Built to last <span class="dot"></span></span>
+      <span>Considered listings <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Quiet expertise <span class="dot"></span> Personal service <span class="dot"></span> Built to last <span class="dot"></span></span>
     </div>
   </div>
-</section>
+
+  <!-- ─── GALLERY (real product imagery) ─── -->
+  {% if products %}
+  <div class="re-a-container">
+    <div class="re-a-gallery">
+      {% for product in products|slice:":4" %}
+        <div class="re-a-g-item re-a-reveal">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <div class="re-a-g-empty">{{ store.brand_name }}</div>
+          {% endif %}
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ─── BRAND STORY ─── -->
+  <div class="re-a-container">
+    <div class="re-a-editorial re-a-reveal">
+      <div class="re-a-tag">Our Story</div>
+      <div>
+        {% if store.display_about %}
+          <p>{{ store.display_about }}</p>
+        {% else %}
+          <h2>Built on a simple idea: property, presented honestly.</h2>
+          <p>We believe the best properties are found through a real conversation, not a crowded listings page. {{ store.brand_name }} exists to make that conversation easy — considered spaces, presented clearly, with someone real on the other end of every message.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── FOUNDER / MISSION ─── -->
+  <section class="re-a-founder">
+    <div class="re-a-container">
+      <div class="re-a-founder-inner">
+
+        <div class="re-a-founder-frame re-a-reveal">
+          {% if store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+          {% elif store.brand_logo %}
+            <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+          {% else %}
+            <div class="fallback">{{ store.brand_name|first|upper }}</div>
+          {% endif %}
+        </div>
+
+        <div class="re-a-reveal">
+          <div class="re-a-founder-quote-mark">"</div>
+          {% if store.display_founder %}
+            <blockquote>{{ store.display_founder }}</blockquote>
+          {% elif store.display_mission %}
+            <blockquote>{{ store.display_mission }}</blockquote>
+          {% else %}
+            <blockquote>Every property we present is one we'd be glad to walk through ourselves — that standard hasn't changed since day one.</blockquote>
+          {% endif %}
+          <div class="re-a-founder-sig">
+            <span class="av">{{ store.brand_name|slice:":1"|upper }}</span>
+            <div>
+              <div class="name">{{ store.brand_name }}</div>
+              <div class="role">The Agency</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  {% if store.display_mission and store.display_founder %}
+  <div class="re-a-container">
+    <div class="re-a-editorial re-a-reveal">
+      <div class="re-a-tag">Our Mission</div>
+      <div>
+        <p>{{ store.display_mission }}</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- ─── WHY US ─── -->
+  <section class="re-a-why">
+    <div class="re-a-container">
+      <div class="re-a-why-head re-a-reveal">
+        <div class="re-a-tag">Why {{ store.brand_name }}</div>
+        <h2 style="margin-top:1rem;">Real conversations. Real properties.</h2>
+      </div>
+      <div class="re-a-why-grid">
+        <div class="re-a-why-card re-a-reveal">
+          <div class="re-a-why-num">01</div>
+          <h4>No automated noise</h4>
+          <p>Every enquiry reaches a real person — no bots, no scripted replies, no ticket queue.</p>
+        </div>
+        <div class="re-a-why-card re-a-reveal">
+          <div class="re-a-why-num">02</div>
+          <h4>Considered listings</h4>
+          <p>Each property is presented with the same care we'd want if it were our own.</p>
+        </div>
+        <div class="re-a-why-card re-a-reveal">
+          <div class="re-a-why-num">03</div>
+          <h4>Verified by Waapfolio</h4>
+          <p>This storefront is hosted on a verified commerce platform built for trusted, direct business.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="re-a-final">
+    <div class="re-a-final-inner re-a-reveal">
+      <h2>Speak with <em>{{ store.brand_name }}.</em></h2>
+      <p>One message is all it takes — we'll take it from there, personally.</p>
+      {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" class="re-cta" target="_blank" rel="noopener" style="font-size:.85rem;">
+          Message Us on WhatsApp
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.re-a-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+  })();
+</script>
+
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
+
 {% endblock %}

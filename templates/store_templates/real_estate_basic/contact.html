@@ -1,55 +1,342 @@
 {% extends "store_templates/real_estate_basic/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Enquire — {{ store.brand_name }}{% endblock %}
 
 {% block body %}
-<section class="py-5">
-  <div class="row justify-content-center">
-    <div class="col-lg-8">
 
-      <span class="hero-badge mb-3 d-inline-block">Contact Us</span>
+<style>
+  .re-c{ font-family:var(--re-sans); color:var(--re-ink); background:var(--re-bg); overflow-x:hidden; }
+  .re-c *{ box-sizing:border-box; }
+  .re-c-container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+  @media (max-width:900px){ .re-c-container{ padding:0 20px; } }
 
-      <h2 class="fw-bold mb-4">
-        Get in touch with {{ store.brand_name }}
-      </h2>
+  .re-c-reveal{ opacity:0; transform:translateY(24px); transition:opacity .9s var(--re-ease), transform .9s var(--re-ease); }
+  .re-c-reveal.in{ opacity:1; transform:none; }
+  @media (prefers-reduced-motion: reduce){ .re-c-reveal{ opacity:1; transform:none; transition:none; } }
 
-      <div class="card border-0 shadow-sm">
-        <div class="card-body p-4">
+  /* ─── HERO ─── */
+  .re-c-hero{
+    position:relative; padding: calc(var(--re-nav-h) + 60px) 0 4.5rem;
+    background: radial-gradient(1100px 600px at 85% -10%, #eee9dc 0%, transparent 60%), var(--re-bg);
+    overflow:hidden;
+  }
+  .re-c-eyebrow{ font-size:.68rem; letter-spacing:.3em; text-transform:uppercase; color:var(--re-muted); display:flex; align-items:center; gap:10px; margin-bottom:1.6rem; }
+  .re-c-eyebrow .line{ width:32px; height:1px; background:var(--re-olive); }
+  .re-c-hero h1{ font-size:clamp(2.3rem,5vw,3.8rem); font-weight:400; line-height:1.08; letter-spacing:-0.02em; max-width:640px; margin:0 0 1.3rem; }
+  .re-c-hero h1 em{ font-style:italic; color:var(--re-olive-deep); }
+  .re-c-hero p.lead{ font-size:1.02rem; color:var(--re-muted); line-height:1.7; max-width:520px; margin:0; }
 
-          <ul class="list-unstyled mb-0">
+  /* ─── PANEL ─── */
+  .re-c-panel-wrap{ padding: 3rem 0 6rem; }
+  .re-c-panel{
+    display:grid; grid-template-columns:1.1fr 0.9fr; gap:0;
+    border:1px solid var(--re-line); border-radius:4px; overflow:hidden;
+    box-shadow:var(--re-shadow-lg); background:var(--re-glass-strong); backdrop-filter:blur(18px);
+  }
+  @media (max-width:900px){ .re-c-panel{ grid-template-columns:1fr; } }
 
-            {% if store.whatsapp %}
-            <li class="d-flex align-items-center mb-3">
-              <i class="bi bi-whatsapp fs-4 text-success me-3"></i>
-              <span>{{ store.whatsapp }}</span>
-            </li>
-            {% endif %}
+  .re-c-panel-left{ padding:3.4rem; }
+  .re-c-panel-right{
+    padding:3.4rem; background:var(--re-ink); color:#fff;
+    display:flex; flex-direction:column; justify-content:space-between;
+    position:relative; overflow:hidden;
+  }
+  .re-c-panel-right::before{
+    content:""; position:absolute; inset:0;
+    background-image: linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size:56px 56px;
+    mask-image: radial-gradient(ellipse at 70% 20%, #000 30%, transparent 75%);
+  }
+  .re-c-panel-right > *{ position:relative; }
 
-            {% if store.telegram %}
-            <li class="d-flex align-items-center mb-3">
-              <i class="bi bi-telegram fs-4 text-primary me-3"></i>
-              <span>{{ store.telegram }}</span>
-            </li>
-            {% endif %}
+  .re-c-panel-tag{ font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--re-olive-deep); margin-bottom:1rem; }
+  .re-c-panel-left h2{ font-size:1.7rem; margin:0 0 1rem; line-height:1.24; }
+  .re-c-panel-left p{ font-size:.96rem; color:var(--re-muted); line-height:1.75; margin:0 0 2rem; }
 
-            {% if store.facebook %}
-            <li class="d-flex align-items-center mb-3">
-              <i class="bi bi-facebook fs-4 text-primary me-3"></i>
-              <span>{{ store.facebook }}</span>
-            </li>
-            {% endif %}
+  .re-wa-cta{
+    display:inline-flex; align-items:center; gap:12px; width:100%;
+    padding:17px 22px; background:var(--re-ink); color:#fff; border-radius:2px;
+    font-size:.82rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase;
+    transition: background .3s var(--re-ease), transform .3s var(--re-ease); margin-bottom:14px;
+  }
+  .re-wa-cta:hover{ background:var(--re-olive-deep); color:#fff; transform:translateY(-2px); }
+  .re-wa-cta i{ font-size:1.1rem; }
 
-            {% if store.instagram %}
-            <li class="d-flex align-items-center">
-              <i class="bi bi-instagram fs-4 text-danger me-3"></i>
-              <span>{{ store.instagram }}</span>
-            </li>
-            {% endif %}
+  .re-reason-list{ display:flex; flex-direction:column; gap:2px; margin-top:1.6rem; }
+  .re-reason{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    padding:14px 4px; border-top:1px solid var(--re-line);
+    font-size:.88rem; color:var(--re-ink-soft); transition:color .2s var(--re-ease);
+  }
+  .re-reason:hover{ color:var(--re-olive-deep); }
+  .re-reason svg{ width:14px; height:14px; flex-shrink:0; }
 
-          </ul>
+  .re-c-tag-badge{
+    display:inline-flex; align-items:center; gap:8px;
+    background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.14);
+    border-radius:999px; padding:7px 14px; font-size:.68rem; letter-spacing:.08em; text-transform:uppercase;
+    color:rgba(255,255,255,.72); margin-bottom:2rem;
+  }
+  .re-c-panel-right h3{ color:#fff; font-size:1.5rem; margin:0 0 1.6rem; line-height:1.3; }
+  .re-meta-row{ display:flex; align-items:center; justify-content:space-between; padding:13px 0; border-top:1px solid rgba(255,255,255,.12); font-size:.86rem; }
+  .re-meta-row .k{ color:rgba(255,255,255,.5); }
+  .re-meta-row .v{ color:#fff; font-weight:500; }
+  .re-meta-row:last-of-type{ border-bottom:1px solid rgba(255,255,255,.12); }
 
+  .re-c-panel-right .foot{ margin-top:2.4rem; font-size:.78rem; color:rgba(255,255,255,.45); line-height:1.6; }
+
+  /* ─── SIX WAYS ─── */
+  .re-c-section{ padding:5.5rem 0; border-top:1px solid var(--re-line); }
+  .re-c-section-head{ text-align:center; max-width:560px; margin:0 auto 3.6rem; }
+  .re-c-section-head h2{ font-size:clamp(1.7rem,3vw,2.3rem); margin:0; }
+  .re-c-section-head h2 em{ font-style:italic; color:var(--re-olive-deep); }
+
+  .re-c-ways{ display:grid; grid-template-columns:repeat(3,1fr); gap:1.6rem; }
+  @media (max-width:900px){ .re-c-ways{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .re-c-ways{ grid-template-columns:1fr; } }
+  .re-way{
+    display:flex; align-items:center; gap:14px;
+    padding:1.6rem; border:1px solid var(--re-line); border-radius:3px;
+    transition: border-color .3s var(--re-ease), transform .3s var(--re-ease);
+  }
+  .re-way:hover{ border-color:var(--re-line-strong); transform:translateY(-3px); }
+  .re-way .ic{ width:42px; height:42px; border-radius:50%; background:var(--re-surface); display:grid; place-items:center; color:var(--re-olive-deep); font-size:1.1rem; flex-shrink:0; }
+  .re-way .t{ font-size:.9rem; font-weight:500; color:var(--re-ink); }
+
+  /* ─── FAQ ─── */
+  .re-faq{ max-width:820px; margin:0 auto; }
+  .re-faq-item{ border-top:1px solid var(--re-line); padding:1.7rem 0; }
+  .re-faq-item:last-child{ border-bottom:1px solid var(--re-line); }
+  .re-faq-q{
+    display:flex; align-items:center; justify-content:space-between; gap:1rem; cursor:pointer;
+    font-size:1.02rem; font-weight:500; color:var(--re-ink);
+  }
+  .re-faq-q .plus{ font-size:1.3rem; color:var(--re-olive); transition:transform .3s var(--re-ease); flex-shrink:0; }
+  .re-faq-item.open .plus{ transform:rotate(45deg); }
+  .re-faq-a{ max-height:0; overflow:hidden; transition:max-height .4s var(--re-ease); }
+  .re-faq-item.open .re-faq-a{ max-height:240px; }
+  .re-faq-a p{ font-size:.92rem; color:var(--re-muted); line-height:1.75; margin:1rem 0 0; }
+  .re-faq-a a{ color:var(--re-olive-deep); font-weight:600; border-bottom:1px solid currentColor; }
+
+  .re-c-final-strip{
+    display:flex; align-items:center; justify-content:space-between; gap:1.6rem; flex-wrap:wrap;
+    padding:2.6rem; margin-top:4rem; border:1px solid var(--re-line); border-radius:4px; background:var(--re-surface);
+  }
+  .re-c-final-strip .txt{ font-size:1.05rem; }
+  .re-c-final-strip .txt strong{ font-weight:600; }
+
+  /* ─── DIRECT DETAILS FOOTER STRIP ─── */
+  .re-c-details{ padding:5rem 0; border-top:1px solid var(--re-line); }
+  .re-c-details-grid{ display:grid; grid-template-columns:repeat(2,1fr); gap:2.4rem; }
+  @media (max-width:700px){ .re-c-details-grid{ grid-template-columns:1fr; } }
+  .re-c-detail-card{ padding:2rem; border:1px solid var(--re-line); border-radius:3px; }
+  .re-c-detail-card .k{ font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; color:var(--re-muted); margin-bottom:.7rem; }
+  .re-c-detail-card .v{ font-family:var(--re-serif); font-size:1.2rem; }
+</style>
+
+<div class="re-c">
+
+  <!-- ─── HERO ─── -->
+  <section class="re-c-hero">
+    <div class="re-c-container">
+      <div class="re-c-eyebrow re-c-reveal"><span class="line"></span> Get In Touch</div>
+      <h1 class="re-c-reveal">Let's find the <em>right property.</em></h1>
+      <p class="lead re-c-reveal">
+        {{ store.bio|default:"We believe every enquiry begins with a conversation. Reach our team directly on WhatsApp — for viewings, listings questions, or anything in between." }}
+      </p>
+    </div>
+  </section>
+
+  <!-- ─── CONSULTATION PANEL ─── -->
+  <div class="re-c-container re-c-panel-wrap">
+    <div class="re-c-panel re-c-reveal">
+
+      <div class="re-c-panel-left">
+        <div class="re-c-panel-tag">Direct Consultation</div>
+        <h2>Start a conversation with {{ store.brand_name }}.</h2>
+        <p>Message us directly and we'll help you find the right space, arrange a viewing, or answer any question about the collection.</p>
+
+        <a class="re-wa-cta" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20want%20to%20make%20an%20inquiry">
+          <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+        </a>
+
+        <div class="re-reason-list">
+          <a class="re-reason" target="_blank" rel="noopener"
+             href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">
+            Enquire about a property
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="re-reason" target="_blank" rel="noopener"
+             href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20product%20question.">
+            Ask a question about a listing
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </a>
+          <a class="re-reason" target="_blank" rel="noopener"
+             href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27m%20interested%20in%20a%20custom%20order.">
+            Request something bespoke
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </a>
         </div>
+      </div>
+
+      <div class="re-c-panel-right">
+        <div>
+          <div class="re-c-tag-badge"><i class="bi bi-shield-check"></i> Verified Agency</div>
+          <h3>Every enquiry, handled personally.</h3>
+          <div class="re-meta-row"><span class="k">Agency</span><span class="v">{{ store.brand_name }}</span></div>
+          <div class="re-meta-row"><span class="k">Channel</span><span class="v">WhatsApp · {{ store.whatsapp }}</span></div>
+          <div class="re-meta-row"><span class="k">Response</span><span class="v">Usually under 5 min</span></div>
+        </div>
+        <div class="foot">Hosted on Waapfolio — a verified commerce platform for direct, trusted business conversations.</div>
       </div>
 
     </div>
   </div>
-</section>
+
+  <!-- ─── SIX WAYS ─── -->
+  <section class="re-c-section">
+    <div class="re-c-container">
+      <div class="re-c-section-head re-c-reveal">
+        <h2>Six ways to reach <em>{{ store.brand_name }}</em>.</h2>
+      </div>
+      <div class="re-c-ways re-c-reveal">
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support.">
+          <span class="ic"><i class="bi bi-whatsapp"></i></span>
+          <span class="t">General support</span>
+        </a>
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20more%20info%20about%20a%20product.">
+          <span class="ic"><i class="bi bi-info-circle"></i></span>
+          <span class="t">Property information</span>
+        </a>
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20are%20you%20available%20to%20chat%3F">
+          <span class="ic"><i class="bi bi-chat-dots"></i></span>
+          <span class="t">Check availability</span>
+        </a>
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20order.">
+          <span class="ic"><i class="bi bi-stars"></i></span>
+          <span class="t">Bespoke request</span>
+        </a>
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question%20about%20delivery.">
+          <span class="ic"><i class="bi bi-truck"></i></span>
+          <span class="t">Delivery questions</span>
+        </a>
+        <a class="re-way" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20help%20with%20an%20existing%20order.">
+          <span class="ic"><i class="bi bi-life-preserver"></i></span>
+          <span class="t">Existing enquiry help</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─── -->
+  <section class="re-c-section" style="border-bottom:1px solid var(--re-line);">
+    <div class="re-c-container">
+      <div class="re-c-section-head re-c-reveal">
+        <h2>Frequently asked.</h2>
+      </div>
+
+      <div class="re-faq re-c-reveal">
+
+        <div class="re-faq-item">
+          <div class="re-faq-q"><span>How do I enquire about a property?</span><span class="plus">+</span></div>
+          <div class="re-faq-a"><p>Browse the collection, then tap any property or the WhatsApp button to start a conversation with us. We confirm availability, walk you through the details and arrange a viewing — all in a single, personal chat. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">Start an enquiry on WhatsApp →</a></p></div>
+        </div>
+
+        <div class="re-faq-item">
+          <div class="re-faq-q"><span>How quickly will I hear back?</span><span class="plus">+</span></div>
+          <div class="re-faq-a"><p>We handle every conversation personally on WhatsApp — no forms, no tickets, no waiting on hold. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support.">Tap here to chat with our team</a>. We're usually online and reply within minutes.</p></div>
+        </div>
+
+        <div class="re-faq-item">
+          <div class="re-faq-q"><span>Can I request a custom arrangement?</span><span class="plus">+</span></div>
+          <div class="re-faq-a"><p>Yes — bespoke arrangements are a quiet specialty of ours. Share your requirements with us, and we'll advise and arrange accordingly. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20order.">Send a custom request →</a></p></div>
+        </div>
+
+        <div class="re-faq-item">
+          <div class="re-faq-q"><span>Can I arrange everything through WhatsApp?</span><span class="plus">+</span></div>
+          <div class="re-faq-a"><p>Absolutely — and we prefer it. WhatsApp lets us confirm details, share extra photos, and arrange a tailored viewing experience. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20order%20directly%20here.">Start the conversation on WhatsApp →</a></p></div>
+        </div>
+
+        <div class="re-faq-item">
+          <div class="re-faq-q"><span>What are the next steps after enquiring?</span><span class="plus">+</span></div>
+          <div class="re-faq-a"><p>We'll share full details inside your WhatsApp conversation and walk you through everything from viewing to next steps. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20what%20are%20the%20next%20steps%3F">Ask about next steps →</a></p></div>
+        </div>
+
+      </div>
+
+      <div class="re-c-final-strip re-c-reveal">
+        <div class="txt">Still curious? <strong>Ask {{ store.brand_name }} anything.</strong></div>
+        <a class="re-cta" target="_blank" rel="noopener"
+           href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question.">
+          <i class="bi bi-whatsapp"></i>&nbsp; WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── DIRECT DETAILS ─── -->
+  <section class="re-c-details">
+    <div class="re-c-container">
+      <div class="re-c-details-grid re-c-reveal">
+        <div class="re-c-detail-card">
+          <div class="k">Agency</div>
+          <div class="v">{{ store.brand_name }}</div>
+        </div>
+        <div class="re-c-detail-card">
+          <div class="k"><i class="bi bi-whatsapp"></i> WhatsApp</div>
+          <div class="v">+{{ store.whatsapp_number }}</div>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:3rem;" class="re-c-reveal">
+        <a href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20assistance%20with%20my%20order." class="re-cta" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i>&nbsp; Chat With {{ store.brand_name }}
+        </a>
+        &nbsp;&nbsp;
+        <a class="re-cta" style="background:transparent;color:var(--re-ink);border-color:var(--re-line-strong);" href="/{{ store.slug }}/">
+          Back to Home
+        </a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.re-c-reveal');
+    if ('IntersectionObserver' in window) {
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+      }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+      els.forEach(function(e){ io.observe(e); });
+    } else {
+      els.forEach(function(e){ e.classList.add('in'); });
+    }
+
+    // FAQ accordion
+    document.querySelectorAll('.re-faq-q').forEach(function(q){
+      q.addEventListener('click', function(){
+        var item = q.closest('.re-faq-item');
+        var wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.re-faq-item').forEach(function(i){ i.classList.remove('open'); });
+        if (!wasOpen) item.classList.add('open');
+      });
+    });
+  })();
+</script>
+
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
+
 {% endblock %}
