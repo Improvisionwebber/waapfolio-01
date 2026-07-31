@@ -1,140 +1,186 @@
-{% extends "store_templates/fashion_basic/base.html" %}
+{% extends "store_templates/starter/base.html" %}
 {% load static %}
 {% load humanize %}
 
+{% block title %}The Edit — {{ store.brand_name }}{% endblock %}
+
 {% block body %}
-
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Inter:wght@300;400;500;600;700&display=swap');
+
   :root{
-    --fb-void:#14100d; --fb-void-2:#1c1712; --fb-ivory:#f3ece0;
-    --fb-bronze:#a9906f; --fb-burgundy:#5a1f2b; --fb-line:rgba(243,236,224,0.14);
-    --fb-line-strong:rgba(243,236,224,0.24);
-    --fb-ivory-soft:rgba(243,236,224,0.72); --fb-ivory-faint:rgba(243,236,224,0.46);
-    --fb-display:'Bodoni Moda',serif; --fb-sans:'Archivo',sans-serif;
-    --fb-ease:cubic-bezier(.16,.8,.24,1);
+    --fs-bg:#ffffff; --fs-surface:#f7f5f3; --fs-surface-2:#f0ecea;
+    --fs-ink:#0d0d0d; --fs-ink-soft:#3c3a38; --fs-muted:#8c8580; --fs-faint:#b3aca6;
+    --fs-pink:#d6939c; --fs-pink-deep:#a85a66; --fs-pink-pale:#f7e9ea;
+    --fs-line:rgba(13,13,13,.09); --fs-line-strong:rgba(13,13,13,.16);
+    --fs-glass:rgba(255,255,255,.62); --fs-glass-strong:rgba(255,255,255,.9);
+    --fs-shadow-sm:0 2px 10px rgba(13,13,13,.06); --fs-shadow-md:0 24px 50px -24px rgba(13,13,13,.24);
+    --fs-serif:'Bodoni Moda','Times New Roman',serif; --fs-sans:'Inter',-apple-system,sans-serif;
+    --fs-ease:cubic-bezier(.16,1,.3,1);
   }
-  .fb *{box-sizing:border-box}
-  .fb{background:var(--fb-void); color:var(--fb-ivory); font-family:var(--fb-sans); overflow-x:hidden;}
-  .fb-container{max-width:1360px;margin:0 auto;padding:0 32px;}
-  @media (max-width:640px){.fb-container{padding:0 20px}}
+  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); overflow-x:clip; }
+  .fs-page *{ box-sizing:border-box; }
+  .fs-container{ max-width:1440px; margin:0 auto; padding:0 40px; }
+  @media (max-width:900px){ .fs-container{ padding:0 22px; } }
+  .fs-page h1,.fs-page h2,.fs-page h3{ font-family:var(--fs-serif); font-weight:500; letter-spacing:-0.01em; margin:0; }
 
-  /* ===== COLLECTION HERO ===== */
-  .fb-hero{position:relative; padding:120px 0 70px; border-bottom:1px solid var(--fb-line); overflow:hidden;}
-  .fb-hero::before{
-    content:""; position:absolute; inset:0;
-    background:radial-gradient(900px 480px at 85% -10%, rgba(90,31,43,.28), transparent 60%),
-               radial-gradient(700px 420px at 0% 30%, rgba(169,144,111,.14), transparent 55%);
-    pointer-events:none;
+  /* ─── HERO ─── */
+  .fs-p-hero{ padding: calc(var(--wf-nav-h) + 3.6rem) 0 3rem; background: linear-gradient(180deg, var(--fs-pink-pale) 0%, var(--fs-bg) 100%); }
+  .fs-eyebrow{ font-size:.68rem; font-weight:600; letter-spacing:.28em; text-transform:uppercase; color:var(--fs-pink-deep); display:flex; align-items:center; gap:10px; }
+  .fs-eyebrow .ln{ width:30px; height:1px; background:var(--fs-pink-deep); }
+  .fs-p-hero h1{ font-size:clamp(2.6rem,6vw,5.2rem); line-height:.98; letter-spacing:-0.02em; margin-top:1.1rem; max-width:780px; }
+  .fs-p-hero h1 em{ font-style:italic; color:var(--fs-pink-deep); }
+  .fs-p-hero p{ font-size:1rem; color:var(--fs-muted); max-width:480px; margin:1.4rem 0 0; line-height:1.7; }
+
+  /* ─── FILTER BAR (visual, client-side only) ─── */
+  .fs-filter-bar{
+    position:sticky; top:var(--wf-nav-h); z-index:50;
+    background:var(--fs-glass-strong); backdrop-filter:blur(16px);
+    border-bottom:1px solid var(--fs-line); padding:1.1rem 0;
   }
-  .fb-eyebrow{display:inline-flex; align-items:center; gap:10px; font-size:11px; letter-spacing:.35em; text-transform:uppercase; color:var(--fb-ivory-faint); font-weight:600;}
-  .fb-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--fb-bronze);}
-  .fb-hero h1{
-    font-family:var(--fb-display); font-style:italic; font-weight:500;
-    font-size:clamp(48px,9vw,108px); line-height:.96; letter-spacing:-.02em;
-    margin:22px 0 20px; color:var(--fb-ivory);
+  .fs-filter-row{ display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap; justify-content:space-between; }
+  .fs-search{ display:flex; align-items:center; gap:10px; flex:1; min-width:220px; max-width:340px; border:1px solid var(--fs-line-strong); border-radius:2px; padding:11px 16px; }
+  .fs-search svg{ width:15px; height:15px; stroke:var(--fs-muted); flex-shrink:0; }
+  .fs-search input{ border:0; outline:0; background:transparent; width:100%; font-size:.86rem; font-family:var(--fs-sans); color:var(--fs-ink); }
+  .fs-cat-pills{ display:flex; gap:8px; flex-wrap:wrap; }
+  .fs-cat-pill{
+    padding:9px 18px; border:1px solid var(--fs-line-strong); border-radius:999px; cursor:pointer;
+    font-size:.76rem; font-weight:500; color:var(--fs-ink-soft); background:#fff;
+    transition: background .25s var(--fs-ease), color .25s var(--fs-ease), border-color .25s var(--fs-ease);
   }
-  .fb-hero p.lead{max-width:600px; font-size:16px; line-height:1.7; color:var(--fb-ivory-soft); font-weight:400;}
-
-  /* ===== FILTER BAR ===== */
-  .fb-filter-wrap{position:sticky; top:calc(var(--fb-nav-h,76px) + 12px); z-index:40; margin:44px 0 0;}
-  .fb-filter{
-    display:flex; align-items:center; gap:14px; padding:15px 18px;
-    background:rgba(20,16,13,.78); backdrop-filter:saturate(160%) blur(20px); -webkit-backdrop-filter:saturate(160%) blur(20px);
-    border:1px solid var(--fb-line-strong); border-radius:2px;
+  .fs-cat-pill:hover{ border-color:var(--fs-ink); }
+  .fs-cat-pill.is-active{ background:var(--fs-ink); border-color:var(--fs-ink); color:#fff; }
+  .fs-sort{
+    display:flex; align-items:center; gap:8px; font-size:.78rem; color:var(--fs-ink-soft);
+    border:1px solid var(--fs-line-strong); border-radius:2px; padding:10px 14px; cursor:pointer; background:#fff;
   }
-  .fb-search{flex:1; display:flex; align-items:center; gap:12px; padding:6px 8px;}
-  .fb-search svg{width:18px;height:18px;color:var(--fb-ivory-faint); flex-shrink:0;}
-  .fb-search input{border:0; outline:0; background:transparent; width:100%; font-family:var(--fb-sans); font-size:14px; color:var(--fb-ivory); letter-spacing:.01em;}
-  .fb-search input::placeholder{color:var(--fb-ivory-faint);}
-  .fb-icon-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:var(--fb-ivory);color:var(--fb-void);border:0;cursor:pointer;transition:transform .3s ease;flex-shrink:0;}
-  .fb-icon-btn:hover{transform:scale(1.06);}
-  .fb-icon-btn svg{width:16px;height:16px;}
+  .fs-sort select{ border:0; outline:0; background:transparent; font-family:var(--fs-sans); font-size:.78rem; color:var(--fs-ink); cursor:pointer; }
 
-  .fb-section-head{display:flex; justify-content:space-between; align-items:flex-end; margin:44px 0 44px; gap:24px; flex-wrap:wrap; border-bottom:1px solid var(--fb-line); padding-bottom:22px;}
-  .fb-section-head .count{font-size:11px; letter-spacing:.22em; text-transform:uppercase; color:var(--fb-ivory-faint);}
+  /* ─── COUNT ─── */
+  .fs-count-row{ display:flex; align-items:center; justify-content:space-between; padding:2.4rem 0 2rem; }
+  .fs-count{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--fs-muted); }
+  .fs-count b{ color:var(--fs-ink); }
+  .fs-view-toggle{ display:flex; gap:6px; }
+  .fs-view-btn{ width:34px; height:34px; border-radius:2px; border:1px solid var(--fs-line-strong); background:#fff; display:grid; place-items:center; cursor:pointer; color:var(--fs-muted); }
+  .fs-view-btn.is-active{ border-color:var(--fs-ink); color:var(--fs-ink); }
 
-  /* ===== ASYMMETRIC EDITORIAL GRID ===== */
-  .fb-grid{display:grid; grid-template-columns:repeat(6,1fr); gap:34px 26px; padding-bottom:80px;}
-  .fb-cell{grid-column:span 2;}
-  /* every 5th item spans wider for asymmetric rhythm */
-  .fb-cell:nth-child(5n+1){grid-column:span 3;}
-  @media (max-width:1100px){ .fb-grid{grid-template-columns:repeat(4,1fr);} .fb-cell{grid-column:span 2;} .fb-cell:nth-child(5n+1){grid-column:span 2;} }
-  @media (max-width:640px){ .fb-grid{grid-template-columns:repeat(2,1fr); gap:22px 16px;} .fb-cell, .fb-cell:nth-child(5n+1){grid-column:span 1;} }
+  /* ─── GRID ─── */
+  .fs-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:2.2rem 1.8rem; padding-bottom:6rem; }
+  .fs-grid.fs-grid--wide{ grid-template-columns:repeat(3,1fr); }
+  @media (max-width:1080px){ .fs-grid, .fs-grid.fs-grid--wide{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .fs-grid, .fs-grid.fs-grid--wide{ grid-template-columns:1fr; } }
 
-  .fb-card{position:relative; display:flex; flex-direction:column; text-decoration:none; color:inherit;}
-  .fb-card .media{position:relative; overflow:hidden; aspect-ratio:3/4; background:var(--fb-void-2); border:1px solid var(--fb-line);}
-  .fb-card .media::after{content:""; position:absolute; inset:0; background:linear-gradient(180deg, transparent 55%, rgba(20,16,13,.55) 100%); opacity:0; transition:opacity .6s ease; pointer-events:none;}
-  .fb-card:hover .media::after{opacity:1;}
-  .fb-card .media img{width:100%; height:100%; object-fit:cover; transition:transform 1.4s var(--fb-ease), filter .8s ease; filter:grayscale(.15) contrast(1.03);}
-  .fb-card:hover .media img{transform:scale(1.06); filter:grayscale(0) contrast(1.05);}
-  .fb-badge{position:absolute; top:14px; left:14px; z-index:2; padding:6px 10px; font-size:9.5px; letter-spacing:.22em; text-transform:uppercase; background:rgba(20,16,13,.85); color:var(--fb-ivory); font-weight:700; backdrop-filter:blur(6px);}
-  .fb-fav{position:absolute; top:12px; right:12px; z-index:2; width:36px;height:36px;border-radius:50%; background:rgba(20,16,13,.7); border:1px solid var(--fb-line-strong); cursor:pointer; display:flex;align-items:center;justify-content:center; opacity:0; transform:translateY(-4px); transition:all .4s ease;}
-  .fb-card:hover .fb-fav{opacity:1; transform:translateY(0);}
-  .fb-fav svg{width:14px;height:14px;color:var(--fb-ivory);}
-  .fb-quick{position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding:12px 16px; background:rgba(243,236,224,.96); border-radius:0; display:flex; align-items:center; justify-content:space-between; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:var(--fb-void); font-weight:700; opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease;}
-  .fb-card:hover .fb-quick{opacity:1; transform:translateY(0);}
-  .fb-quick svg{width:14px;height:14px;}
+  .fs-card{ display:block; text-decoration:none; color:inherit; perspective:1200px; }
+  .fs-card-media{
+    position:relative; aspect-ratio:3/4; overflow:hidden; border-radius:2px; background:var(--fs-surface);
+    margin-bottom:1.2rem; box-shadow:var(--fs-shadow-sm); transform-style:preserve-3d;
+    transition: transform .18s linear, box-shadow .4s var(--fs-ease);
+    will-change: transform;
+  }
+  .fs-card:hover .fs-card-media{ box-shadow:var(--fs-shadow-md); }
+  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--fs-ease); }
+  .fs-card:hover .fs-card-media img{ transform:scale(1.08); }
+  .fs-card-media--empty{
+    display:flex; align-items:center; justify-content:center; color:var(--fs-faint);
+    font-family:var(--fs-serif); font-style:italic; font-size:.94rem;
+    background: repeating-linear-gradient(135deg, rgba(13,13,13,.03) 0 2px, transparent 2px 22px), var(--fs-surface);
+  }
+  .fs-badge{ position:absolute; top:14px; left:14px; z-index:2; background:var(--fs-pink-deep); color:#fff; padding:6px 13px; border-radius:999px; font-size:.6rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
+  .fs-card-fav{
+    position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; border:none; cursor:pointer;
+    background:var(--fs-glass-strong); backdrop-filter:blur(8px); display:grid; place-items:center; color:var(--fs-ink-soft);
+    transition: color .2s var(--fs-ease), transform .2s var(--fs-ease);
+  }
+  .fs-card-fav svg{ width:15px; height:15px; }
+  .fs-card-fav.on{ color:var(--fs-pink-deep); }
+  .fs-card-fav.on svg{ fill:currentColor; }
+  .fs-card-fav:active{ transform:scale(.9); }
+  .fs-card-view{
+    position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding:12px; text-align:center;
+    background:var(--fs-glass-strong); backdrop-filter:blur(10px); border-radius:1px;
+    font-size:.68rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--fs-ink);
+    opacity:0; transform:translateY(10px); transition:opacity .4s var(--fs-ease), transform .4s var(--fs-ease);
+  }
+  .fs-card:hover .fs-card-view{ opacity:1; transform:none; }
+  .fs-card-name{ font-size:.98rem; font-weight:500; margin:0 0 4px; letter-spacing:-0.005em; }
+  .fs-card-meta{ font-size:.72rem; color:var(--fs-faint); letter-spacing:.06em; text-transform:uppercase; margin-bottom:6px; }
+  .fs-card-price{ font-family:var(--fs-serif); font-size:1.02rem; }
 
-  .fb-info{padding-top:18px; display:flex; justify-content:space-between; align-items:flex-start; gap:14px;}
-  .fb-info .name{font-family:var(--fb-sans); font-weight:500; font-size:14px; color:var(--fb-ivory); margin:0 0 6px; line-height:1.4;}
-  .fb-info .meta{font-size:10.5px; letter-spacing:.2em; text-transform:uppercase; color:var(--fb-ivory-faint);}
-  .fb-price{font-family:var(--fb-display); font-style:italic; font-weight:500; font-size:17px; color:var(--fb-bronze); white-space:nowrap;}
-
-  .fb-details{margin-top:14px; display:inline-flex; align-items:center; gap:8px; font-size:10.5px; letter-spacing:.22em; text-transform:uppercase; color:var(--fb-ivory-soft); padding-bottom:4px; border-bottom:1px solid var(--fb-line-strong); transition:gap .3s ease, opacity .3s ease, color .3s ease; align-self:flex-start;}
-  .fb-card:hover .fb-details{gap:14px; color:var(--fb-ivory); border-color:var(--fb-ivory);}
-
-  .fb-empty{grid-column:1/-1; margin:60px auto; max-width:560px; text-align:center; padding:80px 32px; border:1px dashed var(--fb-line-strong);}
-  .fb-empty h3{font-family:var(--fb-display); font-style:italic; font-weight:500; font-size:32px; margin:0 0 12px;}
-  .fb-empty p{color:var(--fb-ivory-faint); font-size:14px; line-height:1.7; margin:0;}
-
-  .fb-reveal{opacity:0; transform:translateY(24px); transition:opacity .8s var(--fb-ease), transform .8s var(--fb-ease);}
-  .fb-reveal.in{opacity:1; transform:none;}
-
-  /* ===== BOTTOM CTA ===== */
-  .fb-cta-band{margin-top:20px; padding:100px 0 120px; border-top:1px solid var(--fb-line); position:relative;}
-  .fb-cta-grid{display:grid; grid-template-columns:1.1fr .9fr; gap:70px; align-items:center;}
-  @media (max-width:900px){.fb-cta-grid{grid-template-columns:1fr; gap:44px;}}
-  .fb-cta-grid h2{font-family:var(--fb-display); font-style:italic; font-weight:500; font-size:clamp(36px,5.5vw,64px); line-height:1.03; margin:14px 0 22px;}
-  .fb-cta-grid p{color:var(--fb-ivory-soft); font-size:15px; line-height:1.7; max-width:480px;}
-  .fb-btn{display:inline-flex; align-items:center; gap:12px; padding:16px 30px; font-size:11.5px; letter-spacing:.2em; text-transform:uppercase; font-weight:700; text-decoration:none; transition:all .35s ease; border:1px solid var(--fb-ivory); margin-top:26px;}
-  .fb-btn.solid{background:var(--fb-ivory); color:var(--fb-void);}
-  .fb-btn.solid:hover{background:var(--fb-burgundy); border-color:var(--fb-burgundy); color:var(--fb-ivory); transform:translateY(-2px);}
+  .fs-empty{ grid-column:1/-1; text-align:center; padding:6rem 2rem; border:1px dashed var(--fs-line-strong); border-radius:3px; }
+  .fs-empty i{ font-size:2rem; color:var(--fs-faint); }
+  .fs-empty h3{ font-size:1.35rem; margin:1.2rem 0 .5rem; }
+  .fs-empty p{ color:var(--fs-muted); font-size:.9rem; margin:0; }
 </style>
 
-<div class="fb">
-  <section class="fb-hero fb-container">
-    <span class="fb-eyebrow"><span class="dot"></span> The Collection</span>
-    <h1>Browse the<br>Wardrobe</h1>
-    <p class="lead">Editorial pieces from {{ store.brand_name }} — every silhouette considered, every detail deliberate.</p>
+<div class="fs-page">
 
-    <div class="fb-filter-wrap fb-reveal">
-      <div class="fb-filter">
-        <div class="fb-search">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-          <input type="text" placeholder="Search pieces..." aria-label="Search products">
-        </div>
-        <button class="fb-icon-btn" aria-label="Filter products">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/><circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="13" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <div class="fb-section-head fb-reveal">
-      <span class="count">
-        {{ products|length }} {% if products|length == 1 %}Piece{% else %}Pieces{% endif %}
-      </span>
+  <!-- ─── HERO ─── -->
+  <section class="fs-p-hero">
+    <div class="fs-container">
+      <div class="fs-eyebrow" data-fs-reveal><span class="ln"></span> The Full Collection</div>
+      <h1 data-fs-reveal>Everything, <em>considered.</em></h1>
+      <p data-fs-reveal>Browse the complete edit from {{ store.brand_name }} — every piece ready to enquire about directly.</p>
     </div>
   </section>
 
-  <section class="fb-container">
-    <div class="fb-grid">
+  <!-- ─── FILTER BAR ─── -->
+  <div class="fs-filter-bar">
+    <div class="fs-container fs-filter-row">
+      <div class="fs-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+        <input type="text" id="fsSearch" placeholder="Search the edit..." aria-label="Search products">
+      </div>
+
+      {% regroup products|dictsort:"category.name" by category as fs_cat_list %}
+      {% if fs_cat_list %}
+      <div class="fs-cat-pills" id="fsCatPills">
+        <button class="fs-cat-pill is-active" data-cat="all" type="button">All</button>
+        {% for group in fs_cat_list %}
+          {% if group.grouper %}
+            <button class="fs-cat-pill" data-cat="{{ group.grouper.name }}" type="button">{{ group.grouper.name }}</button>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="fs-sort">
+          <i class="bi bi-arrow-down-up"></i>
+          <select id="fsSort" aria-label="Sort products">
+            <option value="default">Sort: Featured</option>
+            <option value="name-asc">Name: A–Z</option>
+            <option value="name-desc">Name: Z–A</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+          </select>
+        </div>
+        <div class="fs-view-toggle">
+          <button class="fs-view-btn is-active" id="fsViewGrid" aria-label="Grid view (4 columns)"><i class="bi bi-grid-3x3-gap"></i></button>
+          <button class="fs-view-btn" id="fsViewWide" aria-label="Grid view (3 columns)"><i class="bi bi-grid"></i></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── COUNT ─── -->
+  <div class="fs-container">
+    <div class="fs-count-row">
+      <span class="fs-count" id="fsCount"><b>{{ products|length }}</b> {% if products|length == 1 %}Piece{% else %}Pieces{% endif %}</span>
+    </div>
+
+    <!-- ─── GRID ─── -->
+    <div class="fs-grid" id="fsGrid">
       {% for product in products %}
-      <div class="fb-cell fb-reveal">
-        <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fb-card">
-          <div class="media">
-            {% if product.is_featured %}<span class="fb-badge">Featured</span>{% endif %}
-            <button type="button" class="fb-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+        <a href="{% url 'store_product_detail' store.slug product.slug %}"
+           class="fs-card" data-fs-card
+           data-name="{{ product.name }}"
+           data-category="{% if product.category %}{{ product.category.name }}{% else %}Uncategorised{% endif %}"
+           data-price="{{ product.price|default:0 }}">
+          <div class="fs-card-media">
+            {% if product.is_featured %}<span class="fs-badge">Featured</span>{% endif %}
+            <button type="button" class="fs-card-fav" aria-label="Save item"
+                    onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
             </button>
             {% if product.image %}
               <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -143,63 +189,143 @@
             {% else %}
               <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
             {% endif %}
-            <span class="fb-quick"><span>View Piece</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
+            <span class="fs-card-view">Quick View</span>
           </div>
-          <div class="fb-info">
-            <div>
-              <h6 class="name">{{ product.name }}</h6>
-              {% if product.category %}<div class="meta">{{ product.category.name }}</div>{% endif %}
-            </div>
-            <div class="fb-price">
-              {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% endif %}
-              {{ product.price|intcomma }}
-            </div>
+          <h3 class="fs-card-name">{{ product.name }}</h3>
+          {% if product.category %}<div class="fs-card-meta">{{ product.category.name }}</div>{% endif %}
+          <div class="fs-card-price">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% endif %}{{ product.price|intcomma }}
           </div>
-          <span class="fb-details">View Details <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg></span>
         </a>
-      </div>
       {% empty %}
-      <div class="fb-empty">
-        <h3>No Pieces Available</h3>
-        <p>Products added by the store owner will appear here.</p>
-      </div>
+        <div class="fs-empty">
+          <i class="bi bi-bag"></i>
+          <h3>No Pieces Available</h3>
+          <p>Products added by the store owner will appear here.</p>
+        </div>
       {% endfor %}
     </div>
-  </section>
+  </div>
 
-  <section class="fb-cta-band fb-container">
-    <div class="fb-cta-grid">
-      <div class="fb-reveal">
-        <span class="fb-eyebrow"><span class="dot"></span> Concierge · Always On</span>
-        <h2>Need help finding<br><em>the right piece?</em></h2>
-        <p>Message {{ store.brand_name }} directly on WhatsApp for sizing, styling advice, or a custom request.</p>
-        {% if store.whatsapp %}
-          <a class="fb-btn solid" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">Chat With Us</a>
-        {% endif %}
-      </div>
-    </div>
-  </section>
 </div>
 
-<script>
-  (function(){
-    var els = document.querySelectorAll('.fb-reveal');
-    if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
-    els.forEach(function(e){ io.observe(e); });
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
 
-    var input = document.querySelector('.fb-search input');
-    if (input) {
-      input.addEventListener('input', function(){
-        var q = this.value.trim().toLowerCase();
-        document.querySelectorAll('.fb-grid .fb-cell').forEach(function(cell){
-          var name = (cell.querySelector('.name')||{}).innerText || '';
-          cell.style.display = name.toLowerCase().indexOf(q) > -1 ? '' : 'none';
-        });
-      });
+{% endblock %}
+
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
+<script>
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Lenis smooth scroll */
+  if (window.Lenis && !reduceMotion) {
+    var lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
+    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+    requestAnimationFrame(raf);
+    if (window.gsap && window.ScrollTrigger) {
+      lenis.on('scroll', ScrollTrigger.update);
+      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
+      gsap.ticker.lagSmoothing(0);
     }
-  })();
+  }
+
+  /* GSAP reveal + stagger */
+  if (window.gsap && window.ScrollTrigger) {
+    gsap.registerPlugin(ScrollTrigger);
+    gsap.utils.toArray('[data-fs-reveal]').forEach(function(el, i){
+      gsap.fromTo(el, { opacity:0, y:26 }, { opacity:1, y:0, duration:.9, delay:i*0.08, ease:'power3.out' });
+    });
+    gsap.fromTo('#fsGrid [data-fs-card]', { opacity:0, y:36 }, {
+      opacity:1, y:0, duration:.8, ease:'power3.out', stagger:0.06,
+      scrollTrigger:{ trigger:'#fsGrid', start:'top 90%' }
+    });
+  } else {
+    document.querySelectorAll('[data-fs-reveal],[data-fs-card]').forEach(function(el){ el.style.opacity = 1; });
+  }
+
+  /* 3D tilt on card hover (desktop pointer only) */
+  if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
+    document.querySelectorAll('.fs-card').forEach(function(card){
+      var media = card.querySelector('.fs-card-media');
+      card.addEventListener('mousemove', function(e){
+        var r = card.getBoundingClientRect();
+        var px = (e.clientX - r.left) / r.width - 0.5;
+        var py = (e.clientY - r.top) / r.height - 0.5;
+        media.style.transform = 'rotateY(' + (px * 10) + 'deg) rotateX(' + (-py * 10) + 'deg)';
+      });
+      card.addEventListener('mouseleave', function(){ media.style.transform = ''; });
+    });
+  }
+
+  /* Search + category filter + sort (client-side, visual only) */
+  var grid = document.getElementById('fsGrid');
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('[data-fs-card]'));
+  var countEl = document.getElementById('fsCount');
+  var activeCat = 'all';
+  var searchQ = '';
+
+  function applyFilters(){
+    var visible = 0;
+    cards.forEach(function(c){
+      var name = (c.getAttribute('data-name') || '').toLowerCase();
+      var cat = c.getAttribute('data-category') || '';
+      var matchesSearch = !searchQ || name.indexOf(searchQ) > -1;
+      var matchesCat = activeCat === 'all' || cat === activeCat;
+      var show = matchesSearch && matchesCat;
+      c.style.display = show ? '' : 'none';
+      if (show) visible++;
+    });
+    if (countEl) countEl.innerHTML = '<b>' + visible + '</b> ' + (visible === 1 ? 'Piece' : 'Pieces');
+  }
+
+  var searchInput = document.getElementById('fsSearch');
+  if (searchInput) {
+    searchInput.addEventListener('input', function(){
+      searchQ = this.value.trim().toLowerCase();
+      applyFilters();
+    });
+  }
+
+  document.querySelectorAll('.fs-cat-pill').forEach(function(pill){
+    pill.addEventListener('click', function(){
+      document.querySelectorAll('.fs-cat-pill').forEach(function(p){ p.classList.remove('is-active'); });
+      pill.classList.add('is-active');
+      activeCat = pill.getAttribute('data-cat');
+      applyFilters();
+    });
+  });
+
+  var sortSelect = document.getElementById('fsSort');
+  if (sortSelect) {
+    sortSelect.addEventListener('change', function(){
+      var val = this.value;
+      var sorted = cards.slice();
+      if (val === 'name-asc') sorted.sort(function(a,b){ return a.getAttribute('data-name').localeCompare(b.getAttribute('data-name')); });
+      else if (val === 'name-desc') sorted.sort(function(a,b){ return b.getAttribute('data-name').localeCompare(a.getAttribute('data-name')); });
+      else if (val === 'price-asc') sorted.sort(function(a,b){ return parseFloat(a.getAttribute('data-price')) - parseFloat(b.getAttribute('data-price')); });
+      else if (val === 'price-desc') sorted.sort(function(a,b){ return parseFloat(b.getAttribute('data-price')) - parseFloat(a.getAttribute('data-price')); });
+      sorted.forEach(function(c){ grid.appendChild(c); });
+    });
+  }
+
+  /* Grid density toggle */
+  var gridBtn = document.getElementById('fsViewGrid');
+  var wideBtn = document.getElementById('fsViewWide');
+  if (gridBtn && wideBtn) {
+    gridBtn.addEventListener('click', function(){
+      grid.classList.remove('fs-grid--wide'); gridBtn.classList.add('is-active'); wideBtn.classList.remove('is-active');
+    });
+    wideBtn.addEventListener('click', function(){
+      grid.classList.add('fs-grid--wide'); wideBtn.classList.add('is-active'); gridBtn.classList.remove('is-active');
+    });
+  }
+})();
 </script>
 {% endblock %}
