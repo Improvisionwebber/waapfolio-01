@@ -1,0 +1,428 @@
+{% extends "store_templates/aura-beauty/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  :root{
+    --ab-cream:#fbf5ef; --ab-cream-deep:#f5ebe1; --ab-blush:#f3dcd9; --ab-blush-deep:#e9c3c2;
+    --ab-rose-gold:#c08a83; --ab-gold:#b98a4e; --ab-gold-soft:#d8b988;
+    --ab-charcoal:#231b17; --ab-ink:#2a211c; --ab-ink-soft:#4d423b; --ab-muted:#8f7f76;
+    --ab-line:rgba(42,33,28,0.10); --ab-serif:'Playfair Display',serif; --ab-sans:'Inter',sans-serif;
+    --ab-ease:cubic-bezier(.22,.7,.24,1);
+  }
+  .ab-page{font-family:var(--ab-sans);color:var(--ab-ink);background:var(--ab-cream);overflow-x:hidden}
+  .ab-page *{box-sizing:border-box}
+  .ab-container{max-width:1320px;margin:0 auto;padding:0 32px}
+  @media (max-width:640px){.ab-container{padding:0 20px}}
+  .ab-reveal{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ab-ease),transform .9s var(--ab-ease)}
+  .ab-reveal.in{opacity:1;transform:none}
+
+  /* scroll progress */
+  .ab-progress{position:fixed;top:0;left:0;height:2px;width:0;background:var(--ab-gold);z-index:2000;transition:width .1s linear}
+
+  /* breadcrumbs */
+  .ab-crumbs{display:flex;align-items:center;gap:10px;padding:26px 0 8px;font-size:12px;letter-spacing:.04em;color:var(--ab-muted)}
+  .ab-crumbs a{color:var(--ab-ink-soft);transition:color .2s ease}
+  .ab-crumbs a:hover{color:var(--ab-rose-gold)}
+  .ab-crumbs .now{color:var(--ab-ink);font-weight:500}
+  .ab-crumbs .sep{opacity:.5}
+
+  /* hero */
+  .ab-hero{display:grid;grid-template-columns:1.1fr .9fr;gap:64px;padding:20px 0 60px}
+  @media (max-width:960px){.ab-hero{grid-template-columns:1fr;gap:34px}}
+
+  .ab-gallery{position:sticky;top:calc(var(--aura-nav-h,82px) + 16px)}
+  @media (max-width:960px){.ab-gallery{position:static}}
+  .ab-stage{position:relative;aspect-ratio:4/5;border-radius:24px;overflow:hidden;background:linear-gradient(160deg,var(--ab-blush),var(--ab-cream-deep));box-shadow:0 30px 70px -35px rgba(42,33,28,.24)}
+  .ab-stage-badge{position:absolute;top:16px;left:16px;z-index:3;display:flex;align-items:center;gap:7px;background:rgba(255,253,251,.92);padding:7px 13px;border-radius:999px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;font-weight:600;color:var(--ab-ink)}
+  .ab-stage-badge .dot{width:6px;height:6px;border-radius:50%;background:#4caf6d}
+  .ab-stage-zoom{position:absolute;top:16px;right:16px;z-index:3;width:40px;height:40px;border-radius:50%;background:rgba(255,253,251,.92);border:0;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .3s ease}
+  .ab-stage-zoom:hover{transform:scale(1.06)}
+  .ab-stage-zoom svg{width:17px;height:17px;color:var(--ab-ink)}
+  .ab-stage-media{width:100%;height:100%;transition:opacity .25s ease}
+  .ab-stage-media img,.ab-stage-media iframe{width:100%;height:100%;object-fit:cover;border:0}
+  .ab-thumbs{display:flex;gap:12px;margin-top:16px;overflow-x:auto;padding-bottom:4px}
+  .ab-thumb{position:relative;flex:0 0 auto;width:78px;height:92px;border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;opacity:.65;transition:all .3s ease}
+  .ab-thumb img{width:100%;height:100%;object-fit:cover}
+  .ab-thumb.active,.ab-thumb:hover{opacity:1;border-color:var(--ab-gold)}
+  .ab-thumb .vthumb{width:100%;height:100%}
+  .ab-thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(35,27,23,.35)}
+  .ab-thumb .play svg{width:20px;height:20px;fill:#fff}
+
+  /* info panel */
+  .ab-info{padding-top:4px}
+  .ab-store-chip{display:inline-flex;align-items:center;gap:10px;padding:8px 14px 8px 8px;border:1px solid var(--ab-line);border-radius:999px;font-size:12.5px;font-weight:600;color:var(--ab-ink-soft);margin-bottom:22px}
+  .ab-store-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--ab-blush);display:flex;align-items:center;justify-content:center;font-family:var(--ab-serif);color:var(--ab-rose-gold);font-size:12px}
+  .ab-title{font-size:clamp(1.9rem,3.6vw,2.7rem);line-height:1.08;letter-spacing:-.02em;margin:0 0 14px}
+  .ab-meta-row{display:flex;align-items:center;gap:16px;font-size:12.5px;color:var(--ab-muted);margin-bottom:22px}
+  .ab-avail{display:inline-flex;align-items:center;gap:6px;color:#3f8f5c;font-weight:600}
+  .ab-avail .dot{width:6px;height:6px;border-radius:50%;background:#3f8f5c}
+  .ab-price-wrap{display:flex;align-items:baseline;gap:6px;margin-bottom:26px}
+  .ab-currency{font-size:1.4rem;color:var(--ab-rose-gold);font-family:var(--ab-serif)}
+  .ab-price-val{font-size:2.2rem;font-weight:600;letter-spacing:-.01em;font-variant-numeric:tabular-nums}
+
+  .ab-desc{border-top:1px solid var(--ab-line);border-bottom:1px solid var(--ab-line);padding:24px 0;margin-bottom:28px}
+  .ab-desc-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ab-muted);font-weight:600;margin-bottom:12px}
+  .ab-desc-body{font-size:14.5px;line-height:1.8;color:var(--ab-ink-soft);max-height:140px;overflow:hidden;position:relative;transition:max-height .5s ease}
+  .ab-desc-body.open{max-height:2000px}
+  .ab-desc-toggle{margin-top:10px;background:none;border:0;padding:0;font-size:12.5px;font-weight:600;color:var(--ab-rose-gold);cursor:pointer;letter-spacing:.03em}
+  .ab-desc-toggle:hover{text-decoration:underline}
+
+  .ab-order{display:flex;gap:14px;flex-wrap:wrap}
+  .ab-btn{
+    position:relative;overflow:hidden;flex:1;min-width:220px;display:inline-flex;align-items:center;justify-content:center;gap:12px;
+    padding:19px 28px;border-radius:999px;background:var(--ab-ink);color:#fff;font-size:13px;font-weight:600;
+    letter-spacing:.08em;text-transform:uppercase;transition:transform .35s var(--ab-ease),background .35s var(--ab-ease);
+  }
+  .ab-btn:hover{background:var(--ab-charcoal);color:#fff;transform:translateY(-2px)}
+  .ab-btn .ic{width:20px;height:20px;flex-shrink:0}
+  .ab-btn .ic svg{width:100%;height:100%;fill:currentColor}
+  .ab-btn .arrow{transition:transform .3s ease}
+  .ab-btn:hover .arrow{transform:translateX(4px)}
+  .ab-btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.35);transform:scale(0);animation:abRipple .7s ease-out}
+  @keyframes abRipple{to{transform:scale(3);opacity:0}}
+  .ab-btn-wa{background:transparent;border:1px solid var(--ab-line-strong,rgba(42,33,28,.2));color:var(--ab-ink);flex:0 0 auto;min-width:0;width:60px;padding:0}
+  .ab-btn-wa i{font-size:19px}
+  .ab-btn-wa:hover{background:var(--ab-ink);color:#fff}
+
+  /* trust */
+  .ab-section{padding:64px 0;border-top:1px solid var(--ab-line)}
+  .ab-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--ab-rose-gold);font-weight:600}
+  .ab-h2{font-size:clamp(1.7rem,3vw,2.3rem);margin:10px 0 0;letter-spacing:-.015em}
+  .ab-section-head{margin-bottom:40px;display:flex;justify-content:space-between;align-items:flex-end;gap:20px;flex-wrap:wrap}
+  .ab-section-sub{color:var(--ab-muted);font-size:.92rem;max-width:340px;margin:0}
+
+  .ab-trust-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  @media (max-width:860px){.ab-trust-grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:560px){.ab-trust-grid{grid-template-columns:1fr}}
+  .ab-trust-card{padding:26px;border:1px solid var(--ab-line);border-radius:16px;background:var(--ab-white,#fffdfb)}
+  .ab-trust-num{font-family:var(--ab-serif);font-style:italic;color:var(--ab-rose-gold);font-size:1.1rem}
+  .ab-trust-card h4{font-size:1rem;margin:12px 0 6px}
+  .ab-trust-card p{font-size:.85rem;color:var(--ab-ink-soft);line-height:1.6;margin:0}
+
+  /* reviews */
+  .ab-review-form{display:grid;gap:14px;max-width:640px;margin-bottom:40px}
+  .ab-review-form textarea{
+    width:100%;min-height:110px;border:1px solid var(--ab-line);border-radius:16px;padding:16px 18px;
+    font-family:var(--ab-sans);font-size:14px;color:var(--ab-ink);resize:vertical;outline:0;background:var(--ab-white,#fffdfb);
+    transition:border-color .2s ease;
+  }
+  .ab-review-form textarea:focus{border-color:var(--ab-gold)}
+  .ab-review-form label{font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ab-muted);font-weight:600}
+  .ab-review-submit{justify-self:start;padding:13px 26px;border-radius:999px;background:var(--ab-ink);color:#fff;border:0;font-size:12.5px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;cursor:pointer;transition:background .25s ease}
+  .ab-review-submit:hover{background:var(--ab-charcoal)}
+  .ab-login-prompt{padding:20px;border:1px dashed var(--ab-line);border-radius:14px;font-size:13.5px;color:var(--ab-ink-soft);margin-bottom:40px}
+  .ab-login-prompt a{color:var(--ab-rose-gold);font-weight:600}
+
+  .ab-reviews-wrap{display:grid;gap:18px}
+  .ab-review-card{display:flex;gap:14px;padding:22px;border:1px solid var(--ab-line);border-radius:16px;background:var(--ab-white,#fffdfb);animation:abFadeIn .6s var(--ab-ease) both}
+  @keyframes abFadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+  .ab-review-avatar{width:40px;height:40px;border-radius:50%;background:var(--ab-blush);display:flex;align-items:center;justify-content:center;font-family:var(--ab-serif);color:var(--ab-rose-gold);flex-shrink:0}
+  .ab-review-head{display:flex;align-items:center;gap:10px;margin-bottom:6px}
+  .ab-review-user{font-size:13.5px;font-weight:600}
+  .ab-review-time{font-size:11.5px;color:var(--ab-muted)}
+  .ab-review-body{font-size:13.5px;line-height:1.7;color:var(--ab-ink-soft)}
+  .ab-no-reviews{padding:30px;text-align:center;color:var(--ab-muted);font-size:13.5px;border:1px dashed var(--ab-line);border-radius:14px}
+
+  /* related products */
+  .ab-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:30px 24px}
+  @media (max-width:960px){.ab-grid{grid-template-columns:repeat(2,1fr)}}
+  .ab-card{display:flex;flex-direction:column;text-decoration:none;color:inherit}
+  .ab-card .media{position:relative;overflow:hidden;aspect-ratio:4/5;background:linear-gradient(160deg,var(--ab-blush),var(--ab-cream-deep));border-radius:16px;margin-bottom:14px}
+  .ab-card .media img{width:100%;height:100%;object-fit:cover;transition:transform 1.1s var(--ab-ease)}
+  .ab-card:hover .media img{transform:scale(1.06)}
+  .ab-badge{position:absolute;top:12px;left:12px;padding:5px 10px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;background:rgba(255,253,251,.94);border-radius:999px;font-weight:600}
+  .ab-fav{position:absolute;top:10px;right:10px;width:32px;height:32px;border-radius:50%;background:rgba(255,253,251,.88);border:0;display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity .3s ease}
+  .ab-card:hover .ab-fav{opacity:1}
+  .ab-fav svg{width:13px;height:13px;color:var(--ab-ink)}
+  .ab-quick{position:absolute;left:12px;right:12px;bottom:12px;padding:10px;text-align:center;background:rgba(35,27,23,.88);color:#fff;border-radius:999px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;opacity:0;transition:opacity .3s ease}
+  .ab-card:hover .ab-quick{opacity:1}
+  .ab-card .name{font-size:.92rem;font-weight:500;margin:0 0 3px}
+  .ab-card .meta{font-size:.72rem;color:var(--ab-muted);text-transform:uppercase;letter-spacing:.04em}
+  .ab-card .price{font-size:.86rem;font-weight:600;margin-top:6px}
+  .ab-empty{grid-column:1/-1;text-align:center;padding:60px 20px;border:1px dashed var(--ab-line);border-radius:16px}
+  .ab-empty .mark{width:50px;height:50px;margin:0 auto 14px;border-radius:50%;background:var(--ab-blush);display:flex;align-items:center;justify-content:center;color:var(--ab-rose-gold)}
+
+  /* sticky mobile cta */
+  .ab-mobile-cta{
+    display:none;position:fixed;left:12px;right:12px;bottom:12px;z-index:900;
+    align-items:center;gap:12px;padding:10px;background:rgba(255,253,251,.95);backdrop-filter:blur(16px);
+    border:1px solid var(--ab-line);border-radius:20px;box-shadow:0 20px 50px -25px rgba(42,33,28,.3);
+  }
+  .mc-thumb{width:48px;height:48px;border-radius:12px;object-fit:cover;flex-shrink:0}
+  .mc-info{flex:1;min-width:0}
+  .mc-name{font-size:12.5px;font-weight:600;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .mc-price{font-size:12px;color:var(--ab-rose-gold);margin:2px 0 0;font-weight:600}
+  .mc-btn{flex-shrink:0;padding:12px 20px;border-radius:999px;background:var(--ab-ink);color:#fff;font-size:11.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+  @media (max-width:960px){.ab-mobile-cta{display:flex}.ab-order{padding-bottom:12px}}
+
+  /* lightbox */
+  .ab-lightbox{position:fixed;inset:0;z-index:2100;background:rgba(20,15,13,.94);display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s ease}
+  .ab-lightbox.open{opacity:1;pointer-events:auto}
+  .ab-lightbox-close{position:absolute;top:22px;right:22px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.1);border:0;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer}
+  #abLbBody{max-width:88vw;max-height:86vh}
+  #abLbBody img,#abLbBody iframe{max-width:88vw;max-height:86vh;border-radius:14px;object-fit:contain}
+</style>
+
+<div class="ab-progress" id="abProgress"></div>
+
+<div class="ab-page">
+  <div class="ab-container">
+
+    <!-- BREADCRUMBS -->
+    <nav class="ab-crumbs ab-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Store" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Collection</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="ab-hero">
+
+      <!-- GALLERY -->
+      <div class="ab-gallery ab-reveal">
+        <div class="ab-stage" id="abStage">
+          <div class="ab-stage-badge"><span class="dot"></span> Live</div>
+          <button class="ab-stage-zoom" id="abZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="ab-stage-media" id="abStageMedia">
+            {% if product.image %}
+              <img id="abMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="abMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="abMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="ab-thumbs" id="abThumbs">
+          {% if product.image %}
+            <div class="ab-thumb active" data-type="img" data-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt=""></div>
+          {% elif product.image_url %}
+            <div class="ab-thumb active" data-type="img" data-src="{{ product.image_url }}"><img src="{{ product.image_url }}" alt=""></div>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="ab-thumb" data-type="img" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt=""></div>
+            {% elif img.image_url %}
+              <div class="ab-thumb" data-type="img" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt=""></div>
+            {% endif %}
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="ab-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb"><img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt=""></div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- INFO PANEL -->
+      <div class="ab-info ab-reveal">
+        <a href="{{ product.store.get_absolute_url }}" class="ab-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="ab-title">{{ product.name }}</h1>
+
+        <div class="ab-meta-row">
+          <span class="ab-avail"><span class="dot"></span> In Stock</span>
+          <span>Posted {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="ab-price-wrap">
+          <span class="ab-currency">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="ab-price-val" id="abPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="ab-desc">
+          <div class="ab-desc-title">Product Description</div>
+          <div class="ab-desc-body" id="abDescBody">
+            {{ product.description|default:"No description available."|linebreaks }}
+          </div>
+          <button class="ab-desc-toggle" id="abDescToggle">Read more</button>
+        </div>
+
+        <!-- ORDER SYSTEM -->
+        <div class="ab-order">
+          <a class="ab-btn" href="{% url 'add_to_cart' product.slug %}">
+            <span class="ic">
+              <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10
+                0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9
+                2-2-.9-2-2-2zM7.17 14h9.95c.75
+                0 1.41-.41 1.75-1.03l3.58-6.49A1
+                1 0 0 0 21.58 5H5.21L4.27
+                3H1v2h2l3.6 7.59-1.35
+                2.44A2 2 0 0 0 7 18h12v-2H7.42a.25.25
+                0 0 1-.22-.37L7.17 14z"/></svg>
+            </span>
+            Add to Cart
+            <span class="arrow">→</span>
+          </a>
+          {% if store.whatsapp %}
+          <a class="ab-btn ab-btn-wa" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27m%20interested%20in%20{{ product.name|urlencode }}." target="_blank" rel="noopener" aria-label="Ask about this product on WhatsApp">
+            <i class="bi bi-whatsapp"></i>
+          </a>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- TRUST & SAFETY -->
+    <section class="ab-section ab-reveal">
+      <div class="ab-section-head">
+        <div>
+          <div class="ab-eyebrow">Trust &amp; Safety</div>
+          <h2 class="ab-h2">Shop with confidence.</h2>
+        </div>
+      </div>
+      <div class="ab-trust-grid">
+        <div class="ab-trust-card"><span class="ab-trust-num">01</span><h4>Verify the seller</h4><p>Always confirm the seller's identity before sending payment.</p></div>
+        <div class="ab-trust-card"><span class="ab-trust-num">02</span><h4>Request a video call</h4><p>Ask to see the product live before completing your order.</p></div>
+        <div class="ab-trust-card"><span class="ab-trust-num">03</span><h4>Confirm shipping</h4><p>Clarify delivery terms, timelines, and tracking up front.</p></div>
+        <div class="ab-trust-card"><span class="ab-trust-num">04</span><h4>Avoid upfront payments</h4><p>Never pay in full without proper verification.</p></div>
+        <div class="ab-trust-card"><span class="ab-trust-num">05</span><h4>Prefer cash on delivery</h4><p>Where possible, choose COD for maximum safety.</p></div>
+        <div class="ab-trust-card"><span class="ab-trust-num">06</span><h4>Too good to be true?</h4><p>Be cautious of deals that look suspiciously cheap.</p></div>
+      </div>
+    </section>
+
+
+
+    <!-- RELATED PRODUCTS -->
+    {% if items_meta %}
+    <section class="ab-section ab-reveal">
+      <div class="ab-section-head">
+        <div>
+          <div class="ab-eyebrow">Curated for you</div>
+          <h2 class="ab-h2">You may also like</h2>
+        </div>
+        <p class="ab-section-sub">Discover more premium pieces from {{ product.store.brand_name }}</p>
+      </div>
+
+      <div class="ab-grid">
+        {% for product in products|slice:":4" %}
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ab-card">
+            <div class="media">
+              <span class="ab-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+              <button type="button" class="ab-fav" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+              </button>
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <span class="ab-quick">Quick View</span>
+            </div>
+            <h6 class="name">{{ product.name }}</h6>
+            <div class="meta">{{ store.brand_name }}</div>
+            <div class="price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+            </div>
+          </a>
+        {% empty %}
+          <div class="ab-empty">
+            <div class="mark"><i class="bi bi-bag-heart"></i></div>
+            <h3 style="font-size:1.1rem;margin:0 0 6px;">No more products yet</h3>
+            <p style="color:var(--ab-muted);font-size:.85rem;margin:0;">Products will appear here once added to the store.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+<!-- STICKY MOBILE CTA -->
+<div class="ab-mobile-cta">
+  {% if product.image %}
+    <img class="mc-thumb" src="{{ product.image.url }}" alt="{{ product.name }}">
+  {% elif product.image_url %}
+    <img class="mc-thumb" src="{{ product.image_url }}" alt="{{ product.name }}">
+  {% endif %}
+  <div class="mc-info">
+    <p class="mc-name">{{ product.name }}</p>
+    <p class="mc-price">
+      {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+    </p>
+  </div>
+  <a class="mc-btn" href="{% url 'add_to_cart' product.slug %}">Add to Cart</a>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="ab-lightbox" id="abLightbox" aria-hidden="true">
+  <button class="ab-lightbox-close" id="abLbClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div id="abLbBody"></div>
+</div>
+
+<script>
+(function(){
+  // SCROLL PROGRESS
+  const bar=document.getElementById('abProgress');
+  if(bar){window.addEventListener('scroll',()=>{const h=document.documentElement;const sc=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;bar.style.width=sc+'%';},{passive:true});}
+
+  // REVEAL
+  const io=new IntersectionObserver((es)=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.1});
+  document.querySelectorAll('.ab-reveal').forEach(el=>io.observe(el));
+
+  // PRICE COUNT-UP
+  const pr=document.getElementById('abPrice');
+  if(pr){const target=parseFloat((pr.dataset.value||'0').toString().replace(/,/g,''))||0;let cur=0;const step=Math.max(1,target/40);const fmt=new Intl.NumberFormat();const tick=()=>{cur+=step;if(cur>=target){pr.textContent=fmt.format(target);return;}pr.textContent=fmt.format(Math.floor(cur));requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+
+  // DESCRIPTION TOGGLE
+  const db=document.getElementById('abDescBody'),dt=document.getElementById('abDescToggle');
+  if(db&&dt){if(db.scrollHeight<=140){dt.style.display='none';}dt.addEventListener('click',()=>{db.classList.toggle('open');dt.textContent=db.classList.contains('open')?'Show less':'Read more';});}
+
+  // GALLERY
+  const stageMedia=document.getElementById('abStageMedia');
+  document.querySelectorAll('#abThumbs .ab-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('#abThumbs .ab-thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const type=t.dataset.type, src=t.dataset.src;
+      stageMedia.style.opacity='0';
+      setTimeout(()=>{
+        if(type==='img'){
+          stageMedia.innerHTML = `<img id="abMainImg" src="${src}" alt="">`;
+        } else if(type==='yt'){
+          stageMedia.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${src}?autoplay=1&mute=1&playsinline=1&rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+        }
+        stageMedia.style.opacity='1';
+      },200);
+    });
+  });
+
+  // LIGHTBOX
+  const lb=document.getElementById('abLightbox'),lbBody=document.getElementById('abLbBody');
+  const zb=document.getElementById('abZoomBtn');
+  if(zb){zb.addEventListener('click',()=>{const m=stageMedia.querySelector('img,iframe');if(!m)return;lbBody.innerHTML=m.outerHTML;lb.classList.add('open');});}
+  document.getElementById('abLbClose').addEventListener('click',()=>{lb.classList.remove('open');lbBody.innerHTML='';});
+  lb.addEventListener('click',(e)=>{if(e.target===lb){lb.classList.remove('open');lbBody.innerHTML='';}});
+
+  // RIPPLE ON ORDER BUTTONS
+  document.querySelectorAll('.ab-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{const r=b.getBoundingClientRect();const c=document.createElement('span');c.className='ripple';const s=Math.max(r.width,r.height);c.style.width=c.style.height=s+'px';c.style.left=(e.clientX-r.left-s/2)+'px';c.style.top=(e.clientY-r.top-s/2)+'px';b.appendChild(c);setTimeout(()=>c.remove(),720);});
+  });
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,637 @@
+{% extends "store_templates/electronics/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{{ store.brand_name }} — Premium Electronics{% endblock %}
+
+{% block body %}
+<style>
+  .vx{ background:var(--vx-bg); color:var(--vx-white); font-family:var(--vx-sans); overflow-x:hidden; }
+  .vx *{ box-sizing:border-box; }
+  .vx-container{ max-width:1360px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .vx-container{ padding:0 20px; } }
+
+  .vx-reveal{ opacity:0; transform:translateY(22px); transition:opacity .8s var(--vx-ease), transform .8s var(--vx-ease); }
+  .vx-reveal.in{ opacity:1; transform:none; }
+
+  /* ===== HERO / SWIPER ===== */
+  .vx-hero{ position:relative; padding:56px 0 0; }
+  .vx-hero-swiper{ position:relative; border-radius:28px; overflow:hidden; margin:0 32px; border:1px solid var(--vx-line); }
+  @media (max-width:640px){ .vx-hero-swiper{ margin:0 20px; border-radius:20px; } }
+  .vx-slide{
+    position:relative; min-height:600px; display:flex; align-items:center;
+    background:
+      radial-gradient(900px 500px at 82% 8%, rgba(0,212,255,.16), transparent 60%),
+      radial-gradient(700px 460px at 8% 100%, rgba(59,130,246,.18), transparent 55%),
+      linear-gradient(180deg, var(--vx-surface) 0%, var(--vx-bg) 100%);
+    padding:70px 60px;
+  }
+  @media (max-width:900px){ .vx-slide{ min-height:520px; padding:50px 28px; flex-direction:column; justify-content:center; } }
+  .vx-slide-grid{ display:grid; grid-template-columns:1.1fr .9fr; gap:40px; align-items:center; width:100%; }
+  @media (max-width:900px){ .vx-slide-grid{ grid-template-columns:1fr; text-align:center; } }
+  .vx-eyebrow{
+    display:inline-flex; align-items:center; gap:9px; padding:7px 15px;
+    border:1px solid var(--vx-line-strong); border-radius:999px;
+    font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase;
+    color:var(--vx-muted); margin-bottom:24px; background:rgba(255,255,255,.03);
+  }
+  .vx-eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--vx-accent); box-shadow:0 0 0 5px rgba(0,212,255,.14); animation:vxPulse 2.4s ease-in-out infinite; }
+  @keyframes vxPulse{ 0%,100%{opacity:1} 50%{opacity:.45} }
+  .vx-slide h1{
+    font-family:var(--vx-display); font-weight:700; letter-spacing:-.03em;
+    font-size:clamp(2.4rem, 5.4vw, 4.4rem); line-height:1.03; margin:0 0 20px;
+  }
+  .vx-slide h1 .grad{ background:var(--vx-grad-primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vx-slide p.bio{ font-size:clamp(1rem,1.4vw,1.1rem); line-height:1.7; color:var(--vx-muted); max-width:460px; margin:0 0 34px; }
+  @media (max-width:900px){ .vx-slide p.bio{ margin-left:auto; margin-right:auto; } }
+  .vx-cta-row{ display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  @media (max-width:900px){ .vx-cta-row{ justify-content:center; } }
+  .vx-cta{
+    display:inline-flex; align-items:center; gap:10px; padding:16px 28px;
+    background:var(--vx-grad-primary); color:#03131c; border-radius:14px;
+    font-size:.95rem; font-weight:700; letter-spacing:-.005em;
+    transition:transform .35s var(--vx-ease), box-shadow .35s var(--vx-ease); box-shadow:var(--vx-glow);
+  }
+  .vx-cta:hover{ transform:translateY(-2px); color:#03131c; }
+  .vx-cta-ghost{
+    display:inline-flex; align-items:center; gap:10px; padding:16px 26px;
+    border:1px solid var(--vx-line-strong); border-radius:14px; color:var(--vx-white);
+    font-size:.95rem; font-weight:600; transition:all .3s var(--vx-ease);
+  }
+  .vx-cta-ghost:hover{ background:var(--vx-hover); border-color:var(--vx-accent); color:var(--vx-white); }
+  .vx-slide-visual{ position:relative; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; }
+  .vx-orb{
+    position:absolute; width:82%; height:82%; border-radius:50%;
+    background:radial-gradient(circle at 35% 30%, rgba(0,212,255,.22), transparent 60%);
+    filter:blur(6px);
+  }
+  .vx-float-card{
+    position:relative; z-index:2; width:78%; aspect-ratio:4/5; border-radius:20px;
+    background:var(--vx-card); border:1px solid var(--vx-line); overflow:hidden;
+    box-shadow:var(--vx-shadow-lg); animation:vxFloat 5s ease-in-out infinite;
+  }
+  .vx-float-card img{ width:100%; height:100%; object-fit:cover; }
+  @keyframes vxFloat{ 0%,100%{ transform:translateY(0) } 50%{ transform:translateY(-14px) } }
+  .vx-float-badge{
+    position:absolute; z-index:3; background:rgba(20,28,38,.92); border:1px solid var(--vx-line);
+    border-radius:14px; padding:10px 14px; backdrop-filter:blur(10px);
+    font-size:12.5px; font-weight:600; display:flex; align-items:center; gap:8px;
+    animation:vxFloat 6s ease-in-out infinite;
+  }
+  .vx-float-badge.tl{ top:6%; left:0%; animation-delay:.4s; }
+  .vx-float-badge.br{ bottom:8%; right:2%; animation-delay:.9s; }
+  .vx-float-badge .p{ color:var(--vx-accent); font-family:var(--vx-display); font-weight:700; }
+  @media (max-width:900px){ .vx-slide-visual{ margin-top:36px; } .vx-float-badge{ display:none; } }
+
+  .swiper-pagination{ position:absolute; bottom:22px !important; }
+  .swiper-pagination-bullet{ background:var(--vx-muted); opacity:.5; width:7px; height:7px; }
+  .swiper-pagination-bullet-active{ background:var(--vx-accent); opacity:1; }
+  .swiper-button-next, .swiper-button-prev{
+    color:var(--vx-white); width:44px; height:44px; background:rgba(20,28,38,.7);
+    border:1px solid var(--vx-line); border-radius:50%; backdrop-filter:blur(8px);
+  }
+  .swiper-button-next:after, .swiper-button-prev:after{ font-size:16px; }
+  @media (max-width:640px){ .swiper-button-next, .swiper-button-prev{ display:none; } }
+
+  /* ===== TRUST BAR ===== */
+  .vx-trust{ padding:34px 0; border-bottom:1px solid var(--vx-line); margin-top:56px; }
+  .vx-trust-row{ display:flex; flex-wrap:wrap; justify-content:center; gap:.6rem 3rem; color:var(--vx-muted); font-size:.83rem; font-weight:500; }
+  .vx-trust-item{ display:inline-flex; align-items:center; gap:9px; }
+  .vx-trust-item i{ color:var(--vx-accent); font-size:16px; }
+
+  /* ===== SECTION HEAD ===== */
+  .vx-section{ padding:88px 0; }
+  .vx-section--tight{ padding-top:0; }
+  .vx-section-head{ display:flex; align-items:flex-end; justify-content:space-between; gap:2rem; margin-bottom:44px; flex-wrap:wrap; }
+  .vx-label{ display:inline-block; font-size:.72rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--vx-accent); margin-bottom:12px; }
+  .vx-title{ font-family:var(--vx-display); font-weight:700; font-size:clamp(1.9rem,3.6vw,2.7rem); letter-spacing:-.02em; margin:0; }
+  .vx-sub{ font-size:.98rem; color:var(--vx-muted); line-height:1.6; max-width:380px; margin:0; }
+  .vx-view-all{ display:inline-flex; align-items:center; gap:8px; font-size:.85rem; font-weight:600; color:var(--vx-white); border-bottom:1px solid var(--vx-line-strong); padding-bottom:2px; transition:border-color .25s var(--vx-ease), color .25s var(--vx-ease); white-space:nowrap; }
+  .vx-view-all:hover{ color:var(--vx-accent); border-color:var(--vx-accent); }
+
+  /* ===== CATEGORY GRID ===== */
+  .vx-cat-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  @media (max-width:1000px){ .vx-cat-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .vx-cat-grid{ grid-template-columns:1fr; } }
+  .vx-cat-card{
+    position:relative; border-radius:20px; overflow:hidden; aspect-ratio:4/3;
+    background:var(--vx-card); border:1px solid var(--vx-line); display:block;
+    transition:transform .5s var(--vx-ease), border-color .3s var(--vx-ease);
+  }
+  .vx-cat-card:hover{ transform:translateY(-5px); border-color:var(--vx-line-strong); }
+  .vx-cat-card img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:.55; transition:transform 1s var(--vx-ease), opacity .4s; }
+  .vx-cat-card:hover img{ transform:scale(1.06); opacity:.7; }
+  .vx-cat-card::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(11,15,20,.05) 0%, rgba(11,15,20,.92) 100%); }
+  .vx-cat-body{ position:absolute; left:0; right:0; bottom:0; padding:22px; z-index:2; }
+  .vx-cat-body h4{ font-family:var(--vx-display); font-size:1.15rem; font-weight:600; margin:0 0 4px; }
+  .vx-cat-body span{ font-size:.78rem; color:var(--vx-muted); letter-spacing:.04em; }
+
+  /* ===== PRODUCT GRID ===== */
+  .vx-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:28px; }
+  @media (max-width:1100px){ .vx-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:760px){ .vx-grid{ grid-template-columns:repeat(2,1fr); gap:20px; } }
+  @media (max-width:420px){ .vx-grid{ grid-template-columns:1fr; } }
+
+  .vx-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; }
+  .vx-card-media{
+    position:relative; aspect-ratio:1/1; border-radius:18px; overflow:hidden;
+    background:var(--vx-card); border:1px solid var(--vx-line); margin-bottom:16px;
+  }
+  .vx-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--vx-ease); }
+  .vx-card:hover .vx-card-media img{ transform:scale(1.07); }
+  .vx-badge{
+    position:absolute; top:12px; left:12px; z-index:2; padding:5px 10px; border-radius:8px;
+    font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase;
+    background:var(--vx-grad-primary); color:#03131c;
+  }
+  .vx-fav{
+    position:absolute; top:10px; right:10px; z-index:2; width:34px; height:34px; border-radius:10px;
+    background:rgba(20,28,38,.75); border:1px solid var(--vx-line); backdrop-filter:blur(6px);
+    display:flex; align-items:center; justify-content:center; cursor:pointer;
+    opacity:0; transform:translateY(-4px); transition:all .35s var(--vx-ease);
+  }
+  .vx-card:hover .vx-fav{ opacity:1; transform:translateY(0); }
+  .vx-fav svg{ width:15px; height:15px; color:var(--vx-white); }
+  .vx-fav.on svg{ fill:var(--vx-accent); color:var(--vx-accent); }
+  .vx-quick{
+    position:absolute; left:12px; right:12px; bottom:12px; z-index:2; text-align:center;
+    padding:11px; border-radius:10px; background:rgba(11,15,20,.85); border:1px solid var(--vx-line-strong);
+    font-size:12px; font-weight:600; letter-spacing:.03em; color:var(--vx-white);
+    opacity:0; transform:translateY(8px); transition:all .35s var(--vx-ease); backdrop-filter:blur(8px);
+  }
+  .vx-card:hover .vx-quick{ opacity:1; transform:translateY(0); }
+  .vx-card-body{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .vx-card-name{ font-size:.95rem; font-weight:600; color:var(--vx-white); margin:0 0 4px; line-height:1.35; }
+  .vx-card-meta{ font-size:.76rem; color:var(--vx-muted); letter-spacing:.03em; text-transform:uppercase; }
+  .vx-card-price{ font-family:var(--vx-display); font-size:.95rem; font-weight:700; color:var(--vx-accent); white-space:nowrap; }
+
+  .vx-empty{ text-align:center; padding:80px 20px; border:1px dashed var(--vx-line-strong); border-radius:20px; grid-column:1/-1; }
+  .vx-empty .mark{ width:56px; height:56px; margin:0 auto 18px; border-radius:16px; background:var(--vx-card); display:flex; align-items:center; justify-content:center; color:var(--vx-muted); }
+  .vx-empty h3{ font-size:1.2rem; margin-bottom:8px; }
+  .vx-empty p{ color:var(--vx-muted); font-size:.9rem; margin:0; }
+
+  /* ===== VALUE / WHY SHOP ===== */
+  .vx-section--alt{ background:var(--vx-surface); border-top:1px solid var(--vx-line); border-bottom:1px solid var(--vx-line); }
+  .vx-values{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--vx-line); border:1px solid var(--vx-line); border-radius:20px; overflow:hidden; }
+  @media (max-width:900px){ .vx-values{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .vx-values{ grid-template-columns:1fr; } }
+  .vx-value{ background:var(--vx-bg); padding:36px 28px; }
+  .vx-value i{ font-size:26px; color:var(--vx-accent); margin-bottom:18px; display:block; }
+  .vx-value h3{ font-size:1.02rem; margin:0 0 10px; }
+  .vx-value p{ color:var(--vx-muted); font-size:.88rem; line-height:1.6; margin:0; }
+
+  /* ===== TESTIMONIALS ===== */
+  .vx-testi-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  @media (max-width:900px){ .vx-testi-grid{ grid-template-columns:1fr; } }
+  .vx-testi{ background:var(--vx-card); border:1px solid var(--vx-line); border-radius:20px; padding:32px; }
+  .vx-testi .stars{ color:var(--vx-accent); font-size:14px; letter-spacing:2px; margin-bottom:16px; }
+  .vx-testi p{ font-size:.95rem; line-height:1.7; color:var(--vx-white); margin:0 0 22px; }
+  .vx-testi-user{ display:flex; align-items:center; gap:12px; }
+  .vx-testi-avatar{ width:38px; height:38px; border-radius:50%; background:var(--vx-grad-primary); display:flex; align-items:center; justify-content:center; font-family:var(--vx-display); font-weight:700; color:#03131c; font-size:14px; }
+  .vx-testi-name{ font-size:.86rem; font-weight:600; }
+  .vx-testi-role{ font-size:.76rem; color:var(--vx-muted); }
+
+  /* ===== NEWSLETTER BANNER ===== */
+  .vx-news{
+    border-radius:28px; padding:64px 48px; text-align:center; position:relative; overflow:hidden;
+    background:linear-gradient(135deg, rgba(59,130,246,.14), rgba(0,212,255,.1)), var(--vx-card);
+    border:1px solid var(--vx-line);
+  }
+  @media (max-width:640px){ .vx-news{ padding:44px 24px; } }
+  .vx-news h2{ font-size:clamp(1.7rem,3.6vw,2.5rem); margin:0 0 14px; }
+  .vx-news p{ color:var(--vx-muted); max-width:460px; margin:0 auto 30px; font-size:.95rem; }
+  .vx-news-form{ display:flex; max-width:420px; margin:0 auto; gap:10px; background:var(--vx-surface); border:1px solid var(--vx-line-strong); padding:6px; border-radius:14px; }
+  .vx-news-form input{ flex:1; background:transparent; border:0; outline:0; padding:12px 14px; color:var(--vx-white); font-size:.9rem; }
+  @media (max-width:480px){ .vx-news-form{ flex-direction:column; background:transparent; border:0; padding:0; } .vx-news-form input{ background:var(--vx-surface); border:1px solid var(--vx-line-strong); border-radius:10px; } }
+
+  /* ===== GALLERY ===== */
+  .vx-gallery{ display:grid; grid-template-columns:repeat(6,1fr); gap:14px; }
+  @media (max-width:900px){ .vx-gallery{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:480px){ .vx-gallery{ grid-template-columns:repeat(2,1fr); } }
+  .vx-gallery a{ position:relative; aspect-ratio:1/1; border-radius:14px; overflow:hidden; display:block; border:1px solid var(--vx-line); }
+  .vx-gallery img{ width:100%; height:100%; object-fit:cover; transition:transform .6s var(--vx-ease); }
+  .vx-gallery a:hover img{ transform:scale(1.08); }
+  .vx-gallery a::after{ content:"\f81b"; font-family:"bootstrap-icons"; position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:20px; color:#fff; background:rgba(11,15,20,0); opacity:0; transition:all .35s var(--vx-ease); }
+  .vx-gallery a:hover::after{ opacity:1; background:rgba(11,15,20,.45); }
+
+  /* ===== FINAL CTA ===== */
+  .vx-final{ padding:100px 0 40px; text-align:center; }
+  .vx-final h2{ font-size:clamp(2rem,4vw,3rem); margin:0 0 16px; }
+  .vx-final p{ color:var(--vx-muted); max-width:440px; margin:0 auto 34px; }
+</style>
+
+<div class="vx">
+
+  <!-- ─── HERO ─── -->
+  <section class="vx-hero">
+    <div class="vx-hero-swiper swiper" id="vxHeroSwiper">
+      <div class="swiper-wrapper">
+
+        <div class="swiper-slide">
+          <div class="vx-slide">
+            <div class="vx-slide-grid">
+              <div>
+                <span class="vx-eyebrow"><span class="dot"></span> Open for orders</span>
+                <h1>{{ store.brand_name }},<br><span class="grad">reimagined.</span></h1>
+                {% if store.bio %}<p class="bio">{{ store.bio }}</p>{% else %}<p class="bio">Premium electronics, curated for people who care about detail — from everyday essentials to serious upgrades.</p>{% endif %}
+                <div class="vx-cta-row">
+                  <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+                    Shop the Collection
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  {% if store.whatsapp %}
+                  <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="vx-cta-ghost">
+                    <i class="bi bi-whatsapp"></i> Order on WhatsApp
+                  </a>
+                  {% endif %}
+                </div>
+              </div>
+              <div class="vx-slide-visual">
+                <div class="vx-orb"></div>
+                {% with hero_product=products|first %}
+                {% if hero_product %}
+                <div class="vx-float-card">
+                  {% if hero_product.image %}
+                    <img src="{{ hero_product.image.url }}" alt="{{ hero_product.name }}">
+                  {% elif hero_product.image_url %}
+                    <img src="{{ hero_product.image_url }}" alt="{{ hero_product.name }}">
+                  {% else %}
+                    <img src="{% static 'images/placeholder.png' %}" alt="{{ hero_product.name }}">
+                  {% endif %}
+                </div>
+                <span class="vx-float-badge tl">Featured</span>
+                <span class="vx-float-badge br">
+                  <span class="p">
+                    {% if hero_product.currency == "NGN" %}₦{% elif hero_product.currency == "USD" %}${% elif hero_product.currency == "EUR" %}€{% elif hero_product.currency == "GBP" %}£{% elif hero_product.currency == "GHS" %}₵{% endif %}{{ hero_product.price|intcomma }}
+                  </span> {{ hero_product.name|truncatechars:18 }}
+                </span>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="vx-slide">
+            <div class="vx-slide-grid">
+              <div>
+                <span class="vx-eyebrow"><span class="dot"></span> New this week</span>
+                <h1>Built for speed.<br><span class="grad">Made to last.</span></h1>
+                <p class="bio">Every device is checked, every order confirmed personally — no automated noise, just real service from {{ store.brand_name }}.</p>
+                <div class="vx-cta-row">
+                  <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+                    Browse New Arrivals
+                    <i class="bi bi-arrow-right"></i>
+                  </a>
+                  <a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}" class="vx-cta-ghost">
+                    Our Story
+                  </a>
+                </div>
+              </div>
+              <div class="vx-slide-visual">
+                <div class="vx-orb"></div>
+                {% with hero_product2=products|slice:"1:2"|first %}
+                {% if hero_product2 %}
+                <div class="vx-float-card">
+                  {% if hero_product2.image %}
+                    <img src="{{ hero_product2.image.url }}" alt="{{ hero_product2.name }}">
+                  {% elif hero_product2.image_url %}
+                    <img src="{{ hero_product2.image_url }}" alt="{{ hero_product2.name }}">
+                  {% else %}
+                    <img src="{% static 'images/placeholder.png' %}" alt="{{ hero_product2.name }}">
+                  {% endif %}
+                </div>
+                <span class="vx-float-badge tl">Just In</span>
+                <span class="vx-float-badge br">{{ hero_product2.name|truncatechars:22 }}</span>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="swiper-slide">
+          <div class="vx-slide">
+            <div class="vx-slide-grid">
+              <div>
+                <span class="vx-eyebrow"><span class="dot"></span> Direct to you</span>
+                <h1>Talk to a human.<br><span class="grad">Not a bot.</span></h1>
+                <p class="bio">Questions about specs, stock, or delivery? Message {{ store.brand_name }} directly and get a real answer in minutes.</p>
+                <div class="vx-cta-row">
+                  {% if store.whatsapp %}
+                  <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="vx-cta">
+                    <i class="bi bi-whatsapp"></i> Chat With Us
+                  </a>
+                  {% endif %}
+                  <a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}" class="vx-cta-ghost">
+                    Contact Page
+                  </a>
+                </div>
+              </div>
+              <div class="vx-slide-visual">
+                <div class="vx-orb"></div>
+                {% with hero_product3=products|slice:"2:3"|first %}
+                {% if hero_product3 %}
+                <div class="vx-float-card">
+                  {% if hero_product3.image %}
+                    <img src="{{ hero_product3.image.url }}" alt="{{ hero_product3.name }}">
+                  {% elif hero_product3.image_url %}
+                    <img src="{{ hero_product3.image_url }}" alt="{{ hero_product3.name }}">
+                  {% else %}
+                    <img src="{% static 'images/placeholder.png' %}" alt="{{ hero_product3.name }}">
+                  {% endif %}
+                </div>
+                <span class="vx-float-badge tl">Popular</span>
+                <span class="vx-float-badge br">{{ hero_product3.name|truncatechars:22 }}</span>
+                {% endif %}
+                {% endwith %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <div class="swiper-pagination"></div>
+      <div class="swiper-button-prev"></div>
+      <div class="swiper-button-next"></div>
+    </div>
+  </section>
+
+  <!-- ─── TRUST BAR ─── -->
+  <section class="vx-trust">
+    <div class="vx-container">
+      <div class="vx-trust-row vx-reveal">
+        <span class="vx-trust-item"><i class="bi bi-lightning-charge-fill"></i> Fast response</span>
+        <span class="vx-trust-item"><i class="bi bi-patch-check-fill"></i> Verified store · Waapfolio</span>
+        <span class="vx-trust-item"><i class="bi bi-whatsapp"></i> WhatsApp orders</span>
+        <span class="vx-trust-item"><i class="bi bi-shield-lock-fill"></i> Secure communication</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SHOP BY CATEGORY ─── -->
+  {% regroup products by category as vx_category_list %}
+  {% if vx_category_list %}
+  <section class="vx-section">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <div>
+          <div class="vx-label">Browse</div>
+          <h2 class="vx-title">Shop by Category</h2>
+        </div>
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-view-all">
+          View all products <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+      <div class="vx-cat-grid vx-reveal">
+        {% for cat in vx_category_list|slice:":4" %}
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cat-card">
+          {% with cat_product=cat.list|first %}
+            {% if cat_product.image %}
+              <img src="{{ cat_product.image.url }}" alt="{{ cat.grouper }}">
+            {% elif cat_product.image_url %}
+              <img src="{{ cat_product.image_url }}" alt="{{ cat.grouper }}">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ cat.grouper }}">
+            {% endif %}
+          {% endwith %}
+          <div class="vx-cat-body">
+            <h4>{{ cat.grouper|default:"Uncategorized" }}</h4>
+            <span>{{ cat.list|length }} item{{ cat.list|length|pluralize }}</span>
+          </div>
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ─── TRENDING PRODUCTS ─── -->
+  <section class="vx-section vx-section--tight">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <div>
+          <div class="vx-label">Curated Collection</div>
+          <h2 class="vx-title">Trending Now</h2>
+          <p class="vx-sub">Handpicked from {{ store.brand_name }} — quick to browse, instant to order.</p>
+        </div>
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-view-all">
+          View all products <i class="bi bi-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="vx-grid vx-reveal">
+        {% for product in products|slice:":8" %}
+        <a href="{% url 'store_product_detail' store.slug product.slug %}" class="vx-card">
+          <div class="vx-card-media">
+            {% if product.is_featured %}<span class="vx-badge">Featured</span>{% endif %}
+            <button type="button" class="vx-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>
+              </svg>
+            </button>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+            <span class="vx-quick">Quick View</span>
+          </div>
+          <div class="vx-card-body">
+            <div>
+              <h6 class="vx-card-name">{{ product.name }}</h6>
+              <div class="vx-card-meta">{{ product.category.name|default:store.brand_name }}</div>
+            </div>
+            <div class="vx-card-price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+            </div>
+          </div>
+        </a>
+        {% empty %}
+        <div class="vx-empty">
+          <div class="mark"><i class="bi bi-bag-x" style="font-size:22px"></i></div>
+          <h3>No products yet</h3>
+          <p>Products will appear here once added to your store.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── WHY SHOP WITH US ─── -->
+  <section class="vx-section vx-section--alt">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <div>
+          <div class="vx-label">Why this store</div>
+          <h2 class="vx-title">Built for trust. Designed for speed.</h2>
+        </div>
+        <p class="vx-sub">Every order is handled personally over WhatsApp — no checkout friction, no waiting.</p>
+      </div>
+      <div class="vx-values vx-reveal">
+        <div class="vx-value">
+          <i class="bi bi-whatsapp"></i>
+          <h3>Direct communication</h3>
+          <p>Speak to a real person from the first message. No bots, no scripted replies.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-lightning-charge"></i>
+          <h3>Fast response system</h3>
+          <p>Most orders are acknowledged within minutes of reaching out.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-patch-check"></i>
+          <h3>Verified storefront</h3>
+          <p>Hosted on Waapfolio — a verified commerce platform for direct sellers.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-shield-check"></i>
+          <h3>Secure ordering flow</h3>
+          <p>Your conversation stays inside WhatsApp's encrypted channel, start to finish.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TESTIMONIALS ─── -->
+  <section class="vx-section">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <div>
+          <div class="vx-label">Customer Voices</div>
+          <h2 class="vx-title">Trusted by shoppers like you</h2>
+        </div>
+      </div>
+      <div class="vx-testi-grid vx-reveal">
+        <div class="vx-testi">
+          <div class="stars">★★★★★</div>
+          <p>"Ordered through WhatsApp and had my confirmation in minutes. Genuinely the fastest electronics purchase I've made online."</p>
+          <div class="vx-testi-user">
+            <div class="vx-testi-avatar">A</div>
+            <div><div class="vx-testi-name">Amaka O.</div><div class="vx-testi-role">Verified buyer</div></div>
+          </div>
+        </div>
+        <div class="vx-testi">
+          <div class="stars">★★★★★</div>
+          <p>"Loved that I could ask questions directly before paying. No pressure, just clear answers about the product I wanted."</p>
+          <div class="vx-testi-user">
+            <div class="vx-testi-avatar">D</div>
+            <div><div class="vx-testi-name">Daniel K.</div><div class="vx-testi-role">Verified buyer</div></div>
+          </div>
+        </div>
+        <div class="vx-testi">
+          <div class="stars">★★★★★</div>
+          <p>"The whole experience felt personal — like buying from someone I actually know, not a faceless checkout page."</p>
+          <div class="vx-testi-user">
+            <div class="vx-testi-avatar">S</div>
+            <div><div class="vx-testi-name">Sarah M.</div><div class="vx-testi-role">Verified buyer</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── NEWSLETTER ─── -->
+  <section class="vx-section vx-section--tight">
+    <div class="vx-container">
+      <div class="vx-news vx-reveal">
+        <h2>Never miss a drop.</h2>
+        <p>Join the {{ store.brand_name }} list for new arrivals, restocks, and exclusive WhatsApp-only deals.</p>
+        <div class="vx-news-form">
+          <input type="email" placeholder="Enter your email" id="vxHomeNewsletterEmail" aria-label="Email address">
+          <button class="wf-btn" type="button" onclick="vxHomeNewsletterSignup(this)">Subscribe</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── GALLERY ─── -->
+  {% if products %}
+  <section class="vx-section vx-section--tight">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <div>
+          <div class="vx-label">In the wild</div>
+          <h2 class="vx-title">The Gallery</h2>
+        </div>
+        {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="vx-view-all">
+          Message us <i class="bi bi-whatsapp"></i>
+        </a>
+        {% endif %}
+      </div>
+      <div class="vx-gallery vx-reveal">
+        {% for product in products|slice:":6" %}
+        <a href="{% url 'store_product_detail' store.slug product.slug %}">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="vx-final">
+    <div class="vx-container">
+      <div class="vx-reveal">
+        <h2>Start your order instantly.</h2>
+        <p>One message is all it takes. We'll handle the rest — personally.</p>
+        {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="vx-cta">
+          <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
+        </a>
+        {% else %}
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+          Shop the Collection <i class="bi bi-arrow-right"></i>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script>
+  new Swiper('#vxHeroSwiper', {
+    loop: true,
+    autoplay: { delay: 5500, disableOnInteraction: false },
+    speed: 700,
+    pagination: { el: '.swiper-pagination', clickable: true },
+    navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+  });
+
+  (function() {
+    var els = document.querySelectorAll('.vx-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) { entry.target.classList.add('in'); io.unobserve(entry.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(el){ io.observe(el); });
+  })();
+
+  function vxHomeNewsletterSignup(btn){
+    var input = document.getElementById('vxHomeNewsletterEmail');
+    if(!input || !input.value || (input.validity && !input.validity.valid)){ if(input) input.focus(); return; }
+    var toast = document.getElementById('wfToast');
+    toast.textContent = "You're subscribed";
+    toast.classList.add('show');
+    input.value = '';
+    setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+  }
+</script>
+{% endblock %}

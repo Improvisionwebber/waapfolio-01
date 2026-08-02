@@ -1,0 +1,270 @@
+{% extends "store_templates/electronics/base.html" %}
+{% load static %}
+{% block title %}Contact — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .vx{ background:var(--vx-bg); color:var(--vx-white); font-family:var(--vx-sans); overflow-x:hidden; }
+  .vx *{ box-sizing:border-box; }
+  .vx-container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .vx-container{ padding:0 20px; } }
+  .vx-reveal{ opacity:0; transform:translateY(20px); transition:opacity .8s var(--vx-ease), transform .8s var(--vx-ease); }
+  .vx-reveal.in{ opacity:1; transform:none; }
+
+  /* ===== HERO SPLIT ===== */
+  .vx-contact-hero{ padding:70px 0 90px; display:grid; grid-template-columns:1.1fr .9fr; gap:56px; align-items:start; }
+  @media (max-width:960px){ .vx-contact-hero{ grid-template-columns:1fr; gap:40px; padding:56px 0 64px; } }
+  .vx-eyebrow{ display:inline-flex; align-items:center; gap:9px; padding:7px 15px; border:1px solid var(--vx-line-strong); border-radius:999px; font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--vx-muted); margin-bottom:22px; }
+  .vx-eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--vx-accent); }
+  .vx-contact-hero h1{ font-family:var(--vx-display); font-weight:700; font-size:clamp(2.2rem,5vw,3.4rem); line-height:1.08; letter-spacing:-.02em; margin:0 0 20px; }
+  .vx-contact-hero h1 em{ font-style:normal; background:var(--vx-grad-primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vx-contact-hero p.lead{ font-size:1rem; color:var(--vx-muted); line-height:1.75; max-width:480px; margin:0 0 32px; }
+
+  .vx-quick-actions{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  @media (max-width:480px){ .vx-quick-actions{ grid-template-columns:1fr; } }
+  .vx-quick-card{
+    display:flex; flex-direction:column; gap:12px; padding:22px; border-radius:16px;
+    background:var(--vx-card); border:1px solid var(--vx-line); transition:all .3s var(--vx-ease);
+  }
+  .vx-quick-card:hover{ border-color:var(--vx-line-strong); transform:translateY(-3px); }
+  .vx-quick-card i{ font-size:20px; color:var(--vx-accent); }
+  .vx-quick-card .t{ font-size:.92rem; font-weight:600; }
+  .vx-quick-card .s{ font-size:.78rem; color:var(--vx-muted); }
+
+  /* ===== INFO CARD ===== */
+  .vx-info-card{ background:var(--vx-card); border:1px solid var(--vx-line); border-radius:24px; padding:36px; }
+  .vx-info-card .k{ font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:var(--vx-muted); }
+  .vx-info-card .v{ font-size:.95rem; font-weight:600; color:var(--vx-white); }
+  .vx-meta-row{ display:flex; justify-content:space-between; gap:16px; padding:16px 0; border-bottom:1px solid var(--vx-line); }
+  .vx-meta-row:last-child{ border-bottom:0; }
+  .vx-info-cta{
+    display:flex; align-items:center; justify-content:center; gap:10px; width:100%; margin-top:24px;
+    padding:15px 20px; border-radius:14px; background:var(--vx-grad-primary); color:#03131c;
+    font-size:.92rem; font-weight:700; box-shadow:var(--vx-glow); transition:transform .3s var(--vx-ease);
+  }
+  .vx-info-cta:hover{ transform:translateY(-2px); color:#03131c; }
+
+  /* ===== CHANNELS GRID ===== */
+  .vx-section{ padding:80px 0; }
+  .vx-section-head{ text-align:center; max-width:600px; margin:0 auto 48px; }
+  .vx-title{ font-family:var(--vx-display); font-weight:700; font-size:clamp(1.9rem,3.6vw,2.6rem); letter-spacing:-.02em; margin:0 0 14px; }
+  .vx-title em{ font-style:normal; color:var(--vx-accent); }
+  .vx-sub{ color:var(--vx-muted); font-size:1rem; line-height:1.6; margin:0; }
+  .vx-channels{ display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  @media (max-width:900px){ .vx-channels{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .vx-channels{ grid-template-columns:1fr; } }
+  .vx-channel{
+    display:flex; flex-direction:column; gap:14px; padding:28px; border-radius:18px;
+    background:var(--vx-card); border:1px solid var(--vx-line); transition:all .3s var(--vx-ease);
+  }
+  .vx-channel:hover{ border-color:var(--vx-line-strong); transform:translateY(-3px); }
+  .vx-channel .ic{ width:44px; height:44px; border-radius:12px; background:var(--vx-grad-primary); display:flex; align-items:center; justify-content:center; }
+  .vx-channel .ic i{ font-size:20px; color:#03131c; }
+  .vx-channel h4{ font-size:1rem; margin:0; }
+  .vx-channel p{ font-size:.86rem; color:var(--vx-muted); line-height:1.55; margin:0; }
+  .vx-channel .go{ font-size:.82rem; font-weight:600; color:var(--vx-accent); display:inline-flex; align-items:center; gap:6px; margin-top:auto; }
+
+  /* ===== FAQ ===== */
+  .vx-section--alt{ background:var(--vx-surface); border-top:1px solid var(--vx-line); border-bottom:1px solid var(--vx-line); }
+  .vx-faq{ max-width:780px; margin:0 auto; display:flex; flex-direction:column; gap:12px; }
+  .vx-faq-item{ background:var(--vx-card); border:1px solid var(--vx-line); border-radius:16px; overflow:hidden; }
+  .vx-faq-q{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:20px 24px; cursor:pointer; font-size:.96rem; font-weight:600; color:var(--vx-white);
+  }
+  .vx-faq-q i{ font-size:16px; color:var(--vx-accent); transition:transform .3s var(--vx-ease); flex-shrink:0; }
+  .vx-faq-item.open .vx-faq-q i{ transform:rotate(180deg); }
+  .vx-faq-a{ max-height:0; overflow:hidden; transition:max-height .35s var(--vx-ease); }
+  .vx-faq-item.open .vx-faq-a{ max-height:220px; }
+  .vx-faq-a p{ padding:0 24px 22px; margin:0; font-size:.88rem; line-height:1.7; color:var(--vx-muted); }
+  .vx-faq-a a{ color:var(--vx-accent); font-weight:600; }
+
+  /* ===== FINAL CTA ===== */
+  .vx-final{ padding:90px 0; text-align:center; }
+  .vx-final .txt{ font-size:1.1rem; color:var(--vx-muted); margin-bottom:26px; }
+  .vx-final .txt strong{ color:var(--vx-white); }
+  .vx-cta{ display:inline-flex; align-items:center; gap:10px; padding:16px 28px; background:var(--vx-grad-primary); color:#03131c; border-radius:14px; font-size:.95rem; font-weight:700; box-shadow:var(--vx-glow); transition:transform .3s var(--vx-ease); margin:0 6px 10px; }
+  .vx-cta:hover{ transform:translateY(-2px); color:#03131c; }
+  .vx-cta-ghost{ display:inline-flex; align-items:center; gap:10px; padding:16px 26px; border:1px solid var(--vx-line-strong); border-radius:14px; color:var(--vx-white); font-size:.95rem; font-weight:600; transition:all .3s var(--vx-ease); margin:0 6px 10px; }
+  .vx-cta-ghost:hover{ background:var(--vx-hover); color:var(--vx-white); }
+</style>
+
+<div class="vx">
+
+  <!-- ─── HERO ─── -->
+  <section class="vx-contact-hero vx-container">
+    <div class="vx-reveal">
+      <span class="vx-eyebrow"><span class="dot"></span> Let's Talk</span>
+      <h1>A real conversation,<br><em>not a contact form.</em></h1>
+      <p class="lead">{{ store.bio|default:"We believe every order begins with a conversation. Reach our team directly on WhatsApp — for inquiries, custom requests, or anything in between." }}</p>
+
+      <div class="vx-quick-actions">
+        {% if store.whatsapp_number %}
+        <a class="vx-quick-card" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20want%20to%20make%20an%20inquiry" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i>
+          <div class="t">General Inquiry</div>
+          <div class="s">Ask us anything</div>
+        </a>
+        <a class="vx-quick-card" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order." target="_blank" rel="noopener">
+          <i class="bi bi-bag-check"></i>
+          <div class="t">Place an Order</div>
+          <div class="s">Start checkout on WhatsApp</div>
+        </a>
+        <a class="vx-quick-card" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20product%20question." target="_blank" rel="noopener">
+          <i class="bi bi-question-circle"></i>
+          <div class="t">Product Question</div>
+          <div class="s">Specs, stock & sizing</div>
+        </a>
+        <a class="vx-quick-card" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27m%20interested%20in%20a%20custom%20order." target="_blank" rel="noopener">
+          <i class="bi bi-stars"></i>
+          <div class="t">Custom Order</div>
+          <div class="s">Something specific in mind</div>
+        </a>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="vx-reveal">
+      <div class="vx-info-card">
+        <div class="vx-meta-row"><span class="k">Store</span><span class="v">{{ store.brand_name }}</span></div>
+        {% if store.whatsapp %}<div class="vx-meta-row"><span class="k">Channel</span><span class="v">WhatsApp · {{ store.whatsapp }}</span></div>{% endif %}
+        <div class="vx-meta-row"><span class="k">Response time</span><span class="v">Usually within minutes</span></div>
+        <div class="vx-meta-row"><span class="k">Ordering</span><span class="v">100% via WhatsApp</span></div>
+        {% if store.whatsapp_number %}
+        <a class="vx-info-cta" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20get%20in%20touch." target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
+        </a>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── SIX CHANNELS ─── -->
+  <section class="vx-section" style="padding-top:0;">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <h2 class="vx-title">Six ways to reach <em>{{ store.brand_name }}</em></h2>
+        <p class="vx-sub">Pick whatever fits — every message lands with the same team.</p>
+      </div>
+      <div class="vx-channels vx-reveal">
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support." target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-headset"></i></span>
+          <h4>Customer Support</h4>
+          <p>Order issues, tracking, or anything that needs a fast fix.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20more%20info%20about%20a%20product." target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-info-circle"></i></span>
+          <h4>Product Info</h4>
+          <p>Specs, compatibility, warranty — ask before you buy.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20are%20you%20available%20to%20chat%3F" target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-chat-dots"></i></span>
+          <h4>Say Hello</h4>
+          <p>New here? Introduce yourself and we'll point you in the right direction.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20order." target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-stars"></i></span>
+          <h4>Custom Requests</h4>
+          <p>Looking for something specific? Tell us what you need.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question%20about%20delivery." target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-truck"></i></span>
+          <h4>Delivery Questions</h4>
+          <p>Timelines, coverage areas, and shipping costs.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+        <a class="vx-channel" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20help%20with%20an%20existing%20order." target="_blank" rel="noopener">
+          <span class="ic"><i class="bi bi-box-seam"></i></span>
+          <h4>Existing Orders</h4>
+          <p>Already ordered? Get an update or make a change.</p>
+          <span class="go">Chat now <i class="bi bi-arrow-right"></i></span>
+        </a>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FAQ ─── -->
+  <section class="vx-section vx-section--alt">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <h2 class="vx-title">Frequently asked</h2>
+        <p class="vx-sub">The questions we hear most, answered honestly.</p>
+      </div>
+
+      <div class="vx-faq vx-reveal">
+        <div class="vx-faq-item open">
+          <div class="vx-faq-q">How do I place an order? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>Browse the collection, then tap any product or the WhatsApp button to start a conversation. We confirm availability, walk you through payment, and arrange delivery — all in a single chat. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">Start an order →</a></p></div>
+        </div>
+        <div class="vx-faq-item">
+          <div class="vx-faq-q">How long does delivery take? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>Local orders typically arrive in 1–3 business days. International orders ship within 5–10 days depending on destination. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20how%20long%20will%20delivery%20take%20to%20my%20location%3F">Ask about your location →</a></p></div>
+        </div>
+        <div class="vx-faq-item">
+          <div class="vx-faq-q">How do I contact support? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>We handle every conversation personally on WhatsApp — no tickets, no waiting on hold. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support.">Chat with our team →</a></p></div>
+        </div>
+        <div class="vx-faq-item">
+          <div class="vx-faq-q">Can I request a custom order? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>Yes — share what you're looking for and we'll quote and source accordingly. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20order.">Send a request →</a></p></div>
+        </div>
+        <div class="vx-faq-item">
+          <div class="vx-faq-q">Can I order directly on WhatsApp? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>Absolutely — we prefer it. WhatsApp lets us confirm details, share extra photos, and arrange a tailored delivery. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20order%20directly%20here.">Start ordering →</a></p></div>
+        </div>
+        <div class="vx-faq-item">
+          <div class="vx-faq-q">What payment methods do you accept? <i class="bi bi-chevron-down"></i></div>
+          <div class="vx-faq-a"><p>We accept bank transfer, card payments, and major mobile money options. Secure payment details are shared inside your WhatsApp conversation. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20what%20payment%20methods%20do%20you%20accept%3F">Ask about payment →</a></p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="vx-final">
+    <div class="vx-container vx-reveal">
+      <div class="txt">Still curious? <strong>Ask {{ store.brand_name }} anything.</strong></div>
+      {% if store.whatsapp_number %}
+      <a class="vx-cta" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question.">
+        <i class="bi bi-whatsapp"></i> Chat With {{ store.brand_name }}
+      </a>
+      {% endif %}
+      <a class="vx-cta-ghost" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+        Back to Home
+      </a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.vx-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+
+    document.querySelectorAll('.vx-faq-q').forEach(function(q){
+      q.addEventListener('click', function(){
+        var item = q.closest('.vx-faq-item');
+        var wasOpen = item.classList.contains('open');
+        document.querySelectorAll('.vx-faq-item').forEach(function(i){ i.classList.remove('open'); });
+        if(!wasOpen) item.classList.add('open');
+      });
+    });
+  })();
+</script>
+{% endblock %}

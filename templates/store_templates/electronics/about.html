@@ -1,0 +1,248 @@
+{% extends "store_templates/electronics/base.html" %}
+{% load static %}
+{% block title %}About — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .vx{ background:var(--vx-bg); color:var(--vx-white); font-family:var(--vx-sans); overflow-x:hidden; }
+  .vx *{ box-sizing:border-box; }
+  .vx-container{ max-width:1200px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .vx-container{ padding:0 20px; } }
+  .vx-reveal{ opacity:0; transform:translateY(20px); transition:opacity .8s var(--vx-ease), transform .8s var(--vx-ease); }
+  .vx-reveal.in{ opacity:1; transform:none; }
+
+  /* ===== HERO ===== */
+  .vx-about-hero{ padding:70px 0 60px; position:relative; text-align:center; background:radial-gradient(900px 460px at 50% -10%, rgba(0,212,255,.14), transparent 60%); }
+  .vx-eyebrow{ display:inline-flex; align-items:center; gap:9px; padding:7px 15px; border:1px solid var(--vx-line-strong); border-radius:999px; font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--vx-muted); margin-bottom:24px; }
+  .vx-eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--vx-accent); }
+  .vx-about-hero h1{ font-family:var(--vx-display); font-weight:700; font-size:clamp(2.4rem,6vw,4.2rem); line-height:1.06; letter-spacing:-.02em; margin:0 0 22px; }
+  .vx-about-hero h1 em{ font-style:normal; background:var(--vx-grad-primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vx-about-hero p{ max-width:560px; margin:0 auto 34px; font-size:1.02rem; color:var(--vx-muted); line-height:1.7; }
+
+  /* ===== MARQUEE ===== */
+  .vx-marquee{ border-top:1px solid var(--vx-line); border-bottom:1px solid var(--vx-line); overflow:hidden; padding:20px 0; background:var(--vx-surface); }
+  .vx-marquee-track{ display:flex; white-space:nowrap; animation:vxMarquee 22s linear infinite; }
+  .vx-marquee-track span{ font-family:var(--vx-display); font-size:1.1rem; font-weight:600; color:var(--vx-muted); padding:0 24px; display:inline-flex; align-items:center; gap:24px; }
+  .vx-marquee-track .dot{ width:6px; height:6px; border-radius:50%; background:var(--vx-accent); }
+  @keyframes vxMarquee{ from{ transform:translateX(0); } to{ transform:translateX(-50%); } }
+
+  /* ===== STORY SPLIT ===== */
+  .vx-split{ padding:90px 0; display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:center; }
+  @media (max-width:900px){ .vx-split{ grid-template-columns:1fr; gap:36px; padding:64px 0; } }
+  .vx-split.rev .vx-split-media{ order:2; }
+  @media (max-width:900px){ .vx-split.rev .vx-split-media{ order:0; } }
+  .vx-split-media{ position:relative; aspect-ratio:4/3; border-radius:24px; overflow:hidden; background:var(--vx-card); border:1px solid var(--vx-line); }
+  .vx-split-media img{ width:100%; height:100%; object-fit:cover; }
+  .vx-split-media .fallback{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:var(--vx-display); font-size:5rem; font-weight:700; color:var(--vx-line-strong); }
+  .vx-label{ font-size:.72rem; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--vx-accent); margin-bottom:16px; display:block; }
+  .vx-split h2{ font-family:var(--vx-display); font-weight:700; font-size:clamp(1.8rem,3.4vw,2.5rem); letter-spacing:-.02em; margin:0 0 20px; }
+  .vx-split p{ font-size:1rem; line-height:1.8; color:var(--vx-muted); margin:0; }
+
+  /* ===== VALUES STRIP ===== */
+  .vx-section--alt{ background:var(--vx-surface); border-top:1px solid var(--vx-line); border-bottom:1px solid var(--vx-line); padding:90px 0; }
+  .vx-section-head{ text-align:center; max-width:600px; margin:0 auto 50px; }
+  .vx-title{ font-family:var(--vx-display); font-weight:700; font-size:clamp(1.9rem,3.6vw,2.6rem); letter-spacing:-.02em; margin:0 0 14px; }
+  .vx-sub{ color:var(--vx-muted); font-size:1rem; line-height:1.7; margin:0; }
+  .vx-values{ display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--vx-line); border:1px solid var(--vx-line); border-radius:20px; overflow:hidden; }
+  @media (max-width:900px){ .vx-values{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:520px){ .vx-values{ grid-template-columns:1fr; } }
+  .vx-value{ background:var(--vx-bg); padding:36px 26px; }
+  .vx-value i{ font-size:24px; color:var(--vx-accent); margin-bottom:16px; display:block; }
+  .vx-value h4{ font-size:1rem; margin:0 0 10px; }
+  .vx-value p{ color:var(--vx-muted); font-size:.87rem; line-height:1.6; margin:0; }
+
+  /* ===== FOUNDER ===== */
+  .vx-founder{ padding:90px 0; }
+  .vx-founder-card{
+    display:grid; grid-template-columns:auto 1fr; gap:32px; align-items:center;
+    background:var(--vx-card); border:1px solid var(--vx-line); border-radius:24px; padding:44px;
+  }
+  @media (max-width:700px){ .vx-founder-card{ grid-template-columns:1fr; text-align:center; padding:32px 24px; } }
+  .vx-founder-avatar{ width:76px; height:76px; border-radius:50%; background:var(--vx-grad-primary); display:flex; align-items:center; justify-content:center; font-family:var(--vx-display); font-weight:700; font-size:1.8rem; color:#03131c; flex-shrink:0; margin:0 auto; }
+  .vx-founder-name{ font-family:var(--vx-display); font-size:1.1rem; font-weight:600; margin-bottom:4px; }
+  .vx-founder-role{ font-size:.8rem; color:var(--vx-muted); text-transform:uppercase; letter-spacing:.08em; margin-bottom:16px; }
+  .vx-founder-card p{ font-size:1.02rem; line-height:1.75; color:var(--vx-white); margin:0; font-style:italic; }
+
+  /* ===== PRODUCT STRIP ===== */
+  .vx-strip-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  @media (max-width:760px){ .vx-strip-grid{ grid-template-columns:repeat(2,1fr); } }
+  .vx-strip-card{ aspect-ratio:1/1; border-radius:16px; overflow:hidden; border:1px solid var(--vx-line); background:var(--vx-card); }
+  .vx-strip-card img{ width:100%; height:100%; object-fit:cover; transition:transform .6s var(--vx-ease); }
+  .vx-strip-card:hover img{ transform:scale(1.06); }
+
+  /* ===== CTA ===== */
+  .vx-final{ padding:100px 0; text-align:center; }
+  .vx-final h2{ font-family:var(--vx-display); font-weight:700; font-size:clamp(2rem,4vw,3rem); margin:0 0 16px; letter-spacing:-.02em; }
+  .vx-final p{ color:var(--vx-muted); max-width:440px; margin:0 auto 34px; }
+  .vx-cta{ display:inline-flex; align-items:center; gap:10px; padding:16px 28px; background:var(--vx-grad-primary); color:#03131c; border-radius:14px; font-size:.95rem; font-weight:700; box-shadow:var(--vx-glow); transition:transform .3s var(--vx-ease); }
+  .vx-cta:hover{ transform:translateY(-2px); color:#03131c; }
+</style>
+
+<div class="vx">
+
+  <!-- ─── HERO ─── -->
+  <section class="vx-about-hero">
+    <div class="vx-container vx-reveal">
+      <span class="vx-eyebrow"><span class="dot"></span> The House</span>
+      <h1>The story behind<br><em>{{ store.brand_name }}.</em></h1>
+      <p>{{ store.bio|default:"We believe technology should feel considered, not disposable — every product is chosen, checked, and stood behind personally." }}</p>
+      {% if store.whatsapp %}
+      <a class="vx-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Talk to {{ store.brand_name }}
+      </a>
+      {% endif %}
+    </div>
+  </section>
+
+  <!-- ─── MARQUEE ─── -->
+  <div class="vx-marquee">
+    <div class="vx-marquee-track">
+      <span><span class="dot"></span>{{ store.brand_name }}<span class="dot"></span>Considered tech<span class="dot"></span>Built to last<span class="dot"></span>Personal service<span class="dot"></span>{{ store.brand_name }}<span class="dot"></span>Considered tech<span class="dot"></span>Built to last<span class="dot"></span>Personal service</span>
+      <span><span class="dot"></span>{{ store.brand_name }}<span class="dot"></span>Considered tech<span class="dot"></span>Built to last<span class="dot"></span>Personal service<span class="dot"></span>{{ store.brand_name }}<span class="dot"></span>Considered tech<span class="dot"></span>Built to last<span class="dot"></span>Personal service</span>
+    </div>
+  </div>
+
+  <!-- ─── STORY ─── -->
+  <section class="vx-split vx-container">
+    <div class="vx-reveal">
+      <span class="vx-label">Our Story</span>
+      <h2>What we're building</h2>
+      <p>{{ store.display_about|default:"We started with a simple idea: buying electronics online shouldn't feel like a gamble. Every device that reaches you has been checked, described honestly, and backed by a real conversation — not a faceless checkout." }}</p>
+    </div>
+    <div class="vx-reveal">
+      <div class="vx-split-media">
+        {% if "http" in store.brand_logo.name %}
+          <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+        {% elif store.brand_logo %}
+          <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+        {% elif store.brand_logo_url %}
+          <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+        {% else %}
+          <span class="fallback">{{ store.brand_name|first|upper }}</span>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── MISSION ─── -->
+  <section class="vx-split rev vx-container">
+    <div class="vx-reveal vx-split-media">
+      {% with mission_product=products|first %}
+      {% if mission_product.image %}
+        <img src="{{ mission_product.image.url }}" alt="{{ mission_product.name }}">
+      {% elif mission_product.image_url %}
+        <img src="{{ mission_product.image_url }}" alt="{{ mission_product.name }}">
+      {% else %}
+        <span class="fallback">{{ store.brand_name|first|upper }}</span>
+      {% endif %}
+      {% endwith %}
+    </div>
+    <div class="vx-reveal">
+      <span class="vx-label">Our Mission</span>
+      <h2>Why {{ store.brand_name }} exists</h2>
+      <p>{{ store.display_mission|default:"To make premium electronics genuinely accessible — clear pricing, honest descriptions, and a direct line to a real person whenever you need one." }}</p>
+    </div>
+  </section>
+
+  <!-- ─── VALUES ─── -->
+  <section class="vx-section--alt">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <span class="vx-label">Why {{ store.brand_name }}</span>
+        <h2 class="vx-title">What we stand for</h2>
+        <p class="vx-sub">The principles behind every product we list and every order we fulfil.</p>
+      </div>
+      <div class="vx-values vx-reveal">
+        <div class="vx-value">
+          <i class="bi bi-shield-check"></i>
+          <h4>Verified stock</h4>
+          <p>Every listing reflects real, available inventory — no phantom stock, no bait and switch.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-whatsapp"></i>
+          <h4>Personal service</h4>
+          <p>Orders are confirmed by a real person, not an automated queue.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-lightning-charge"></i>
+          <h4>Fast turnaround</h4>
+          <p>Most enquiries are answered within minutes during business hours.</p>
+        </div>
+        <div class="vx-value">
+          <i class="bi bi-heart"></i>
+          <h4>Made to last</h4>
+          <p>We favour devices we'd genuinely use ourselves over short-lived trends.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FOUNDER ─── -->
+  <section class="vx-founder">
+    <div class="vx-container">
+      <div class="vx-founder-card vx-reveal">
+        <div class="vx-founder-avatar">{{ store.brand_name|slice:":1"|upper }}</div>
+        <div>
+          <div class="vx-founder-name">{{ store.brand_name }}</div>
+          <div class="vx-founder-role">Founder's Note</div>
+          <p>{{ store.display_founder|default:"Thank you for taking the time to look around. Every product here has been picked with care, and I read every message myself." }}</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {% if products %}
+  <!-- ─── PRODUCT STRIP ─── -->
+  <section class="vx-section--alt" style="border-bottom:0;">
+    <div class="vx-container">
+      <div class="vx-section-head vx-reveal">
+        <span class="vx-label">Currently Stocking</span>
+        <h2 class="vx-title">A glimpse of the collection</h2>
+      </div>
+      <div class="vx-strip-grid vx-reveal">
+        {% for product in products|slice:":4" %}
+        <a class="vx-strip-card" href="{% url 'store_product_detail' store.slug product.slug %}">
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+          {% endif %}
+        </a>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="vx-final">
+    <div class="vx-container vx-reveal">
+      <h2>Speak with<br>{{ store.brand_name }}.</h2>
+      <p>Have a question before you order? We're one message away.</p>
+      {% if store.whatsapp %}
+      <a class="vx-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+        <i class="bi bi-whatsapp"></i> Start a conversation
+      </a>
+      {% else %}
+      <a class="vx-cta" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">
+        Shop the Collection <i class="bi bi-arrow-right"></i>
+      </a>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.vx-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+  })();
+</script>
+{% endblock %}

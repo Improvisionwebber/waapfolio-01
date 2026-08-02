@@ -1,0 +1,379 @@
+{% extends "store_templates/bake-house/base.html" %}
+{% load static %}
+{% block title %}About {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .bh-about{
+    --ink:var(--bh-ink); --ink-2:var(--bh-ink-soft); --mute:var(--bh-muted);
+    --rule:var(--bh-line); --paper:var(--bh-surface); --cream:var(--bh-beige);
+    background:var(--paper); color:var(--ink); font-family:var(--bh-sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  .bh-about, .bh-about *{ box-sizing:border-box; }
+  .bh-about a{ color:inherit; text-decoration:none; }
+  .bh-about img{ max-width:100%; display:block; }
+
+  .bh-wrap{ width:min(1180px,92vw); margin-inline:auto; position:relative; }
+  .bh-eyebrow{
+    display:inline-flex; align-items:center; gap:.7rem;
+    font-size:.72rem; letter-spacing:.28em; text-transform:uppercase;
+    color:var(--bh-caramel); font-weight:700;
+  }
+  .bh-eyebrow::before{ content:""; width:26px; height:1px; background:var(--bh-caramel); }
+  .bh-display{ font-family:var(--bh-serif); font-weight:600; line-height:.98; letter-spacing:-.02em; color:var(--ink); }
+  .bh-reveal2{ opacity:0; transform:translateY(26px); transition:opacity .9s var(--bh-ease), transform .9s var(--bh-ease); }
+  .bh-reveal2.in{ opacity:1; transform:none; }
+  .bh-reveal2[data-delay="1"]{ transition-delay:.08s; }
+  .bh-reveal2[data-delay="2"]{ transition-delay:.18s; }
+  .bh-reveal2[data-delay="3"]{ transition-delay:.28s; }
+  .bh-reveal2[data-delay="4"]{ transition-delay:.38s; }
+
+  /* hero */
+  .bh-hero2{ position:relative; padding: clamp(70px,11vw,140px) 0 clamp(46px,6vw,80px); border-bottom:1px solid var(--rule);
+    background: radial-gradient(900px 460px at 85% -10%, rgba(232,176,75,.16) 0%, transparent 60%), var(--paper); }
+  .bh-hero2__top{ display:flex; justify-content:space-between; align-items:center; margin-bottom: clamp(36px,5vw,70px); font-size:.78rem; letter-spacing:.2em; text-transform:uppercase; color:var(--mute); }
+  .bh-hero2__top strong{ color:var(--ink); font-weight:700; }
+  .bh-hero2__title{ font-size: clamp(52px, 10vw, 150px); letter-spacing:-.03em; margin:0; }
+  .bh-hero2__title em{ font-style:italic; font-weight:400; color:var(--bh-caramel); }
+  .bh-hero2__meta{ margin-top: clamp(36px,5vw,60px); display:grid; gap: clamp(22px,3vw,36px); grid-template-columns: 1fr; align-items:end; }
+  @media (min-width:880px){ .bh-hero2__meta{ grid-template-columns: 1.2fr .8fr; } }
+  .bh-hero2__lead{ font-family:var(--bh-serif); font-size: clamp(19px,2.1vw,28px); line-height:1.35; color:var(--ink-2); max-width: 26ch; }
+  .bh-cta2{ display:inline-flex; align-items:center; gap:.8rem; padding:1.05rem 1.6rem; border-radius:999px; background:var(--bh-choc); color:#fff; font-weight:600; border:1px solid var(--bh-choc); transition: background .25s ease, color .25s ease, transform .25s ease; }
+  .bh-cta2:hover{ background:#472c18; transform: translateY(-2px); }
+
+  .bh-hero2__strip{ margin-top: clamp(44px,6vw,80px); display:grid; grid-template-columns: repeat(4,1fr); gap: clamp(10px,1.4vw,16px); }
+  @media (max-width:780px){ .bh-hero2__strip{ grid-template-columns: repeat(2,1fr); } }
+  .bh-hero2__strip figure{ margin:0; aspect-ratio: 3/4; overflow:hidden; background:var(--cream); border:1px solid var(--rule); border-radius:14px; }
+  .bh-hero2__strip img{ width:100%; height:100%; object-fit:cover; transition: transform 1.2s var(--bh-ease); }
+  .bh-hero2__strip figure:hover img{ transform: scale(1.06); }
+
+  /* marquee */
+  .bh-marquee{ margin-top: clamp(36px,5vw,60px); border-top:1px solid var(--rule); border-bottom:1px solid var(--rule); padding:16px 0; overflow:hidden; white-space:nowrap; }
+  .bh-marquee__track{ display:inline-flex; gap:3rem; animation: bhMarquee 36s linear infinite; font-family:var(--bh-serif); font-style:italic; font-size:clamp(19px,2.2vw,28px); color:var(--bh-caramel); }
+  .bh-marquee__track span{ display:inline-flex; align-items:center; gap:3rem; }
+  .bh-marquee__track .dot{ width:6px; height:6px; border-radius:50%; background:var(--bh-caramel); display:inline-block; }
+  @keyframes bhMarquee{ to{ transform:translateX(-50%); } }
+
+  /* section frame */
+  .bh-section2{ position:relative; padding: clamp(70px,9vw,120px) 0; border-bottom:1px solid var(--rule); }
+  .bh-section2--cream{ background:var(--cream); }
+  .bh-section2__head{ display:flex; justify-content:space-between; align-items:baseline; gap:1rem; margin-bottom: clamp(32px,4.5vw,56px); padding-bottom: 16px; border-bottom:1px solid var(--rule); }
+  .bh-section2__num{ font-family:var(--bh-serif); font-style:italic; font-size: clamp(14px,1.1vw,16px); color:var(--mute); }
+  .bh-section2__label{ font-size:.72rem; letter-spacing:.28em; text-transform:uppercase; color:var(--bh-caramel); font-weight:700; }
+
+  /* story */
+  .bh-story{ display:grid; gap: clamp(32px,4.5vw,60px); grid-template-columns:1fr; align-items:start; }
+  @media (min-width:980px){ .bh-story{ grid-template-columns: 1.05fr .95fr; } }
+  .bh-story h2{ font-size: clamp(38px,5vw,68px); margin:.4rem 0 1.3rem; }
+  .bh-story p{ color:var(--ink-2); font-size: clamp(16px,1.1vw,18px); line-height:1.8; max-width:58ch; }
+  .bh-story__media{ position:relative; aspect-ratio: 4/5; overflow:hidden; background:var(--cream); border:1px solid var(--rule); border-radius:16px; }
+  .bh-story__media img{ width:100%; height:100%; object-fit:cover; transition: transform 1.3s var(--bh-ease); }
+  .bh-story__media:hover img{ transform: scale(1.06); }
+  .bh-story__media .tag{ position:absolute; left:14px; top:14px; padding:.4rem .7rem; font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; background:#fff; color:var(--ink); border:1px solid var(--rule); border-radius:8px; }
+
+  .bh-quote{ margin-top: clamp(28px,4vw,44px); padding: clamp(20px,3vw,30px) 0; border-top:1px solid var(--bh-ink); border-bottom:1px solid var(--bh-ink); font-family:var(--bh-serif); font-style:italic; font-size: clamp(21px,2.2vw,30px); line-height:1.3; color:var(--ink); }
+  .bh-quote::before{ content:"\201C"; display:inline-block; font-size:1.4em; line-height:0; vertical-align:-.25em; margin-right:.1em; color:var(--bh-caramel); }
+
+  /* mission timeline */
+  .bh-timeline{ margin-top: clamp(32px,4.5vw,54px); border-top:1px solid var(--rule); }
+  .bh-step{ display:grid; grid-template-columns: 76px 1fr; gap: clamp(16px,2.6vw,36px); padding: clamp(20px,2.6vw,30px) 0; border-bottom:1px solid var(--rule); align-items:start; }
+  .bh-step__num{ font-family:var(--bh-serif); font-style:italic; color:var(--bh-caramel); font-size: clamp(18px,1.8vw,24px); }
+  .bh-step h3{ font-family:var(--bh-serif); font-weight:600; font-size: clamp(22px,2.6vw,34px); margin:0 0 .5em; letter-spacing:-.01em; color:var(--ink); }
+  .bh-step p{ color:var(--ink-2); max-width:62ch; line-height:1.75; margin:0; }
+
+  /* founder */
+  .bh-founder{ display:grid; gap: clamp(28px,4.5vw,56px); grid-template-columns: 1fr; align-items:center; }
+  @media (min-width:980px){ .bh-founder{ grid-template-columns: .85fr 1.15fr; } }
+  .bh-founder__card{ padding: clamp(26px,3.4vw,40px); border:1px solid var(--bh-ink); background:#fff; border-radius:18px; }
+  .bh-avatar2{ width: clamp(82px,10vw,120px); height: clamp(82px,10vw,120px); border-radius:50%; display:grid; place-items:center; background:linear-gradient(160deg,var(--cream),#e6d5b8); font-family:var(--bh-serif); font-size:2rem; color:var(--bh-choc); font-weight:700; }
+  .bh-badge2{ display:inline-flex; padding:.4rem .8rem; border:1px solid var(--rule); border-radius:999px; font-size:.68rem; letter-spacing:.1em; text-transform:uppercase; margin-right:8px; margin-top:10px; color:var(--mute); }
+
+  /* stats */
+  .bh-stats{ display:grid; grid-template-columns: repeat(4,1fr); gap: clamp(16px,2.4vw,30px); }
+  @media(max-width:780px){ .bh-stats{ grid-template-columns: repeat(2,1fr); } }
+  .bh-stat{ text-align:center; padding: 26px 12px; border:1px solid var(--rule); border-radius:16px; background:#fff; }
+  .bh-stat__num{ font-family:var(--bh-serif); font-size: clamp(38px,5vw,58px); color:var(--bh-choc); font-weight:700; }
+  .bh-stat__label{ font-size:.78rem; letter-spacing:.08em; text-transform:uppercase; color:var(--mute); margin-top:6px; }
+
+  /* philosophy */
+  .bh-philo{ font-family:var(--bh-serif); font-weight:600; font-size:clamp(30px,5vw,64px); line-height:1.25; letter-spacing:-.01em; }
+  .bh-philo .l{ display:block; }
+  .bh-philo .mute{ color:var(--mute); }
+
+  /* final cta */
+  .bh-final2{ padding: clamp(80px,10vw,140px) 0; text-align:center; }
+  .bh-final2 h2{ font-family:var(--bh-serif); font-size:clamp(40px,6vw,72px); margin:0; color:var(--ink); }
+  .bh-final2 p{ color:var(--mute); font-size:1.05rem; max-width:520px; margin:20px auto 32px; line-height:1.7; }
+
+  .bh-wa-float2{
+    position:fixed; bottom:22px; right:22px; z-index:9999; display:inline-flex; align-items:center; gap:10px;
+    padding:14px 20px; border-radius:999px; background:#25D366; color:#fff; font-weight:700; font-size:13px;
+    box-shadow:0 14px 32px rgba(42,30,23,.24); text-decoration:none;
+  }
+  .bh-wa-float2 .pulse{ width:8px; height:8px; border-radius:50%; background:#fff; animation:bhWaPulse2 1.6s infinite; }
+  @keyframes bhWaPulse2{0%,100%{opacity:1}50%{opacity:.4}}
+  @media(max-width:600px){ .bh-wa-float2 span:not(.pulse){display:none} .bh-wa-float2{padding:16px;} }
+</style>
+
+<div class="bh-about">
+
+  {# ============================ HERO ============================ #}
+  <section class="bh-hero2">
+    <div class="bh-wrap">
+      <div class="bh-hero2__top">
+        <span><strong>{{ store.brand_name }}</strong> &nbsp;/&nbsp; The Bakery</span>
+        <span>About — Chapter 01</span>
+      </div>
+
+      <h1 class="bh-display bh-hero2__title bh-reveal2">
+        About<br/>
+        <em>{{ store.brand_name }}.</em>
+      </h1>
+
+      <div class="bh-hero2__meta">
+        <p class="bh-hero2__lead bh-reveal2" data-delay="1">
+          A warm kitchen built on fresh ingredients, patient craft, and a love for good bread and better cake.
+        </p>
+        {% if store.whatsapp %}
+        <div class="bh-reveal2" data-delay="2" style="text-align:right;">
+          <a class="bh-cta2" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+            Order with us <span aria-hidden="true">→</span>
+          </a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="bh-hero2__strip">
+        {% for product in products|slice:":4" %}
+        <figure class="bh-reveal2" data-delay="{{ forloop.counter }}">
+          {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% elif product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.name }}">
+          {% else %}<img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">{% endif %}
+        </figure>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="bh-marquee" aria-hidden="true">
+      <div class="bh-marquee__track">
+        <span>Baked fresh daily <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Handcrafted with love <span class="dot"></span> Warm &amp; artisan <span class="dot"></span> Made to share <span class="dot"></span></span>
+        <span>Baked fresh daily <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Handcrafted with love <span class="dot"></span> Warm &amp; artisan <span class="dot"></span> Made to share <span class="dot"></span></span>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ STORY ============================ #}
+  <section class="bh-section2">
+    <div class="bh-wrap">
+      <div class="bh-section2__head">
+        <span class="bh-section2__label">Our Story</span>
+        <span class="bh-section2__num">— 01 / 06</span>
+      </div>
+
+      <div class="bh-story">
+        <div class="bh-reveal2">
+          <span class="bh-eyebrow">Chapter One</span>
+          <h2 class="bh-display">A bakery built on warmth.</h2>
+          {% if store.display_about %}
+            <p>{{ store.display_about }}</p>
+          {% else %}
+            <p>{{ store.brand_name }} began with a simple idea — that fresh, handmade bakes made with real ingredients bring people together. Every loaf, cake, and pastry we make carries that same intention today.</p>
+          {% endif %}
+
+          <div class="bh-quote">
+            We believe the best things are baked slowly, shared generously, and made with a little bit of love — and {{ store.brand_name }} is our answer to that belief.
+          </div>
+        </div>
+
+        <div class="bh-reveal2" data-delay="2">
+          <div class="bh-story__media">
+            <span class="tag">{{ store.brand_name }} · Bakery</span>
+            {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
+              <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% else %}
+              <span class="wf-mono" style="display:flex;align-items:center;justify-content:center;height:100%;font-family:var(--bh-serif);font-size:3rem;color:var(--bh-choc);">{{ store.brand_name|first|upper }}</span>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ MISSION ============================ #}
+  <section class="bh-section2 bh-section2--cream">
+    <div class="bh-wrap">
+      <div class="bh-section2__head">
+        <span class="bh-section2__label">Our Mission</span>
+        <span class="bh-section2__num">— 02 / 06</span>
+      </div>
+
+      <div class="bh-reveal2" style="max-width:800px;">
+        <h2 class="bh-display" style="font-size:clamp(38px,5vw,68px); margin:0 0 1.1rem;">
+          To make every bite <em style="font-style:italic; color:var(--bh-caramel);">feel like home.</em>
+        </h2>
+        {% if store.display_mission %}
+        <p style="color:var(--ink-2); line-height:1.8; font-size:clamp(16px,1.1vw,18px); max-width:60ch;">
+          {{ store.display_mission }}
+        </p>
+        {% endif %}
+      </div>
+
+      <div class="bh-timeline">
+        <div class="bh-step bh-reveal2">
+          <div class="bh-step__num">01</div>
+          <div><h3>Fresh, never rushed.</h3><p>Every batch at {{ store.brand_name }} is measured, mixed and baked with patience. We'd rather bake it right than bake it fast.</p></div>
+        </div>
+        <div class="bh-step bh-reveal2" data-delay="1">
+          <div class="bh-step__num">02</div>
+          <div><h3>Simple ingredients, honest flavor.</h3><p>We use real butter, real flour, real fruit — nothing artificial standing between you and a good bake.</p></div>
+        </div>
+        <div class="bh-step bh-reveal2" data-delay="2">
+          <div class="bh-step__num">03</div>
+          <div><h3>Built for the people who share.</h3><p>Birthdays, weekends, quiet mornings — our bakes are made to be part of your moments.</p></div>
+        </div>
+        <div class="bh-step bh-reveal2" data-delay="3">
+          <div class="bh-step__num">04</div>
+          <div><h3>Consistency, every single time.</h3><p>The cake you loved last month tastes just as good today. That reliability is our quiet promise.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ FOUNDER ============================ #}
+  <section class="bh-section2">
+    <div class="bh-wrap">
+      <div class="bh-section2__head">
+        <span class="bh-section2__label">The Baker</span>
+        <span class="bh-section2__num">— 03 / 06</span>
+      </div>
+
+      <div class="bh-founder">
+        <div class="bh-reveal2">
+          <div class="bh-founder__card">
+            <div class="bh-avatar2" aria-hidden="true">{{ store.brand_name|slice:":1"|upper }}</div>
+            <div style="margin-top:1.3rem;">
+              <span class="bh-eyebrow">Founder · Head Baker</span>
+              <h3 style="font-family:var(--bh-serif); font-size:clamp(24px,2.8vw,36px); margin:.4rem 0 .2rem; letter-spacing:-.01em; color:var(--ink);">
+                {{ store.brand_name }}
+              </h3>
+              <p style="color:var(--mute); line-height:1.7; margin:0;">The hands behind every loaf and cake.</p>
+              <div>
+                <span class="bh-badge2">Handmade</span>
+                <span class="bh-badge2">Independent</span>
+                <span class="bh-badge2">Since day one</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="bh-reveal2" data-delay="2">
+          <span class="bh-eyebrow">A word from the baker</span>
+          <h2 class="bh-display" style="font-size:clamp(30px,4vw,48px); margin:.5rem 0 1rem;">Made by hand.<br/><em style="font-style:italic; color:var(--bh-caramel);">Shared with love.</em></h2>
+          {% if store.display_founder %}
+          <p style="color:var(--ink-2); line-height:1.8; font-size:16px;">{{ store.display_founder }}</p>
+          {% endif %}
+          <p style="margin-top:1.2rem; color:var(--ink-2); line-height:1.8; font-size:16px;">
+            {{ store.brand_name }} is not built on shortcuts. It's a slow, personal craft — one we're proud to share with everyone who tastes it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ WHY US / STATS ============================ #}
+  <section class="bh-section2 bh-section2--cream">
+    <div class="bh-wrap">
+      <div class="bh-section2__head">
+        <span class="bh-section2__label">Why {{ store.brand_name }}</span>
+        <span class="bh-section2__num">— 04 / 06</span>
+      </div>
+
+      <div class="bh-reveal2" style="max-width:680px; margin-bottom:clamp(32px,4.5vw,50px);">
+        <h2 class="bh-display" style="font-size:clamp(36px,5vw,64px); margin:0;">
+          Quietly consistent. <em style="font-style:italic; color:var(--bh-caramel);">Loudly delicious.</em>
+        </h2>
+      </div>
+
+      <div class="bh-stats">
+        <div class="bh-stat bh-reveal2"><div class="bh-stat__num" data-count="96">0</div><div class="bh-stat__label">% Repeat customers</div></div>
+        <div class="bh-stat bh-reveal2" data-delay="1"><div class="bh-stat__num" data-count="1200">0</div><div class="bh-stat__label">Orders delivered</div></div>
+        <div class="bh-stat bh-reveal2" data-delay="2"><div class="bh-stat__num" data-count="15">0</div><div class="bh-stat__label">Signature recipes</div></div>
+        <div class="bh-stat bh-reveal2" data-delay="3"><div class="bh-stat__num" data-count="5">0</div><div class="bh-stat__label">Years baking</div></div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ PHILOSOPHY ============================ #}
+  <section class="bh-section2">
+    <div class="bh-wrap">
+      <div class="bh-section2__head">
+        <span class="bh-section2__label">Philosophy</span>
+        <span class="bh-section2__num">— 05 / 06</span>
+      </div>
+      <h2 class="bh-philo bh-reveal2">
+        <span class="l">Simple, but honest.</span>
+        <span class="l"><em style="color:var(--bh-caramel);">Slow, but true.</em></span>
+        <span class="l mute">Warm, always.</span>
+      </h2>
+    </div>
+  </section>
+
+  {# ============================ FINAL CTA ============================ #}
+  <section class="bh-final2">
+    <div class="bh-wrap bh-reveal2">
+      <span class="bh-eyebrow" style="justify-content:center; display:inline-flex;">A direct line</span>
+      <h2 style="margin-top:1.1rem;">Speak with<br/><em style="font-style:italic;color:var(--bh-caramel);">{{ store.brand_name }}.</em></h2>
+      <p>Every order, every question, every custom cake begins with a conversation. Reach out — we'll respond personally.</p>
+      {% if store.whatsapp %}
+      <a class="bh-cta2" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" style="font-size:1.02rem;">
+        Message us on WhatsApp <span aria-hidden="true">→</span>
+      </a>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if store.whatsapp %}
+  <a class="bh-wa-float2" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+    <span class="pulse"></span> <span>Chat with {{ store.brand_name }}</span>
+  </a>
+  {% endif %}
+</div>
+
+<script>
+  (function(){
+    var root = document.querySelector('.bh-about');
+    if(!root) return;
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    root.querySelectorAll('.bh-reveal2').forEach(function(el){ io.observe(el); });
+
+    var cIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        var target = parseInt(el.getAttribute('data-count'),10) || 0;
+        var dur = 1500, start = performance.now();
+        function tick(now){
+          var p = Math.min(1,(now-start)/dur);
+          var eased = 1 - Math.pow(1-p, 3);
+          el.textContent = Math.round(target * eased).toLocaleString();
+          if(p<1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        cIo.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    root.querySelectorAll('[data-count]').forEach(function(el){ cIo.observe(el); });
+  })();
+</script>
+
+{% endblock %}

@@ -1,4 +1,4 @@
-{% extends "store_templates/starter/base.html" %}
+{% extends "store_templates/fashion_basic/base.html" %}
 {% load static %}
 {% load humanize %}
 
@@ -6,7 +6,6 @@
 
 {% block head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css">
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
 {% endblock %}
 
 {% block body %}
@@ -14,67 +13,62 @@
   @import url('https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;0,6..96,600;1,6..96,400&family=Inter:wght@300;400;500;600;700&display=swap');
 
   :root{
-    --fs-bg:#ffffff;
-    --fs-surface:#f7f5f3;
-    --fs-surface-2:#f0ecea;
-    --fs-ink:#0d0d0d;
-    --fs-ink-soft:#3c3a38;
-    --fs-muted:#8c8580;
-    --fs-faint:#b3aca6;
-    --fs-pink:#d6939c;
-    --fs-pink-deep:#a85a66;
-    --fs-pink-pale:#f7e9ea;
-    --fs-line:rgba(13,13,13,.09);
-    --fs-line-strong:rgba(13,13,13,.16);
-    --fs-glass:rgba(255,255,255,.62);
-    --fs-glass-strong:rgba(255,255,255,.88);
-    --fs-shadow-sm:0 2px 10px rgba(13,13,13,.06);
-    --fs-shadow-md:0 20px 46px -22px rgba(13,13,13,.22);
-    --fs-shadow-lg:0 50px 100px -40px rgba(13,13,13,.32);
-    --fs-serif:'Bodoni Moda','Times New Roman',serif;
-    --fs-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
+    --fs-bg:#ffffff; --fs-surface:#f7f5f3; --fs-surface-2:#f0ecea;
+    --fs-ink:#0d0d0d; --fs-ink-soft:#3c3a38; --fs-muted:#8c8580; --fs-faint:#b3aca6;
+    --fs-pink:#d6939c; --fs-pink-deep:#a85a66; --fs-pink-pale:#f7e9ea;
+    --fs-line:rgba(13,13,13,.09); --fs-line-strong:rgba(13,13,13,.16);
+    --fs-glass:rgba(255,255,255,.7); --fs-glass-strong:rgba(255,255,255,.94);
+    --fs-shadow-sm:0 2px 10px rgba(13,13,13,.06); --fs-shadow-md:0 20px 46px -22px rgba(13,13,13,.22); --fs-shadow-lg:0 50px 100px -40px rgba(13,13,13,.32);
+    --fs-serif:'Bodoni Moda','Times New Roman',serif; --fs-sans:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
     --fs-ease:cubic-bezier(.16,1,.3,1);
   }
 
-  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); overflow-x:clip; }
+  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); }
   .fs-page *{ box-sizing:border-box; }
   .fs-container{ max-width:1400px; margin:0 auto; padding:0 40px; }
   @media (max-width:900px){ .fs-container{ padding:0 22px; } }
   .fs-page h1,.fs-page h2,.fs-page h3,.fs-page h4{ font-family:var(--fs-serif); font-weight:500; letter-spacing:-0.01em; margin:0; }
   .fs-eyebrow{ font-size:.68rem; font-weight:600; letter-spacing:.28em; text-transform:uppercase; color:var(--fs-pink-deep); }
 
+  /* Reveal utility: TRANSFORM ONLY — never hides content, so a JS failure never causes a blank page */
+  [data-reveal]{ opacity:1; transform:translateY(0); }
+  [data-reveal].fs-will-animate{ transform:translateY(26px); transition:transform .8s var(--fs-ease); }
+  [data-reveal].fs-will-animate.is-in{ transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ [data-reveal]{ transform:none !important; transition:none !important; } }
+
+  /* Graceful placeholder for missing/broken images */
+  [data-media-fallback]{ position:relative; }
+  [data-media-fallback].is-broken{ background: repeating-linear-gradient(135deg, rgba(13,13,13,.035) 0 2px, transparent 2px 22px), var(--fs-surface); }
+  [data-media-fallback].is-broken::after{
+    content: attr(data-fallback-label); position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--fs-serif); font-style:italic; font-size:.95rem; color:var(--fs-faint); padding:1rem; text-align:center;
+  }
+
   /* ══════════════ HERO ══════════════ */
-  .fs-hero{
-    position:relative; height:100svh; min-height:640px; overflow:hidden;
-    display:flex; align-items:flex-end;
-    background:var(--fs-ink);
-  }
+  .fs-hero{ position:relative; height:100svh; min-height:640px; overflow:hidden; display:flex; align-items:flex-end; background:var(--fs-ink); }
   .fs-hero-media{ position:absolute; inset:0; z-index:0; }
-  .fs-hero-media video, .fs-hero-media img{
-    width:100%; height:100%; object-fit:cover; display:block;
-    transform:scale(1.08);
-  }
-  .fs-hero-overlay{
-    position:absolute; inset:0; z-index:1;
-    background: linear-gradient(180deg, rgba(13,13,13,.15) 0%, rgba(13,13,13,.25) 55%, rgba(13,13,13,.72) 100%);
-  }
+  .fs-hero-media video, .fs-hero-media img{ width:100%; height:100%; object-fit:cover; display:block; animation: fs-hero-zoom 9s var(--fs-ease) forwards; }
+  @keyframes fs-hero-zoom{ from{ transform:scale(1.12); } to{ transform:scale(1); } }
+  @media (prefers-reduced-motion: reduce){ .fs-hero-media video, .fs-hero-media img{ animation:none; } }
+  .fs-hero-overlay{ position:absolute; inset:0; z-index:1; background: linear-gradient(180deg, rgba(13,13,13,.15) 0%, rgba(13,13,13,.25) 55%, rgba(13,13,13,.72) 100%); }
   .fs-hero-inner{ position:relative; z-index:2; width:100%; padding: 0 0 6.5rem; color:#fff; }
-  .fs-hero-eyebrow{
-    display:inline-flex; align-items:center; gap:12px;
-    font-size:.68rem; font-weight:600; letter-spacing:.32em; text-transform:uppercase;
-    color:rgba(255,255,255,.78); margin-bottom:1.6rem;
-  }
+  .fs-hero-eyebrow{ display:inline-flex; align-items:center; gap:12px; font-size:.68rem; font-weight:600; letter-spacing:.32em; text-transform:uppercase; color:rgba(255,255,255,.78); margin-bottom:1.6rem;
+    opacity:0; animation: fs-fade-up .8s var(--fs-ease) .1s forwards; }
   .fs-hero-eyebrow .ln{ width:34px; height:1px; background:var(--fs-pink); }
-  .fs-hero h1{
-    font-size:clamp(3rem,8vw,7.5rem); line-height:.94; letter-spacing:-0.02em; color:#fff; font-weight:500;
-    max-width:1100px;
-  }
+  .fs-hero h1{ font-size:clamp(3rem,8vw,7.5rem); line-height:.94; letter-spacing:-0.02em; color:#fff; font-weight:500; max-width:1100px;
+    opacity:0; animation: fs-fade-up .9s var(--fs-ease) .22s forwards; }
   .fs-hero h1 em{ font-style:italic; color:var(--fs-pink); }
-  .fs-hero-sub{ font-size:1.02rem; color:rgba(255,255,255,.72); max-width:420px; margin:1.8rem 0 2.6rem; line-height:1.7; }
-  .fs-cta-row{ display:flex; align-items:center; gap:1.6rem; flex-wrap:wrap; }
+  .fs-hero-sub{ font-size:1.02rem; color:rgba(255,255,255,.72); max-width:420px; margin:1.8rem 0 2.6rem; line-height:1.7;
+    opacity:0; animation: fs-fade-up .9s var(--fs-ease) .36s forwards; }
+  .fs-cta-row{ display:flex; align-items:center; gap:1.6rem; flex-wrap:wrap;
+    opacity:0; animation: fs-fade-up .9s var(--fs-ease) .48s forwards; }
+  @keyframes fs-fade-up{ from{ opacity:0; transform:translateY(18px); } to{ opacity:1; transform:translateY(0); } }
+  @media (prefers-reduced-motion: reduce){
+    .fs-hero-eyebrow,.fs-hero h1,.fs-hero-sub,.fs-cta-row{ animation:none; opacity:1; }
+  }
+
   .fs-cta{
-    display:inline-flex; align-items:center; gap:12px;
-    padding:18px 34px; background:#fff; color:var(--fs-ink); border:1px solid #fff; border-radius:2px;
+    display:inline-flex; align-items:center; gap:12px; padding:18px 34px; background:#fff; color:var(--fs-ink); border:1px solid #fff; border-radius:2px;
     font-size:.76rem; font-weight:600; letter-spacing:.12em; text-transform:uppercase;
     transition: background .4s var(--fs-ease), color .4s var(--fs-ease), transform .4s var(--fs-ease);
   }
@@ -82,16 +76,9 @@
   .fs-cta-outline{ background:transparent; color:#fff; border-color:rgba(255,255,255,.5); }
   .fs-cta-outline:hover{ background:rgba(255,255,255,.12); border-color:#fff; color:#fff; }
 
-  .fs-scroll-ind{
-    position:absolute; left:50%; bottom:2.2rem; z-index:2; transform:translateX(-50%);
-    display:flex; flex-direction:column; align-items:center; gap:10px;
-    color:rgba(255,255,255,.7); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase;
-  }
+  .fs-scroll-ind{ position:absolute; left:50%; bottom:2.2rem; z-index:2; transform:translateX(-50%); display:flex; flex-direction:column; align-items:center; gap:10px; color:rgba(255,255,255,.7); font-size:.62rem; letter-spacing:.24em; text-transform:uppercase; }
   .fs-scroll-ind .stem{ width:1px; height:38px; background:rgba(255,255,255,.35); position:relative; overflow:hidden; }
-  .fs-scroll-ind .stem::after{
-    content:""; position:absolute; top:-100%; left:0; width:100%; height:100%; background:#fff;
-    animation: fs-scrolldrop 2.1s var(--fs-ease) infinite;
-  }
+  .fs-scroll-ind .stem::after{ content:""; position:absolute; top:-100%; left:0; width:100%; height:100%; background:#fff; animation: fs-scrolldrop 2.1s var(--fs-ease) infinite; }
   @keyframes fs-scrolldrop{ 0%{ top:-100%; } 60%,100%{ top:100%; } }
   @media (prefers-reduced-motion: reduce){ .fs-scroll-ind .stem::after{ animation:none; } }
 
@@ -112,8 +99,7 @@
   .fs-section-title em{ font-style:italic; color:var(--fs-pink-deep); }
   .fs-section-sub{ font-size:.98rem; color:var(--fs-muted); line-height:1.7; max-width:380px; margin:0; }
   .fs-link-arrow{
-    display:inline-flex; align-items:center; gap:9px;
-    font-size:.76rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--fs-ink);
+    display:inline-flex; align-items:center; gap:9px; font-size:.76rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--fs-ink);
     padding-bottom:3px; border-bottom:1px solid var(--fs-line-strong);
     transition: border-color .3s var(--fs-ease), color .3s var(--fs-ease), gap .3s var(--fs-ease);
   }
@@ -121,13 +107,10 @@
 
   /* ══════════════ CATEGORY SWIPER ══════════════ */
   .fs-cat-swiper{ padding-bottom:8px !important; }
-  .fs-cat{ position:relative; display:block; aspect-ratio:3/4; border-radius:2px; overflow:hidden; text-decoration:none; }
-  .fs-cat img{ width:100%; height:100%; object-fit:cover; transition: transform 1.4s var(--fs-ease); }
-  .fs-cat:hover img{ transform:scale(1.08); }
-  .fs-cat-overlay{
-    position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(13,13,13,.75) 100%);
-    display:flex; align-items:flex-end; padding:1.6rem;
-  }
+  .fs-cat{ position:relative; display:block; aspect-ratio:3/4; border-radius:2px; overflow:hidden; text-decoration:none; background:var(--fs-surface); }
+  .fs-cat img{ width:100%; height:100%; object-fit:cover; transition: transform 1.2s var(--fs-ease); }
+  .fs-cat:hover img{ transform:scale(1.06); }
+  .fs-cat-overlay{ position:absolute; inset:0; background:linear-gradient(180deg, transparent 40%, rgba(13,13,13,.75) 100%); display:flex; align-items:flex-end; padding:1.6rem; }
   .fs-cat-name{ color:#fff; font-family:var(--fs-serif); font-size:1.3rem; letter-spacing:-0.01em; }
   .fs-cat-count{ color:rgba(255,255,255,.68); font-size:.72rem; letter-spacing:.08em; text-transform:uppercase; margin-top:4px; }
   .fs-swiper-nav{ display:flex; gap:10px; }
@@ -140,59 +123,43 @@
   .fs-swiper-btn.swiper-button-disabled{ opacity:.35; pointer-events:none; }
 
   /* ══════════════ EDITORIAL BANNER ══════════════ */
-  .fs-editorial{ position:relative; height:78vh; min-height:520px; overflow:hidden; }
+  .fs-editorial{ position:relative; height:78vh; min-height:520px; overflow:hidden; background:var(--fs-surface-2); }
   .fs-editorial-media{ position:absolute; inset:0; }
-  .fs-editorial-media img{ width:100%; height:120%; object-fit:cover; }
-  .fs-editorial-media-empty{
-    width:100%; height:100%;
-    background: linear-gradient(135deg, var(--fs-pink-pale), var(--fs-surface-2));
-    display:flex; align-items:center; justify-content:center;
-  }
+  .fs-editorial-media img{ width:100%; height:100%; object-fit:cover; }
+  .fs-editorial-media-empty{ width:100%; height:100%; background: linear-gradient(135deg, var(--fs-pink-pale), var(--fs-surface-2)); display:flex; align-items:center; justify-content:center; }
   .fs-editorial-overlay{ position:absolute; inset:0; background:linear-gradient(90deg, rgba(13,13,13,.55) 0%, transparent 55%); }
   .fs-editorial-inner{ position:relative; z-index:2; height:100%; display:flex; align-items:center; }
   .fs-editorial-copy{ max-width:520px; color:#fff; }
   .fs-editorial-copy h2{ color:#fff; font-size:clamp(2.2rem,4.6vw,3.8rem); line-height:1.08; margin:1rem 0 1.6rem; }
   .fs-editorial-copy p{ color:rgba(255,255,255,.78); font-size:1rem; line-height:1.75; margin:0 0 2.2rem; }
 
-  /* ══════════════ PRODUCT GRID (Featured / Arrivals) ══════════════ */
+  /* ══════════════ PRODUCT GRID ══════════════ */
   .fs-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:2.2rem 1.8rem; }
   @media (max-width:1080px){ .fs-grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px){ .fs-grid{ grid-template-columns:1fr; } }
 
-  .fs-card{ display:block; text-decoration:none; color:inherit; perspective:1200px; }
+  .fs-card{ display:block; text-decoration:none; color:inherit; }
   .fs-card-media{
     position:relative; aspect-ratio:3/4; overflow:hidden; border-radius:2px; background:var(--fs-surface);
-    margin-bottom:1.2rem; transform-style:preserve-3d; transition: transform .5s var(--fs-ease), box-shadow .5s var(--fs-ease);
-    box-shadow:var(--fs-shadow-sm);
+    margin-bottom:1.2rem; box-shadow:var(--fs-shadow-sm); transition: box-shadow .4s var(--fs-ease);
   }
   .fs-card:hover .fs-card-media{ box-shadow:var(--fs-shadow-md); }
-  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition: transform 1.1s var(--fs-ease); }
-  .fs-card:hover .fs-card-media img{ transform:scale(1.09); }
-  .fs-card-media--empty{
-    display:flex; align-items:center; justify-content:center; color:var(--fs-faint);
-    font-family:var(--fs-serif); font-size:.95rem; font-style:italic;
-    background: repeating-linear-gradient(135deg, rgba(13,13,13,.03) 0 2px, transparent 2px 22px), var(--fs-surface);
-  }
-  .fs-badge{
-    position:absolute; top:14px; left:14px; z-index:2;
-    background:var(--fs-ink); color:#fff; padding:6px 13px; border-radius:999px;
-    font-size:.6rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase;
-  }
+  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition: transform .9s var(--fs-ease); }
+  .fs-card:hover .fs-card-media img{ transform:scale(1.07); }
+  .fs-badge{ position:absolute; top:14px; left:14px; z-index:2; background:var(--fs-ink); color:#fff; padding:6px 13px; border-radius:999px; font-size:.6rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
   .fs-badge--pink{ background:var(--fs-pink-deep); }
   .fs-card-fav{
     position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; border:none; cursor:pointer;
-    background:var(--fs-glass-strong); backdrop-filter:blur(8px); display:grid; place-items:center; color:var(--fs-ink-soft);
+    background:var(--fs-glass-strong); display:grid; place-items:center; color:var(--fs-ink-soft);
     transition: color .2s var(--fs-ease), transform .2s var(--fs-ease);
   }
   .fs-card-fav svg{ width:15px; height:15px; }
   .fs-card-fav.on{ color:var(--fs-pink-deep); }
   .fs-card-fav.on svg{ fill:currentColor; }
   .fs-card-view{
-    position:absolute; left:14px; right:14px; bottom:14px; z-index:2;
-    padding:12px; text-align:center; background:var(--fs-glass-strong); backdrop-filter:blur(10px);
+    position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding:12px; text-align:center; background:var(--fs-glass-strong);
     font-size:.68rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--fs-ink);
-    opacity:0; transform:translateY(10px); transition:opacity .4s var(--fs-ease), transform .4s var(--fs-ease);
-    border-radius:1px;
+    opacity:0; transform:translateY(10px); transition:opacity .3s var(--fs-ease), transform .3s var(--fs-ease); border-radius:1px;
   }
   .fs-card:hover .fs-card-view{ opacity:1; transform:none; }
   .fs-card-name{ font-size:.98rem; font-weight:500; margin:0 0 4px; letter-spacing:-0.005em; }
@@ -203,11 +170,8 @@
   .fs-empty h3{ font-size:1.3rem; margin:1.2rem 0 .5rem; }
   .fs-empty p{ color:var(--fs-muted); font-size:.9rem; margin:0; }
 
-  .fs-view-all{ text-align:center; margin-top:3.6rem; }
-
-  /* ══════════════ CAMPAIGN (parallax pinned) ══════════════ */
-  .fs-campaign{ position:relative; height:150vh; }
-  .fs-campaign-pin{ position:sticky; top:0; height:100vh; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--fs-ink); }
+  /* ══════════════ CAMPAIGN ══════════════ */
+  .fs-campaign{ position:relative; height:100vh; min-height:520px; overflow:hidden; display:flex; align-items:center; justify-content:center; background:var(--fs-ink); }
   .fs-campaign-media{ position:absolute; inset:0; }
   .fs-campaign-media img{ width:100%; height:100%; object-fit:cover; opacity:.55; }
   .fs-campaign-media-empty{ width:100%; height:100%; background:linear-gradient(135deg,#1a1817,#0d0d0d); }
@@ -219,27 +183,24 @@
   /* ══════════════ BRAND STORY ══════════════ */
   .fs-story{ display:grid; grid-template-columns:0.9fr 1.1fr; gap:70px; align-items:center; }
   @media (max-width:960px){ .fs-story{ grid-template-columns:1fr; gap:32px; } }
-  .fs-story-frame{ aspect-ratio:4/5; border-radius:2px; overflow:hidden; box-shadow:var(--fs-shadow-md); position:relative; }
+  .fs-story-frame{ aspect-ratio:4/5; border-radius:2px; overflow:hidden; box-shadow:var(--fs-shadow-md); position:relative; background:var(--fs-surface); }
   .fs-story-frame img{ width:100%; height:100%; object-fit:cover; }
   .fs-story-frame-empty{ width:100%; height:100%; background:linear-gradient(150deg,var(--fs-pink-pale),var(--fs-surface-2)); display:flex; align-items:center; justify-content:center; font-family:var(--fs-serif); font-size:3rem; color:var(--fs-pink-deep); }
   .fs-story-copy h2{ font-size:clamp(2rem,3.4vw,2.9rem); line-height:1.15; margin:1rem 0 1.6rem; }
   .fs-story-copy p{ font-size:1rem; line-height:1.85; color:var(--fs-ink-soft); margin:0 0 1.2rem; max-width:520px; }
 
-  /* ══════════════ GALLERY GRID ══════════════ */
+  /* ══════════════ GALLERY ══════════════ */
   .fs-gallery-swiper .swiper-slide{ width:auto; }
-  .fs-gal-item{ position:relative; width:280px; aspect-ratio:1/1.15; border-radius:2px; overflow:hidden; }
-  .fs-gal-item img{ width:100%; height:100%; object-fit:cover; transition:transform .8s var(--fs-ease); }
-  .fs-gal-item:hover img{ transform:scale(1.06); }
-  .fs-gal-overlay{
-    position:absolute; inset:0; background:rgba(13,13,13,0); display:flex; align-items:center; justify-content:center;
-    transition:background .4s var(--fs-ease);
-  }
+  .fs-gal-item{ position:relative; width:280px; aspect-ratio:1/1.15; border-radius:2px; overflow:hidden; background:var(--fs-surface); }
+  .fs-gal-item img{ width:100%; height:100%; object-fit:cover; transition:transform .7s var(--fs-ease); }
+  .fs-gal-item:hover img{ transform:scale(1.05); }
+  .fs-gal-overlay{ position:absolute; inset:0; background:rgba(13,13,13,0); display:flex; align-items:center; justify-content:center; transition:background .3s var(--fs-ease); }
   .fs-gal-item:hover .fs-gal-overlay{ background:rgba(13,13,13,.28); }
-  .fs-gal-overlay i{ color:#fff; font-size:1.4rem; opacity:0; transition:opacity .4s var(--fs-ease); }
+  .fs-gal-overlay i{ color:#fff; font-size:1.4rem; opacity:0; transition:opacity .3s var(--fs-ease); }
   .fs-gal-item:hover .fs-gal-overlay i{ opacity:1; }
 
   /* ══════════════ TESTIMONIALS ══════════════ */
-  .fs-test-swiper .swiper-slide{ width:min(560px,88vw); }
+  .fs-test-swiper .swiper-slide{ width:min(560px,88vw); height:auto; }
   .fs-test-card{ background:#fff; border:1px solid var(--fs-line); border-radius:3px; padding:2.6rem; box-shadow:var(--fs-shadow-sm); height:100%; }
   .fs-test-stars{ color:var(--fs-pink-deep); font-size:.9rem; letter-spacing:2px; margin-bottom:1.4rem; }
   .fs-test-card p{ font-family:var(--fs-serif); font-style:italic; font-size:1.2rem; line-height:1.6; color:var(--fs-ink); margin:0 0 1.6rem; }
@@ -247,17 +208,13 @@
   .fs-test-role{ font-size:.74rem; color:var(--fs-muted); }
   .fs-test-note{ text-align:center; font-size:.74rem; color:var(--fs-faint); margin-top:2.4rem; letter-spacing:.02em; }
 
-  /* ══════════════ NEWSLETTER / JOIN LIST ══════════════ */
-  .fs-join{ position:relative; padding:6.5rem 2rem; text-align:center; background:var(--fs-ink); color:#fff; overflow:hidden; }
-  .fs-join::before{
-    content:""; position:absolute; inset:0;
-    background: radial-gradient(700px 340px at 20% 0%, rgba(214,147,156,.16), transparent 60%), radial-gradient(700px 340px at 80% 100%, rgba(214,147,156,.1), transparent 60%);
-  }
+  /* ══════════════ JOIN LIST ══════════════ */
+  .fs-join{ position:relative; padding:6.5rem 2rem; text-align:center; background:var(--fs-ink); color:#fff; }
   .fs-join-inner{ position:relative; max-width:600px; margin:0 auto; }
   .fs-join h2{ color:#fff; font-size:clamp(2rem,3.6vw,2.8rem); margin:1rem 0 1rem; }
   .fs-join p{ color:rgba(255,255,255,.65); font-size:.98rem; margin:0 0 2.2rem; }
 
-  /* ══════════════ PREMIUM PRE-FOOTER ══════════════ */
+  /* ══════════════ PRE-FOOTER ══════════════ */
   .fs-prefoot{ background:var(--fs-surface); padding:5.5rem 0 4rem; border-top:1px solid var(--fs-line); }
   .fs-prefoot-grid{ display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:3rem; }
   @media (max-width:900px){ .fs-prefoot-grid{ grid-template-columns:repeat(2,1fr); } }
@@ -265,10 +222,7 @@
   .fs-prefoot-brand{ font-family:var(--fs-serif); font-size:1.6rem; margin-bottom:1rem; }
   .fs-prefoot p.desc{ font-size:.88rem; color:var(--fs-muted); line-height:1.7; max-width:280px; margin:0 0 1.6rem; }
   .fs-prefoot-social{ display:flex; gap:10px; }
-  .fs-prefoot-social a{
-    width:38px; height:38px; border-radius:50%; border:1px solid var(--fs-line-strong); display:grid; place-items:center;
-    color:var(--fs-ink); transition: background .25s var(--fs-ease), color .25s var(--fs-ease);
-  }
+  .fs-prefoot-social a{ width:38px; height:38px; border-radius:50%; border:1px solid var(--fs-line-strong); display:grid; place-items:center; color:var(--fs-ink); transition: background .25s var(--fs-ease), color .25s var(--fs-ease); }
   .fs-prefoot-social a:hover{ background:var(--fs-ink); color:#fff; }
   .fs-prefoot h5{ font-family:var(--fs-sans); font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--fs-muted); margin:0 0 1.3rem; }
   .fs-prefoot ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:.9rem; }
@@ -280,8 +234,8 @@
 
   {% with hero_p=products.0 %}
   <!-- ══════════════ HERO ══════════════ -->
-  <section class="fs-hero" id="fsHero">
-    <div class="fs-hero-media" id="fsHeroMedia">
+  <section class="fs-hero">
+    <div class="fs-hero-media" data-media-fallback data-fallback-label="{{ store.brand_name }}">
       <video autoplay muted loop playsinline id="fsHeroVideo"
              poster="{% if hero_p.image %}{{ hero_p.image.url }}{% elif hero_p.image_url %}{{ hero_p.image_url }}{% endif %}">
         <source src="{% static 'videos/fashion-campaign.mp4' %}" type="video/mp4">
@@ -291,18 +245,14 @@
 
     <div class="fs-container fs-hero-inner">
       <div class="fs-hero-eyebrow"><span class="ln"></span> New Season Edit</div>
-      <h1 id="fsHeroTitle">{{ store.brand_name }}<br><em>Considered fashion.</em></h1>
+      <h1>{{ store.brand_name }}<br><em>Considered fashion.</em></h1>
       <p class="fs-hero-sub">
         {% if store.bio %}{{ store.bio }}{% else %}A curated edit of pieces worth keeping — presented with clarity, ordered with a single message.{% endif %}
       </p>
       <div class="fs-cta-row">
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cta">
-          Shop The Edit
-        </a>
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cta">Shop The Edit</a>
         {% if store.whatsapp %}
-          <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="fs-cta fs-cta-outline">
-            Message {{ store.brand_name }}
-          </a>
+          <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="fs-cta fs-cta-outline">Message {{ store.brand_name }}</a>
         {% endif %}
       </div>
     </div>
@@ -322,9 +272,9 @@
   <!-- ══════════════ SHOP BY CATEGORY ══════════════ -->
   {% regroup products|dictsort:"category.name" by category as fs_category_list %}
   {% if fs_category_list %}
-  <section class="fs-section" data-fs-reveal>
+  <section class="fs-section">
     <div class="fs-container">
-      <div class="fs-section-head">
+      <div class="fs-section-head" data-reveal>
         <div class="left">
           <div class="fs-eyebrow">Explore</div>
           <h2 class="fs-section-title">Shop by <em>category</em></h2>
@@ -340,14 +290,12 @@
           {% for group in fs_category_list %}
             {% if group.grouper %}
               <div class="swiper-slide" style="width:280px;">
-                <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cat">
+                <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cat" data-media-fallback data-fallback-label="{{ group.grouper.name }}">
                   {% with cat_p=group.list.0 %}
                     {% if cat_p.image %}
                       <img src="{{ cat_p.image.url }}" alt="{{ group.grouper.name }}" loading="lazy">
                     {% elif cat_p.image_url %}
                       <img src="{{ cat_p.image_url }}" alt="{{ group.grouper.name }}" loading="lazy">
-                    {% else %}
-                      <div class="fs-card-media--empty" style="height:100%">{{ group.grouper.name }}</div>
                     {% endif %}
                   {% endwith %}
                   <div class="fs-cat-overlay">
@@ -369,7 +317,7 @@
   <!-- ══════════════ EDITORIAL BANNER ══════════════ -->
   {% with ed_p=products.1|default:products.0 %}
   <section class="fs-editorial">
-    <div class="fs-editorial-media" id="fsEditorialMedia">
+    <div class="fs-editorial-media" data-media-fallback>
       {% if ed_p.image %}
         <img src="{{ ed_p.image.url }}" alt="{{ ed_p.name }}">
       {% elif ed_p.image_url %}
@@ -380,7 +328,7 @@
     </div>
     <div class="fs-editorial-overlay"></div>
     <div class="fs-container fs-editorial-inner">
-      <div class="fs-editorial-copy" data-fs-reveal>
+      <div class="fs-editorial-copy" data-reveal>
         <div class="fs-eyebrow" style="color:var(--fs-pink)">The Statement Piece</div>
         <h2>{% if ed_p %}{{ ed_p.name }}{% else %}Designed to be worn, not just owned.{% endif %}</h2>
         <p>{% if ed_p.description %}{{ ed_p.description|truncatewords:24 }}{% else %}A closer look at one of the pieces currently defining the {{ store.brand_name }} edit.{% endif %}</p>
@@ -396,20 +344,18 @@
   <section class="fs-section">
     <div class="fs-container">
       <div class="fs-section-head">
-        <div class="left" data-fs-reveal>
+        <div class="left" data-reveal>
           <div class="fs-eyebrow">Curated</div>
           <h2 class="fs-section-title">Featured <em>pieces</em></h2>
           <p class="fs-section-sub" style="margin-top:1rem;">A handpicked selection from {{ store.brand_name }}, ready to order in a single message.</p>
         </div>
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-link-arrow" data-fs-reveal>
-          View All →
-        </a>
+        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-link-arrow" data-reveal>View All →</a>
       </div>
 
       <div class="fs-grid">
         {% for product in products|slice:":8" %}
-          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-card" data-fs-card>
-            <div class="fs-card-media">
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-card">
+            <div class="fs-card-media" data-media-fallback data-fallback-label="{{ product.name }}">
               {% if product.is_featured %}<span class="fs-badge fs-badge--pink">Featured</span>{% endif %}
               <button type="button" class="fs-card-fav" aria-label="Save item"
                       onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
@@ -446,15 +392,15 @@
   <section class="fs-section fs-section--surface">
     <div class="fs-container">
       <div class="fs-section-head">
-        <div class="left" data-fs-reveal>
+        <div class="left" data-reveal>
           <div class="fs-eyebrow">Just In</div>
           <h2 class="fs-section-title">Latest <em>arrivals</em></h2>
         </div>
       </div>
       <div class="fs-grid">
         {% for product in products|dictsortreversed:"created_at"|slice:":4" %}
-          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-card" data-fs-card>
-            <div class="fs-card-media">
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-card">
+            <div class="fs-card-media" data-media-fallback data-fallback-label="{{ product.name }}">
               <span class="fs-badge">New</span>
               {% if product.image %}
                 <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
@@ -477,23 +423,21 @@
   </section>
   {% endif %}
 
-  <!-- ══════════════ CAMPAIGN (pinned parallax) ══════════════ -->
+  <!-- ══════════════ CAMPAIGN ══════════════ -->
   {% with camp_p=products.2|default:products.0 %}
-  <section class="fs-campaign" id="fsCampaign">
-    <div class="fs-campaign-pin">
-      <div class="fs-campaign-media" id="fsCampaignMedia">
-        {% if camp_p.image %}
-          <img src="{{ camp_p.image.url }}" alt="">
-        {% elif camp_p.image_url %}
-          <img src="{{ camp_p.image_url }}" alt="">
-        {% else %}
-          <div class="fs-campaign-media-empty"></div>
-        {% endif %}
-      </div>
-      <div class="fs-campaign-copy">
-        <div class="fs-eyebrow">The Campaign</div>
-        <h2>Worn with <em>intention.</em></h2>
-      </div>
+  <section class="fs-campaign">
+    <div class="fs-campaign-media" data-media-fallback>
+      {% if camp_p.image %}
+        <img src="{{ camp_p.image.url }}" alt="">
+      {% elif camp_p.image_url %}
+        <img src="{{ camp_p.image_url }}" alt="">
+      {% else %}
+        <div class="fs-campaign-media-empty"></div>
+      {% endif %}
+    </div>
+    <div class="fs-campaign-copy" data-reveal>
+      <div class="fs-eyebrow">The Campaign</div>
+      <h2>Worn with <em>intention.</em></h2>
     </div>
   </section>
   {% endwith %}
@@ -502,16 +446,29 @@
   <section class="fs-section">
     <div class="fs-container">
       <div class="fs-story">
-        <div class="fs-story-frame" data-fs-reveal>
-          {% if store.brand_logo_url %}
-            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+        <div class="fs-story-frame" data-reveal data-media-fallback>
+          {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}"
+                  alt="{{ store.brand_name }}"
+                  class="wf-logo">
+
           {% elif store.brand_logo %}
-            <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+              <img src="{{ store.brand_logo.url }}"
+                  alt="{{ store.brand_name }}"
+                  class="wf-logo">
+
+          {% elif store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}"
+                  alt="{{ store.brand_name }}"
+                  class="wf-logo">
+
           {% else %}
-            <div class="fs-story-frame-empty">{{ store.brand_name|first|upper }}</div>
+              <span class="wf-mono">
+                  {{ store.brand_name|first|upper }}
+              </span>
           {% endif %}
         </div>
-        <div class="fs-story-copy" data-fs-reveal>
+        <div class="fs-story-copy" data-reveal>
           <div class="fs-eyebrow">Our Story</div>
           {% if store.display_about %}
             <h2>{{ store.brand_name }}</h2>
@@ -526,12 +483,12 @@
     </div>
   </section>
 
-  <!-- ══════════════ GALLERY (product photography grid) ══════════════ -->
+  <!-- ══════════════ GALLERY ══════════════ -->
   {% if products %}
   <section class="fs-section fs-section--surface">
     <div class="fs-container">
       <div class="fs-section-head">
-        <div class="left" data-fs-reveal>
+        <div class="left" data-reveal>
           <div class="fs-eyebrow">The Edit, In Motion</div>
           <h2 class="fs-section-title">Style <em>gallery</em></h2>
         </div>
@@ -544,7 +501,7 @@
         <div class="swiper-wrapper">
           {% for product in products|slice:":10" %}
             <div class="swiper-slide">
-              <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-gal-item">
+              <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-gal-item" data-media-fallback data-fallback-label="{{ product.name }}">
                 {% if product.image %}
                   <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                 {% elif product.image_url %}
@@ -566,7 +523,7 @@
   <section class="fs-section">
     <div class="fs-container">
       <div class="fs-section-head" style="justify-content:center;text-align:center;">
-        <div class="left" style="max-width:560px;margin:0 auto;" data-fs-reveal>
+        <div class="left" style="max-width:560px;margin:0 auto;" data-reveal>
           <div class="fs-eyebrow" style="text-align:center;">Kind Words</div>
           <h2 class="fs-section-title">What clients <em>say</em></h2>
         </div>
@@ -606,8 +563,8 @@
 
   <!-- ══════════════ JOIN THE LIST ══════════════ -->
   {% if store.whatsapp %}
-  <section class="fs-join" data-fs-reveal>
-    <div class="fs-join-inner">
+  <section class="fs-join">
+    <div class="fs-join-inner" data-reveal>
       <div class="fs-eyebrow">Stay Close</div>
       <h2>Join the {{ store.brand_name }} list.</h2>
       <p>Be first to hear about new arrivals and considered drops — direct on WhatsApp, no spam, unsubscribe anytime.</p>
@@ -619,6 +576,7 @@
   {% endif %}
 
 
+</div>
 {% if store.logo %}
 <link rel="icon" type="image/png" href="{{ store.logo.url }}">
 <link rel="apple-touch-icon" href="{{ store.logo.url }}">
@@ -628,232 +586,66 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
-
 <script>
-(function () {
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+(function(){
+  var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ===========================
-     LENIS (Near Native)
-  =========================== */
-
-  let lenis = null;
-
-  if (window.Lenis && !reduceMotion) {
-
-    lenis = new Lenis({
-      duration: 0.65,
-      smoothWheel: true,
-      wheelMultiplier: 1,
-      touchMultiplier: 1,
-      infinite: false,
-      autoResize: true,
-      syncTouch: false
-    });
-
-    function raf(time) {
-      lenis.raf(time);
-      requestAnimationFrame(raf);
-    }
-
-    requestAnimationFrame(raf);
-
-    if (window.ScrollTrigger) {
-      lenis.on("scroll", ScrollTrigger.update);
-    }
-  }
-
-  /* ===========================
-     GSAP
-  =========================== */
-
-  if (window.gsap && window.ScrollTrigger) {
-
+  /* GSAP ScrollTrigger — transform-only reveals (never opacity), so nothing can get stuck invisible */
+  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
 
-    if (!reduceMotion) {
+    document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('fs-will-animate'); });
 
-      gsap.fromTo(
-        "#fsHeroMedia video, #fsHeroMedia img",
-        {
-          scale: 1.05
-        },
-        {
-          scale: 1.15,
-          ease: "none",
-          scrollTrigger: {
-            trigger: "#fsHero",
-            start: "top top",
-            end: "bottom top",
-            scrub: true
-          }
-        }
-      );
-
-      gsap.to("#fsHeroTitle", {
-        y: -50,
-        opacity: 0.3,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#fsHero",
-          start: "top top",
-          end: "bottom top",
-          scrub: true
-        }
+    gsap.utils.toArray('[data-reveal]').forEach(function(el){
+      ScrollTrigger.create({
+        trigger: el, start: 'top 90%',
+        onEnter: function(){ el.classList.add('is-in'); }
       });
-
-      gsap.utils.toArray("#fsEditorialMedia img, #fsCampaignMedia img").forEach(function(img){
-
-        gsap.fromTo(img,{
-          yPercent:-5
-        },{
-          yPercent:5,
-          ease:"none",
-          scrollTrigger:{
-            trigger:img.closest("section"),
-            start:"top bottom",
-            end:"bottom top",
-            scrub:true
-          }
-        });
-
-      });
-
-    }
-
-    gsap.utils.toArray("[data-fs-reveal]").forEach(function(el){
-
-      gsap.from(el,{
-        opacity:0,
-        y:30,
-        duration:.9,
-        ease:"power2.out",
-        scrollTrigger:{
-          trigger:el,
-          start:"top 90%",
-          once:true
-        }
-      });
-
     });
 
-    gsap.utils.toArray(".fs-grid").forEach(function(grid){
-
-      const cards = grid.querySelectorAll("[data-fs-card]");
-
-      if(cards.length){
-
-        gsap.from(cards,{
-          opacity:0,
-          y:35,
-          duration:.8,
-          stagger:.08,
-          ease:"power2.out",
-          scrollTrigger:{
-            trigger:grid,
-            start:"top 88%",
-            once:true
-          }
-        });
-
-      }
-
+    // Gentle parallax on editorial/campaign imagery — transform only, safe without any smooth-scroll library
+    gsap.utils.toArray('.fs-editorial-media img, .fs-campaign-media img').forEach(function(img){
+      gsap.to(img, {
+        yPercent: 10, ease: 'none',
+        scrollTrigger: { trigger: img.closest('section'), start: 'top bottom', end: 'bottom top', scrub: true }
+      });
     });
 
-    window.addEventListener("load", function () {
-      ScrollTrigger.refresh();
-    });
-
+    window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
   }
 
-  /* ===========================
-     SWIPER
-  =========================== */
-
-  if(window.Swiper){
-
-    const cat=document.querySelector(".fs-cat-swiper");
-
-    if(cat){
-
-      new Swiper(cat,{
-        slidesPerView:1.3,
-        spaceBetween:20,
-        breakpoints:{
-          640:{slidesPerView:2.3},
-          980:{slidesPerView:3.3},
-          1280:{slidesPerView:4.3}
-        },
-        navigation:{
-          nextEl:"#fsCatNext",
-          prevEl:"#fsCatPrev"
-        }
+  /* Swiper (default effect only — no fade, no fragile edge cases) */
+  if (window.Swiper) {
+    var catEl = document.querySelector('.fs-cat-swiper');
+    if (catEl) {
+      new Swiper(catEl, {
+        slidesPerView: 1.3, spaceBetween: 20,
+        breakpoints: { 640:{slidesPerView:2.3}, 980:{slidesPerView:3.3}, 1280:{slidesPerView:4.3} },
+        navigation: { nextEl: '#fsCatNext', prevEl: '#fsCatPrev' }
       });
-
     }
-
-    const gal=document.querySelector(".fs-gallery-swiper");
-
-    if(gal){
-
-      new Swiper(gal,{
-        slidesPerView:1.4,
-        spaceBetween:18,
-        freeMode:true,
-        breakpoints:{
-          640:{slidesPerView:2.4},
-          980:{slidesPerView:3.6},
-          1280:{slidesPerView:4.4}
-        },
-        navigation:{
-          nextEl:"#fsGalNext",
-          prevEl:"#fsGalPrev"
-        }
+    var galEl = document.querySelector('.fs-gallery-swiper');
+    if (galEl) {
+      new Swiper(galEl, {
+        slidesPerView: 1.4, spaceBetween: 18, freeMode: true,
+        breakpoints: { 640:{slidesPerView:2.4}, 980:{slidesPerView:3.6}, 1280:{slidesPerView:4.4} },
+        navigation: { nextEl: '#fsGalNext', prevEl: '#fsGalPrev' }
       });
-
     }
-
-    const test=document.querySelector(".fs-test-swiper");
-
-    if(test){
-
-      new Swiper(test,{
-        slidesPerView:1.05,
-        spaceBetween:22,
-        loop:true,
-        autoplay:reduceMotion
-          ? false
-          : {
-              delay:4500,
-              disableOnInteraction:true
-            },
-        breakpoints:{
-          700:{slidesPerView:2.1},
-          1100:{slidesPerView:2.6}
-        }
+    var testEl = document.querySelector('.fs-test-swiper');
+    if (testEl) {
+      new Swiper(testEl, {
+        slidesPerView: 1.05, spaceBetween: 22,
+        breakpoints: { 700:{slidesPerView:2.1}, 1100:{slidesPerView:2.6} },
+        autoplay: reduceMotion ? false : { delay: 4200, disableOnInteraction: true },
+        loop: true
       });
-
     }
-
   }
 
-  /* ===========================
-     HERO VIDEO
-  =========================== */
-
-  const video=document.getElementById("fsHeroVideo");
-
-  if(video){
-
-    video.addEventListener("error",function(){
-      video.style.display="none";
-    });
-
-  }
-
+  var vid = document.getElementById('fsHeroVideo');
+  if (vid) { vid.addEventListener('error', function(){ vid.style.display = 'none'; }, true); }
 })();
 </script>
 {% endblock %}

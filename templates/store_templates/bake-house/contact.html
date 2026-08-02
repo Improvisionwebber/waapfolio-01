@@ -1,0 +1,416 @@
+{% extends "store_templates/bake-house/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Contact {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  :root{
+    --lux-ink: var(--bh-ink);
+    --lux-ink-soft: var(--bh-ink-soft);
+    --lux-muted: var(--bh-muted);
+    --lux-line: var(--bh-line);
+    --lux-sand: var(--bh-beige);
+    --lux-stone: #ecdcc2;
+    --lux-shadow: 0 30px 60px -30px rgba(92,58,33,.22), 0 8px 20px -10px rgba(92,58,33,.10);
+    --lux-shadow-sm: 0 10px 30px -15px rgba(92,58,33,.16);
+    --serif: var(--bh-serif);
+    --sans: var(--bh-sans);
+  }
+
+  .lux * { box-sizing: border-box; }
+  .lux { font-family: var(--sans); font-weight: 400; letter-spacing: .01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; scroll-behavior: smooth; }
+  .lux-container { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+  .lux-narrow { max-width: 960px; margin: 0 auto; padding: 0 28px; }
+
+  /* ===== HERO ===== */
+  .lux-hero { position: relative; padding: 120px 0 90px; overflow: hidden;
+    background: radial-gradient(1100px 560px at 80% -10%, rgba(232,176,75,.16) 0%, transparent 60%), var(--bh-bg); }
+  .lux-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--lux-muted); font-weight: 600; }
+  .lux-eyebrow .dot { width:6px;height:6px;border-radius:50%;background:var(--bh-caramel); }
+
+  .lux-hero h1 { font-family: var(--serif); font-weight: 600; font-size: clamp(46px, 7.5vw, 104px); line-height: .98; letter-spacing: -.02em; margin: 20px 0 22px; color: var(--lux-ink); }
+  .lux-hero h1 em { font-style: italic; font-weight: 400; color: var(--bh-caramel); }
+  .lux-hero p.lead { max-width: 620px; font-size: 17px; line-height: 1.7; color: var(--lux-ink-soft); font-weight: 400; }
+  .lux-hero-grid { display: grid; grid-template-columns: 1.4fr .9fr; gap: 56px; align-items: end; }
+  @media(max-width:900px){ .lux-hero-grid{ grid-template-columns:1fr; gap:44px; } }
+  .lux-hero-meta { border-top: 1px solid var(--lux-line); padding-top: 26px; display: grid; gap: 20px; }
+  .lux-meta-row { display:flex; justify-content:space-between; gap:24px; font-size:13px; }
+  .lux-meta-row .k { color: var(--lux-muted); letter-spacing: .14em; text-transform: uppercase; font-size: 11px; }
+  .lux-meta-row .v { color: var(--lux-ink); font-weight: 600; text-align:right; }
+
+  .lux-cta-row { display:flex; gap:14px; margin-top: 40px; flex-wrap:wrap; }
+  .lux-btn { display:inline-flex; align-items:center; gap:12px; padding: 17px 30px; border-radius: 999px; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; font-weight: 700; text-decoration: none; transition: all .35s ease; border: 1px solid var(--bh-choc); cursor: pointer; }
+  .lux-btn.solid { background: var(--bh-choc); color: #fff; }
+  .lux-btn.solid:hover { background: #472c18; transform: translateY(-2px); box-shadow: var(--lux-shadow); }
+  .lux-btn.ghost { background: transparent; color: var(--bh-choc); }
+  .lux-btn.ghost:hover { background: var(--bh-choc); color: #fff; }
+
+  .lux-trust { display:flex; flex-wrap:wrap; gap: 26px; margin-top: 44px; padding-top: 30px; border-top: 1px solid var(--lux-line); }
+  .lux-trust .item { display:flex; align-items:center; gap:10px; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--lux-ink-soft); }
+  .lux-trust .item i { color: var(--bh-caramel); font-size: 14px; }
+
+  .lux-float-stack { display:grid; gap:14px; }
+  .lux-float-card { padding: 20px 22px; background: rgba(255,255,255,.85); backdrop-filter: blur(14px); border:1px solid var(--lux-line); border-radius: 16px; box-shadow: var(--lux-shadow-sm); display:flex; align-items:center; gap: 16px; transition: transform .5s ease, box-shadow .5s ease; }
+  .lux-float-card:hover { transform: translateY(-6px); box-shadow: var(--lux-shadow); }
+  .lux-float-card .ic { width: 42px; height:42px; border-radius: 50%; background: var(--bh-choc); color:#fff; display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
+  .lux-float-card .t { font-size: 13px; font-weight: 700; color: var(--lux-ink); }
+  .lux-float-card .s { font-size: 11px; color: var(--lux-muted); letter-spacing:.1em; text-transform:uppercase; margin-top:2px; }
+
+  .lux-editorial { margin-top: 110px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 36px; align-items: center; }
+  .lux-editorial .line { height: 1px; background: var(--lux-line); }
+  .lux-editorial .title { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(20px, 2.2vw, 28px); color: var(--bh-caramel); letter-spacing: -.01em; white-space: nowrap; }
+
+  .lux-section-head { display:flex; justify-content:space-between; align-items:flex-end; margin: 50px 0 54px; gap: 24px; flex-wrap: wrap; }
+  .lux-section-head h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(32px, 4.6vw, 58px); line-height: 1.04; letter-spacing: -.02em; margin: 0; max-width: 720px; }
+  .lux-section-head .count { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--lux-muted); }
+
+  .lux-methods { display:grid; gap: 22px; grid-template-columns: repeat(3, 1fr); }
+  @media (max-width: 900px) { .lux-methods { grid-template-columns: repeat(2,1fr); } }
+  @media (max-width: 560px) { .lux-methods { grid-template-columns: 1fr; } }
+  .lux-method { position: relative; display:flex; flex-direction:column; gap: 20px; padding: 32px 28px 28px; background:#fff; border:1px solid var(--lux-line); border-radius: 18px; text-decoration:none; color:inherit; transition: transform .5s var(--bh-ease), box-shadow .5s ease, border-color .4s ease; }
+  .lux-method:hover { transform: translateY(-8px); box-shadow: var(--lux-shadow); border-color: var(--lux-stone); }
+  .lux-method .ic { width: 52px; height: 52px; border-radius: 14px; background: linear-gradient(180deg, var(--lux-sand), var(--lux-stone)); display:flex; align-items:center; justify-content:center; font-size: 21px; color: var(--bh-choc); border:1px solid var(--lux-line); }
+  .lux-method h3 { font-family: var(--serif); font-weight: 600; font-size: 24px; letter-spacing: -.01em; margin: 0; }
+  .lux-method p { font-size: 14px; line-height: 1.6; color: var(--lux-ink-soft); margin: 0; flex: 1; }
+  .lux-method .arrow { display:inline-flex; align-items:center; gap: 10px; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--bh-choc); font-weight: 700; transition: gap .3s ease; }
+  .lux-method:hover .arrow { gap: 16px; }
+
+  .lux-info-band { margin-top: 120px; padding: 80px 0; background: var(--bh-beige); border-top: 1px solid var(--lux-line); border-bottom: 1px solid var(--lux-line); }
+  .lux-info-grid { display:grid; grid-template-columns: 1fr 1.1fr; gap: 70px; align-items:flex-start; }
+  @media (max-width: 900px) { .lux-info-grid { grid-template-columns: 1fr; gap: 46px; } }
+  .lux-info-grid h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(32px, 4.6vw, 56px); line-height: 1; letter-spacing: -.02em; margin: 16px 0 20px; }
+  .lux-info-grid h2 em { font-style: italic; color: var(--bh-caramel); }
+  .lux-info-grid p.lead { font-size: 16px; line-height: 1.75; color: var(--lux-ink-soft); max-width: 480px; }
+  .lux-info-list { display:grid; gap: 0; background:#fff; border:1px solid var(--lux-line); border-radius: 18px; overflow:hidden; }
+  .lux-info-list .row { display:flex; justify-content:space-between; align-items:center; gap: 24px; padding: 24px 26px; border-bottom: 1px solid var(--lux-line); transition: background .3s ease; }
+  .lux-info-list .row:last-child { border-bottom: 0; }
+  .lux-info-list .row:hover { background: #fdfaf6; }
+  .lux-info-list .k { font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--lux-muted); display:flex; align-items:center; gap:12px; }
+  .lux-info-list .k i { font-size: 16px; color: var(--bh-choc); }
+  .lux-info-list .v { font-family: var(--serif); font-size: 18px; font-weight: 600; color: var(--lux-ink); text-align:right; letter-spacing:-.01em; }
+  .lux-info-list .v.small { font-family: var(--sans); font-size: 13px; font-weight: 500; letter-spacing: .02em; }
+
+  .lux-faq { margin: 120px 0 40px; }
+  .lux-faq-list { display:grid; gap: 14px; max-width: 900px; margin: 0 auto; }
+  .lux-faq-item { border:1px solid var(--lux-line); border-radius: 14px; background:#fff; overflow:hidden; transition: border-color .3s ease, box-shadow .4s ease; }
+  .lux-faq-item.open { border-color: var(--lux-stone); box-shadow: var(--lux-shadow-sm); }
+  .lux-faq-q { width:100%; text-align:left; background:transparent; border:0; padding: 26px 30px; cursor:pointer; display:flex; justify-content:space-between; align-items:center; gap: 24px; font-family: var(--serif); font-size: 21px; font-weight: 600; color: var(--lux-ink); letter-spacing: -.01em; }
+  .lux-faq-q .plus { width: 34px; height: 34px; border-radius: 50%; border:1px solid var(--lux-line); display:flex; align-items:center; justify-content:center; flex-shrink:0; transition: background .3s ease, color .3s ease, transform .4s ease; color: var(--bh-choc); font-size: 13px; }
+  .lux-faq-item.open .lux-faq-q .plus { background: var(--bh-choc); color:#fff; transform: rotate(45deg); }
+  .lux-faq-a { max-height: 0; overflow:hidden; transition: max-height .5s ease, padding .4s ease; padding: 0 30px; }
+  .lux-faq-item.open .lux-faq-a { max-height: 400px; padding: 0 30px 26px; }
+  .lux-faq-a p { margin: 0; font-size: 14.5px; line-height: 1.75; color: var(--lux-ink-soft); max-width: 720px; }
+  .lux-faq-a a { color: var(--bh-choc); text-decoration: underline; text-underline-offset: 3px; }
+
+  .lux-sticky-cta { position: sticky; bottom: 20px; z-index: 30; margin: 76px auto 0; max-width: 700px; padding: 14px 14px 14px 22px; background: rgba(255,255,255,.9); backdrop-filter: blur(20px); border: 1px solid var(--lux-line); border-radius: 999px; box-shadow: 0 20px 50px -25px rgba(92,58,33,.24); display:flex; align-items:center; justify-content:space-between; gap:18px; }
+  .lux-sticky-cta .txt { font-size: 12px; letter-spacing: .16em; text-transform: uppercase; color: var(--lux-ink-soft); }
+  .lux-sticky-cta .txt strong { color: var(--lux-ink); font-weight: 700; }
+  .lux-sticky-cta a { display:inline-flex; align-items:center; gap:10px; padding: 12px 22px; border-radius: 999px; background: var(--bh-choc); color:#fff; text-decoration:none; font-size: 11px; letter-spacing: .2em; text-transform: uppercase; font-weight:700; transition: transform .3s ease; }
+  .lux-sticky-cta a:hover { transform: scale(1.04); }
+
+  .lux-cta { margin-top: 150px; padding: 120px 0 140px; background: var(--bh-beige); border-top: 1px solid var(--lux-line); position: relative; overflow: hidden; }
+  .lux-cta-inner { position: relative; text-align:center; max-width: 960px; margin: 0 auto; }
+  .lux-cta h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(42px, 7vw, 96px); line-height: .98; letter-spacing: -.02em; margin: 24px 0 26px; }
+  .lux-cta h2 em { font-style: italic; color: var(--bh-caramel); }
+  .lux-cta p { color: var(--lux-ink-soft); font-size: 17px; line-height: 1.7; max-width: 600px; margin: 0 auto; }
+  .lux-cta-btns { display:flex; gap: 14px; margin-top: 38px; flex-wrap: wrap; justify-content:center; }
+  .lux-cta-floats { margin-top: 64px; display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; max-width: 900px; margin-left:auto; margin-right:auto; }
+  @media (max-width: 720px) { .lux-cta-floats { grid-template-columns: 1fr; } }
+  .lux-cta-floats .glass { padding: 22px 22px; background: rgba(255,255,255,.85); border:1px solid var(--lux-line); border-radius: 16px; text-align:left; transition: transform .5s ease, box-shadow .5s ease; }
+  .lux-cta-floats .glass:hover { transform: translateY(-6px); box-shadow: var(--lux-shadow); }
+  .lux-cta-floats .glass .ic { width: 38px; height:38px; border-radius:50%; background: var(--bh-choc); color:#fff; display:flex; align-items:center; justify-content:center; margin-bottom: 12px; }
+  .lux-cta-floats .glass .t { font-family: var(--serif); font-size: 19px; font-weight:600; }
+  .lux-cta-floats .glass .s { font-size: 12px; color: var(--lux-muted); letter-spacing:.1em; text-transform:uppercase; margin-top: 4px; }
+
+  .lux-reveal { opacity: 0; transform: translateY(26px); transition: opacity .9s ease, transform .9s var(--bh-ease); }
+  .lux-reveal.in { opacity: 1; transform: translateY(0); }
+
+  @media (max-width: 900px) {
+    .lux-hero { padding: 84px 0 64px; }
+    .lux-editorial { margin-top: 80px; }
+    .lux-cta { padding: 80px 0 90px; }
+    .lux-faq { margin: 90px 0 20px; }
+    .lux-info-band { padding: 64px 0; margin-top: 90px; }
+    .lux-faq-q { font-size: 17px; padding: 20px; }
+    .lux-faq-item.open .lux-faq-a { padding: 0 20px 20px; }
+    .lux-faq-a { padding: 0 20px; }
+  }
+  @media (max-width: 520px) {
+    .lux-container, .lux-narrow { padding: 0 20px; }
+    .lux-sticky-cta { padding: 10px 10px 10px 18px; }
+    .lux-sticky-cta .txt { font-size: 10px; }
+    .lux-sticky-cta a { padding: 10px 16px; font-size: 10px; }
+  }
+</style>
+
+<div class="lux">
+
+  {# ============ HERO ============ #}
+  <section class="lux-hero">
+    <div class="lux-container">
+      <div class="lux-hero-grid">
+        <div>
+          <span class="lux-eyebrow lux-reveal"><span class="dot"></span> Contact &amp; Support · Always Open on WhatsApp</span>
+          <h1 class="lux-reveal">A conversation,<br><em>not a contact form.</em></h1>
+          <p class="lead lux-reveal">
+            {{ store.bio|default:"We believe every order begins with a conversation. Reach our kitchen directly on WhatsApp — for orders, custom cakes, or anything in between." }}
+          </p>
+
+          <div class="lux-cta-row lux-reveal">
+            {% if store.whatsapp_number %}
+            <a class="lux-btn solid" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20want%20to%20make%20an%20inquiry" target="_blank" rel="noopener">
+              <i class="bi bi-whatsapp"></i> Chat on WhatsApp
+            </a>
+            {% endif %}
+            <a class="lux-btn ghost" href="#methods"><i class="bi bi-arrow-down"></i> Explore Support</a>
+          </div>
+
+          <div class="lux-trust lux-reveal">
+            <div class="item"><i class="bi bi-lightning-charge"></i> Replies within minutes</div>
+            <div class="item"><i class="bi bi-globe2"></i> Local &amp; delivery orders</div>
+            <div class="item"><i class="bi bi-shield-check"></i> Secure WhatsApp ordering</div>
+            <div class="item"><i class="bi bi-stars"></i> Trusted by customers</div>
+          </div>
+        </div>
+
+        <div>
+          <div class="lux-float-stack lux-reveal">
+            <a class="lux-float-card" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">
+              <div class="ic"><i class="bi bi-bag-check"></i></div>
+              <div><div class="t">Place an order</div><div class="s">Direct on WhatsApp</div></div>
+            </a>
+            <a class="lux-float-card" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20product%20question.">
+              <div class="ic"><i class="bi bi-chat-dots"></i></div>
+              <div><div class="t">Ask a question</div><div class="s">Avg. response under 5 min</div></div>
+            </a>
+            <a class="lux-float-card" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27m%20interested%20in%20a%20custom%20cake.">
+              <div class="ic"><i class="bi bi-cake2"></i></div>
+              <div><div class="t">Custom cakes</div><div class="s">Made to your taste</div></div>
+            </a>
+          </div>
+
+          <div class="lux-hero-meta lux-reveal" style="margin-top:34px;">
+            <div class="lux-meta-row"><span class="k">Bakery</span><span class="v">{{ store.brand_name }}</span></div>
+            <div class="lux-meta-row"><span class="k">Channel</span><span class="v">WhatsApp · {{ store.whatsapp }}</span></div>
+            <div class="lux-meta-row"><span class="k">Hours</span><span class="v">Mon — Sun · 08:00 — 20:00</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============ EDITORIAL DIVIDER ============ #}
+  <div class="lux-container">
+    <div class="lux-editorial lux-reveal">
+      <div class="line"></div>
+      <div class="title">A direct line to our kitchen.</div>
+      <div class="line"></div>
+    </div>
+  </div>
+
+  {# ============ CONTACT METHODS ============ #}
+  <section id="methods" class="lux-container" style="margin-top: 66px;">
+    <div class="lux-section-head lux-reveal">
+      <h2>Six ways to reach <em style="font-style:italic;color:var(--bh-caramel);">{{ store.brand_name }}</em>.</h2>
+      <span class="count">01 — 06 · WhatsApp</span>
+    </div>
+
+    <div class="lux-methods">
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support.">
+        <div class="ic"><i class="bi bi-whatsapp"></i></div>
+        <h3>WhatsApp Support</h3>
+        <p>Speak with a real person. We handle every inquiry personally — no bots, no waiting queue.</p>
+        <span class="arrow">Open chat <i class="bi bi-arrow-right"></i></span>
+      </a>
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20more%20info%20about%20a%20bake.">
+        <div class="ic"><i class="bi bi-cake2"></i></div>
+        <h3>Menu Inquiry</h3>
+        <p>Flavors, sizes, allergens or custom designs — message us about anything on the menu.</p>
+        <span class="arrow">Ask about a bake <i class="bi bi-arrow-right"></i></span>
+      </a>
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20are%20you%20available%20to%20chat%3F">
+        <div class="ic"><i class="bi bi-clock-history"></i></div>
+        <h3>Opening Hours</h3>
+        <p>Open seven days a week from 08:00 to 20:00. Messages outside hours get a reply at first light.</p>
+        <span class="arrow">Check availability <i class="bi bi-arrow-right"></i></span>
+      </a>
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20cake.">
+        <div class="ic"><i class="bi bi-gift"></i></div>
+        <h3>Custom Orders</h3>
+        <p>Birthday cakes, wedding collections and special requests — tell us your vision and we'll bake it.</p>
+        <span class="arrow">Start a custom order <i class="bi bi-arrow-right"></i></span>
+      </a>
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question%20about%20delivery.">
+        <div class="ic"><i class="bi bi-truck"></i></div>
+        <h3>Delivery Information</h3>
+        <p>Local delivery windows and lead times. Get a personal update on your order in real time.</p>
+        <span class="arrow">Track an order <i class="bi bi-arrow-right"></i></span>
+      </a>
+      <a class="lux-method lux-reveal" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20help%20with%20an%20existing%20order.">
+        <div class="ic"><i class="bi bi-heart"></i></div>
+        <h3>Customer Care</h3>
+        <p>Questions or concerns about an order? Our team is here for every step, before and after delivery.</p>
+        <span class="arrow">Get assistance <i class="bi bi-arrow-right"></i></span>
+      </a>
+    </div>
+  </section>
+
+  {# ============ BUSINESS INFO ============ #}
+  <section class="lux-info-band">
+    <div class="lux-container">
+      <div class="lux-info-grid">
+        <div class="lux-reveal">
+          <span class="lux-eyebrow"><span class="dot"></span> The Bakery · At a Glance</span>
+          <h2>Warm details, <em>considered service.</em></h2>
+          <p class="lead">
+            Everything you need to know about how we work, when we're open, and how quickly we respond.
+            Every action below opens a direct line on WhatsApp — never a form, never a ticket.
+          </p>
+          <div class="lux-cta-row" style="margin-top:30px;">
+            <a class="lux-btn solid" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20get%20in%20touch.">
+              <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
+            </a>
+          </div>
+        </div>
+
+        <div class="lux-info-list lux-reveal">
+          <div class="row"><span class="k"><i class="bi bi-bookmark-star"></i> Brand</span><span class="v">{{ store.brand_name }}</span></div>
+          <div class="row"><span class="k"><i class="bi bi-whatsapp"></i> WhatsApp</span><span class="v small">+{{ store.whatsapp_number }}</span></div>
+          <div class="row"><span class="k"><i class="bi bi-clock"></i> Availability</span><span class="v small">Mon — Sun · 08:00 — 20:00</span></div>
+          <div class="row"><span class="k"><i class="bi bi-lightning"></i> Response time</span><span class="v small">Under 5 minutes (typ.)</span></div>
+          <div class="row"><span class="k"><i class="bi bi-box-seam"></i> Order handling</span><span class="v small">Same-day · Within 24h</span></div>
+          <div class="row"><span class="k"><i class="bi bi-headset"></i> Customer support</span><span class="v small">Personal · WhatsApp only</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============ FAQ ============ #}
+  <section class="lux-faq">
+    <div class="lux-narrow">
+      <div class="lux-section-head lux-reveal" style="margin-bottom: 46px;">
+        <h2>Frequently <em style="font-style:italic;color:var(--bh-caramel);">asked.</em></h2>
+        <span class="count">Edition · 01</span>
+      </div>
+
+      <div class="lux-faq-list">
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>How do I place an order?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>Browse the menu, then tap any bake or the WhatsApp button to start a conversation with us. We confirm availability, walk you through payment and arrange delivery — all in a single, personal chat. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">Start an order on WhatsApp →</a></p>
+          </div>
+        </div>
+
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>How long does delivery take?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>Local orders typically arrive same-day or within 24 hours. For celebration cakes, we recommend ordering a few days ahead. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20how%20long%20will%20delivery%20take%20to%20my%20location%3F">Message us your location</a> and we'll confirm immediately.</p>
+          </div>
+        </div>
+
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>How do I contact support?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>We handle every conversation personally on WhatsApp — no forms, no tickets, no waiting on hold. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20support.">Tap here to chat with our team</a>. We're usually online and reply within minutes.</p>
+          </div>
+        </div>
+
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>Do you make custom cakes?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>Yes — bespoke cakes and personalizations are a quiet specialty of ours. Share your vision, flavors or theme, and we'll quote and bake accordingly. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20request%20a%20custom%20cake.">Send a custom request →</a></p>
+          </div>
+        </div>
+
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>Can I order directly on WhatsApp?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>Absolutely — and we prefer it. WhatsApp lets us confirm details, share extra photos, advise on flavors and arrange a smooth delivery experience. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20order%20directly%20here.">Start ordering on WhatsApp →</a></p>
+          </div>
+        </div>
+
+        <div class="lux-faq-item lux-reveal">
+          <button class="lux-faq-q" type="button" onclick="luxToggleFaq(this)">
+            <span>What payment methods do you accept?</span>
+            <span class="plus"><i class="bi bi-plus-lg"></i></span>
+          </button>
+          <div class="lux-faq-a">
+            <p>We accept bank transfer, card payments and major mobile money options. We'll share secure payment details inside your WhatsApp conversation. <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20what%20payment%20methods%20do%20you%20accept%3F">Ask about payment options →</a></p>
+          </div>
+        </div>
+      </div>
+
+      <div class="lux-sticky-cta lux-reveal">
+        <div class="txt">Still curious? <strong>Ask {{ store.brand_name }} anything.</strong></div>
+        <a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20have%20a%20question.">
+          <i class="bi bi-whatsapp"></i> WhatsApp
+        </a>
+      </div>
+    </div>
+  </section>
+
+  {# ============ BIG CTA ============ #}
+  <section class="lux-cta">
+    <div class="lux-cta-inner lux-container">
+      <span class="lux-eyebrow lux-reveal"><span class="dot"></span> Kitchen · Always On</span>
+      <h2 class="lux-reveal">Need assistance<br><em>with your order?</em></h2>
+      <p class="lux-reveal">
+        One tap, one conversation. Our team is standing by on WhatsApp — to advise, recommend,
+        confirm and deliver. The way a good bakery should feel.
+      </p>
+      <div class="lux-cta-btns lux-reveal">
+        <a class="lux-btn solid" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20assistance%20with%20my%20order.">
+          <i class="bi bi-whatsapp"></i> Chat With {{ store.brand_name }}
+        </a>
+        <a class="lux-btn ghost" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">
+          <i class="bi bi-arrow-up-right"></i> Browse the Menu
+        </a>
+      </div>
+
+      <div class="lux-cta-floats">
+        <div class="glass lux-reveal"><div class="ic"><i class="bi bi-lightning-charge"></i></div><div class="t">Under 5 min</div><div class="s">Average reply time</div></div>
+        <div class="glass lux-reveal"><div class="ic"><i class="bi bi-shield-check"></i></div><div class="t">Secure ordering</div><div class="s">Direct on WhatsApp</div></div>
+        <div class="glass lux-reveal"><div class="ic"><i class="bi bi-cake2"></i></div><div class="t">Fresh daily</div><div class="s">Baked to order</div></div>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  function luxToggleFaq(btn) {
+    const item = btn.closest('.lux-faq-item');
+    const wasOpen = item.classList.contains('open');
+    document.querySelectorAll('.lux-faq-item.open').forEach(el => el.classList.remove('open'));
+    if (!wasOpen) item.classList.add('open');
+  }
+
+  (function(){
+    const els = document.querySelectorAll('.lux-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(el => el.classList.add('in')); return; }
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((e, i) => {
+        if (e.isIntersecting) { setTimeout(() => e.target.classList.add('in'), i * 40); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(el => io.observe(el));
+  })();
+</script>
+
+{% endblock %}

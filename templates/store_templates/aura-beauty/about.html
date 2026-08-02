@@ -1,0 +1,394 @@
+{% extends "store_templates/aura-beauty/base.html" %}
+{% load static %}
+
+{% block title %}About — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .ab-about{
+    --ab-ink:#2a211c; --ab-ink-2:#4d423b; --ab-mute:#8f7f76;
+    --ab-rule:rgba(42,33,28,.1); --ab-rule-2:rgba(42,33,28,.16);
+    --ab-paper:#fffdfb; --ab-cream:#f5ebe1; --ab-blush:#f3dcd9;
+    --ab-gold:#b98a4e; --ab-rose:#c08a83;
+    --ab-radius:18px;
+    --ab-display:'Playfair Display',ui-serif,Georgia,serif;
+    --ab-sans:'Inter',system-ui,sans-serif;
+    background:var(--ab-paper); color:var(--ab-ink); font-family:var(--ab-sans);
+    -webkit-font-smoothing:antialiased;
+  }
+  .ab-about,.ab-about *{box-sizing:border-box}
+  .ab-about a{color:inherit;text-decoration:none}
+  .ab-about img{max-width:100%;display:block}
+
+  .ab-wrap{width:min(1220px,92vw);margin-inline:auto;position:relative}
+  .ab-eyebrow{display:inline-flex;align-items:center;gap:.7rem;font-size:.72rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ab-rose);font-weight:600}
+  .ab-eyebrow::before{content:"";width:26px;height:1px;background:var(--ab-gold)}
+  .ab-display{font-family:var(--ab-display);font-weight:500;line-height:.98;letter-spacing:-.02em;color:var(--ab-ink)}
+  .ab-reveal{opacity:0;transform:translateY(26px);transition:opacity .9s cubic-bezier(.22,.7,.24,1),transform .9s cubic-bezier(.22,.7,.24,1)}
+  .ab-reveal.in{opacity:1;transform:none}
+  .ab-reveal[data-delay="1"]{transition-delay:.08s}
+  .ab-reveal[data-delay="2"]{transition-delay:.18s}
+  .ab-reveal[data-delay="3"]{transition-delay:.28s}
+  .ab-reveal[data-delay="4"]{transition-delay:.38s}
+
+  /* hero */
+  .ab-hero{position:relative;padding:clamp(70px,11vw,130px) 0 clamp(46px,6vw,80px);border-bottom:1px solid var(--ab-rule);
+    background:radial-gradient(900px 420px at 88% -12%,var(--ab-blush) 0%,transparent 60%)}
+  .ab-hero__top{display:flex;justify-content:space-between;align-items:center;margin-bottom:clamp(36px,5vw,64px);font-size:.78rem;letter-spacing:.2em;text-transform:uppercase;color:var(--ab-mute)}
+  .ab-hero__top strong{color:var(--ab-ink);font-weight:600}
+  .ab-hero__title{font-size:clamp(50px,10vw,140px);letter-spacing:-.03em;margin:0}
+  .ab-hero__title em{font-style:italic;font-weight:400;color:var(--ab-rose)}
+  .ab-hero__meta{margin-top:clamp(36px,5vw,60px);display:grid;gap:clamp(22px,3vw,36px);grid-template-columns:1fr;align-items:end}
+  @media (min-width:880px){.ab-hero__meta{grid-template-columns:1.2fr .8fr}}
+  .ab-hero__lead{font-family:var(--ab-display);font-size:clamp(19px,2vw,27px);line-height:1.4;color:var(--ab-ink-2);max-width:26ch}
+  .ab-cta{display:inline-flex;align-items:center;gap:.75rem;padding:1rem 1.6rem;border-radius:999px;background:var(--ab-ink);color:#fff;font-weight:600;font-size:.85rem;letter-spacing:.03em;border:1px solid var(--ab-ink);transition:background .25s ease,transform .25s ease}
+  .ab-cta:hover{background:#181310;transform:translateY(-2px)}
+
+  .ab-hero__strip{margin-top:clamp(44px,6vw,76px);display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.4vw,16px)}
+  @media (max-width:780px){.ab-hero__strip{grid-template-columns:repeat(2,1fr)}}
+  .ab-hero__strip figure{margin:0;aspect-ratio:3/4;overflow:hidden;background:var(--ab-cream);border:1px solid var(--ab-rule);border-radius:14px}
+  .ab-hero__strip img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s cubic-bezier(.22,.7,.24,1)}
+  .ab-hero__strip figure:hover img{transform:scale(1.05)}
+
+  /* marquee */
+  .ab-marquee{margin-top:clamp(36px,5vw,60px);border-top:1px solid var(--ab-rule);border-bottom:1px solid var(--ab-rule);padding:18px 0;overflow:hidden;white-space:nowrap}
+  .ab-marquee__track{display:inline-flex;gap:3rem;animation:abMarquee 38s linear infinite;font-family:var(--ab-display);font-style:italic;font-size:clamp(19px,2.2vw,28px);color:var(--ab-ink)}
+  .ab-marquee__track span{display:inline-flex;align-items:center;gap:3rem}
+  .ab-marquee__track .dot{width:6px;height:6px;border-radius:50%;background:var(--ab-gold);display:inline-block}
+  @keyframes abMarquee{to{transform:translateX(-50%)}}
+
+  /* section frame */
+  .ab-section{position:relative;padding:clamp(70px,9vw,120px) 0;border-bottom:1px solid var(--ab-rule)}
+  .ab-section--cream{background:var(--ab-cream)}
+  .ab-section__head{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;margin-bottom:clamp(32px,5vw,56px);padding-bottom:16px;border-bottom:1px solid var(--ab-rule)}
+  .ab-section__num{font-family:var(--ab-display);font-style:italic;font-size:clamp(13px,1vw,15px);color:var(--ab-mute)}
+  .ab-section__label{font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--ab-ink);font-weight:600}
+
+  /* story */
+  .ab-story{display:grid;gap:clamp(32px,5vw,64px);grid-template-columns:1fr;align-items:start}
+  @media (min-width:980px){.ab-story{grid-template-columns:1.05fr .95fr}}
+  .ab-story h2{font-size:clamp(38px,5vw,68px);margin:.4rem 0 1.3rem}
+  .ab-story p{color:var(--ab-ink-2);font-size:clamp(15.5px,1.1vw,18px);line-height:1.8;max-width:58ch}
+  .ab-story__media{position:relative;aspect-ratio:4/5;overflow:hidden;background:var(--ab-cream);border:1px solid var(--ab-rule);border-radius:var(--ab-radius)}
+  .ab-story__media img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s cubic-bezier(.22,.7,.24,1)}
+  .ab-story__media:hover img{transform:scale(1.05)}
+  .ab-story__media .tag{position:absolute;left:14px;top:14px;padding:.42rem .7rem;font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;background:#fff;color:var(--ab-ink);border:1px solid var(--ab-rule);border-radius:999px}
+  .ab-story__media .fallback{width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-family:var(--ab-display);font-size:2rem;color:var(--ab-rose)}
+
+  .ab-quote{margin-top:clamp(28px,4vw,44px);padding:clamp(20px,3vw,30px) 0;border-top:1px solid var(--ab-ink);border-bottom:1px solid var(--ab-ink);font-family:var(--ab-display);font-style:italic;font-size:clamp(20px,2.2vw,30px);line-height:1.3;color:var(--ab-ink)}
+  .ab-quote::before{content:"\201C";display:inline-block;font-size:1.4em;line-height:0;vertical-align:-.25em;margin-right:.1em;color:var(--ab-rose)}
+
+  /* timeline */
+  .ab-timeline{margin-top:clamp(32px,5vw,56px);border-top:1px solid var(--ab-rule)}
+  .ab-step{display:grid;grid-template-columns:80px 1fr;gap:clamp(16px,3vw,36px);padding:clamp(20px,3vw,30px) 0;border-bottom:1px solid var(--ab-rule);align-items:start}
+  .ab-step__num{font-family:var(--ab-display);font-style:italic;color:var(--ab-rose);font-size:clamp(19px,2vw,24px)}
+  .ab-step h3{font-family:var(--ab-display);font-weight:500;font-size:clamp(22px,2.6vw,34px);margin:0 0 .5em;letter-spacing:-.01em;color:var(--ab-ink)}
+  .ab-step p{color:var(--ab-ink-2);max-width:62ch;line-height:1.75;margin:0}
+
+  /* founder */
+  .ab-founder{display:grid;gap:clamp(28px,5vw,56px);grid-template-columns:1fr;align-items:center}
+  @media (min-width:980px){.ab-founder{grid-template-columns:.85fr 1.15fr}}
+  .ab-founder__card{padding:clamp(26px,3.4vw,40px);border:1px solid var(--ab-ink);background:#fff;border-radius:var(--ab-radius)}
+  .ab-avatar{width:clamp(80px,10vw,116px);height:clamp(80px,10vw,116px);border-radius:50%;background:linear-gradient(160deg,var(--ab-blush),var(--ab-cream));color:var(--ab-rose);display:grid;place-items:center;font-family:var(--ab-display);font-size:clamp(32px,4vw,48px)}
+  .ab-founder__badges{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:1rem}
+  .ab-badge{font-size:.66rem;letter-spacing:.2em;text-transform:uppercase;padding:.42rem .72rem;border:1px solid var(--ab-ink);color:var(--ab-ink);border-radius:999px}
+  .ab-founder__copy h2{font-family:var(--ab-display);font-size:clamp(34px,5vw,64px);line-height:1;letter-spacing:-.02em;margin:.6rem 0 1rem}
+  .ab-founder__copy p{color:var(--ab-ink-2);line-height:1.8;font-size:clamp(15px,1.1vw,18px);max-width:60ch}
+
+  /* stats */
+  .ab-stats{display:grid;gap:0;grid-template-columns:repeat(2,1fr);border-top:1px solid var(--ab-ink);border-bottom:1px solid var(--ab-ink)}
+  @media (min-width:820px){.ab-stats{grid-template-columns:repeat(4,1fr)}}
+  .ab-stat{padding:clamp(26px,3.2vw,38px) clamp(18px,2.2vw,26px);border-right:1px solid var(--ab-rule)}
+  .ab-stat:last-child{border-right:none}
+  @media (max-width:820px){.ab-stat{border-right:none;border-bottom:1px solid var(--ab-rule)}.ab-stat:nth-child(odd){border-right:1px solid var(--ab-rule)}.ab-stat:last-child{border-bottom:none}}
+  .ab-stat__num{font-family:var(--ab-display);font-size:clamp(40px,5vw,70px);line-height:1;color:var(--ab-ink);letter-spacing:-.02em}
+  .ab-stat__label{color:var(--ab-mute);margin-top:.65rem;font-size:.8rem;letter-spacing:.16em;text-transform:uppercase}
+
+  /* philosophy */
+  .ab-philo{text-align:left;font-family:var(--ab-display);font-size:clamp(36px,7vw,108px);line-height:1;letter-spacing:-.03em;color:var(--ab-ink);margin:0}
+  .ab-philo .l{display:block}
+  .ab-philo .l.mute{color:#dccbc0}
+  .ab-philo .l em{font-style:italic;color:var(--ab-rose)}
+
+  /* final CTA */
+  .ab-final{padding:clamp(90px,13vw,160px) 0;text-align:center;border-bottom:1px solid var(--ab-rule)}
+  .ab-final h2{font-family:var(--ab-display);font-size:clamp(44px,7.5vw,120px);line-height:.96;letter-spacing:-.03em;margin:0 0 1.3rem;color:var(--ab-ink)}
+  .ab-final h2 em{font-style:italic;color:var(--ab-rose)}
+  .ab-final p{color:var(--ab-ink-2);max-width:46ch;margin:0 auto 2.2rem;font-size:clamp(15px,1.1vw,18px);line-height:1.7}
+
+  /* floating wa */
+  .ab-wa-float{position:fixed;right:18px;bottom:18px;z-index:50;display:inline-flex;align-items:center;gap:.6rem;padding:.85rem 1.15rem;border-radius:999px;background:var(--ab-ink);color:#fff;border:1px solid var(--ab-ink);box-shadow:0 20px 40px -18px rgba(42,33,28,.35)}
+  .ab-wa-float .pulse{width:9px;height:9px;border-radius:50%;background:#3f8f5c;box-shadow:0 0 0 0 rgba(63,143,92,.7);animation:abPing 2s infinite}
+  @keyframes abPing{0%{box-shadow:0 0 0 0 rgba(63,143,92,.6)}100%{box-shadow:0 0 0 14px rgba(63,143,92,0)}}
+
+  @media (prefers-reduced-motion:reduce){.ab-about *{animation:none !important;transition:none !important}.ab-reveal{opacity:1;transform:none}}
+</style>
+
+<div class="ab-about">
+
+  {# ============================ HERO ============================ #}
+  <section class="ab-hero">
+    <div class="ab-wrap">
+      <div class="ab-hero__top">
+        <span><strong>{{ store.brand_name }}</strong> &nbsp;/&nbsp; The Atelier</span>
+        <span>About — Chapter 01</span>
+      </div>
+
+      <h1 class="ab-display ab-hero__title ab-reveal">
+        About<br/>
+        <em>{{ store.brand_name }}.</em>
+      </h1>
+
+      <div class="ab-hero__meta">
+        <p class="ab-hero__lead ab-reveal" data-delay="1">
+          A modern beauty atelier built on intention, care, and a refusal to rush.
+        </p>
+        {% if store.whatsapp %}
+          <div class="ab-reveal" data-delay="2" style="text-align:right;">
+            <a class="ab-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">
+              Speak with us <span aria-hidden="true">→</span>
+            </a>
+          </div>
+        {% endif %}
+      </div>
+
+      <div class="ab-hero__strip">
+        {% for product in products|slice:":4" %}
+          <figure class="ab-reveal" data-delay="{{ forloop.counter }}">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% endif %}
+          </figure>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="ab-marquee" aria-hidden="true">
+      <div class="ab-marquee__track">
+        <span>Considered formulas <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Slow beauty <span class="dot"></span> Quiet luxury <span class="dot"></span> Made to glow <span class="dot"></span></span>
+        <span>Considered formulas <span class="dot"></span> {{ store.brand_name }} <span class="dot"></span> Slow beauty <span class="dot"></span> Quiet luxury <span class="dot"></span> Made to glow <span class="dot"></span></span>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ STORY ============================ #}
+  <section class="ab-section">
+    <div class="ab-wrap">
+      <div class="ab-section__head">
+        <span class="ab-section__label">Our Story</span>
+        <span class="ab-section__num">— 01 / 06</span>
+      </div>
+
+      <div class="ab-story">
+        <div class="ab-reveal">
+          <span class="ab-eyebrow">Chapter One</span>
+          <h2 class="ab-display">A house built on intention.</h2>
+          <p>{{ store.display_about }}</p>
+
+          <div class="ab-quote">
+            We believe beauty is felt before it's seen — and {{ store.brand_name }} is our answer to that belief.
+          </div>
+        </div>
+
+        <div class="ab-reveal" data-delay="2">
+          <div class="ab-story__media">
+            <span class="tag">{{ store.brand_name }} · Atelier</span>
+            {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
+              <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% else %}
+              <div class="fallback">{{ store.brand_name|first|upper }}</div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ MISSION ============================ #}
+  <section class="ab-section ab-section--cream">
+    <div class="ab-wrap">
+      <div class="ab-section__head">
+        <span class="ab-section__label">Our Mission</span>
+        <span class="ab-section__num">— 02 / 06</span>
+      </div>
+
+      <div class="ab-reveal" style="max-width:820px;">
+        <h2 class="ab-display" style="font-size:clamp(38px,5vw,68px); margin:0 0 1.1rem;">
+          To make luxury <em style="font-style:italic;color:var(--ab-rose);">feel personal again.</em>
+        </h2>
+        <p style="color:var(--ab-ink-2);line-height:1.8;font-size:clamp(15.5px,1.1vw,18px);max-width:60ch;">
+          {{ store.display_mission }}
+        </p>
+      </div>
+
+      <div class="ab-timeline">
+        <div class="ab-step ab-reveal">
+          <div class="ab-step__num">01</div>
+          <div>
+            <h3>Considered, never careless.</h3>
+            <p>Every formula at {{ store.brand_name }} is reviewed, refined, and re-reviewed. We move slowly because we care more about your skin's next decade than the next drop.</p>
+          </div>
+        </div>
+        <div class="ab-step ab-reveal" data-delay="1">
+          <div class="ab-step__num">02</div>
+          <div>
+            <h3>Modern ritual, ancient patience.</h3>
+            <p>We mix contemporary formulation with the patience of a true atelier. The result feels both new and inevitable on the skin.</p>
+          </div>
+        </div>
+        <div class="ab-step ab-reveal" data-delay="2">
+          <div class="ab-step__num">03</div>
+          <div>
+            <h3>Built for the people who notice.</h3>
+            <p>Our client is curious, calm, and deeply opinionated about texture and scent. We formulate for them — not for the algorithm.</p>
+          </div>
+        </div>
+        <div class="ab-step ab-reveal" data-delay="3">
+          <div class="ab-step__num">04</div>
+          <div>
+            <h3>Long after the bottle empties.</h3>
+            <p>What we make should outlast trends and seasons. A quiet, lasting glow is the loudest form of luxury.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ FOUNDER ============================ #}
+  <section class="ab-section">
+    <div class="ab-wrap">
+      <div class="ab-section__head">
+        <span class="ab-section__label">The Founder</span>
+        <span class="ab-section__num">— 03 / 06</span>
+      </div>
+
+      <div class="ab-founder">
+        <div class="ab-reveal">
+          <div class="ab-founder__card">
+            <div class="ab-avatar" aria-hidden="true">{{ store.brand_name|slice:":1"|upper }}</div>
+            <div style="margin-top:1.3rem;">
+              <span class="ab-eyebrow">Founder · Creative Director</span>
+              <h3 style="font-family:var(--ab-display);font-size:clamp(24px,3vw,36px);margin:.4rem 0 .2rem;letter-spacing:-.01em;color:var(--ab-ink);">
+                {{ store.brand_name }}
+              </h3>
+              <p style="color:var(--ab-mute);line-height:1.7;margin:0;">The eye and the hand behind every formula.</p>
+              <div class="ab-founder__badges">
+                <span class="ab-badge">Atelier</span>
+                <span class="ab-badge">Independent</span>
+                <span class="ab-badge">Since day one</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ab-reveal ab-founder__copy" data-delay="2">
+          <span class="ab-eyebrow">A word from the founder</span>
+          <h2>Made by hand.<br/><em style="font-style:italic;color:var(--ab-rose);">Signed by intention.</em></h2>
+          <p>{{ store.display_founder }}</p>
+          <p style="margin-top:1.1rem;">
+            {{ store.brand_name }} is not a brand built on noise. It is a slow, personal practice — one we are proud to share with the few who feel it.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ WHY US ============================ #}
+  <section class="ab-section">
+    <div class="ab-wrap">
+      <div class="ab-section__head">
+        <span class="ab-section__label">Why {{ store.brand_name }}</span>
+        <span class="ab-section__num">— 04 / 06</span>
+      </div>
+
+      <div class="ab-reveal" style="max-width:680px; margin-bottom:clamp(32px,5vw,52px);">
+        <h2 class="ab-display" style="font-size:clamp(38px,5vw,68px); margin:0;">
+          Quietly different. <em style="font-style:italic;color:var(--ab-rose);">Loudly considered.</em>
+        </h2>
+      </div>
+
+      <div class="ab-stats">
+        <div class="ab-stat ab-reveal"><div class="ab-stat__num" data-count="98">0</div><div class="ab-stat__label">% Repeat clients</div></div>
+        <div class="ab-stat ab-reveal" data-delay="1"><div class="ab-stat__num" data-count="30">0</div><div class="ab-stat__label">Countries shipped</div></div>
+        <div class="ab-stat ab-reveal" data-delay="2"><div class="ab-stat__num" data-count="60">0</div><div class="ab-stat__label">Hours per formula</div></div>
+        <div class="ab-stat ab-reveal" data-delay="3"><div class="ab-stat__num" data-count="5">0</div><div class="ab-stat__label">Years of practice</div></div>
+      </div>
+    </div>
+  </section>
+
+  {# ============================ PHILOSOPHY ============================ #}
+  <section class="ab-section ab-section--cream">
+    <div class="ab-wrap">
+      <div class="ab-section__head">
+        <span class="ab-section__label">Philosophy</span>
+        <span class="ab-section__num">— 05 / 06</span>
+      </div>
+
+      <h2 class="ab-philo ab-reveal">
+        <span class="l">Less, but purer.</span>
+        <span class="l"><em>Slower, but truer.</em></span>
+        <span class="l mute">Quieter, but louder.</span>
+      </h2>
+    </div>
+  </section>
+
+  {# ============================ FINAL CTA ============================ #}
+  <section class="ab-final">
+    <div class="ab-wrap ab-reveal">
+      <span class="ab-eyebrow" style="justify-content:center;display:inline-flex;">A direct line</span>
+      <h2 style="margin-top:1.2rem;">Speak with<br/><em>{{ store.brand_name }}.</em></h2>
+      <p>Every order, every question, every ritual begins with a conversation. Reach out and we'll respond — personally.</p>
+      {% if store.whatsapp %}
+        <a class="ab-cta" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" style="font-size:1rem;">
+          Message us on WhatsApp <span aria-hidden="true">→</span>
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+  {% if store.whatsapp %}
+    <a class="ab-wa-float" href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" aria-label="Chat on WhatsApp">
+      <span class="pulse"></span> Chat with {{ store.brand_name }}
+    </a>
+  {% endif %}
+</div>
+
+<script>
+  (function(){
+    var root = document.querySelector('.ab-about');
+    if(!root) return;
+
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -60px 0px' });
+    root.querySelectorAll('.ab-reveal').forEach(function(el){ io.observe(el); });
+
+    var cIo = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(!e.isIntersecting) return;
+        var el = e.target;
+        var target = parseInt(el.getAttribute('data-count'),10) || 0;
+        var dur = 1600, start = performance.now();
+        function tick(now){
+          var p = Math.min(1,(now-start)/dur);
+          var eased = 1 - Math.pow(1-p, 3);
+          el.textContent = Math.round(target * eased).toLocaleString();
+          if(p<1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+        cIo.unobserve(el);
+      });
+    }, { threshold: 0.5 });
+    root.querySelectorAll('[data-count]').forEach(function(el){ cIo.observe(el); });
+  })();
+</script>
+
+{% endblock %}

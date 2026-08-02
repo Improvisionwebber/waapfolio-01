@@ -1,0 +1,215 @@
+{% extends "store_templates/bake-house/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Menu — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  :root{
+    --lux-ink: var(--bh-ink);
+    --lux-ink-soft: var(--bh-ink-soft);
+    --lux-muted: var(--bh-muted);
+    --lux-line: var(--bh-line);
+    --lux-sand: var(--bh-beige);
+    --lux-stone: #ecdcc2;
+    --lux-shadow: 0 30px 60px -30px rgba(92,58,33,.22), 0 8px 20px -10px rgba(92,58,33,.10);
+    --serif: var(--bh-serif);
+    --sans: var(--bh-sans);
+  }
+
+  .lux * { box-sizing: border-box; }
+  .lux { color: var(--lux-ink); font-family: var(--sans); font-weight: 400; letter-spacing: .01em; -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  .lux-container { max-width: 1280px; margin: 0 auto; padding: 0 28px; }
+
+  .lux-eyebrow { display: inline-flex; align-items: center; gap: 10px; font-size: 11px; letter-spacing: .3em; text-transform: uppercase; color: var(--lux-muted); font-weight: 600; }
+  .lux-eyebrow .dot { width:6px;height:6px;border-radius:50%;background:var(--bh-caramel); }
+
+  .lux-editorial { display: grid; grid-template-columns: 1fr auto 1fr; gap: 36px; align-items: center; margin-top: 8px; }
+  .lux-editorial .line { height: 1px; background: var(--lux-line); }
+  .lux-editorial .title { font-family: var(--serif); font-style: italic; font-weight: 500; font-size: clamp(20px, 2.2vw, 28px); color: var(--bh-caramel); letter-spacing: -.01em; white-space: nowrap; }
+
+  /* ===== STICKY FILTER ===== */
+  .lux-filter-wrap { position: sticky; top: 12px; z-index: 40; margin: 36px auto 0; }
+  .lux-filter { display: flex; align-items: center; gap: 14px; padding: 13px 18px; background: rgba(255,255,255,.88); backdrop-filter: saturate(180%) blur(20px); border: 1px solid var(--lux-line); border-radius: 999px; box-shadow: 0 20px 40px -25px rgba(92,58,33,.2); }
+  .lux-search { flex: 1; display: flex; align-items: center; gap: 12px; padding: 6px 8px; }
+  .lux-search svg { width:18px;height:18px;color:var(--lux-muted); flex-shrink:0; }
+  .lux-search input { border: 0; outline: 0; background: transparent; width: 100%; font-family: var(--sans); font-size: 14px; color: var(--lux-ink); }
+  .lux-search input::placeholder { color: var(--lux-muted); }
+  .lux-filter .divider { width:1px;height:24px;background:var(--lux-line); }
+  .lux-icon-btn { width: 40px; height: 40px; border-radius: 50%; display:flex;align-items:center;justify-content:center; background: var(--bh-choc); color: #fff; border: 0; cursor: pointer; transition: transform .3s ease; }
+  .lux-icon-btn:hover { transform: scale(1.06); }
+  .lux-icon-btn svg { width:16px;height:16px; }
+
+  .lux-cats-row { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
+  .lux-cat { padding: 9px 18px; border: 1px solid var(--lux-line); border-radius: 999px; background: rgba(255,255,255,.7); font-size: 12px; letter-spacing: .1em; text-transform: uppercase; color: var(--lux-ink-soft); cursor: pointer; transition: all .3s ease; }
+  .lux-cat:hover, .lux-cat.is-active { background: var(--bh-choc); color: #fff; border-color: var(--bh-choc); }
+
+  .lux-section-head { display:flex; justify-content:space-between; align-items:flex-end; margin: 34px 0 46px; gap: 24px; flex-wrap: wrap; }
+  .lux-section-head h2 { font-family: var(--serif); font-weight: 600; font-size: clamp(32px, 4.6vw, 54px); line-height: 1.02; letter-spacing: -.02em; margin: 0; }
+  .lux-section-head .count { font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--lux-muted); }
+
+  /* ===== PRODUCT GRID ===== */
+  .lux-grid { display: grid; gap: 48px 28px; grid-template-columns: repeat(2, 1fr); }
+  @media (min-width: 768px)  { .lux-grid { grid-template-columns: repeat(3, 1fr); gap: 56px 32px; } }
+  @media (min-width: 1100px) { .lux-grid { grid-template-columns: repeat(4, 1fr); gap: 68px 36px; } }
+
+  .lux-card { position: relative; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
+  .lux-card .media { position: relative; overflow: hidden; aspect-ratio: 1/1; background: linear-gradient(180deg, var(--lux-sand) 0%, var(--lux-stone) 100%); border-radius: 16px; }
+  .lux-card .media::after { content: ""; position: absolute; inset: 0; background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(42,30,23,.10) 100%); opacity: 0; transition: opacity .6s ease; pointer-events: none; }
+  .lux-card:hover .media::after { opacity: 1; }
+  .lux-card .media img { width:100%; height:100%; object-fit: cover; transition: transform 1.2s var(--bh-ease); }
+  .lux-card:hover .media img { transform: scale(1.06); }
+
+  .lux-badge { position: absolute; top: 14px; left: 14px; z-index: 2; padding: 6px 12px; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; background: rgba(255,255,255,.94); color: var(--bh-choc); border-radius: 999px; font-weight: 700; }
+  .lux-fav { position:absolute; top:12px; right:12px; z-index:2; width:36px;height:36px;border-radius:50%; background: rgba(255,255,255,.88); border:0; cursor:pointer; display:flex;align-items:center;justify-content:center; opacity: 0; transform: translateY(-4px); transition: all .4s ease; color: var(--bh-choc); }
+  .lux-card:hover .lux-fav { opacity:1; transform: translateY(0); }
+  .lux-fav svg { width:14px;height:14px; }
+
+  .lux-quick { position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding: 11px 16px; background: rgba(255,255,255,.96); border-radius: 999px; display:flex; justify-content: space-between; align-items:center; font-size: 12.5px; font-weight:700; color: var(--bh-choc); opacity:0; transform:translateY(10px); transition: all .4s ease; }
+  .lux-card:hover .lux-quick { opacity:1; transform:translateY(0); }
+  .lux-quick svg{ width:14px;height:14px; }
+
+  .lux-info { padding: 16px 2px 4px; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .lux-info .name { font-size: 15px; font-weight: 700; color: var(--lux-ink); margin: 0; line-height: 1.35; }
+  .lux-info .meta { font-size: 12px; color: var(--lux-muted); margin-top: 4px; }
+  .lux-price { font-size: 14.5px; font-weight: 800; color: var(--bh-choc); white-space: nowrap; }
+
+  .lux-details { padding: 12px 2px 0; font-size: 12.5px; color: var(--lux-ink-soft); font-weight:700; display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--lux-line); margin-top: 10px; padding-top: 12px; }
+
+  .lux-empty { text-align: center; padding: 70px 20px; color: var(--lux-muted); grid-column: 1/-1; }
+  .lux-empty .mark { margin: 0 auto 14px; width: 46px; height: 46px; color: var(--bh-caramel); }
+  .lux-empty h3 { color: var(--lux-ink); margin: 0 0 8px; }
+
+  .lux-reveal { opacity: 0; transform: translateY(24px); transition: opacity .8s ease, transform .8s var(--bh-ease); }
+  .lux-reveal.in { opacity: 1; transform: translateY(0); }
+</style>
+
+<div class="lux">
+
+    <!-- ========= COLLECTION HEADER ========= -->
+    <section class="lux-container">
+
+        <div class="lux-editorial lux-reveal">
+            <span class="line"></span>
+            <span class="title">Our Menu</span>
+            <span class="line"></span>
+        </div>
+
+        <div class="lux-filter-wrap lux-reveal">
+            <div class="lux-filter">
+                <div class="lux-search">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>
+                    </svg>
+                    <input type="text" placeholder="Search cakes, bread, pastries..." aria-label="Search products">
+                </div>
+                <span class="divider"></span>
+                <button class="lux-icon-btn" aria-label="Filter products">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="20" y2="12"/><line x1="10" y1="18" x2="20" y2="18"/>
+                        <circle cx="7" cy="6" r="1.5" fill="currentColor"/><circle cx="13" cy="12" r="1.5" fill="currentColor"/><circle cx="16" cy="18" r="1.5" fill="currentColor"/>
+                    </svg>
+                </button>
+            </div>
+        </div>
+
+        <div class="lux-cats-row lux-reveal">
+            <span class="lux-cat is-active">All</span>
+            <span class="lux-cat">Cakes</span>
+            <span class="lux-cat">Donuts</span>
+            <span class="lux-cat">Cupcakes</span>
+            <span class="lux-cat">Cookies</span>
+            <span class="lux-cat">Bread</span>
+            <span class="lux-cat">Pastries</span>
+            <span class="lux-cat">Small Chops</span>
+        </div>
+
+        <div class="lux-section-head lux-reveal">
+            <span class="count">
+                {{ products|length }} {% if products|length == 1 %}Item{% else %}Items{% endif %}
+            </span>
+        </div>
+
+        <!-- ========= PRODUCT GRID ========= -->
+        <div class="lux-grid">
+            {% for product in products %}
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card lux-reveal">
+                <div class="media">
+                    {% if product.is_featured %}<span class="lux-badge">Featured</span>{% endif %}
+                    <button type="button" class="lux-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+                    </button>
+                    {% if product.image %}
+                        <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+                    {% elif product.image_url %}
+                        <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+                    {% else %}
+                        <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+                    {% endif %}
+                    <span class="lux-quick">
+                        <span>View Product</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                    </span>
+                </div>
+
+                <div class="lux-info">
+                    <div>
+                        <h6 class="name">{{ product.name }}</h6>
+                        {% if product.category %}<div class="meta">{{ product.category.name }}</div>{% endif %}
+                    </div>
+                    <div class="lux-price">
+                        {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% endif %}
+                        {{ product.price|intcomma }}
+                    </div>
+                </div>
+
+                <span class="lux-details">
+                    View Details
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+                </span>
+            </a>
+            {% empty %}
+            <div class="lux-empty">
+                <svg class="mark" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+                <h3>No Products Available</h3>
+                <p>Products added by the store owner will appear here.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+    </section>
+
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.lux-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+
+    // Client-side search filter
+    var input = document.querySelector('.lux-search input');
+    if (input) {
+      input.addEventListener('input', function(){
+        var q = this.value.trim().toLowerCase();
+        document.querySelectorAll('.lux-grid .lux-card').forEach(function(card){
+          var name = (card.querySelector('.name')||{}).innerText || '';
+          card.style.display = name.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+        });
+      });
+    }
+
+    // Category pill toggle (visual only)
+    document.querySelectorAll('.lux-cat').forEach(function(p){
+      p.addEventListener('click', function(){
+        document.querySelectorAll('.lux-cat').forEach(function(x){x.classList.remove('is-active');});
+        p.classList.add('is-active');
+      });
+    });
+  })();
+</script>
+
+{% endblock %}

@@ -1,0 +1,697 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{{ store.brand_name }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#0B0F14">
+  <meta name="description" content="{{ store.brand_name }} — premium electronics storefront powered by Waapfolio.">
+
+  {% if store.logo %}
+  <link rel="icon" type="image/png" href="{{ store.logo.url }}">
+  <link rel="apple-touch-icon" href="{{ store.logo.url }}">
+  {% endif %}
+
+  <!-- Bootstrap (kept for compatibility with dropdowns / modals / collapse) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- Typography: Space Grotesk (display) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --vx-bg:#0B0F14;
+      --vx-surface:#141C26;
+      --vx-card:#1B2431;
+      --vx-primary:#3B82F6;
+      --vx-accent:#00D4FF;
+      --vx-white:#FFFFFF;
+      --vx-muted:#94A3B8;
+      --vx-line:rgba(255,255,255,.08);
+      --vx-line-strong:rgba(255,255,255,.14);
+      --vx-hover:rgba(255,255,255,.06);
+      --vx-shadow-sm:0 1px 2px rgba(0,0,0,.3);
+      --vx-shadow-md:0 8px 30px -12px rgba(0,0,0,.55);
+      --vx-shadow-lg:0 30px 70px -25px rgba(0,0,0,.65);
+      --vx-glow:0 0 0 1px rgba(59,130,246,.25), 0 0 24px -4px rgba(0,212,255,.35);
+      --vx-radius-sm:10px;
+      --vx-radius:16px;
+      --vx-radius-lg:24px;
+      --vx-sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+      --vx-display:'Space Grotesk','Inter',sans-serif;
+      --vx-ease:cubic-bezier(.16,.8,.24,1);
+      --vx-nav-h:76px;
+      --vx-grad-primary:linear-gradient(135deg,var(--vx-primary),var(--vx-accent));
+    }
+
+    *{box-sizing:border-box}
+    html{background:var(--vx-bg);scroll-behavior:smooth}
+    html,body{margin:0;padding:0;background:var(--vx-bg);color:var(--vx-white);}
+    body{
+      font-family:var(--vx-sans);
+      font-size:15px;
+      line-height:1.6;
+      letter-spacing:-0.005em;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    ::selection{background:var(--vx-accent);color:#04141c}
+
+    h1,h2,h3,h4{font-family:var(--vx-display);font-weight:600;letter-spacing:-0.02em;color:var(--vx-white);margin:0}
+
+    /* ============ NAVBAR ============ */
+    .wf-nav{
+      position:sticky;top:0;z-index:1030;
+      background:rgba(11,15,20,0.72);
+      backdrop-filter:saturate(180%) blur(18px);
+      -webkit-backdrop-filter:saturate(180%) blur(18px);
+      border-bottom:1px solid transparent;
+      transition:border-color .3s var(--vx-ease), box-shadow .3s var(--vx-ease), background .3s var(--vx-ease);
+    }
+    .wf-nav.is-scrolled{
+      border-bottom-color:var(--vx-line);
+      box-shadow:0 1px 0 rgba(255,255,255,.02), 0 20px 40px -30px rgba(0,0,0,.8);
+      background:rgba(11,15,20,0.92);
+    }
+    .wf-nav-inner{
+      max-width:1360px;margin:0 auto;
+      height:var(--vx-nav-h);
+      padding:0 32px;
+      display:flex;align-items:center;justify-content:space-between;gap:24px;
+    }
+
+    /* Logo */
+    .wf-brand{display:flex;align-items:center;gap:12px;min-width:0}
+    .wf-brand-mark{
+      width:40px;height:40px;border-radius:12px;
+      background:var(--vx-card);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;border:1px solid var(--vx-line);
+      flex-shrink:0;position:relative;
+    }
+    .wf-brand-mark img{
+      display:block;width:100%;height:100%;
+      object-fit:cover;object-position:center;
+    }
+    .wf-brand-mark .wf-mono{
+      font-family:var(--vx-display);font-size:17px;font-weight:700;
+      background:var(--vx-grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent;
+    }
+    .wf-brand-name{
+      font-family:var(--vx-display);font-size:19px;font-weight:600;
+      letter-spacing:-0.015em;color:var(--vx-white);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;
+    }
+
+    /* Desktop links */
+    .wf-links{
+      display:flex;align-items:center;gap:2px;
+      list-style:none;margin:0;padding:0;
+    }
+    .wf-link{
+      position:relative;
+      padding:10px 18px;
+      font-size:13.5px;font-weight:500;
+      color:var(--vx-muted);
+      letter-spacing:0.01em;
+      border-radius:999px;
+      transition:color .25s var(--vx-ease), background .25s var(--vx-ease);
+    }
+    .wf-link:hover{color:var(--vx-white);background:var(--vx-hover)}
+    .wf-link.active{color:var(--vx-white);background:var(--vx-hover)}
+
+    /* Right cluster */
+    .wf-actions{display:flex;align-items:center;gap:6px}
+    .wf-icon-btn{
+      width:42px;height:42px;border-radius:12px;
+      display:inline-grid;place-items:center;
+      background:transparent;border:1px solid transparent;color:var(--vx-white);
+      transition:background .25s var(--vx-ease),border-color .25s var(--vx-ease),transform .25s var(--vx-ease);
+      cursor:pointer;
+    }
+    .wf-icon-btn:hover{background:var(--vx-hover);border-color:var(--vx-line)}
+    .wf-icon-btn:active{transform:scale(.94)}
+    .wf-icon-btn i{font-size:18px;line-height:1}
+
+    /* Dropdown */
+    .wf-menu{
+      border:1px solid var(--vx-line);
+      border-radius:var(--vx-radius);
+      box-shadow:var(--vx-shadow-lg);
+      padding:8px;
+      background:rgba(20,28,38,0.96);
+      backdrop-filter:saturate(180%) blur(20px);
+      -webkit-backdrop-filter:saturate(180%) blur(20px);
+      min-width:240px;
+      margin-top:10px !important;
+      animation:wfMenuIn .22s var(--vx-ease);
+    }
+    @keyframes wfMenuIn{
+      from{opacity:0;transform:translateY(-6px) scale(.98)}
+      to{opacity:1;transform:translateY(0) scale(1)}
+    }
+    .wf-menu .dropdown-item{
+      display:flex;align-items:center;gap:12px;
+      padding:10px 12px;border-radius:10px;
+      font-size:13.5px;font-weight:500;color:var(--vx-muted);
+      transition:background .2s var(--vx-ease),color .2s var(--vx-ease);
+    }
+    .wf-menu .dropdown-item i{font-size:16px;color:var(--vx-muted);transition:color .2s var(--vx-ease)}
+    .wf-menu .dropdown-item:hover,.wf-menu .dropdown-item:focus{
+      background:var(--vx-hover);color:var(--vx-white);background-color:rgba(255,255,255,.06);
+    }
+    .wf-menu .dropdown-item:hover i{color:var(--vx-accent)}
+    .wf-menu .dropdown-divider{border-top:1px solid var(--vx-line);margin:6px 4px}
+
+    /* Mobile menu toggle */
+    .wf-burger{display:none}
+    @media (max-width:900px){
+      .wf-links-wrap{display:none}
+      .wf-burger{display:inline-grid}
+      .wf-nav-inner{padding:0 18px;height:64px}
+      :root{--vx-nav-h:64px}
+      .wf-brand-name{font-size:17px;max-width:150px}
+    }
+
+    /* Mobile drawer */
+    .wf-drawer{
+      position:fixed;inset:0;z-index:1050;
+      background:rgba(0,0,0,0.5);
+      backdrop-filter:blur(4px);
+      opacity:0;pointer-events:none;
+      transition:opacity .3s var(--vx-ease);
+    }
+    .wf-drawer.open{opacity:1;pointer-events:auto}
+    .wf-drawer-panel{
+      position:absolute;top:0;right:0;bottom:0;
+      width:min(420px,86vw);
+      background:var(--vx-bg);
+      border-left:1px solid var(--vx-line);
+      transform:translateX(100%);
+      transition:transform .4s var(--vx-ease);
+      display:flex;flex-direction:column;
+      box-shadow:var(--vx-shadow-lg);
+    }
+    .wf-drawer.open .wf-drawer-panel{transform:translateX(0)}
+    .wf-drawer-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:22px 24px;border-bottom:1px solid var(--vx-line);
+    }
+    .wf-drawer-eyebrow{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--vx-muted)}
+    .wf-drawer-body{padding:14px 12px;flex:1;overflow-y:auto}
+    .wf-drawer-link{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:18px 16px;border-radius:14px;
+      font-family:var(--vx-display);font-size:22px;font-weight:600;
+      color:var(--vx-white);letter-spacing:-0.01em;
+      transition:background .2s var(--vx-ease);
+    }
+    .wf-drawer-link:hover,.wf-drawer-link.active{background:var(--vx-hover)}
+    .wf-drawer-link i{font-size:16px;color:var(--vx-muted)}
+    .wf-drawer-foot{
+      padding:18px 24px 26px;border-top:1px solid var(--vx-line);
+      display:flex;flex-direction:column;gap:10px;
+    }
+    .wf-drawer-action{
+      display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+      font-size:14px;color:var(--vx-muted);font-weight:500;
+      transition:background .2s var(--vx-ease),color .2s var(--vx-ease);
+    }
+    .wf-drawer-action:hover{background:var(--vx-hover);color:var(--vx-white)}
+    .wf-drawer-action i{font-size:16px}
+
+    /* ============ MAIN ============ */
+    .wf-main{
+      max-width:1360px;margin:0 auto;
+      padding:0;
+      min-height:calc(100vh - var(--vx-nav-h) - 260px);
+      animation:wfPageIn .5s var(--vx-ease) both;
+    }
+    @keyframes wfPageIn{
+      from{opacity:0;transform:translateY(8px)}
+      to{opacity:1;transform:translateY(0)}
+    }
+
+    /* ============ MODAL ============ */
+    .wf-modal .modal-dialog{max-width:480px;margin:6vh auto}
+    .wf-modal .modal-content{
+      border:1px solid var(--vx-line);
+      border-radius:var(--vx-radius-lg);
+      box-shadow:var(--vx-shadow-lg);
+      background:rgba(20,28,38,0.98);
+      backdrop-filter:saturate(180%) blur(16px);
+      overflow:hidden;
+      color:var(--vx-white);
+    }
+    .wf-modal .modal-header{
+      border-bottom:1px solid var(--vx-line);
+      padding:22px 26px;align-items:flex-start;
+    }
+    .wf-modal .modal-title{
+      font-family:var(--vx-display);font-size:22px;font-weight:600;letter-spacing:-0.015em;color:var(--vx-white);
+    }
+    .wf-modal .modal-body{padding:26px}
+    .wf-modal .modal-subtitle{
+      font-size:13px;color:var(--vx-muted);margin:0 0 16px;
+    }
+    .wf-modal .btn-close{filter:invert(1) grayscale(1);opacity:.6}
+    .wf-modal .btn-close:hover{opacity:1}
+
+    .wf-link-field{
+      display:flex;align-items:center;gap:8px;
+      border:1px solid var(--vx-line);border-radius:12px;
+      padding:6px 6px 6px 14px;background:var(--vx-surface);
+      transition:border-color .2s var(--vx-ease),background .2s var(--vx-ease);
+    }
+    .wf-link-field:focus-within{border-color:var(--vx-primary)}
+    .wf-link-field input{
+      flex:1;min-width:0;border:0;outline:0;background:transparent;
+      font-family:var(--vx-sans);font-size:13.5px;color:var(--vx-white);padding:10px 0;
+    }
+    .wf-btn{
+      display:inline-flex;align-items:center;gap:8px;
+      padding:11px 18px;border-radius:10px;
+      font-size:13px;font-weight:600;letter-spacing:.01em;
+      border:1px solid transparent;background:var(--vx-grad-primary);color:#03131c;
+      transition:transform .2s var(--vx-ease),opacity .2s var(--vx-ease);
+      cursor:pointer;
+    }
+    .wf-btn:hover{opacity:.92;color:#03131c}
+    .wf-btn:active{transform:scale(.97)}
+    .wf-btn-ghost{
+      background:transparent;color:var(--vx-white);border-color:var(--vx-line-strong);
+    }
+    .wf-btn-ghost:hover{background:var(--vx-hover);color:var(--vx-white)}
+    .wf-helper{font-size:12.5px;color:var(--vx-muted);margin-top:14px;line-height:1.5}
+
+    /* ============ FOOTER ============ */
+    .wf-footer{
+      border-top:1px solid var(--vx-line);
+      background:var(--vx-surface);
+      margin-top:96px;
+    }
+    .wf-footer-top{
+      max-width:1360px;margin:0 auto;
+      padding:64px 32px 40px;
+      display:grid;grid-template-columns:1.4fr 1fr 1fr 1.2fr;gap:40px;
+    }
+    .wf-footer-brand-block{display:flex;flex-direction:column;gap:14px;padding-right:20px}
+    .wf-footer-logo{display:flex;align-items:center;gap:10px}
+    .wf-footer-logo-mark{
+      width:36px;height:36px;border-radius:10px;background:var(--vx-card);
+      display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--vx-line);
+    }
+    .wf-footer-logo-mark img{width:100%;height:100%;object-fit:cover}
+    .wf-footer-logo-mark span{font-family:var(--vx-display);font-weight:700;background:var(--vx-grad-primary);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .wf-footer-brand{font-family:var(--vx-display);font-size:18px;font-weight:600;color:var(--vx-white)}
+    .wf-footer-tagline{font-size:13.5px;color:var(--vx-muted);line-height:1.6;max-width:280px}
+    .wf-footer-social{display:flex;gap:10px;margin-top:6px}
+    .wf-footer-social a{
+      width:36px;height:36px;border-radius:10px;border:1px solid var(--vx-line);
+      display:flex;align-items:center;justify-content:center;color:var(--vx-muted);
+      transition:all .25s var(--vx-ease);
+    }
+    .wf-footer-social a:hover{color:var(--vx-white);border-color:var(--vx-line-strong);background:var(--vx-hover)}
+    .wf-footer-col h5{
+      font-size:11.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
+      color:var(--vx-white);margin-bottom:18px;
+    }
+    .wf-footer-col ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:12px}
+    .wf-footer-col a{font-size:13.5px;color:var(--vx-muted);transition:color .2s var(--vx-ease)}
+    .wf-footer-col a:hover{color:var(--vx-accent)}
+    .wf-footer-newsletter p{font-size:13px;color:var(--vx-muted);margin:0 0 14px;line-height:1.55}
+    .wf-footer-inner{
+      max-width:1360px;margin:0 auto;
+      padding:26px 32px;
+      border-top:1px solid var(--vx-line);
+      display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;
+    }
+    .wf-footer-meta{
+      font-size:12px;color:var(--vx-muted);letter-spacing:.02em;
+    }
+    .wf-footer-meta a{
+      color:var(--vx-white);font-weight:600;
+      border-bottom:1px solid var(--vx-line-strong);padding-bottom:1px;
+      transition:color .2s var(--vx-ease),border-color .2s var(--vx-ease);
+    }
+    .wf-footer-meta a:hover{color:var(--vx-accent);border-color:var(--vx-accent)}
+    @media (max-width:900px){
+      .wf-footer-top{grid-template-columns:1fr 1fr;gap:32px 24px;padding:56px 24px 32px}
+      .wf-footer-brand-block{grid-column:1/-1}
+    }
+    @media (max-width:560px){
+      .wf-footer-top{grid-template-columns:1fr;padding:48px 20px 28px}
+      .wf-footer-inner{padding:22px 20px;flex-direction:column;align-items:flex-start;gap:10px}
+    }
+
+    /* Toast */
+    .wf-toast{
+      position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);
+      background:var(--vx-card);color:var(--vx-white);border:1px solid var(--vx-line-strong);
+      padding:12px 18px;border-radius:999px;font-size:13px;font-weight:500;
+      box-shadow:var(--vx-shadow-lg);
+      opacity:0;pointer-events:none;
+      transition:opacity .3s var(--vx-ease),transform .3s var(--vx-ease);
+      z-index:1080;
+    }
+    .wf-toast.show{opacity:1;transform:translate(-50%,0)}
+
+    .wf-cart-badge{
+      position:absolute;top:2px;right:0px;
+      min-width:18px;height:18px;border-radius:50%;
+      background:var(--vx-grad-primary);color:#03131c;
+      font-size:10px;font-weight:800;
+      display:flex;align-items:center;justify-content:center;
+      padding:0 5px;border:2px solid var(--vx-bg);line-height:1;
+    }
+  </style>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ============== NAVBAR ============== -->
+  <header class="wf-nav" id="wfNav">
+    <div class="wf-nav-inner">
+
+      <a class="wf-brand" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+        <span class="wf-brand-mark">
+          {% if "http" in store.brand_logo.name %}
+            <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}" class="wf-logo">
+          {% elif store.brand_logo %}
+            <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}" class="wf-logo">
+          {% elif store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}" class="wf-logo">
+          {% else %}
+            <span class="wf-mono">{{ store.brand_name|first|upper }}</span>
+          {% endif %}
+        </span>
+        <span class="wf-brand-name">{{ store.brand_name }}</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="wf-links-wrap" aria-label="Primary">
+        <ul class="wf-links">
+          <li><a class="wf-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+        </ul>
+      </nav>
+
+      <!-- Actions -->
+      <div class="wf-actions">
+
+        <a href="{% url 'cart' %}" class="wf-icon-btn position-relative" aria-label="Shopping Cart">
+          <i class="bi bi-bag"></i>
+          {% if cart_count %}
+            <span class="wf-cart-badge">{{ cart_count }}</span>
+          {% endif %}
+        </a>
+
+        <!-- Share Button -->
+        <button class="wf-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#wfShareModal" aria-label="Share store">
+          <i class="bi bi-share"></i>
+        </button>
+
+        <!-- Professional Link Button -->
+        <button class="wf-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#wfProLinkModal" aria-label="Get professional link">
+          <i class="bi bi-link-45deg"></i>
+        </button>
+
+        <!-- 3-dot menu (desktop) -->
+        <div class="dropdown d-none d-md-inline-block">
+          <button class="wf-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end wf-menu">
+
+            {% if request.user.is_authenticated and request.user == store.owner %}
+            <li>
+              <a class="dropdown-item" href="{% url 'create_store' store.slug %}">
+                <i class="bi bi-pencil-square"></i> Edit Store
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item" href="{% url 'manage_store' store.slug %}">
+                <i class="bi bi-gear"></i> Manage Store
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            {% endif %}
+
+            {% if not request.user.is_authenticated or request.user != store.owner %}
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
+                <i class="bi bi-flag me-2"></i> Report Store
+              </button>
+            </li>
+            {% endif %}
+
+          </ul>
+        </div>
+
+        <!-- Mobile burger -->
+        <button class="wf-icon-btn wf-burger" type="button" id="wfBurger" aria-label="Open menu">
+          <i class="bi bi-list" style="font-size:22px"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============== MOBILE DRAWER ============== -->
+  <div class="wf-drawer" id="wfDrawer" aria-hidden="true">
+    <div class="wf-drawer-panel" role="dialog" aria-label="Menu">
+      <div class="wf-drawer-head">
+        <span class="wf-drawer-eyebrow">Menu</span>
+        <button class="wf-icon-btn" type="button" id="wfDrawerClose" aria-label="Close menu">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="wf-drawer-body">
+        <a class="wf-drawer-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact <i class="bi bi-arrow-up-right"></i></a>
+      </div>
+      <div class="wf-drawer-foot">
+        {% if request.user.is_authenticated and request.user == store.owner %}
+          <a class="wf-drawer-action" href="{% url 'create_store' store.slug %}">
+            <i class="bi bi-pencil-square"></i> Edit Store
+          </a>
+          <a class="wf-drawer-action" href="{% url 'manage_store' store.slug %}">
+            <i class="bi bi-gear"></i> Manage Store
+          </a>
+        {% endif %}
+        <a class="wf-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#wfShareModal">
+          <i class="bi bi-share"></i> Share on Socials
+        </a>
+        <a class="wf-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#wfProLinkModal">
+          <i class="bi bi-link-45deg"></i> Get Professional Link
+        </a>
+        {% if not request.user.is_authenticated or request.user != store.owner %}
+          <a class="wf-drawer-action" href="#">
+            <i class="bi bi-flag"></i> Report Store
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SHARE MODAL ============== -->
+  <div class="modal fade wf-modal" id="wfShareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Share {{ store.brand_name }}</h5>
+            <p class="modal-subtitle">Send your storefront to clients and audiences.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="wf-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="wfShareUrl">
+            <button class="wf-btn" type="button" onclick="wfCopy('wfShareUrl', this)">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+          <p class="wf-helper">Share the link across WhatsApp, Instagram, X, and your professional channels.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== PROFESSIONAL LINK MODAL ============== -->
+  <div class="modal fade wf-modal" id="wfProLinkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Professional Link</h5>
+            <p class="modal-subtitle">A polished, client-ready storefront URL.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="wf-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="wfProUrl">
+            <button class="wf-btn" type="button" onclick="wfCopy('wfProUrl', this)">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+          <p class="wf-helper">Add this link to your social media bios and share it directly with your clients.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== MAIN CONTENT ============== -->
+  <main class="wf-main">
+    {% block body %}{% endblock %}
+  </main>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="wf-footer">
+    <div class="wf-footer-top">
+
+      <div class="wf-footer-brand-block">
+        <div class="wf-footer-logo">
+          <span class="wf-footer-logo-mark">
+            {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
+              <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% else %}
+              <span>{{ store.brand_name|first|upper }}</span>
+            {% endif %}
+          </span>
+          <span class="wf-footer-brand">{{ store.brand_name }}</span>
+        </div>
+        <p class="wf-footer-tagline">{{ store.bio|default:"Premium electronics, curated for people who care about detail." }}</p>
+        {% if store.whatsapp %}
+        <div class="wf-footer-social">
+          <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>
+        </div>
+        {% endif %}
+      </div>
+
+      <div class="wf-footer-col">
+        <h5>Shop</h5>
+        <ul>
+          <li><a href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
+          <li><a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">All Products</a></li>
+          <li><a href="{% url 'cart' %}">Cart</a></li>
+        </ul>
+      </div>
+
+      <div class="wf-footer-col">
+        <h5>Company</h5>
+        <ul>
+          <li><a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About Us</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          {% if store.whatsapp %}<li><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">WhatsApp Support</a></li>{% endif %}
+        </ul>
+      </div>
+
+      <div class="wf-footer-col wf-footer-newsletter">
+        <h5>Stay Updated</h5>
+        <p>Get the latest drops and deals from {{ store.brand_name }} straight to your inbox.</p>
+        <div class="wf-link-field">
+          <input type="email" placeholder="Your email address" id="wfNewsletterEmail" aria-label="Email address">
+          <button class="wf-btn" type="button" onclick="wfNewsletterSignup(this)">
+            <i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+      </div>
+
+    </div>
+    <div class="wf-footer-inner">
+      <div class="wf-footer-meta">© {% now "Y" %} {{ store.brand_name }}</div>
+      <div class="wf-footer-meta">
+        Powered by <a href="https://waapfolio.com" target="_blank" rel="noopener">Waapfolio</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="wf-toast" id="wfToast">Link copied</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sticky nav shadow
+    (function(){
+      var nav = document.getElementById('wfNav');
+      var onScroll = function(){
+        if(window.scrollY > 6) nav.classList.add('is-scrolled');
+        else nav.classList.remove('is-scrolled');
+      };
+      document.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+
+    // Mobile drawer
+    (function(){
+      var drawer = document.getElementById('wfDrawer');
+      var openBtn = document.getElementById('wfBurger');
+      var closeBtn = document.getElementById('wfDrawerClose');
+      function open(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function close(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+      if(openBtn) openBtn.addEventListener('click', open);
+      if(closeBtn) closeBtn.addEventListener('click', close);
+      drawer.addEventListener('click', function(e){ if(e.target === drawer) close(); });
+      drawer.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+    })();
+
+    // Active nav link
+    (function(){
+      var here = window.location.pathname.replace(/\/+$/,'');
+      document.querySelectorAll('.wf-link, .wf-drawer-link').forEach(function(a){
+        var p = (a.getAttribute('href')||'').replace(/\/+$/,'');
+        if(p && p === here) a.classList.add('active');
+      });
+    })();
+
+    // Copy helper
+    function wfCopy(id, btn){
+      var input = document.getElementById(id);
+      if(!input) return;
+      input.select(); input.setSelectionRange(0,99999);
+      try { navigator.clipboard.writeText(input.value); } catch(e){ document.execCommand('copy'); }
+      var original = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+      var toast = document.getElementById('wfToast');
+      toast.textContent = 'Link copied';
+      toast.classList.add('show');
+      setTimeout(function(){ btn.innerHTML = original; toast.classList.remove('show'); }, 1800);
+    }
+
+    // Newsletter (client-side confirmation only)
+    function wfNewsletterSignup(btn){
+      var input = document.getElementById('wfNewsletterEmail');
+      if(!input || !input.value || input.validity && !input.validity.valid){ if(input) input.focus(); return; }
+      var toast = document.getElementById('wfToast');
+      toast.textContent = "You're subscribed";
+      toast.classList.add('show');
+      input.value = '';
+      setTimeout(function(){ toast.classList.remove('show'); }, 1800);
+    }
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

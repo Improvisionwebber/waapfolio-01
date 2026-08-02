@@ -1,11 +1,7 @@
-{% extends "store_templates/starter/base.html" %}
+{% extends "store_templates/fashion_basic/base.html" %}
 {% load static %}
 
 {% block title %}Contact — {{ store.brand_name }}{% endblock %}
-
-{% block head %}
-<link rel="stylesheet" href="https://unpkg.com/aos@2.3.4/dist/aos.css">
-{% endblock %}
 
 {% block body %}
 <style>
@@ -15,18 +11,23 @@
     --fs-bg:#ffffff; --fs-surface:#f7f5f3; --fs-ink:#0d0d0d; --fs-ink-soft:#3c3a38;
     --fs-muted:#8c8580; --fs-faint:#b3aca6; --fs-pink:#d6939c; --fs-pink-deep:#a85a66; --fs-pink-pale:#f7e9ea;
     --fs-line:rgba(13,13,13,.09); --fs-line-strong:rgba(13,13,13,.16);
-    --fs-glass-strong:rgba(255,255,255,.9);
+    --fs-glass-strong:rgba(255,255,255,.94);
     --fs-shadow-lg:0 50px 100px -40px rgba(13,13,13,.3);
     --fs-serif:'Bodoni Moda','Times New Roman',serif; --fs-sans:'Inter',-apple-system,sans-serif;
     --fs-ease:cubic-bezier(.16,1,.3,1);
   }
-  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); overflow-x:clip; }
+  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); }
   .fs-page *{ box-sizing:border-box; }
   .fs-container{ max-width:1240px; margin:0 auto; padding:0 40px; }
   @media (max-width:900px){ .fs-container{ padding:0 22px; } }
   .fs-page h1,.fs-page h2,.fs-page h3{ font-family:var(--fs-serif); font-weight:500; letter-spacing:-0.01em; margin:0; }
   .fs-eyebrow{ font-size:.68rem; font-weight:600; letter-spacing:.26em; text-transform:uppercase; color:var(--fs-pink-deep); display:flex; align-items:center; gap:10px; }
   .fs-eyebrow .ln{ width:30px; height:1px; background:var(--fs-pink-deep); }
+
+  [data-reveal]{ opacity:1; transform:translateY(0); }
+  [data-reveal].fs-will-animate{ transform:translateY(20px); transition:transform .7s var(--fs-ease); }
+  [data-reveal].fs-will-animate.is-in{ transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ [data-reveal]{ transform:none !important; transition:none !important; } }
 
   /* ─── HERO ─── */
   .fs-c-hero{ padding: calc(var(--wf-nav-h) + 4.2rem) 0 3.4rem; background:linear-gradient(180deg,var(--fs-pink-pale) 0%, var(--fs-bg) 100%); }
@@ -79,11 +80,10 @@
     background-image: linear-gradient(rgba(255,255,255,.06) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.06) 1px, transparent 1px);
     background-size:44px 44px;
   }
-  .fs-map-pin{
-    position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:14px; color:#fff; text-align:center; padding:2rem;
-  }
+  .fs-map-pin{ position:relative; z-index:2; display:flex; flex-direction:column; align-items:center; gap:14px; color:#fff; text-align:center; padding:2rem; }
   .fs-map-pin .dot-outer{ width:56px; height:56px; border-radius:50%; background:rgba(214,147,156,.18); display:grid; place-items:center; animation: fs-pulse-ring 2.4s var(--fs-ease) infinite; }
   @keyframes fs-pulse-ring{ 0%{ box-shadow:0 0 0 0 rgba(214,147,156,.35);} 100%{ box-shadow:0 0 0 20px rgba(214,147,156,0);} }
+  @media (prefers-reduced-motion: reduce){ .fs-map-pin .dot-outer{ animation:none; } }
   .fs-map-pin .dot-inner{ width:16px; height:16px; border-radius:50%; background:var(--fs-pink); }
   .fs-map-pin .label{ font-family:var(--fs-serif); font-size:1.2rem; }
   .fs-map-pin .sub{ font-size:.8rem; color:rgba(255,255,255,.55); max-width:260px; }
@@ -108,16 +108,16 @@
   <!-- ─── HERO ─── -->
   <section class="fs-c-hero">
     <div class="fs-container">
-      <div class="fs-eyebrow" data-aos="fade-up"><span class="ln"></span> Get In Touch</div>
-      <h1 data-aos="fade-up">Let's talk <em>fashion.</em></h1>
-      <p data-aos="fade-up">{{ store.bio|default:"We believe every order begins with a conversation. Reach our team directly on WhatsApp — for sizing, styling advice, or anything in between." }}</p>
+      <div class="fs-eyebrow" data-reveal><span class="ln"></span> Get In Touch</div>
+      <h1 data-reveal>Let's talk <em>fashion.</em></h1>
+      <p data-reveal>{{ store.bio|default:"We believe every order begins with a conversation. Reach our team directly on WhatsApp — for sizing, styling advice, or anything in between." }}</p>
     </div>
   </section>
 
   <!-- ─── CONTACT CARDS ─── -->
   <div class="fs-container fs-cards-wrap">
     <div class="fs-cards">
-      <div class="fs-c-card" data-aos="fade-up">
+      <div class="fs-c-card" data-reveal>
         <span class="ic"><i class="bi bi-whatsapp"></i></span>
         <h4>WhatsApp</h4>
         <p>The fastest way to reach us — usually under 5 minutes.</p>
@@ -125,7 +125,7 @@
           <a class="fs-c-card-link" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20want%20to%20make%20an%20inquiry">Start chatting →</a>
         {% endif %}
       </div>
-      <div class="fs-c-card" data-aos="fade-up" data-aos-delay="90">
+      <div class="fs-c-card" data-reveal>
         <span class="ic"><i class="bi bi-bag-heart"></i></span>
         <h4>Order Enquiries</h4>
         <p>Ask about sizing, availability, or place an order directly.</p>
@@ -133,7 +133,7 @@
           <a class="fs-c-card-link" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">Enquire about an order →</a>
         {% endif %}
       </div>
-      <div class="fs-c-card" data-aos="fade-up" data-aos-delay="180">
+      <div class="fs-c-card" data-reveal>
         <span class="ic"><i class="bi bi-stars"></i></span>
         <h4>Custom Requests</h4>
         <p>Bespoke pieces and personalisations, made to your brief.</p>
@@ -146,7 +146,7 @@
 
   <!-- ─── PANEL + MAP ─── -->
   <div class="fs-container fs-c-panel-wrap">
-    <div class="fs-c-panel" data-aos="fade-up">
+    <div class="fs-c-panel" data-reveal>
 
       <div class="fs-c-panel-left">
         <div class="fs-eyebrow" style="margin-bottom:1rem;">Direct Consultation</div>
@@ -179,12 +179,12 @@
   <!-- ─── FAQ ─── -->
   <section class="fs-c-section" style="border-bottom:1px solid var(--fs-line);">
     <div class="fs-container">
-      <div class="fs-c-section-head" data-aos="fade-up">
+      <div class="fs-c-section-head" data-reveal>
         <div class="fs-eyebrow" style="justify-content:center;">Frequently Asked</div>
         <h2 style="margin-top:1rem;">Questions, answered.</h2>
       </div>
 
-      <div class="fs-faq" data-aos="fade-up">
+      <div class="fs-faq" data-reveal>
         <div class="fs-faq-item">
           <div class="fs-faq-q"><span>How do I place an order?</span><span class="plus">+</span></div>
           <div class="fs-faq-a"><p>Browse the edit, then tap any piece or the WhatsApp button to start a conversation. We confirm sizing, availability and delivery — all in one chat. {% if store.whatsapp %}<a target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%27d%20like%20to%20place%20an%20order.">Start an order →</a>{% endif %}</p></div>
@@ -217,24 +217,17 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
-<script src="https://unpkg.com/aos@2.3.4/dist/aos.js"></script>
 <script>
 (function(){
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-  if (window.Lenis && !reduceMotion) {
-    var lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
-    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-    if (window.gsap && window.ScrollTrigger) {
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
-    }
+  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
+    gsap.registerPlugin(ScrollTrigger);
+    document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('fs-will-animate'); });
+    gsap.utils.toArray('[data-reveal]').forEach(function(el){
+      ScrollTrigger.create({ trigger: el, start: 'top 90%', onEnter: function(){ el.classList.add('is-in'); } });
+    });
+    window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
   }
-  if (window.gsap && window.ScrollTrigger) { gsap.registerPlugin(ScrollTrigger); }
-  if (window.AOS) { AOS.init({ duration: 700, once: true, offset: 60, disable: reduceMotion }); }
 
   document.querySelectorAll('.fs-faq-q').forEach(function(q){
     q.addEventListener('click', function(){

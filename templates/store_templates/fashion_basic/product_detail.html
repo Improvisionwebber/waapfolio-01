@@ -1,4 +1,4 @@
-{% extends "store_templates/starter/base.html" %}
+{% extends "store_templates/fashion_basic/base.html" %}
 {% load static %}
 {% load humanize %}
 
@@ -16,16 +16,28 @@
     --fs-bg:#ffffff; --fs-surface:#f7f5f3; --fs-ink:#0d0d0d; --fs-ink-soft:#3c3a38;
     --fs-muted:#8c8580; --fs-faint:#b3aca6; --fs-pink:#d6939c; --fs-pink-deep:#a85a66; --fs-pink-pale:#f7e9ea;
     --fs-line:rgba(13,13,13,.09); --fs-line-strong:rgba(13,13,13,.16);
-    --fs-glass-strong:rgba(255,255,255,.9);
+    --fs-glass-strong:rgba(255,255,255,.94);
     --fs-shadow-sm:0 2px 10px rgba(13,13,13,.06); --fs-shadow-md:0 24px 54px -26px rgba(13,13,13,.26);
     --fs-serif:'Bodoni Moda','Times New Roman',serif; --fs-sans:'Inter',-apple-system,sans-serif;
     --fs-ease:cubic-bezier(.16,1,.3,1);
   }
-  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); overflow-x:clip; }
+  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); }
   .fs-page *{ box-sizing:border-box; }
   .fs-container{ max-width:1360px; margin:0 auto; padding:0 40px; }
   @media (max-width:900px){ .fs-container{ padding:0 22px; } }
   .fs-page h1,.fs-page h2,.fs-page h3{ font-family:var(--fs-serif); font-weight:500; letter-spacing:-0.01em; margin:0; }
+
+  [data-reveal]{ opacity:1; transform:translateY(0); }
+  [data-reveal].fs-will-animate{ transform:translateY(20px); transition:transform .7s var(--fs-ease); }
+  [data-reveal].fs-will-animate.is-in{ transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ [data-reveal]{ transform:none !important; transition:none !important; } }
+
+  [data-media-fallback]{ position:relative; }
+  [data-media-fallback].is-broken{ background: repeating-linear-gradient(135deg, rgba(13,13,13,.035) 0 2px, transparent 2px 22px), var(--fs-surface); }
+  [data-media-fallback].is-broken::after{
+    content: attr(data-fallback-label); position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--fs-serif); font-style:italic; font-size:.9rem; color:var(--fs-faint); padding:1rem; text-align:center;
+  }
 
   .fs-crumbs{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding: calc(var(--wf-nav-h) + 2rem) 0 1.6rem; font-size:.76rem; color:var(--fs-muted); }
   .fs-crumbs a{ color:var(--fs-muted); }
@@ -37,26 +49,31 @@
   .fs-hero{ display:grid; grid-template-columns:1.25fr 1fr; gap:56px; padding-bottom:5.5rem; align-items:flex-start; }
   @media (max-width:980px){ .fs-hero{ grid-template-columns:1fr; gap:28px; } }
 
+  /* Gallery stage — plain HTML/CSS, no carousel library. Cannot go blank or black. */
   .fs-gallery-main{ position:relative; aspect-ratio:4/5; border-radius:2px; overflow:hidden; background:var(--fs-surface); box-shadow:var(--fs-shadow-md); }
-  .fs-gallery-main img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .fs-gallery-stage{ width:100%; height:100%; }
+  .fs-gallery-stage img{ width:100%; height:100%; object-fit:cover; display:block; }
   .fs-gallery-badge{
-    position:absolute; top:16px; left:16px; z-index:2; background:var(--fs-glass-strong); backdrop-filter:blur(10px);
+    position:absolute; top:16px; left:16px; z-index:5; background:var(--fs-glass-strong);
     border-radius:999px; padding:7px 14px 7px 10px; font-size:.66rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; color:var(--fs-ink-soft);
     display:flex; align-items:center; gap:7px;
   }
   .fs-gallery-badge .dot{ width:6px; height:6px; border-radius:50%; background:var(--fs-pink-deep); }
   .fs-gallery-zoom{
-    position:absolute; bottom:16px; right:16px; z-index:2; width:42px; height:42px; border-radius:50%;
-    background:var(--fs-glass-strong); backdrop-filter:blur(10px); display:grid; place-items:center; cursor:pointer; color:var(--fs-ink);
+    position:absolute; bottom:16px; right:16px; z-index:5; width:42px; height:42px; border-radius:50%;
+    background:var(--fs-glass-strong); display:grid; place-items:center; cursor:pointer; color:var(--fs-ink); border:none;
   }
 
-  .fs-thumb-swiper{ margin-top:14px; }
-  .fs-thumb-swiper .swiper-slide{ width:76px; height:76px; border-radius:2px; overflow:hidden; cursor:pointer; border:1.5px solid var(--fs-line); opacity:.75; transition: border-color .25s var(--fs-ease), opacity .25s var(--fs-ease); }
-  .fs-thumb-swiper .swiper-slide-thumb-active{ border-color:var(--fs-pink-deep); opacity:1; }
-  .fs-thumb-swiper img{ width:100%; height:100%; object-fit:cover; }
-  .fs-thumb-vwrap{ position:relative; width:100%; height:100%; }
-  .fs-thumb-play{ position:absolute; inset:0; display:grid; place-items:center; background:rgba(13,13,13,.32); color:#fff; }
-  .fs-thumb-play svg{ width:16px; height:16px; fill:#fff; }
+  .fs-thumbs{ display:flex; gap:10px; margin-top:14px; overflow-x:auto; padding-bottom:2px; }
+  .fs-thumb{
+    flex:0 0 auto; width:76px; height:76px; border-radius:2px; overflow:hidden; cursor:pointer; padding:0;
+    border:1.5px solid var(--fs-line); background:var(--fs-surface); opacity:.75;
+    transition: border-color .2s var(--fs-ease), opacity .2s var(--fs-ease); position:relative;
+  }
+  .fs-thumb.active{ border-color:var(--fs-pink-deep); opacity:1; }
+  .fs-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .fs-thumb-play{ position:absolute; inset:0; display:grid; place-items:center; background:rgba(13,13,13,.32); color:#fff; pointer-events:none; }
+  .fs-thumb-play svg{ width:14px; height:14px; fill:#fff; }
 
   /* ─── INFO PANEL ─── */
   .fs-info{ display:flex; flex-direction:column; position:sticky; top:calc(var(--wf-nav-h) + 20px); }
@@ -74,9 +91,9 @@
   .fs-price{ font-family:var(--fs-serif); font-size:2.1rem; letter-spacing:-0.01em; }
 
   .fs-desc-title{ font-size:.68rem; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--fs-pink-deep); margin-bottom:.9rem; }
-  .fs-desc-body{ font-size:.95rem; line-height:1.75; color:var(--fs-ink-soft); max-height:8em; overflow:hidden; margin-bottom:1.8rem; }
+  .fs-desc-body{ font-size:.95rem; line-height:1.75; color:var(--fs-ink-soft); max-height:8em; overflow:hidden; margin-bottom:.6rem; }
   .fs-desc-body.expanded{ max-height:none; }
-  .fs-desc-toggle{ background:none; border:0; padding:0; cursor:pointer; font-size:.8rem; font-weight:600; color:var(--fs-pink-deep); border-bottom:1px solid currentColor; margin:-1.2rem 0 1.8rem; display:block; }
+  .fs-desc-toggle{ background:none; border:0; padding:0; cursor:pointer; font-size:.8rem; font-weight:600; color:var(--fs-pink-deep); border-bottom:1px solid currentColor; margin:0 0 1.8rem; display:block; }
 
   .fs-btn{
     display:flex; align-items:center; justify-content:center; gap:12px; width:100%; padding:18px 24px; border-radius:2px;
@@ -104,12 +121,12 @@
   .fs-trust-card h4{ font-family:var(--fs-sans); font-size:.96rem; font-weight:600; margin:0 0 .5rem; }
   .fs-trust-card p{ font-size:.86rem; color:var(--fs-muted); line-height:1.6; margin:0; }
 
-  /* ─── RELATED / RECENTLY VIEWED CAROUSEL ─── */
+  /* ─── RELATED / RECENTLY VIEWED ─── */
   .fs-rel-swiper .swiper-slide{ width:min(270px,72vw); }
   .fs-card{ display:block; text-decoration:none; color:inherit; }
   .fs-card-media{ position:relative; aspect-ratio:3/4; overflow:hidden; border-radius:2px; background:var(--fs-surface); margin-bottom:1rem; }
-  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--fs-ease); }
-  .fs-card:hover .fs-card-media img{ transform:scale(1.08); }
+  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform .9s var(--fs-ease); }
+  .fs-card:hover .fs-card-media img{ transform:scale(1.07); }
   .fs-card-name{ font-size:.94rem; font-weight:500; margin:0 0 3px; }
   .fs-card-meta{ font-size:.72rem; color:var(--fs-faint); text-transform:uppercase; letter-spacing:.04em; }
   .fs-card-price{ font-family:var(--fs-serif); font-size:.96rem; margin-top:2px; }
@@ -135,66 +152,54 @@
     <!-- HERO -->
     <div class="fs-hero">
 
-      <!-- GALLERY -->
+      <!-- GALLERY — plain HTML/CSS stage + vanilla-JS thumbnail switching. No carousel library involved. -->
       <div class="fs-gallery">
-        <div class="fs-gallery-main">
+
+        <div class="fs-gallery-main" data-media-fallback data-fallback-label="{{ product.name }}">
           <span class="fs-gallery-badge"><span class="dot"></span> In Stock</span>
-          <button class="fs-gallery-zoom" id="fsZoomBtn" aria-label="Zoom image">
+          <button class="fs-gallery-zoom" id="fsZoomBtn" type="button" aria-label="Zoom image">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
           </button>
-          <div class="swiper fs-main-swiper">
-            <div class="swiper-wrapper" id="fsMainWrapper">
-              {% if product.image %}
-                <div class="swiper-slide"><img src="{{ product.image.url }}" alt="{{ product.name }}" id="fsPrimaryImg"></div>
-              {% elif product.image_url %}
-                <div class="swiper-slide"><img src="{{ product.image_url }}" alt="{{ product.name }}" id="fsPrimaryImg"></div>
-              {% else %}
-                <div class="swiper-slide"><img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" id="fsPrimaryImg"></div>
-              {% endif %}
-              {% for img in product.extra_files.all %}
-                {% if img.image %}
-                  <div class="swiper-slide"><img src="{{ img.image.url }}" alt=""></div>
-                {% elif img.image_url %}
-                  <div class="swiper-slide"><img src="{{ img.image_url }}" alt=""></div>
-                {% endif %}
-              {% endfor %}
-              {% for y in product.media.all %}
-                {% if y.youtube_id %}
-                  <div class="swiper-slide" data-yt="{{ y.youtube_id }}">
-                    <iframe style="width:100%;height:100%;border:0" src="https://www.youtube.com/embed/{{ y.youtube_id }}" allow="encrypted-media" allowfullscreen></iframe>
-                  </div>
-                {% endif %}
-              {% endfor %}
-            </div>
+          <div class="fs-gallery-stage" id="fsStage">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" id="fsPrimaryImg">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" id="fsPrimaryImg">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" id="fsPrimaryImg">
+            {% endif %}
           </div>
         </div>
 
-        <div class="swiper fs-thumb-swiper">
-          <div class="swiper-wrapper">
-            {% if product.image %}
-              <div class="swiper-slide"><img src="{{ product.image.url }}" alt=""></div>
-            {% elif product.image_url %}
-              <div class="swiper-slide"><img src="{{ product.image_url }}" alt=""></div>
+        {% with extra_count=product.extra_files.all|length media_count=product.media.all|length %}
+        {% if extra_count > 0 or media_count > 0 %}
+        <div class="fs-thumbs" id="fsThumbs">
+          {% if product.image %}
+            <button type="button" class="fs-thumb active" data-type="img" data-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt=""></button>
+          {% elif product.image_url %}
+            <button type="button" class="fs-thumb active" data-type="img" data-src="{{ product.image_url }}"><img src="{{ product.image_url }}" alt=""></button>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <button type="button" class="fs-thumb" data-type="img" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt=""></button>
+            {% elif img.image_url %}
+              <button type="button" class="fs-thumb" data-type="img" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt=""></button>
             {% endif %}
-            {% for img in product.extra_files.all %}
-              {% if img.image %}
-                <div class="swiper-slide"><img src="{{ img.image.url }}" alt=""></div>
-              {% elif img.image_url %}
-                <div class="swiper-slide"><img src="{{ img.image_url }}" alt=""></div>
-              {% endif %}
-            {% endfor %}
-            {% for y in product.media.all %}
-              {% if y.youtube_id %}
-                <div class="swiper-slide">
-                  <div class="fs-thumb-vwrap">
-                    <img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt="">
-                    <div class="fs-thumb-play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
-                  </div>
-                </div>
-              {% endif %}
-            {% endfor %}
-          </div>
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <button type="button" class="fs-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt="">
+                <span class="fs-thumb-play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></span>
+              </button>
+            {% endif %}
+          {% endfor %}
         </div>
+        {% endif %}
+        {% endwith %}
+
       </div>
 
       <!-- INFO PANEL (sticky) -->
@@ -220,7 +225,7 @@
 
         <div class="fs-desc-title">Description</div>
         <div class="fs-desc-body" id="fsDescBody">{{ product.description|default:"No description available."|linebreaks }}</div>
-        <button class="fs-desc-toggle" id="fsDescToggle">Read more</button>
+        <button class="fs-desc-toggle" id="fsDescToggle" type="button">Read more</button>
 
         <a class="fs-btn" href="{% url 'add_to_cart' product.slug %}">
           <i class="bi bi-bag-heart"></i> Enquire / Order Now <span class="arrow">→</span>
@@ -314,7 +319,7 @@
           {% for product in products|slice:":8" %}
             <div class="swiper-slide">
               <a href="{% url 'store_product_detail' store.slug product.slug %}" class="fs-card">
-                <div class="fs-card-media">
+                <div class="fs-card-media" data-media-fallback data-fallback-label="{{ product.name }}">
                   {% if product.image %}
                     <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
                   {% elif product.image_url %}
@@ -360,38 +365,38 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script>
 (function(){
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Lenis */
-  if (window.Lenis && !reduceMotion) {
-    var lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
-    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-    if (window.gsap && window.ScrollTrigger) {
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
-    }
-  }
-
-  /* GSAP section reveal */
-  if (window.gsap && window.ScrollTrigger) {
+  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
-    gsap.utils.toArray('.fs-section').forEach(function(sec){
-      gsap.fromTo(sec, { opacity:0, y:30 }, { opacity:1, y:0, duration:.9, ease:'power3.out', scrollTrigger:{ trigger:sec, start:'top 88%' } });
+    document.querySelectorAll('.fs-section').forEach(function(el){ el.setAttribute('data-reveal',''); el.classList.add('fs-will-animate'); });
+    document.querySelectorAll('[data-reveal]').forEach(function(el){
+      ScrollTrigger.create({ trigger: el, start: 'top 90%', onEnter: function(){ el.classList.add('is-in'); } });
     });
+    window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
   }
 
-  /* Swiper: main gallery + thumbs */
-  var thumbSwiper = null;
-  if (window.Swiper) {
-    thumbSwiper = new Swiper('.fs-thumb-swiper', { slidesPerView:'auto', spaceBetween:12, freeMode:true, watchSlidesProgress:true });
-    new Swiper('.fs-main-swiper', { slidesPerView:1, thumbs:{ swiper:thumbSwiper }, effect:'fade', fadeEffect:{crossFade:true} });
+  /* Gallery thumbnail switching — plain vanilla JS, no carousel library, cannot break the stage */
+  var stage = document.getElementById('fsStage');
+  document.querySelectorAll('.fs-thumb').forEach(function(t){
+    t.addEventListener('click', function(){
+      document.querySelectorAll('.fs-thumb').forEach(function(x){ x.classList.remove('active'); });
+      t.classList.add('active');
+      var type = t.getAttribute('data-type');
+      var src = t.getAttribute('data-src');
+      if (!stage) return;
+      if (type === 'yt') {
+        stage.innerHTML = '<iframe style="width:100%;height:100%;border:0" src="https://www.youtube.com/embed/' + src + '?autoplay=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>';
+      } else {
+        stage.innerHTML = '<img id="fsPrimaryImg" src="' + src + '" alt="">';
+      }
+    });
+  });
 
+  if (window.Swiper) {
     var relEl = document.querySelector('.fs-rel-swiper:not(#fsRecentSwiper)');
     if (relEl) {
       new Swiper(relEl, {
@@ -413,7 +418,7 @@
     });
   }
 
-  /* Zoom (simple scale toggle) */
+  /* Zoom (simple scale toggle, works in both gallery modes) */
   var zoomBtn = document.getElementById('fsZoomBtn');
   if (zoomBtn) {
     zoomBtn.addEventListener('click', function(){

@@ -1,0 +1,205 @@
+{% extends "store_templates/electronics/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Shop — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .vx{ background:var(--vx-bg); color:var(--vx-white); font-family:var(--vx-sans); overflow-x:hidden; }
+  .vx *{ box-sizing:border-box; }
+  .vx-container{ max-width:1360px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .vx-container{ padding:0 20px; } }
+  .vx-reveal{ opacity:0; transform:translateY(20px); transition:opacity .7s var(--vx-ease), transform .7s var(--vx-ease); }
+  .vx-reveal.in{ opacity:1; transform:none; }
+
+  /* ===== HEADER ===== */
+  .vx-shop-hero{
+    padding:60px 0 40px; position:relative;
+    background:radial-gradient(1000px 480px at 85% -10%, rgba(0,212,255,.14), transparent 60%);
+  }
+  .vx-eyebrow{ display:inline-flex; align-items:center; gap:9px; padding:7px 15px; border:1px solid var(--vx-line-strong); border-radius:999px; font-size:11.5px; font-weight:600; letter-spacing:.14em; text-transform:uppercase; color:var(--vx-muted); margin-bottom:20px; }
+  .vx-eyebrow .dot{ width:7px; height:7px; border-radius:50%; background:var(--vx-accent); }
+  .vx-shop-hero h1{ font-family:var(--vx-display); font-weight:700; font-size:clamp(2.2rem,5vw,3.6rem); letter-spacing:-.02em; margin:0 0 14px; }
+  .vx-shop-hero h1 .grad{ background:var(--vx-grad-primary); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  .vx-shop-hero p{ color:var(--vx-muted); max-width:520px; font-size:1rem; line-height:1.6; margin:0; }
+
+  /* ===== FILTER BAR ===== */
+  .vx-filter-wrap{ position:sticky; top:calc(var(--vx-nav-h) + 12px); z-index:40; margin:36px 0 32px; }
+  .vx-filter{
+    display:flex; align-items:center; gap:14px; padding:12px 16px;
+    background:rgba(20,28,38,.85); backdrop-filter:saturate(180%) blur(20px);
+    border:1px solid var(--vx-line); border-radius:16px; box-shadow:var(--vx-shadow-md);
+    flex-wrap:wrap;
+  }
+  .vx-search{ flex:1; min-width:180px; display:flex; align-items:center; gap:10px; padding:6px 10px; }
+  .vx-search i{ color:var(--vx-muted); font-size:16px; }
+  .vx-search input{ border:0; outline:0; background:transparent; width:100%; font-size:14px; color:var(--vx-white); }
+  .vx-search input::placeholder{ color:var(--vx-muted); }
+  .vx-filter .divider{ width:1px; height:24px; background:var(--vx-line); }
+  .vx-cats-scroll{ display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .vx-cats-scroll::-webkit-scrollbar{ display:none; }
+  .vx-cat-pill{
+    flex:0 0 auto; padding:9px 16px; border:1px solid var(--vx-line-strong); border-radius:999px;
+    font-size:12px; font-weight:600; letter-spacing:.04em; color:var(--vx-muted); cursor:pointer;
+    transition:all .3s var(--vx-ease); background:transparent;
+  }
+  .vx-cat-pill:hover, .vx-cat-pill.is-active{ background:var(--vx-grad-primary); color:#03131c; border-color:transparent; }
+
+  /* ===== RESULT COUNT ===== */
+  .vx-count-row{ display:flex; justify-content:space-between; align-items:center; margin-bottom:28px; flex-wrap:wrap; gap:10px; }
+  .vx-count{ font-size:12px; letter-spacing:.14em; text-transform:uppercase; color:var(--vx-muted); }
+
+  /* ===== GRID ===== */
+  .vx-grid{ display:grid; grid-template-columns:repeat(4,1fr); gap:28px; padding-bottom:100px; }
+  @media (max-width:1100px){ .vx-grid{ grid-template-columns:repeat(3,1fr); } }
+  @media (max-width:760px){ .vx-grid{ grid-template-columns:repeat(2,1fr); gap:20px; } }
+  @media (max-width:420px){ .vx-grid{ grid-template-columns:1fr; } }
+
+  .vx-card{ display:flex; flex-direction:column; text-decoration:none; color:inherit; }
+  .vx-card-media{ position:relative; aspect-ratio:1/1; border-radius:18px; overflow:hidden; background:var(--vx-card); border:1px solid var(--vx-line); margin-bottom:16px; }
+  .vx-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--vx-ease); }
+  .vx-card:hover .vx-card-media img{ transform:scale(1.07); }
+  .vx-badge{ position:absolute; top:12px; left:12px; z-index:2; padding:5px 10px; border-radius:8px; font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; background:var(--vx-grad-primary); color:#03131c; }
+  .vx-fav{ position:absolute; top:10px; right:10px; z-index:2; width:34px; height:34px; border-radius:10px; background:rgba(20,28,38,.75); border:1px solid var(--vx-line); backdrop-filter:blur(6px); display:flex; align-items:center; justify-content:center; cursor:pointer; opacity:0; transform:translateY(-4px); transition:all .35s var(--vx-ease); }
+  .vx-card:hover .vx-fav{ opacity:1; transform:translateY(0); }
+  .vx-fav svg{ width:15px; height:15px; color:var(--vx-white); }
+  .vx-fav.on svg{ fill:var(--vx-accent); color:var(--vx-accent); }
+  .vx-quick{ position:absolute; left:12px; right:12px; bottom:12px; z-index:2; text-align:center; padding:11px; border-radius:10px; background:rgba(11,15,20,.85); border:1px solid var(--vx-line-strong); font-size:12px; font-weight:600; color:var(--vx-white); opacity:0; transform:translateY(8px); transition:all .35s var(--vx-ease); backdrop-filter:blur(8px); }
+  .vx-card:hover .vx-quick{ opacity:1; transform:translateY(0); }
+  .vx-card-body{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .vx-card-name{ font-size:.95rem; font-weight:600; color:var(--vx-white); margin:0 0 4px; line-height:1.35; }
+  .vx-card-meta{ font-size:.76rem; color:var(--vx-muted); letter-spacing:.03em; text-transform:uppercase; }
+  .vx-card-price{ font-family:var(--vx-display); font-size:.95rem; font-weight:700; color:var(--vx-accent); white-space:nowrap; }
+
+  .vx-empty{ text-align:center; padding:90px 20px; border:1px dashed var(--vx-line-strong); border-radius:20px; grid-column:1/-1; }
+  .vx-empty .mark{ width:60px; height:60px; margin:0 auto 20px; border-radius:16px; background:var(--vx-card); display:flex; align-items:center; justify-content:center; color:var(--vx-muted); font-size:24px; }
+  .vx-empty h3{ font-size:1.25rem; margin-bottom:8px; }
+  .vx-empty p{ color:var(--vx-muted); font-size:.92rem; margin:0; }
+</style>
+
+<div class="vx">
+
+  <!-- ========= HEADER ========= -->
+  <section class="vx-shop-hero">
+    <div class="vx-container">
+      <div class="vx-reveal">
+        <span class="vx-eyebrow"><span class="dot"></span> Full Collection</span>
+        <h1>Shop <span class="grad">{{ store.brand_name }}</span></h1>
+        <p>{{ products|length }} product{{ products|length|pluralize }} ready to order — browse the full range and message us directly to check out.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="vx-container">
+
+    <!-- ========= FILTER BAR ========= -->
+    <div class="vx-filter-wrap vx-reveal">
+      <div class="vx-filter">
+        <div class="vx-search">
+          <i class="bi bi-search"></i>
+          <input type="text" placeholder="Search products..." aria-label="Search products" id="vxSearchInput">
+        </div>
+        {% regroup products by category as vx_category_list %}
+        {% if vx_category_list %}
+        <span class="divider"></span>
+        <div class="vx-cats-scroll">
+          <button type="button" class="vx-cat-pill is-active" data-cat="all">All</button>
+          {% for cat in vx_category_list %}
+            {% if cat.grouper %}
+            <button type="button" class="vx-cat-pill" data-cat="{{ cat.grouper }}">{{ cat.grouper }}</button>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="vx-count-row vx-reveal">
+      <span class="vx-count" id="vxCount">{{ products|length }} product{{ products|length|pluralize }}</span>
+    </div>
+
+    <!-- ========= PRODUCT GRID ========= -->
+    <div class="vx-grid vx-reveal" id="vxGrid">
+      {% for product in products %}
+      <a href="{% url 'store_product_detail' store.slug product.slug %}" class="vx-card" data-name="{{ product.name|lower }}" data-cat="{{ product.category.name|default:'' }}">
+        <div class="vx-card-media">
+          {% if product.is_featured %}<span class="vx-badge">Featured</span>{% endif %}
+          <button type="button" class="vx-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+              <path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/>
+            </svg>
+          </button>
+          {% if product.image %}
+            <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+          {% elif product.image_url %}
+            <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+          {% else %}
+            <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+          {% endif %}
+          <span class="vx-quick">Quick View</span>
+        </div>
+        <div class="vx-card-body">
+          <div>
+            <h6 class="vx-card-name">{{ product.name }}</h6>
+            {% if product.category %}<div class="vx-card-meta">{{ product.category.name }}</div>{% endif %}
+          </div>
+          <div class="vx-card-price">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}{{ product.price|intcomma }}
+          </div>
+        </div>
+      </a>
+      {% empty %}
+      <div class="vx-empty">
+        <div class="mark"><i class="bi bi-bag-x"></i></div>
+        <h3>No Products Available</h3>
+        <p>Products added by the store owner will appear here.</p>
+      </div>
+      {% endfor %}
+    </div>
+
+  </div>
+</div>
+
+<script>
+  (function(){
+    var els = document.querySelectorAll('.vx-reveal');
+    if (!('IntersectionObserver' in window)) { els.forEach(function(e){ e.classList.add('in'); }); return; }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    els.forEach(function(e){ io.observe(e); });
+
+    var searchInput = document.getElementById('vxSearchInput');
+    var grid = document.getElementById('vxGrid');
+    var countEl = document.getElementById('vxCount');
+    var activeCat = 'all';
+
+    function applyFilters(){
+      var q = (searchInput.value || '').trim().toLowerCase();
+      var visible = 0;
+      grid.querySelectorAll('.vx-card').forEach(function(card){
+        var name = card.getAttribute('data-name') || '';
+        var cat = card.getAttribute('data-cat') || '';
+        var matchesSearch = name.indexOf(q) > -1;
+        var matchesCat = activeCat === 'all' || cat === activeCat;
+        var show = matchesSearch && matchesCat;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      countEl.textContent = visible + ' product' + (visible === 1 ? '' : 's');
+    }
+
+    if (searchInput) searchInput.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.vx-cat-pill').forEach(function(p){
+      p.addEventListener('click', function(){
+        document.querySelectorAll('.vx-cat-pill').forEach(function(x){ x.classList.remove('is-active'); });
+        p.classList.add('is-active');
+        activeCat = p.getAttribute('data-cat');
+        applyFilters();
+      });
+    });
+  })();
+</script>
+
+{% endblock %}

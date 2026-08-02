@@ -787,7 +787,7 @@ body {
             <ul class="nav-links">
                <li><a href="{% url 'about' %}">About Us </a></li>
                 <li><a href="{% url 'problem_solving' %}">Solutions</a></li>
-               
+               <li><a href="{% url 'marketplace' %}">Marketplace</a></li>
                 {% if active_store %}
                 <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
                 {% endif %}

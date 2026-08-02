@@ -1,4 +1,4 @@
-{% extends "store_templates/starter/base.html" %}
+{% extends "store_templates/fashion_basic/base.html" %}
 {% load static %}
 {% load humanize %}
 
@@ -13,16 +13,28 @@
     --fs-ink:#0d0d0d; --fs-ink-soft:#3c3a38; --fs-muted:#8c8580; --fs-faint:#b3aca6;
     --fs-pink:#d6939c; --fs-pink-deep:#a85a66; --fs-pink-pale:#f7e9ea;
     --fs-line:rgba(13,13,13,.09); --fs-line-strong:rgba(13,13,13,.16);
-    --fs-glass:rgba(255,255,255,.62); --fs-glass-strong:rgba(255,255,255,.9);
+    --fs-glass:rgba(255,255,255,.7); --fs-glass-strong:rgba(255,255,255,.94);
     --fs-shadow-sm:0 2px 10px rgba(13,13,13,.06); --fs-shadow-md:0 24px 50px -24px rgba(13,13,13,.24);
     --fs-serif:'Bodoni Moda','Times New Roman',serif; --fs-sans:'Inter',-apple-system,sans-serif;
     --fs-ease:cubic-bezier(.16,1,.3,1);
   }
-  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); overflow-x:clip; }
+  .fs-page{ font-family:var(--fs-sans); color:var(--fs-ink); background:var(--fs-bg); }
   .fs-page *{ box-sizing:border-box; }
   .fs-container{ max-width:1440px; margin:0 auto; padding:0 40px; }
   @media (max-width:900px){ .fs-container{ padding:0 22px; } }
   .fs-page h1,.fs-page h2,.fs-page h3{ font-family:var(--fs-serif); font-weight:500; letter-spacing:-0.01em; margin:0; }
+
+  [data-reveal]{ opacity:1; transform:translateY(0); }
+  [data-reveal].fs-will-animate{ transform:translateY(22px); transition:transform .7s var(--fs-ease); }
+  [data-reveal].fs-will-animate.is-in{ transform:translateY(0); }
+  @media (prefers-reduced-motion: reduce){ [data-reveal]{ transform:none !important; transition:none !important; } }
+
+  [data-media-fallback]{ position:relative; }
+  [data-media-fallback].is-broken{ background: repeating-linear-gradient(135deg, rgba(13,13,13,.035) 0 2px, transparent 2px 22px), var(--fs-surface); }
+  [data-media-fallback].is-broken::after{
+    content: attr(data-fallback-label); position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    font-family:var(--fs-serif); font-style:italic; font-size:.9rem; color:var(--fs-faint); padding:1rem; text-align:center;
+  }
 
   /* ─── HERO ─── */
   .fs-p-hero{ padding: calc(var(--wf-nav-h) + 3.6rem) 0 3rem; background: linear-gradient(180deg, var(--fs-pink-pale) 0%, var(--fs-bg) 100%); }
@@ -32,11 +44,10 @@
   .fs-p-hero h1 em{ font-style:italic; color:var(--fs-pink-deep); }
   .fs-p-hero p{ font-size:1rem; color:var(--fs-muted); max-width:480px; margin:1.4rem 0 0; line-height:1.7; }
 
-  /* ─── FILTER BAR (visual, client-side only) ─── */
+  /* ─── FILTER BAR ─── */
   .fs-filter-bar{
     position:sticky; top:var(--wf-nav-h); z-index:50;
-    background:var(--fs-glass-strong); backdrop-filter:blur(16px);
-    border-bottom:1px solid var(--fs-line); padding:1.1rem 0;
+    background:var(--fs-glass-strong); border-bottom:1px solid var(--fs-line); padding:1.1rem 0;
   }
   .fs-filter-row{ display:flex; align-items:center; gap:1.4rem; flex-wrap:wrap; justify-content:space-between; }
   .fs-search{ display:flex; align-items:center; gap:10px; flex:1; min-width:220px; max-width:340px; border:1px solid var(--fs-line-strong); border-radius:2px; padding:11px 16px; }
@@ -56,7 +67,6 @@
   }
   .fs-sort select{ border:0; outline:0; background:transparent; font-family:var(--fs-sans); font-size:.78rem; color:var(--fs-ink); cursor:pointer; }
 
-  /* ─── COUNT ─── */
   .fs-count-row{ display:flex; align-items:center; justify-content:space-between; padding:2.4rem 0 2rem; }
   .fs-count{ font-size:.72rem; letter-spacing:.12em; text-transform:uppercase; color:var(--fs-muted); }
   .fs-count b{ color:var(--fs-ink); }
@@ -73,22 +83,17 @@
   .fs-card{ display:block; text-decoration:none; color:inherit; perspective:1200px; }
   .fs-card-media{
     position:relative; aspect-ratio:3/4; overflow:hidden; border-radius:2px; background:var(--fs-surface);
-    margin-bottom:1.2rem; box-shadow:var(--fs-shadow-sm); transform-style:preserve-3d;
-    transition: transform .18s linear, box-shadow .4s var(--fs-ease);
+    margin-bottom:1.2rem; box-shadow:var(--fs-shadow-sm);
+    transition: transform .15s linear, box-shadow .4s var(--fs-ease);
     will-change: transform;
   }
   .fs-card:hover .fs-card-media{ box-shadow:var(--fs-shadow-md); }
-  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform 1s var(--fs-ease); }
-  .fs-card:hover .fs-card-media img{ transform:scale(1.08); }
-  .fs-card-media--empty{
-    display:flex; align-items:center; justify-content:center; color:var(--fs-faint);
-    font-family:var(--fs-serif); font-style:italic; font-size:.94rem;
-    background: repeating-linear-gradient(135deg, rgba(13,13,13,.03) 0 2px, transparent 2px 22px), var(--fs-surface);
-  }
+  .fs-card-media img{ width:100%; height:100%; object-fit:cover; transition:transform .9s var(--fs-ease); }
+  .fs-card:hover .fs-card-media img{ transform:scale(1.07); }
   .fs-badge{ position:absolute; top:14px; left:14px; z-index:2; background:var(--fs-pink-deep); color:#fff; padding:6px 13px; border-radius:999px; font-size:.6rem; font-weight:600; letter-spacing:.1em; text-transform:uppercase; }
   .fs-card-fav{
     position:absolute; top:12px; right:12px; z-index:2; width:34px; height:34px; border-radius:50%; border:none; cursor:pointer;
-    background:var(--fs-glass-strong); backdrop-filter:blur(8px); display:grid; place-items:center; color:var(--fs-ink-soft);
+    background:var(--fs-glass-strong); display:grid; place-items:center; color:var(--fs-ink-soft);
     transition: color .2s var(--fs-ease), transform .2s var(--fs-ease);
   }
   .fs-card-fav svg{ width:15px; height:15px; }
@@ -97,9 +102,9 @@
   .fs-card-fav:active{ transform:scale(.9); }
   .fs-card-view{
     position:absolute; left:14px; right:14px; bottom:14px; z-index:2; padding:12px; text-align:center;
-    background:var(--fs-glass-strong); backdrop-filter:blur(10px); border-radius:1px;
+    background:var(--fs-glass-strong); border-radius:1px;
     font-size:.68rem; font-weight:600; letter-spacing:.09em; text-transform:uppercase; color:var(--fs-ink);
-    opacity:0; transform:translateY(10px); transition:opacity .4s var(--fs-ease), transform .4s var(--fs-ease);
+    opacity:0; transform:translateY(10px); transition:opacity .3s var(--fs-ease), transform .3s var(--fs-ease);
   }
   .fs-card:hover .fs-card-view{ opacity:1; transform:none; }
   .fs-card-name{ font-size:.98rem; font-weight:500; margin:0 0 4px; letter-spacing:-0.005em; }
@@ -114,16 +119,14 @@
 
 <div class="fs-page">
 
-  <!-- ─── HERO ─── -->
   <section class="fs-p-hero">
     <div class="fs-container">
-      <div class="fs-eyebrow" data-fs-reveal><span class="ln"></span> The Full Collection</div>
-      <h1 data-fs-reveal>Everything, <em>considered.</em></h1>
-      <p data-fs-reveal>Browse the complete edit from {{ store.brand_name }} — every piece ready to enquire about directly.</p>
+      <div class="fs-eyebrow" data-reveal><span class="ln"></span> The Full Collection</div>
+      <h1 data-reveal>Everything, <em>considered.</em></h1>
+      <p data-reveal>Browse the complete edit from {{ store.brand_name }} — every piece ready to enquire about directly.</p>
     </div>
   </section>
 
-  <!-- ─── FILTER BAR ─── -->
   <div class="fs-filter-bar">
     <div class="fs-container fs-filter-row">
       <div class="fs-search">
@@ -162,13 +165,11 @@
     </div>
   </div>
 
-  <!-- ─── COUNT ─── -->
   <div class="fs-container">
     <div class="fs-count-row">
       <span class="fs-count" id="fsCount"><b>{{ products|length }}</b> {% if products|length == 1 %}Piece{% else %}Pieces{% endif %}</span>
     </div>
 
-    <!-- ─── GRID ─── -->
     <div class="fs-grid" id="fsGrid">
       {% for product in products %}
         <a href="{% url 'store_product_detail' store.slug product.slug %}"
@@ -176,7 +177,7 @@
            data-name="{{ product.name }}"
            data-category="{% if product.category %}{{ product.category.name }}{% else %}Uncategorised{% endif %}"
            data-price="{{ product.price|default:0 }}">
-          <div class="fs-card-media">
+          <div class="fs-card-media" data-media-fallback data-fallback-label="{{ product.name }}">
             {% if product.is_featured %}<span class="fs-badge">Featured</span>{% endif %}
             <button type="button" class="fs-card-fav" aria-label="Save item"
                     onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
@@ -219,38 +220,23 @@
 {% block scripts %}
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
-<script src="https://unpkg.com/lenis@1.1.14/dist/lenis.min.js"></script>
 <script>
 (function(){
   var reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* Lenis smooth scroll */
-  if (window.Lenis && !reduceMotion) {
-    var lenis = new Lenis({ lerp: 0.11, smoothWheel: true });
-    function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
-    requestAnimationFrame(raf);
-    if (window.gsap && window.ScrollTrigger) {
-      lenis.on('scroll', ScrollTrigger.update);
-      gsap.ticker.add(function(time){ lenis.raf(time * 1000); });
-      gsap.ticker.lagSmoothing(0);
-    }
-  }
-
-  /* GSAP reveal + stagger */
-  if (window.gsap && window.ScrollTrigger) {
+  if (window.gsap && window.ScrollTrigger && !reduceMotion) {
     gsap.registerPlugin(ScrollTrigger);
-    gsap.utils.toArray('[data-fs-reveal]').forEach(function(el, i){
-      gsap.fromTo(el, { opacity:0, y:26 }, { opacity:1, y:0, duration:.9, delay:i*0.08, ease:'power3.out' });
+    document.querySelectorAll('[data-reveal]').forEach(function(el){ el.classList.add('fs-will-animate'); });
+    gsap.utils.toArray('[data-reveal]').forEach(function(el, i){
+      ScrollTrigger.create({
+        trigger: el, start: 'top 92%',
+        onEnter: function(){ setTimeout(function(){ el.classList.add('is-in'); }, i * 60); }
+      });
     });
-    gsap.fromTo('#fsGrid [data-fs-card]', { opacity:0, y:36 }, {
-      opacity:1, y:0, duration:.8, ease:'power3.out', stagger:0.06,
-      scrollTrigger:{ trigger:'#fsGrid', start:'top 90%' }
-    });
-  } else {
-    document.querySelectorAll('[data-fs-reveal],[data-fs-card]').forEach(function(el){ el.style.opacity = 1; });
+    window.addEventListener('load', function(){ ScrollTrigger.refresh(); });
   }
 
-  /* 3D tilt on card hover (desktop pointer only) */
+  /* 3D tilt on card hover (desktop pointer only) — vanilla, unrelated to any scroll library */
   if (!reduceMotion && !window.matchMedia('(pointer: coarse)').matches) {
     document.querySelectorAll('.fs-card').forEach(function(card){
       var media = card.querySelector('.fs-card-media');
@@ -315,7 +301,6 @@
     });
   }
 
-  /* Grid density toggle */
   var gridBtn = document.getElementById('fsViewGrid');
   var wideBtn = document.getElementById('fsViewWide');
   if (gridBtn && wideBtn) {

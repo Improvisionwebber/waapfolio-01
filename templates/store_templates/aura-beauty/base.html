@@ -1,0 +1,639 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{{ store.brand_name }}{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#faf3ee">
+  <meta name="description" content="{{ store.brand_name }} — premium beauty storefront powered by Waapfolio.">
+
+  <!-- Bootstrap (kept for compatibility with dropdowns / modals / collapse) -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <!-- Bootstrap Icons -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <!-- Typography: Aura Beauty — editorial serif + refined sans -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      /* ===== Aura Beauty design tokens ===== */
+      --aura-cream:#fbf5ef;
+      --aura-cream-deep:#f5ebe1;
+      --aura-white:#fffdfb;
+      --aura-blush:#f3dcd9;
+      --aura-blush-deep:#e9c3c2;
+      --aura-rose-gold:#c08a83;
+      --aura-gold:#b98a4e;
+      --aura-gold-soft:#d8b988;
+      --aura-charcoal:#231b17;
+      --aura-ink:#2a211c;
+      --aura-ink-soft:#4d423b;
+      --aura-muted:#8f7f76;
+      --aura-line:rgba(42,33,28,0.10);
+      --aura-line-strong:rgba(42,33,28,0.18);
+      --aura-hover:rgba(185,138,78,0.08);
+      --aura-shadow-sm:0 2px 10px rgba(42,33,28,0.05);
+      --aura-shadow-md:0 16px 40px -20px rgba(42,33,28,0.18);
+      --aura-shadow-lg:0 40px 80px -30px rgba(42,33,28,0.24);
+      --aura-radius-sm:10px;
+      --aura-radius:16px;
+      --aura-radius-lg:26px;
+      --aura-serif:'Playfair Display','Times New Roman',serif;
+      --aura-sans:'Inter','SF Pro Text',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+      --aura-ease:cubic-bezier(.22,.7,.24,1);
+      --aura-nav-h:82px;
+    }
+
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:var(--aura-cream);color:var(--aura-ink);}
+    body{
+      font-family:var(--aura-sans);
+      font-size:15.5px;
+      line-height:1.6;
+      letter-spacing:-0.004em;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
+      text-rendering:optimizeLegibility;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    h1,h2,h3,h4{font-family:var(--aura-serif);font-weight:500;letter-spacing:-0.015em;color:var(--aura-ink);margin:0}
+    ::selection{background:var(--aura-ink);color:#fff}
+
+    /* ============ ANNOUNCEMENT BAR ============ */
+    .aura-announce{
+      background:var(--aura-ink);color:#f4e9dd;
+      text-align:center;font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+      padding:10px 16px;font-weight:500;
+    }
+    .aura-announce b{color:var(--aura-gold-soft);font-weight:600}
+
+    /* ============ NAVBAR ============ */
+    .aura-nav{
+      position:sticky;top:0;z-index:1030;
+      background:rgba(251,245,239,0.7);
+      backdrop-filter:saturate(180%) blur(18px);
+      -webkit-backdrop-filter:saturate(180%) blur(18px);
+      border-bottom:1px solid transparent;
+      transition:border-color .35s var(--aura-ease), box-shadow .35s var(--aura-ease), background .35s var(--aura-ease);
+    }
+    .aura-nav.is-scrolled{
+      border-bottom-color:var(--aura-line);
+      box-shadow:0 1px 0 rgba(42,33,28,0.02), 0 20px 40px -30px rgba(42,33,28,0.25);
+      background:rgba(251,245,239,0.94);
+    }
+    .aura-nav-inner{
+      max-width:1320px;margin:0 auto;
+      height:var(--aura-nav-h);
+      padding:0 32px;
+      display:flex;align-items:center;justify-content:space-between;gap:24px;
+    }
+
+    /* Logo */
+    .aura-brand{display:flex;align-items:center;gap:13px;min-width:0}
+    .aura-brand-mark{
+      width:42px;height:42px;border-radius:50%;
+      background:linear-gradient(160deg,var(--aura-blush) 0%,var(--aura-cream-deep) 100%);
+      display:flex;align-items:center;justify-content:center;
+      overflow:hidden;border:1px solid var(--aura-line);
+      flex-shrink:0;position:relative;
+      box-shadow:0 0 0 3px rgba(185,138,78,0.08);
+    }
+    .aura-brand-mark img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
+    .aura-brand-mark .aura-mono{font-family:var(--aura-serif);font-size:17px;font-weight:600;color:var(--aura-ink)}
+    .aura-brand-name{
+      font-family:var(--aura-serif);font-size:21px;font-weight:500;
+      letter-spacing:-0.01em;color:var(--aura-ink);
+      white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:240px;
+    }
+
+    /* Desktop links */
+    .aura-links{display:flex;align-items:center;gap:4px;list-style:none;margin:0;padding:0}
+    .aura-link{
+      position:relative;padding:10px 17px;
+      font-size:12.5px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;
+      color:var(--aura-ink-soft);
+      transition:color .25s var(--aura-ease);
+    }
+    .aura-link::after{
+      content:"";position:absolute;left:17px;right:17px;bottom:5px;height:1px;
+      background:var(--aura-gold);transform:scaleX(0);transform-origin:left;
+      transition:transform .4s var(--aura-ease);
+    }
+    .aura-link:hover{color:var(--aura-ink)}
+    .aura-link:hover::after,.aura-link.active::after{transform:scaleX(1)}
+    .aura-link.active{color:var(--aura-ink)}
+
+    /* Right cluster */
+    .aura-actions{display:flex;align-items:center;gap:6px}
+    .aura-icon-btn{
+      width:42px;height:42px;border-radius:50%;
+      display:inline-grid;place-items:center;
+      background:transparent;border:1px solid transparent;color:var(--aura-ink);
+      transition:background .25s var(--aura-ease),border-color .25s var(--aura-ease),transform .25s var(--aura-ease);
+      cursor:pointer;
+    }
+    .aura-icon-btn:hover{background:var(--aura-hover);border-color:var(--aura-line)}
+    .aura-icon-btn:active{transform:scale(.96)}
+    .aura-icon-btn i{font-size:18px;line-height:1}
+
+    /* Dropdown */
+    .aura-menu{
+      border:1px solid var(--aura-line);border-radius:var(--aura-radius);
+      box-shadow:var(--aura-shadow-lg);padding:8px;
+      background:rgba(255,253,251,0.96);
+      backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+      min-width:240px;margin-top:12px !important;
+      animation:auraMenuIn .22s var(--aura-ease);
+    }
+    @keyframes auraMenuIn{from{opacity:0;transform:translateY(-6px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .aura-menu .dropdown-item{
+      display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:10px;
+      font-size:13.5px;font-weight:500;color:var(--aura-ink-soft);
+      transition:background .2s var(--aura-ease),color .2s var(--aura-ease);
+    }
+    .aura-menu .dropdown-item i{font-size:16px;color:var(--aura-muted);transition:color .2s var(--aura-ease)}
+    .aura-menu .dropdown-item:hover,.aura-menu .dropdown-item:focus{background:var(--aura-hover);color:var(--aura-ink)}
+    .aura-menu .dropdown-item:hover i{color:var(--aura-gold)}
+    .aura-menu .dropdown-divider{border-top:1px solid var(--aura-line);margin:6px 4px}
+
+    /* Cart badge */
+    .aura-cart-badge{
+      position:absolute;top:4px;right:2px;min-width:18px;height:18px;border-radius:50%;
+      background:var(--aura-ink);color:#fff;font-size:10px;font-weight:700;
+      display:flex;align-items:center;justify-content:center;padding:0 5px;
+      border:2px solid var(--aura-cream);line-height:1;
+    }
+
+    /* Mobile menu toggle */
+    .aura-burger{display:none}
+    @media (max-width:900px){
+      .aura-links-wrap{display:none}
+      .aura-burger{display:inline-grid}
+      .aura-nav-inner{padding:0 18px;height:66px}
+      :root{--aura-nav-h:66px}
+      .aura-brand-name{font-size:18px;max-width:160px}
+    }
+
+    /* Mobile drawer */
+    .aura-drawer{
+      position:fixed;inset:0;z-index:1050;
+      background:rgba(42,33,28,0.32);backdrop-filter:blur(4px);
+      opacity:0;pointer-events:none;transition:opacity .3s var(--aura-ease);
+    }
+    .aura-drawer.open{opacity:1;pointer-events:auto}
+    .aura-drawer-panel{
+      position:absolute;top:0;right:0;bottom:0;width:min(420px,86vw);
+      background:var(--aura-cream);
+      transform:translateX(100%);transition:transform .45s var(--aura-ease);
+      display:flex;flex-direction:column;box-shadow:var(--aura-shadow-lg);
+    }
+    .aura-drawer.open .aura-drawer-panel{transform:translateX(0)}
+    .aura-drawer-head{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:24px 26px;border-bottom:1px solid var(--aura-line);
+    }
+    .aura-drawer-eyebrow{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:var(--aura-muted)}
+    .aura-drawer-body{padding:14px 12px;flex:1;overflow-y:auto}
+    .aura-drawer-link{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:17px 16px;border-radius:12px;
+      font-family:var(--aura-serif);font-size:23px;font-weight:500;
+      color:var(--aura-ink);letter-spacing:-0.01em;
+      transition:background .2s var(--aura-ease);
+    }
+    .aura-drawer-link:hover,.aura-drawer-link.active{background:var(--aura-hover)}
+    .aura-drawer-link i{font-size:16px;color:var(--aura-gold)}
+    .aura-drawer-foot{padding:18px 26px 28px;border-top:1px solid var(--aura-line);display:flex;flex-direction:column;gap:10px}
+    .aura-drawer-action{
+      display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:12px;
+      font-size:14px;color:var(--aura-ink-soft);font-weight:500;
+      transition:background .2s var(--aura-ease);
+    }
+    .aura-drawer-action:hover{background:var(--aura-hover);color:var(--aura-ink)}
+    .aura-drawer-action i{font-size:16px}
+
+    /* ============ MAIN ============ */
+    .aura-main{
+      max-width:1320px;margin:0 auto;padding:0;
+      min-height:calc(100vh - var(--aura-nav-h) - 220px);
+      animation:auraPageIn .6s var(--aura-ease) both;
+    }
+    @keyframes auraPageIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+
+    /* ============ MODAL ============ */
+    .aura-modal .modal-dialog{max-width:480px;margin:6vh auto}
+    .aura-modal .modal-content{
+      border:1px solid var(--aura-line);border-radius:var(--aura-radius-lg);
+      box-shadow:var(--aura-shadow-lg);background:rgba(255,253,251,0.97);
+      backdrop-filter:saturate(180%) blur(16px);overflow:hidden;
+    }
+    .aura-modal .modal-header{border-bottom:1px solid var(--aura-line);padding:24px 28px;align-items:flex-start}
+    .aura-modal .modal-title{font-family:var(--aura-serif);font-size:23px;font-weight:500;letter-spacing:-0.015em}
+    .aura-modal .modal-body{padding:28px}
+    .aura-modal .modal-subtitle{font-size:13px;color:var(--aura-muted);margin:0 0 16px}
+    .aura-modal .btn-close{filter:grayscale(1);opacity:.5}
+    .aura-modal .btn-close:hover{opacity:.9}
+
+    .aura-link-field{
+      display:flex;align-items:center;gap:8px;
+      border:1px solid var(--aura-line);border-radius:14px;
+      padding:6px 6px 6px 16px;background:var(--aura-cream);
+      transition:border-color .2s var(--aura-ease),background .2s var(--aura-ease);
+    }
+    .aura-link-field:focus-within{border-color:var(--aura-gold);background:#fff}
+    .aura-link-field input{
+      flex:1;min-width:0;border:0;outline:0;background:transparent;
+      font-family:var(--aura-sans);font-size:13.5px;color:var(--aura-ink);padding:10px 0;
+    }
+    .aura-btn{
+      display:inline-flex;align-items:center;gap:8px;padding:11px 18px;border-radius:999px;
+      font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+      border:1px solid var(--aura-ink);background:var(--aura-ink);color:#fff;
+      transition:transform .25s var(--aura-ease),background .25s var(--aura-ease),color .25s var(--aura-ease);
+      cursor:pointer;
+    }
+    .aura-btn:hover{background:var(--aura-charcoal)}
+    .aura-btn:active{transform:scale(.97)}
+    .aura-helper{font-size:12.5px;color:var(--aura-muted);margin-top:14px;line-height:1.5}
+
+    /* ============ FOOTER ============ */
+    .aura-footer{background:var(--aura-charcoal);color:#e9ddd0;border-top:1px solid rgba(255,255,255,0.06)}
+    .aura-footer-top{max-width:1320px;margin:0 auto;padding:76px 32px 56px;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:48px}
+    @media (max-width:960px){.aura-footer-top{grid-template-columns:1fr 1fr;gap:36px}}
+    @media (max-width:600px){.aura-footer-top{grid-template-columns:1fr;padding:56px 22px 40px}}
+    .aura-footer-brand{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+    .aura-footer-brand .mark{
+      width:38px;height:38px;border-radius:50%;
+      background:linear-gradient(160deg,var(--aura-blush-deep),var(--aura-gold-soft));
+      display:flex;align-items:center;justify-content:center;overflow:hidden;
+    }
+    .aura-footer-brand .mark img{width:100%;height:100%;object-fit:cover}
+    .aura-footer-brand .mark span{font-family:var(--aura-serif);font-weight:600;color:var(--aura-charcoal)}
+    .aura-footer-brand .name{font-family:var(--aura-serif);font-size:22px;color:#fdf8f2;letter-spacing:-0.01em}
+    .aura-footer-bio{font-size:13.5px;line-height:1.8;color:#c9bcae;max-width:320px}
+    .aura-footer-social{display:flex;gap:10px;margin-top:22px}
+    .aura-footer-social a{
+      width:38px;height:38px;border-radius:50%;border:1px solid rgba(255,255,255,0.14);
+      display:flex;align-items:center;justify-content:center;color:#e9ddd0;font-size:14px;
+      transition:background .25s ease,border-color .25s ease;
+    }
+    .aura-footer-social a:hover{background:var(--aura-gold);border-color:var(--aura-gold);color:#231b17}
+    .aura-footer h5{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:#a99a89;margin:0 0 20px;font-weight:600}
+    .aura-footer ul{list-style:none;padding:0;margin:0;display:grid;gap:13px}
+    .aura-footer ul a{color:#e9ddd0;font-size:13.5px;transition:color .2s ease}
+    .aura-footer ul a:hover{color:var(--aura-gold-soft)}
+    .aura-footer-newsletter form{display:flex;gap:8px;margin-top:14px}
+    .aura-footer-newsletter input{
+      flex:1;min-width:0;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.14);
+      border-radius:999px;padding:11px 16px;font-size:13px;color:#fdf8f2;outline:0;
+    }
+    .aura-footer-newsletter input::placeholder{color:#8b7d70}
+    .aura-footer-newsletter button{
+      background:var(--aura-gold);color:#221b17;border:0;border-radius:999px;
+      width:42px;height:42px;flex-shrink:0;display:flex;align-items:center;justify-content:center;cursor:pointer;
+      transition:background .2s ease;
+    }
+    .aura-footer-newsletter button:hover{background:var(--aura-gold-soft)}
+    .aura-footer-bottom{
+      border-top:1px solid rgba(255,255,255,0.08);
+      max-width:1320px;margin:0 auto;padding:24px 32px;
+      display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;
+      font-size:11.5px;letter-spacing:.05em;color:#8b7d70;
+    }
+    .aura-footer-bottom a{color:#c9bcae;font-weight:500;border-bottom:1px solid rgba(255,255,255,0.18);padding-bottom:1px;transition:color .2s ease}
+    .aura-footer-bottom a:hover{color:var(--aura-gold-soft)}
+
+    /* Toast */
+    .aura-toast{
+      position:fixed;left:50%;bottom:32px;transform:translate(-50%,20px);
+      background:var(--aura-ink);color:#fdf8f2;padding:13px 20px;border-radius:999px;
+      font-size:13px;font-weight:500;box-shadow:var(--aura-shadow-lg);
+      opacity:0;pointer-events:none;transition:opacity .3s var(--aura-ease),transform .3s var(--aura-ease);z-index:1080;
+    }
+    .aura-toast.show{opacity:1;transform:translate(-50%,0)}
+  </style>
+
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+  <!-- ============== ANNOUNCEMENT BAR ============== -->
+  <div class="aura-announce">
+    <b>Complimentary gift</b> on every order &nbsp;·&nbsp; Verified storefront by Waapfolio
+  </div>
+
+  <!-- ============== NAVBAR ============== -->
+  <header class="aura-nav" id="auraNav">
+    <div class="aura-nav-inner">
+
+      <a class="aura-brand" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+        <span class="aura-brand-mark">
+          {% if "http" in store.brand_logo.name %}
+            <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}" class="aura-logo">
+          {% elif store.brand_logo %}
+            <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}" class="aura-logo">
+          {% elif store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}" class="aura-logo">
+          {% else %}
+            <span class="aura-mono">{{ store.brand_name|first|upper }}</span>
+          {% endif %}
+        </span>
+        <span class="aura-brand-name">{{ store.brand_name }}</span>
+      </a>
+
+      <!-- Desktop nav -->
+      <nav class="aura-links-wrap" aria-label="Primary">
+        <ul class="aura-links">
+          <li><a class="aura-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li>
+            <a href="{% url 'cart' %}" class="aura-icon-btn position-relative" aria-label="Shopping Cart">
+              <i class="bi bi-bag"></i>
+              {% if cart_count %}<span class="aura-cart-badge">{{ cart_count }}</span>{% endif %}
+            </a>
+          </li>
+        </ul>
+      </nav>
+
+      <!-- Actions -->
+      <div class="aura-actions">
+        <button class="aura-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#auraShareModal" aria-label="Share store">
+          <i class="bi bi-share"></i>
+        </button>
+        <button class="aura-icon-btn d-none d-md-inline-grid" type="button" data-bs-toggle="modal" data-bs-target="#auraProLinkModal" aria-label="Get professional link">
+          <i class="bi bi-link-45deg"></i>
+        </button>
+
+        <div class="dropdown d-none d-md-inline-block">
+          <button class="aura-icon-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="More options">
+            <i class="bi bi-three-dots"></i>
+          </button>
+          <ul class="dropdown-menu dropdown-menu-end aura-menu">
+            {% if request.user.is_authenticated and request.user == store.owner %}
+              <li>
+                <a class="dropdown-item" href="{% url 'create_store' store.slug %}">
+                  <i class="bi bi-pencil-square me-2"></i> Edit Store
+                </a>
+              </li>
+              <li>
+                <a class="dropdown-item" href="{% url 'manage_store' store.slug %}">
+                  <i class="bi bi-gear me-2"></i> Manage Store
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+            {% endif %}
+            {% if not request.user.is_authenticated or request.user != store.owner %}
+              <li><hr class="dropdown-divider"></li>
+              <li>
+                <button class="dropdown-item text-danger" data-bs-toggle="modal" data-bs-target="#reportStoreModal">
+                  <i class="bi bi-flag me-2"></i> Report Store
+                </button>
+              </li>
+            {% endif %}
+          </ul>
+        </div>
+
+        <!-- Mobile Cart -->
+        <a href="{% url 'cart' %}" class="aura-icon-btn d-inline-grid d-md-none position-relative" aria-label="Shopping Cart">
+          <i class="bi bi-bag"></i>
+          {% if cart_count %}<span class="aura-cart-badge">{{ cart_count }}</span>{% endif %}
+        </a>
+
+        <!-- Mobile burger -->
+        <button class="aura-icon-btn aura-burger" type="button" id="auraBurger" aria-label="Open menu">
+          <i class="bi bi-list" style="font-size:22px"></i>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- ============== MOBILE DRAWER ============== -->
+  <div class="aura-drawer" id="auraDrawer" aria-hidden="true">
+    <div class="aura-drawer-panel" role="dialog" aria-label="Menu">
+      <div class="aura-drawer-head">
+        <span class="aura-drawer-eyebrow">Menu</span>
+        <button class="aura-icon-btn" type="button" id="auraDrawerClose" aria-label="Close menu">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="aura-drawer-body">
+        <a class="aura-drawer-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact <i class="bi bi-arrow-up-right"></i></a>
+      </div>
+      <div class="aura-drawer-foot">
+        {% if request.user.is_authenticated and request.user == store.owner %}
+          <a class="aura-drawer-action" href="{% url 'create_store' store.slug %}"><i class="bi bi-pencil-square"></i> Edit Store</a>
+          <a class="aura-drawer-action" href="{% url 'manage_store' store.slug %}"><i class="bi bi-gear"></i> Manage Store</a>
+        {% endif %}
+        <a class="aura-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#auraShareModal"><i class="bi bi-share"></i> Share on Socials</a>
+        <a class="aura-drawer-action" href="#" data-bs-toggle="modal" data-bs-target="#auraProLinkModal"><i class="bi bi-link-45deg"></i> Get Professional Link</a>
+        {% if not request.user.is_authenticated or request.user != store.owner %}
+          <a class="aura-drawer-action" href="#"><i class="bi bi-flag"></i> Report Store</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== SHARE MODAL ============== -->
+  <div class="modal fade aura-modal" id="auraShareModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Share {{ store.brand_name }}</h5>
+            <p class="modal-subtitle">Send your storefront to clients and audiences.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="aura-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="auraShareUrl">
+            <button class="aura-btn" type="button" onclick="auraCopy('auraShareUrl', this)">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+          <p class="aura-helper">Share the link across WhatsApp, Instagram, X, and your professional channels.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== PROFESSIONAL LINK MODAL ============== -->
+  <div class="modal fade aura-modal" id="auraProLinkModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Professional Link</h5>
+            <p class="modal-subtitle">A polished, client-ready storefront URL.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="aura-link-field">
+            <input type="text" readonly value="{{ full_url }}" id="auraProUrl">
+            <button class="aura-btn" type="button" onclick="auraCopy('auraProUrl', this)">
+              <i class="bi bi-clipboard"></i> Copy
+            </button>
+          </div>
+          <p class="aura-helper">Add this link to your social media bios and share it directly with your clients.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== REPORT STORE MODAL ============== -->
+  <div class="modal fade aura-modal" id="reportStoreModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div>
+            <h5 class="modal-title">Report Store</h5>
+            <p class="modal-subtitle">Let us know if something looks wrong.</p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <p class="aura-helper" style="margin-top:0;">If this storefront violates Waapfolio's guidelines, please contact support so our team can review it.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============== MAIN CONTENT ============== -->
+  <main class="aura-main">
+    {% block body %}{% endblock %}
+  </main>
+
+  <!-- ============== FOOTER ============== -->
+  <footer class="aura-footer">
+    <div class="aura-footer-top">
+      <div>
+        <div class="aura-footer-brand">
+          <span class="mark">
+            {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
+              <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% else %}
+              <span>{{ store.brand_name|first|upper }}</span>
+            {% endif %}
+          </span>
+          <span class="name">{{ store.brand_name }}</span>
+        </div>
+        <p class="aura-footer-bio">{{ store.bio|default:"A modern beauty atelier — quietly luxurious, personally attended, and built for those who notice the details." }}</p>
+        <div class="aura-footer-social">
+          {% if store.whatsapp %}<a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" aria-label="WhatsApp"><i class="bi bi-whatsapp"></i></a>{% endif %}
+        </div>
+      </div>
+
+      <div>
+        <h5>Explore</h5>
+        <ul>
+          <li><a href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
+          <li><a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop All</a></li>
+          <li><a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">Our Story</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+        </ul>
+      </div>
+
+      <div>
+        <h5>Client Care</h5>
+        <ul>
+          {% if store.whatsapp %}<li><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">WhatsApp Concierge</a></li>{% endif %}
+          <li><a href="{% url 'cart' %}">Your Bag</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Shipping &amp; Returns</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">FAQs</a></li>
+        </ul>
+      </div>
+
+      <div class="aura-footer-newsletter">
+        <h5>Stay in the Glow</h5>
+        <p style="font-size:13.5px;color:#c9bcae;line-height:1.7;margin:0;">New arrivals, rituals &amp; offers — occasionally, never noisy.</p>
+      </div>
+    </div>
+
+    <div class="aura-footer-bottom">
+      <div>© {% now "Y" %} {{ store.brand_name }}. All rights reserved.</div>
+      <div>Powered by <a href="https://waapfolio.com" target="_blank" rel="noopener">Waapfolio</a></div>
+    </div>
+  </footer>
+
+  <!-- Toast -->
+  <div class="aura-toast" id="auraToast">Link copied</div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    // Sticky nav shadow
+    (function(){
+      var nav = document.getElementById('auraNav');
+      var onScroll = function(){
+        if(window.scrollY > 6) nav.classList.add('is-scrolled');
+        else nav.classList.remove('is-scrolled');
+      };
+      document.addEventListener('scroll', onScroll, {passive:true});
+      onScroll();
+    })();
+
+    // Mobile drawer
+    (function(){
+      var drawer = document.getElementById('auraDrawer');
+      var openBtn = document.getElementById('auraBurger');
+      var closeBtn = document.getElementById('auraDrawerClose');
+      function open(){ drawer.classList.add('open'); drawer.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+      function close(){ drawer.classList.remove('open'); drawer.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+      if(openBtn) openBtn.addEventListener('click', open);
+      if(closeBtn) closeBtn.addEventListener('click', close);
+      drawer.addEventListener('click', function(e){ if(e.target === drawer) close(); });
+      drawer.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', close); });
+      document.addEventListener('keydown', function(e){ if(e.key === 'Escape') close(); });
+    })();
+
+    // Active nav link
+    (function(){
+      var here = window.location.pathname.replace(/\/+$/,'');
+      document.querySelectorAll('.aura-link, .aura-drawer-link').forEach(function(a){
+        var p = (a.getAttribute('href')||'').replace(/\/+$/,'');
+        if(p && p === here) a.classList.add('active');
+      });
+    })();
+
+    // Copy helper
+    function auraCopy(id, btn){
+      var input = document.getElementById(id);
+      if(!input) return;
+      input.select(); input.setSelectionRange(0,99999);
+      try { navigator.clipboard.writeText(input.value); } catch(e){ document.execCommand('copy'); }
+      var original = btn.innerHTML;
+      btn.innerHTML = '<i class="bi bi-check2"></i> Copied';
+      var toast = document.getElementById('auraToast');
+      toast.classList.add('show');
+      setTimeout(function(){ btn.innerHTML = original; toast.classList.remove('show'); }, 1800);
+    }
+
+    // Newsletter (client-side confirmation only — no backend field exists yet)
+    function auraNewsletterToast(form){
+      var toast = document.getElementById('auraToast');
+      toast.textContent = 'Thank you for subscribing';
+      toast.classList.add('show');
+      setTimeout(function(){ toast.classList.remove('show'); toast.textContent = 'Link copied'; }, 2200);
+      form.reset();
+    }
+  </script>
+
+  {% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,258 @@
+{% extends "store_templates/aura-beauty/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}Shop All — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  :root{
+    --ab-cream:#fbf5ef; --ab-cream-deep:#f5ebe1; --ab-blush:#f3dcd9; --ab-blush-deep:#e9c3c2;
+    --ab-rose-gold:#c08a83; --ab-gold:#b98a4e; --ab-gold-soft:#d8b988;
+    --ab-charcoal:#231b17; --ab-ink:#2a211c; --ab-ink-soft:#4d423b; --ab-muted:#8f7f76;
+    --ab-line:rgba(42,33,28,0.10); --ab-serif:'Playfair Display',serif; --ab-sans:'Inter',sans-serif;
+    --ab-ease:cubic-bezier(.22,.7,.24,1);
+  }
+  .ab-page{font-family:var(--ab-sans);color:var(--ab-ink);background:var(--ab-cream);overflow-x:hidden}
+  .ab-page *{box-sizing:border-box}
+  .ab-wrap{max-width:1320px;margin:0 auto;padding:0 32px}
+  @media (max-width:640px){.ab-wrap{padding:0 20px}}
+  .ab-reveal{opacity:0;transform:translateY(22px);transition:opacity .9s var(--ab-ease),transform .9s var(--ab-ease)}
+  .ab-reveal.in{opacity:1;transform:none}
+
+  /* ===== HEADER ===== */
+  .ab-shop-hero{
+    position:relative;padding:80px 0 46px;border-bottom:1px solid var(--ab-line);
+    background:radial-gradient(900px 420px at 85% -20%,var(--ab-blush) 0%,transparent 60%);
+  }
+  .ab-eyebrow{display:inline-flex;align-items:center;gap:9px;font-size:11px;font-weight:600;letter-spacing:.26em;text-transform:uppercase;color:var(--ab-rose-gold)}
+  .ab-eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--ab-gold)}
+  .ab-shop-hero h1{font-size:clamp(2.4rem,5.4vw,3.8rem);line-height:1.04;letter-spacing:-.02em;margin:16px 0 14px}
+  .ab-shop-hero h1 em{font-style:italic;color:var(--ab-rose-gold)}
+  .ab-shop-hero p{max-width:560px;color:var(--ab-ink-soft);font-size:1rem;line-height:1.7;margin:0}
+
+  /* ===== FILTER BAR ===== */
+  .ab-filter-wrap{position:sticky;top:calc(var(--aura-nav-h,82px) + 10px);z-index:40;margin:34px 0 0}
+  .ab-filter{
+    display:flex;align-items:center;gap:14px;padding:12px 16px;
+    background:rgba(255,253,251,.82);backdrop-filter:saturate(180%) blur(20px);-webkit-backdrop-filter:saturate(180%) blur(20px);
+    border:1px solid var(--ab-line);border-radius:999px;box-shadow:0 20px 40px -28px rgba(42,33,28,.22);
+  }
+  .ab-search{flex:1;display:flex;align-items:center;gap:12px;padding:6px 10px}
+  .ab-search svg{width:17px;height:17px;color:var(--ab-muted);flex-shrink:0}
+  .ab-search input{border:0;outline:0;background:transparent;width:100%;font-family:var(--ab-sans);font-size:14px;color:var(--ab-ink)}
+  .ab-search input::placeholder{color:var(--ab-muted)}
+  .ab-filter .divider{width:1px;height:24px;background:var(--ab-line)}
+  .ab-select{appearance:none;-webkit-appearance:none;border:0;background:transparent;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ab-ink-soft);padding:8px 26px 8px 12px;cursor:pointer;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24' fill='none' stroke='%238f7f76' stroke-width='2'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;background-position:right 8px center;
+  }
+
+  .ab-cats{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
+  .ab-cat-pill{padding:10px 18px;border:1px solid var(--ab-line);border-radius:999px;background:rgba(255,253,251,.7);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ab-ink-soft);cursor:pointer;transition:all .3s ease}
+  .ab-cat-pill:hover,.ab-cat-pill.is-active{background:var(--ab-ink);color:#fff;border-color:var(--ab-ink)}
+
+  /* ===== SECTION HEAD ===== */
+  .ab-section-head{display:flex;justify-content:space-between;align-items:flex-end;margin:44px 0 40px;gap:20px;flex-wrap:wrap}
+  .ab-count{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ab-muted)}
+
+  /* ===== GRID ===== */
+  .ab-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:44px 24px}
+  @media (min-width:768px){.ab-grid{grid-template-columns:repeat(3,1fr);gap:52px 28px}}
+  @media (min-width:1100px){.ab-grid{grid-template-columns:repeat(4,1fr);gap:60px 32px}}
+  .ab-card{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+  .ab-card .media{position:relative;overflow:hidden;aspect-ratio:3/4;background:linear-gradient(160deg,var(--ab-blush),var(--ab-cream-deep));border-radius:var(--ab-radius,16px)}
+  .ab-card .media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 60%,rgba(0,0,0,.1) 100%);opacity:0;transition:opacity .5s ease}
+  .ab-card:hover .media::after{opacity:1}
+  .ab-card .media img{width:100%;height:100%;object-fit:cover;transition:transform 1.3s var(--ab-ease)}
+  .ab-card:hover .media img{transform:scale(1.06)}
+  .ab-badge{position:absolute;top:14px;left:14px;z-index:2;padding:6px 11px;font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;background:rgba(255,253,251,.94);color:var(--ab-ink);border-radius:999px;font-weight:600}
+  .ab-fav{position:absolute;top:12px;right:12px;z-index:2;width:34px;height:34px;border-radius:50%;background:rgba(255,253,251,.88);border:0;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-4px);transition:all .35s ease;cursor:pointer}
+  .ab-card:hover .ab-fav{opacity:1;transform:translateY(0)}
+  .ab-fav svg{width:14px;height:14px;color:var(--ab-ink)}
+  .ab-fav.on svg{fill:var(--ab-rose-gold);color:var(--ab-rose-gold)}
+  .ab-quick{position:absolute;left:14px;right:14px;bottom:14px;z-index:2;padding:11px;display:flex;align-items:center;justify-content:center;gap:6px;background:rgba(35,27,23,.9);color:#fff;border-radius:999px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;opacity:0;transform:translateY(8px);transition:all .4s var(--ab-ease)}
+  .ab-quick svg{width:13px;height:13px}
+  .ab-card:hover .ab-quick{opacity:1;transform:translateY(0)}
+  .ab-info{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-top:16px}
+  .ab-info .name{font-size:.97rem;font-weight:500;margin:0 0 4px;line-height:1.35}
+  .ab-info .meta{font-size:.76rem;color:var(--ab-muted);letter-spacing:.05em;text-transform:uppercase}
+  .ab-price{font-size:.92rem;font-weight:600;color:var(--ab-ink);white-space:nowrap;font-variant-numeric:tabular-nums}
+  .ab-details{display:inline-flex;align-items:center;gap:6px;margin-top:12px;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ab-rose-gold);font-weight:600}
+  .ab-details svg{width:12px;height:12px}
+
+  .ab-empty{grid-column:1/-1;text-align:center;padding:90px 20px;border:1px dashed var(--ab-line);border-radius:var(--ab-radius,16px)}
+  .ab-empty .mark{width:60px;height:60px;margin:0 auto 20px;border-radius:50%;background:var(--ab-blush);display:flex;align-items:center;justify-content:center;color:var(--ab-rose-gold);font-size:22px}
+  .ab-empty h3{font-size:1.4rem;margin:0 0 10px}
+  .ab-empty p{color:var(--ab-muted);font-size:.92rem;margin:0}
+
+  .ab-pagination{display:flex;justify-content:center;gap:8px;margin-top:60px}
+  .ab-page-btn{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:1px solid var(--ab-line);color:var(--ab-ink-soft);font-size:13px;transition:all .25s ease}
+  .ab-page-btn:hover,.ab-page-btn.is-active{background:var(--ab-ink);color:#fff;border-color:var(--ab-ink)}
+
+  @media (max-width:520px){
+    .ab-filter{flex-wrap:wrap}
+    .ab-price{font-size:13px}
+  }
+</style>
+
+<div class="ab-page">
+
+  <!-- ========= COLLECTION HEADER ========= -->
+  <section class="ab-shop-hero">
+    <div class="ab-wrap">
+      <span class="ab-eyebrow ab-reveal"><span class="dot"></span> The Full Collection</span>
+      <h1 class="ab-reveal">Shop <em>{{ store.brand_name }}.</em></h1>
+      <p class="ab-reveal">Every piece, in one place — skin, hair, scent and essentials, curated with the same care as the day it launched.</p>
+
+      <div class="ab-filter-wrap ab-reveal">
+        <div class="ab-filter">
+          <div class="ab-search">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            <input type="text" id="abSearchInput" placeholder="Search the collection..." aria-label="Search products">
+          </div>
+          <span class="divider"></span>
+          <select class="ab-select" id="abSortSelect" aria-label="Sort products">
+            <option value="default">Sort: Featured</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="name-asc">Name: A–Z</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="ab-cats ab-reveal" id="abCatPills"></div>
+    </div>
+  </section>
+
+  <div class="ab-wrap">
+    <div class="ab-section-head ab-reveal">
+      <span class="ab-count" id="abResultCount">
+        {{ products|length }} {% if products|length == 1 %}Product{% else %}Products{% endif %}
+      </span>
+    </div>
+
+    <!-- ========= PRODUCT GRID ========= -->
+    <div class="ab-grid" id="abProductGrid">
+      {% for product in products %}
+        <a href="{% url 'store_product_detail' store.slug product.slug %}"
+           class="ab-card ab-reveal"
+           data-name="{{ product.name|lower }}"
+           data-price="{{ product.price|default:0 }}"
+           data-category="{{ product.category.name|default:'' }}">
+          <div class="media">
+            {% if product.is_featured %}<span class="ab-badge">Featured</span>{% endif %}
+            <button type="button" class="ab-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            </button>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+            <span class="ab-quick">
+              View Product
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+            </span>
+          </div>
+          <div class="ab-info">
+            <div>
+              <h6 class="name">{{ product.name }}</h6>
+              {% if product.category %}<div class="meta">{{ product.category.name }}</div>{% endif %}
+            </div>
+            <div class="ab-price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}{{ product.price|intcomma }}
+            </div>
+          </div>
+          <span class="ab-details">
+            View Details
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
+          </span>
+        </a>
+      {% empty %}
+        <div class="ab-empty">
+          <div class="mark"><i class="bi bi-bag-heart"></i></div>
+          <h3>No Products Available</h3>
+          <p>Products added by the store owner will appear here.</p>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  var els = document.querySelectorAll('.ab-reveal');
+  if (!('IntersectionObserver' in window)) { els.forEach(function(e){e.classList.add('in');}); return; }
+  var io = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('in'); io.unobserve(en.target); } });
+  }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+  els.forEach(function(e){ io.observe(e); });
+
+  var grid = document.getElementById('abProductGrid');
+  var cards = Array.prototype.slice.call(grid.querySelectorAll('.ab-card'));
+  var resultCount = document.getElementById('abResultCount');
+
+  // Build category pills from real product data
+  var pillsWrap = document.getElementById('abCatPills');
+  var seen = {};
+  cards.forEach(function(c){
+    var cat = c.getAttribute('data-category');
+    if(cat && !seen[cat]){
+      seen[cat] = true;
+      var pill = document.createElement('button');
+      pill.type = 'button';
+      pill.className = 'ab-cat-pill';
+      pill.textContent = cat;
+      pill.dataset.cat = cat;
+      pillsWrap.appendChild(pill);
+    }
+  });
+  var allPill = document.createElement('button');
+  allPill.type = 'button';
+  allPill.className = 'ab-cat-pill is-active';
+  allPill.textContent = 'All';
+  allPill.dataset.cat = '';
+  pillsWrap.insertBefore(allPill, pillsWrap.firstChild);
+
+  var activeCat = '';
+  function applyFilters(){
+    var q = (document.getElementById('abSearchInput').value || '').trim().toLowerCase();
+    var visible = 0;
+    cards.forEach(function(card){
+      var name = card.getAttribute('data-name') || '';
+      var cat = card.getAttribute('data-category') || '';
+      var matchesSearch = name.indexOf(q) > -1;
+      var matchesCat = !activeCat || cat === activeCat;
+      var show = matchesSearch && matchesCat;
+      card.style.display = show ? '' : 'none';
+      if(show) visible++;
+    });
+    resultCount.textContent = visible + (visible === 1 ? ' Product' : ' Products');
+  }
+
+  document.getElementById('abSearchInput').addEventListener('input', applyFilters);
+  pillsWrap.addEventListener('click', function(e){
+    var btn = e.target.closest('.ab-cat-pill');
+    if(!btn) return;
+    pillsWrap.querySelectorAll('.ab-cat-pill').forEach(function(p){ p.classList.remove('is-active'); });
+    btn.classList.add('is-active');
+    activeCat = btn.dataset.cat;
+    applyFilters();
+  });
+
+  document.getElementById('abSortSelect').addEventListener('change', function(){
+    var val = this.value;
+    var arr = cards.slice();
+    if(val === 'price-asc') arr.sort(function(a,b){ return parseFloat(a.dataset.price) - parseFloat(b.dataset.price); });
+    else if(val === 'price-desc') arr.sort(function(a,b){ return parseFloat(b.dataset.price) - parseFloat(a.dataset.price); });
+    else if(val === 'name-asc') arr.sort(function(a,b){ return a.dataset.name.localeCompare(b.dataset.name); });
+    else arr = cards; // featured/default order from server
+    arr.forEach(function(card){ grid.appendChild(card); });
+  });
+})();
+</script>
+
+{% endblock %}

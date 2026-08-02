@@ -1,0 +1,405 @@
+{% extends "store_templates/bake-house/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+:root{
+  --wf-ink:var(--bh-ink);
+  --wf-text:var(--bh-ink);
+  --wf-text-2:var(--bh-ink-soft);
+  --wf-mute:var(--bh-muted);
+  --wf-mute-2:var(--bh-muted);
+  --wf-line:var(--bh-line);
+  --wf-line-2:var(--bh-line-strong);
+  --wf-soft:var(--bh-beige);
+  --wf-radius:18px;
+  --wf-radius-sm:12px;
+  --wf-font-display:var(--bh-sans);
+}
+
+.wf-scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;z-index:9999;background:var(--bh-caramel);transition:width .08s linear}
+
+.wf-shell{position:relative;color:var(--wf-text);font-family:var(--wf-font-display);background:var(--bh-bg);padding:clamp(36px,6vw,86px) 0 160px;-webkit-font-smoothing:antialiased}
+.wf-shell *{box-sizing:border-box}
+.wf-container{width:100%;max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,32px);position:relative;z-index:2}
+
+.wf-crumbs{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--wf-mute);margin-bottom:30px;flex-wrap:wrap;font-weight:600}
+.wf-crumbs a{color:var(--wf-mute);text-decoration:none;transition:color .25s}
+.wf-crumbs a:hover{color:var(--bh-choc)}
+.wf-crumbs .sep{opacity:.5}
+.wf-crumbs .now{color:var(--bh-choc);font-weight:700}
+
+.wf-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(28px,4vw,68px);align-items:start}
+@media(max-width:992px){.wf-hero{grid-template-columns:1fr;gap:32px}}
+
+.wf-gallery{position:relative}
+.wf-stage{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--bh-beige);border-radius:20px}
+@media(max-width:600px){.wf-stage{aspect-ratio:1/1;border-radius:14px}}
+.wf-stage-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.wf-stage-media img,.wf-stage-media iframe,.wf-stage-media video{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s;display:block}
+.wf-stage:hover .wf-stage-media img{transform:scale(1.03)}
+.wf-stage-badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 13px;border-radius:999px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;background:var(--bh-choc);color:#fff;z-index:3}
+.wf-stage-badge .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:wfPulse 1.6s ease-in-out infinite}
+@keyframes wfPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.wf-stage-zoom{position:absolute;bottom:14px;right:14px;width:42px;height:42px;border-radius:50%;background:var(--bh-choc);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:3;transition:transform .3s}
+.wf-stage-zoom:hover{transform:scale(1.08)}
+.wf-stage-zoom svg{width:18px;height:18px}
+
+.wf-thumbs{display:flex;gap:10px;margin-top:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px}
+.wf-thumb{flex:0 0 80px;height:80px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;background:var(--bh-beige);transition:transform .3s,border-color .25s;scroll-snap-align:start;border-radius:10px}
+@media(max-width:600px){.wf-thumb{flex:0 0 68px;height:68px}}
+.wf-thumb img,.wf-thumb .vthumb{width:100%;height:100%;object-fit:cover;display:block}
+.wf-thumb .vthumb{display:flex;align-items:center;justify-content:center;background:#000;color:#fff}
+.wf-thumb:hover{transform:translateY(-3px)}
+.wf-thumb.active{border-color:var(--bh-choc)}
+.wf-thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(42,30,23,.4);color:#fff}
+.wf-thumb .play svg{width:22px;height:22px;fill:#fff}
+
+.wf-info{padding:0;position:sticky;top:24px}
+@media(max-width:992px){.wf-info{position:static}}
+.wf-store-chip{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:#fff;border:1.5px solid var(--wf-line);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--wf-text);font-weight:700;margin-bottom:20px;transition:border-color .25s;text-decoration:none}
+.wf-store-chip:hover{border-color:var(--bh-choc)}
+.wf-store-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--bh-choc);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+
+.wf-title{font-family:var(--bh-serif);font-size:clamp(30px,4.2vw,50px);line-height:1.06;letter-spacing:-.02em;font-weight:600;margin:0 0 18px;color:var(--bh-ink)}
+.wf-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:24px;font-size:13px;color:var(--wf-mute);font-weight:500}
+.wf-avail{display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;background:var(--bh-choc);color:#fff;font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:700}
+.wf-avail .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:wfPulse 1.6s ease-in-out infinite}
+
+.wf-price-wrap{display:flex;align-items:baseline;gap:8px;margin:8px 0 28px;padding:22px 0;border-top:1.5px solid var(--wf-line);border-bottom:1.5px solid var(--wf-line)}
+.wf-currency{font-size:clamp(20px,1.8vw,26px);color:var(--bh-choc);font-weight:700}
+.wf-price{font-family:var(--bh-serif);font-size:clamp(38px,4.4vw,54px);font-weight:700;letter-spacing:-.02em;color:var(--bh-ink);font-variant-numeric:tabular-nums;line-height:1}
+
+.wf-desc{position:relative;color:var(--wf-text-2);line-height:1.7;font-size:15.5px;margin-bottom:28px;font-weight:400}
+.wf-desc-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--wf-mute);margin-bottom:12px;font-weight:700}
+.wf-desc-body{max-height:140px;overflow:hidden;position:relative;transition:max-height .6s ease;color:var(--wf-text-2)}
+.wf-desc-body.open{max-height:2000px}
+.wf-desc-body:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,var(--bh-bg) 95%);pointer-events:none}
+.wf-desc-toggle{margin-top:10px;background:none;border:none;color:var(--bh-choc);font-size:12px;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;padding:0;font-weight:700;border-bottom:1.5px solid var(--bh-choc);padding-bottom:2px}
+
+.wf-order{margin-top:8px;display:flex;flex-direction:column;gap:12px}
+.wf-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px 26px;border-radius:999px;border:none;background:var(--bh-choc);color:#fff;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;cursor:pointer;overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s}
+.wf-btn:hover{transform:translateY(-2px);background:#472c18}
+.wf-btn .ic svg{width:18px;height:18px;fill:currentColor}
+.wf-btn .arrow{margin-left:6px;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.wf-btn:hover .arrow{transform:translateX(4px)}
+.wf-btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.28);transform:scale(0);animation:wfRipple .7s ease-out;pointer-events:none}
+@keyframes wfRipple{to{transform:scale(4);opacity:0}}
+
+.wf-section{margin-top:clamp(64px,8vw,110px)}
+.wf-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:34px;flex-wrap:wrap;padding-bottom:18px;border-bottom:1.5px solid var(--wf-line)}
+.wf-eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--bh-caramel);margin-bottom:8px;font-weight:700}
+.wf-h2{font-family:var(--bh-serif);font-size:clamp(26px,3.2vw,38px);letter-spacing:-.02em;line-height:1.08;font-weight:600;margin:0;color:var(--bh-ink)}
+.wf-section-sub{color:var(--wf-mute);font-size:14px;margin:0;max-width:340px;}
+
+.wf-trust-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border-top:1.5px solid var(--wf-line);border-left:1.5px solid var(--wf-line);border-radius:16px;overflow:hidden}
+.wf-trust-card{padding:26px 24px;border-right:1.5px solid var(--wf-line);border-bottom:1.5px solid var(--wf-line);background:#fff;transition:background .3s}
+.wf-trust-card:hover{background:var(--bh-beige)}
+.wf-trust-num{font-family:var(--bh-serif);font-size:12px;letter-spacing:.1em;color:var(--bh-caramel);font-weight:700;margin-bottom:12px;display:block}
+.wf-trust-card h4{font-size:16.5px;font-weight:700;margin:0 0 8px;color:var(--bh-ink);letter-spacing:-.01em;line-height:1.25}
+.wf-trust-card p{font-size:13.5px;color:var(--wf-text-2);line-height:1.55;margin:0}
+
+.wf-mobile-cta{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:none;padding:10px 12px;background:var(--bh-bg);border-top:1.5px solid var(--wf-line);align-items:center;gap:12px}
+.wf-mobile-cta .mc-thumb{width:46px;height:46px;border-radius:10px;object-fit:cover;flex-shrink:0;background:var(--bh-beige)}
+.wf-mobile-cta .mc-info{flex:1;min-width:0}
+.wf-mobile-cta .mc-name{font-size:13px;font-weight:700;color:var(--bh-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.wf-mobile-cta .mc-price{font-size:12px;color:var(--wf-mute);margin:0;font-weight:600}
+.wf-mobile-cta .mc-btn{padding:13px 20px;border-radius:999px;background:var(--bh-choc);color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:768px){.wf-mobile-cta{display:flex}.wf-shell{padding-bottom:100px}}
+
+.wf-lightbox{position:fixed;inset:0;background:rgba(42,30,23,.96);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s}
+.wf-lightbox.open{display:flex;opacity:1}
+.wf-lightbox img,.wf-lightbox iframe{max-width:94vw;max-height:90vh;border-radius:10px}
+.wf-lightbox-close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:50%;background:#fff;border:none;color:var(--bh-ink);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.wf-lightbox-close:hover{transform:rotate(90deg)}
+.wf-lightbox-close svg{width:18px;height:18px}
+
+.wf-reveal{opacity:0;transform:translateY(22px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.wf-reveal.in{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .wf-title{font-size:30px}
+  .wf-price{font-size:36px}
+  .wf-price-wrap{padding:18px 0;margin:6px 0 22px}
+  .wf-section-head{margin-bottom:22px}
+  .wf-h2{font-size:24px}
+  .wf-trust-card{padding:20px 16px}
+  .wf-btn{padding:16px 20px;font-size:13px}
+}
+
+/* RELATED PRODUCTS GRID */
+.lux-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:26px;align-items:start;margin-top:2rem;}
+@media(max-width:1200px){.lux-grid{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:768px){.lux-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;}}
+@media(max-width:480px){.lux-grid{gap:14px;}}
+
+.lux-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--wf-line);border-radius:20px;overflow:hidden;text-decoration:none;min-height:100%;transition:transform .4s cubic-bezier(.19,1,.22,1),box-shadow .4s cubic-bezier(.19,1,.22,1);box-shadow:0 10px 26px -20px rgba(92,58,33,.18);}
+.lux-card:hover{transform:translateY(-8px);box-shadow:0 26px 50px -24px rgba(92,58,33,.26);}
+.lux-card .media{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--bh-beige);}
+.lux-card .media img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s cubic-bezier(.19,1,.22,1);}
+.lux-card:hover .media img{transform:scale(1.07);}
+.lux-badge{position:absolute;top:14px;left:14px;z-index:3;padding:7px 13px;border-radius:999px;background:rgba(255,255,255,.9);font-size:.7rem;font-weight:700;color:var(--bh-choc);}
+.lux-fav{position:absolute;top:14px;right:14px;z-index:3;width:38px;height:38px;border:none;border-radius:50%;background:rgba(255,255,255,.92);display:flex;align-items:center;justify-content:center;cursor:pointer;color:var(--bh-choc);}
+.lux-fav svg{width:16px;height:16px;}
+.lux-quick{position:absolute;left:50%;bottom:16px;transform:translateX(-50%) translateY(20px);opacity:0;background:var(--bh-choc);color:#fff;padding:9px 16px;border-radius:999px;font-size:.76rem;font-weight:700;transition:.4s cubic-bezier(.19,1,.22,1);z-index:3;white-space:nowrap;}
+.lux-card:hover .lux-quick{opacity:1;transform:translateX(-50%) translateY(0);}
+.lux-info{padding:16px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+.lux-info .name{margin:0;font-size:.95rem;line-height:1.4;font-weight:700;color:var(--bh-ink);}
+.lux-info .meta{margin-top:5px;font-size:.78rem;color:var(--wf-mute);}
+.lux-price{white-space:nowrap;font-size:.95rem;font-weight:800;color:var(--bh-choc);}
+.lux-details{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:15px;border-top:1px solid var(--wf-line);font-size:.82rem;font-weight:700;color:var(--bh-ink-soft);}
+.lux-empty{padding:60px 20px;border-radius:20px;background:#fdfaf6;border:1px dashed var(--wf-line);text-align:center;grid-column:1/-1;}
+</style>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="wf-scroll-progress" id="wfProgress"></div>
+
+<div class="wf-shell">
+  <div class="wf-container">
+
+    <!-- BREADCRUMBS -->
+    <nav class="wf-crumbs wf-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Bakery" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Menu</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="wf-hero">
+
+      <!-- ============ GALLERY ============ -->
+      <div class="wf-gallery wf-reveal">
+        <div class="wf-stage" id="wfStage">
+          <div class="wf-stage-badge"><span class="dot"></span> Fresh Today</div>
+          <button class="wf-stage-zoom" id="wfZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="wf-stage-media" id="wfStageMedia">
+            {% if product.image %}
+              <img id="wfMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="wfMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="wfMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="wf-thumbs" id="wfThumbs">
+          {% if product.image %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt=""></div>
+          {% elif product.image_url %}
+            <div class="wf-thumb active" data-type="img" data-src="{{ product.image_url }}"><img src="{{ product.image_url }}" alt=""></div>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt=""></div>
+            {% elif img.image_url %}
+              <div class="wf-thumb" data-type="img" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt=""></div>
+            {% endif %}
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="wf-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb"><img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt=""></div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ============ INFO PANEL ============ -->
+      <div class="wf-info wf-reveal">
+
+        <a href="{{ product.store.get_absolute_url }}" class="wf-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="wf-title">{{ product.name }}</h1>
+
+        <div class="wf-meta-row">
+          <span class="wf-avail"><span class="dot"></span> In Stock</span>
+          <span>Posted {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="wf-price-wrap">
+          <span class="wf-currency">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="wf-price" id="wfPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="wf-desc">
+          <div class="wf-desc-title">Product Description</div>
+          <div class="wf-desc-body" id="wfDescBody">
+            {{ product.description|default:"No description available."|linebreaks }}
+          </div>
+          <button class="wf-desc-toggle" id="wfDescToggle">Read more</button>
+        </div>
+
+        <div class="wf-order">
+          <a class="wf-btn" href="{% url 'add_to_cart' product.slug %}">
+            <span class="ic">
+              <svg viewBox="0 0 24 24"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9 2-2-.9-2-2-2zM7.17 14h9.95c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0 0 21.58 5H5.21L4.27 3H1v2h2l3.6 7.59-1.35 2.44A2 2 0 0 0 7 18h12v-2H7.42a.25.25 0 0 1-.22-.37L7.17 14z"/></svg>
+            </span>
+            Add to Cart
+            <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============ TRUST & SAFETY ============ -->
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div>
+          <div class="wf-eyebrow">Trust &amp; Safety</div>
+          <h2 class="wf-h2">Order with confidence.</h2>
+        </div>
+      </div>
+      <div class="wf-trust-grid">
+        <div class="wf-trust-card"><span class="wf-trust-num">01</span><h4>Baked fresh to order</h4><p>Nothing sits in a freezer. Every item is prepared close to your delivery time.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">02</span><h4>Confirm before you pay</h4><p>Chat with us on WhatsApp to confirm flavor, size and availability first.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">03</span><h4>Clear delivery terms</h4><p>We'll confirm delivery windows, packaging, and handling up front.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">04</span><h4>Secure payment options</h4><p>Bank transfer, card, and mobile money — shared securely inside the chat.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">05</span><h4>Custom requests welcome</h4><p>Need a size change or dietary note? Just ask before you order.</p></div>
+        <div class="wf-trust-card"><span class="wf-trust-num">06</span><h4>Real people, real care</h4><p>Every order is packed and checked by hand before it leaves our kitchen.</p></div>
+      </div>
+    </section>
+
+    <!-- ============ RELATED PRODUCTS ============ -->
+    {% if items_meta %}
+    <section class="wf-section wf-reveal">
+      <div class="wf-section-head">
+        <div>
+          <div class="wf-eyebrow">Curated for you</div>
+          <h2 class="wf-h2">You may also like</h2>
+        </div>
+        <p class="wf-section-sub">Discover more freshly baked pieces from {{ product.store.brand_name }}</p>
+      </div>
+
+      <div class="lux-grid">
+        {% for product in products|slice:":4" %}
+        <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card lux-reveal">
+          <div class="media">
+            <span class="lux-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+            <button type="button" class="lux-fav" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+            </button>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+            <span class="lux-quick">Quick View</span>
+          </div>
+          <div class="lux-info">
+            <div>
+              <h6 class="name">{{ product.name }}</h6>
+              <div class="meta">{{ store.brand_name }}</div>
+            </div>
+            <div class="lux-price">
+              {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+              {{ product.price|intcomma }}
+            </div>
+          </div>
+          <span class="lux-details">View Details →</span>
+        </a>
+        {% empty %}
+        <div class="lux-empty">
+          <h3>No more products yet</h3>
+          <p>Products will appear here once added to the store.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
+</div>
+
+<!-- STICKY MOBILE CTA -->
+<div class="wf-mobile-cta">
+    {% if product.image %}
+        <img class="mc-thumb" src="{{ product.image.url }}" alt="{{ product.name }}">
+    {% elif product.image_url %}
+        <img class="mc-thumb" src="{{ product.image_url }}" alt="{{ product.name }}">
+    {% endif %}
+
+    <div class="mc-info">
+        <p class="mc-name">{{ product.name }}</p>
+        <p class="mc-price">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+            {{ product.price|intcomma }}
+        </p>
+    </div>
+
+    <a class="mc-btn" href="{% url 'add_to_cart' product.slug %}">Add to Cart</a>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="wf-lightbox" id="wfLightbox" aria-hidden="true">
+  <button class="wf-lightbox-close" id="wfLbClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div id="wfLbBody"></div>
+</div>
+
+<script>
+(function(){
+  const bar=document.getElementById('wfProgress');
+  if(bar){window.addEventListener('scroll',()=>{const h=document.documentElement;const sc=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;bar.style.width=sc+'%';},{passive:true});}
+
+  const io=new IntersectionObserver((es)=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.12});
+  document.querySelectorAll('.wf-reveal').forEach(el=>io.observe(el));
+
+  const pr=document.getElementById('wfPrice');
+  if(pr){const target=parseFloat((pr.dataset.value||'0').toString().replace(/,/g,''))||0;let cur=0;const step=Math.max(1,target/40);const fmt=new Intl.NumberFormat();const tick=()=>{cur+=step;if(cur>=target){pr.textContent=fmt.format(target);return;}pr.textContent=fmt.format(Math.floor(cur));requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+
+  const db=document.getElementById('wfDescBody'),dt=document.getElementById('wfDescToggle');
+  if(db&&dt){if(db.scrollHeight<=140){dt.style.display='none';}dt.addEventListener('click',()=>{db.classList.toggle('open');dt.textContent=db.classList.contains('open')?'Show less':'Read more';});}
+
+  const stageMedia=document.getElementById('wfStageMedia');
+  document.querySelectorAll('#wfThumbs .wf-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('#wfThumbs .wf-thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const type=t.dataset.type, src=t.dataset.src;
+      stageMedia.style.opacity='0';
+      setTimeout(()=>{
+        if(type==='img'){
+          stageMedia.innerHTML = `<img id="wfMainImg" src="${src}" alt="">`;
+        } else if(type==='yt'){
+          stageMedia.innerHTML = `<iframe width="100%" height="100%" src="https://www.youtube.com/embed/${src}?autoplay=1&mute=1&playsinline=1&rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+        }
+        stageMedia.style.opacity='1';
+      },200);
+    });
+  });
+
+  const lb=document.getElementById('wfLightbox'),lbBody=document.getElementById('wfLbBody');
+  const zb=document.getElementById('wfZoomBtn');
+  if(zb){zb.addEventListener('click',()=>{const m=stageMedia.querySelector('img,iframe');if(!m)return;lbBody.innerHTML=m.outerHTML;lb.classList.add('open');});}
+  document.getElementById('wfLbClose').addEventListener('click',()=>{lb.classList.remove('open');lbBody.innerHTML='';});
+  lb.addEventListener('click',(e)=>{if(e.target===lb){lb.classList.remove('open');lbBody.innerHTML='';}});
+
+  document.querySelectorAll('.wf-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{const r=b.getBoundingClientRect();const c=document.createElement('span');c.className='ripple';const s=Math.max(r.width,r.height);c.style.width=c.style.height=s+'px';c.style.left=(e.clientX-r.left-s/2)+'px';c.style.top=(e.clientY-r.top-s/2)+'px';b.appendChild(c);setTimeout(()=>c.remove(),720);});
+  });
+})();
+</script>
+
+{% endblock %}
