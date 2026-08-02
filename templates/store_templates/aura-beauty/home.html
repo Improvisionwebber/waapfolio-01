@@ -262,56 +262,6 @@
     </div>
   </section>
 
-  <!-- ============ BEST SELLERS ============ -->
-  <section class="ab-section ab-section--alt">
-    <div class="ab-wrap">
-      <div class="ab-section-head ab-reveal">
-        <div>
-          <span class="ab-label">Most Loved</span>
-          <h2 class="ab-title">Best Sellers</h2>
-        </div>
-        <p class="ab-sub">The pieces our clients reorder without being asked twice.</p>
-      </div>
-
-      <div class="ab-grid">
-        {% with featured=products|dictsortreversed:"is_featured" %}
-        {% for product in featured|slice:":4" %}
-          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ab-card ab-reveal">
-            <div class="ab-card-img">
-              {% if product.is_featured %}<span class="ab-badge">Best Seller</span>{% endif %}
-              <button type="button" class="ab-fav" aria-label="Save product" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
-              </button>
-              {% if product.image %}
-                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
-              {% elif product.image_url %}
-                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
-              {% else %}
-                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
-              {% endif %}
-              <span class="ab-quick">Quick View</span>
-            </div>
-            <div class="ab-card-body">
-              <div>
-                <h6 class="ab-card-name">{{ product.name }}</h6>
-                {% if product.category %}<div class="ab-card-meta">{{ product.category.name }}</div>{% endif %}
-              </div>
-              <div class="ab-card-price">
-                {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% endif %}{{ product.price|intcomma }}
-              </div>
-            </div>
-          </a>
-        {% empty %}
-          <div class="ab-empty">
-            <div class="mark"><i class="bi bi-bag-heart"></i></div>
-            <h3>No products yet</h3>
-            <p>Products added by the store owner will appear here.</p>
-          </div>
-        {% endfor %}
-        {% endwith %}
-      </div>
-    </div>
-  </section>
 
   <!-- ============ LUXURY COLLECTION BANNER ============ -->
   <section class="ab-section">
