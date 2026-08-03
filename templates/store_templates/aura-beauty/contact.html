@@ -412,7 +412,7 @@
         <a class="lux-btn solid" target="_blank" rel="noopener" href="https://wa.me/{{ store.whatsapp_number }}?text=Hi%20{{ store.brand_name|urlencode }}%2C%20I%20need%20assistance%20with%20my%20order.">
           <i class="bi bi-whatsapp"></i> Chat With {{ store.brand_name }}
         </a>
-        <a class="lux-btn ghost" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">
+        <a class="lux-btn ghost" href="{% url 'store_product_list' store_slug=store.slug %}">
           <i class="bi bi-arrow-up-right"></i> Browse the Collection
         </a>
       </div>

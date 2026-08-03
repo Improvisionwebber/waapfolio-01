@@ -234,7 +234,7 @@
                 <h1>{{ store.brand_name }},<br><span class="grad">reimagined.</span></h1>
                 {% if store.bio %}<p class="bio">{{ store.bio }}</p>{% else %}<p class="bio">Premium electronics, curated for people who care about detail — from everyday essentials to serious upgrades.</p>{% endif %}
                 <div class="vx-cta-row">
-                  <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+                  <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-cta">
                     Shop the Collection
                     <i class="bi bi-arrow-right"></i>
                   </a>
@@ -279,11 +279,11 @@
                 <h1>Built for speed.<br><span class="grad">Made to last.</span></h1>
                 <p class="bio">Every device is checked, every order confirmed personally — no automated noise, just real service from {{ store.brand_name }}.</p>
                 <div class="vx-cta-row">
-                  <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+                  <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-cta">
                     Browse New Arrivals
                     <i class="bi bi-arrow-right"></i>
                   </a>
-                  <a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}" class="vx-cta-ghost">
+                  <a href="{% url 'store_about' store_slug=store.slug  %}" class="vx-cta-ghost">
                     Our Story
                   </a>
                 </div>
@@ -323,7 +323,7 @@
                     <i class="bi bi-whatsapp"></i> Chat With Us
                   </a>
                   {% endif %}
-                  <a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}" class="vx-cta-ghost">
+                  <a href="{% url 'store_contact' store_slug=store.slug  %}" class="vx-cta-ghost">
                     Contact Page
                   </a>
                 </div>
@@ -379,13 +379,13 @@
           <div class="vx-label">Browse</div>
           <h2 class="vx-title">Shop by Category</h2>
         </div>
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-view-all">
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-view-all">
           View all products <i class="bi bi-arrow-right"></i>
         </a>
       </div>
       <div class="vx-cat-grid vx-reveal">
         {% for cat in vx_category_list|slice:":4" %}
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cat-card">
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-cat-card">
           {% with cat_product=cat.list|first %}
             {% if cat_product.image %}
               <img src="{{ cat_product.image.url }}" alt="{{ cat.grouper }}">
@@ -415,7 +415,7 @@
           <h2 class="vx-title">Trending Now</h2>
           <p class="vx-sub">Handpicked from {{ store.brand_name }} — quick to browse, instant to order.</p>
         </div>
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-view-all">
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-view-all">
           View all products <i class="bi bi-arrow-right"></i>
         </a>
       </div>
@@ -590,7 +590,7 @@
           <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
         </a>
         {% else %}
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="vx-cta">
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="vx-cta">
           Shop the Collection <i class="bi bi-arrow-right"></i>
         </a>
         {% endif %}

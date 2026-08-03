@@ -240,7 +240,7 @@
         <i class="bi bi-whatsapp"></i> Chat With {{ store.brand_name }}
       </a>
       {% endif %}
-      <a class="vx-cta-ghost" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+      <a class="vx-cta-ghost" href="{% url 'store_home' store_slug=store.slug  %}">
         Back to Home
       </a>
     </div>

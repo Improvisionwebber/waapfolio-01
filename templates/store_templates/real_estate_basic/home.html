@@ -437,7 +437,7 @@
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
               </a>
             {% endif %}
-            <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="re-cta-ghost">
+            <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="re-cta-ghost">
               View the Collection
             </a>
           </div>
@@ -625,7 +625,7 @@
 
       {% if products|length > 6 %}
         <div class="re-view-all re-reveal">
-          <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="re-cta-ghost">
+          <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="re-cta-ghost">
             View the Full Collection →
           </a>
         </div>

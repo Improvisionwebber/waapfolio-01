@@ -199,7 +199,7 @@
           {{ store.bio|default:"A modern beauty atelier for skin, hair and scent — curated in small batches, ordered in a single conversation." }}
         </p>
         <div class="ab-cta-row">
-          <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="ab-cta">
+          <a href="{% url 'store_product_list' store_slug=store.slug %}" class="ab-cta">
             Shop the Edit
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
           </a>
@@ -271,7 +271,7 @@
           <span class="ab-label">The Collection</span>
           <h2>Slow beauty,<br><em>made to last.</em></h2>
           <p>Every item in the {{ store.brand_name }} collection is chosen for what it does, not just how it looks on a shelf. Explore the full edit and find your next ritual.</p>
-          <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="ab-cta" style="background:var(--ab-gold);">
+          <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="ab-cta" style="background:var(--ab-gold);">
             Browse the Collection
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/></svg>
           </a>
@@ -411,7 +411,7 @@
       <h2 style="margin-top:16px;">Begin your <em>ritual</em> today.</h2>
       <p>One message is all it takes. Browse the collection or ask us anything — we'll handle the rest, personally.</p>
       <div class="ab-cta-row" style="justify-content:center;">
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="ab-cta">Shop the Edit</a>
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="ab-cta">Shop the Edit</a>
         {% if store.whatsapp %}
         <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="ab-cta ghost">
           <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
@@ -453,7 +453,7 @@
     if(cats.length === 0) return;
     var section = document.getElementById('ab-categories');
     var grid = document.getElementById('abCategoryGrid');
-    var url = "{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}";
+    var url = "{% url 'store_product_list' store_slug=store.slug  %}";
     cats.slice(0,6).forEach(function(c){
       var a = document.createElement('a');
       a.className = 'ab-cat-tile';

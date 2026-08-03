@@ -223,7 +223,7 @@
     <h2>Explore the <em>full edit.</em></h2>
     <p>Browse every piece currently available from {{ store.brand_name }}, or reach out directly with a question.</p>
     <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
-      <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cta">Shop The Edit</a>
+      <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="fs-cta">Shop The Edit</a>
       {% if store.whatsapp %}
         <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="fs-cta" style="background:transparent;color:var(--fs-ink);border-color:var(--fs-line-strong);">
           Message Us

@@ -250,7 +250,7 @@
         {% if store.bio %}{{ store.bio }}{% else %}A curated edit of pieces worth keeping — presented with clarity, ordered with a single message.{% endif %}
       </p>
       <div class="fs-cta-row">
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cta">Shop The Edit</a>
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="fs-cta">Shop The Edit</a>
         {% if store.whatsapp %}
           <a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener" class="fs-cta fs-cta-outline">Message {{ store.brand_name }}</a>
         {% endif %}
@@ -290,7 +290,7 @@
           {% for group in fs_category_list %}
             {% if group.grouper %}
               <div class="swiper-slide" style="width:280px;">
-                <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-cat" data-media-fallback data-fallback-label="{{ group.grouper.name }}">
+                <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="fs-cat" data-media-fallback data-fallback-label="{{ group.grouper.name }}">
                   {% with cat_p=group.list.0 %}
                     {% if cat_p.image %}
                       <img src="{{ cat_p.image.url }}" alt="{{ group.grouper.name }}" loading="lazy">
@@ -349,7 +349,7 @@
           <h2 class="fs-section-title">Featured <em>pieces</em></h2>
           <p class="fs-section-sub" style="margin-top:1rem;">A handpicked selection from {{ store.brand_name }}, ready to order in a single message.</p>
         </div>
-        <a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}" class="fs-link-arrow" data-reveal>View All →</a>
+        <a href="{% url 'store_product_list' store_slug=store.slug  %}" class="fs-link-arrow" data-reveal>View All →</a>
       </div>
 
       <div class="fs-grid">
@@ -477,7 +477,7 @@
             <h2>Fashion, made to <em>last a season and beyond.</em></h2>
             <p>{{ store.brand_name }} began with a simple frustration: too many pieces, not enough consideration. What we make and curate is meant to be worn, not just owned.</p>
           {% endif %}
-          <a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}" class="fs-link-arrow">Read Our Story →</a>
+          <a href="{% url 'store_about' store_slug=store.slug  %}" class="fs-link-arrow">Read Our Story →</a>
         </div>
       </div>
     </div>

@@ -225,7 +225,7 @@ path(
 path(
     "<str:store_slug>/products/",
     ProductListView.as_view(),
-    name="store_products",
+    name="store_product_list",
 ),
 
 path(
