@@ -1369,15 +1369,17 @@ from django.views import View
 # Home
 # -----------------------------
 class StoreHomeView(View):
-    def get(self, request, store_slug=None, template_slug=None):
+    def get(self, request, store_slug=None):
 
         if not settings.DEBUG and hasattr(request, "store") and request.store:
             store = request.store
         else:
             store = get_object_or_404(Store, slug=store_slug)
 
-        resolved_template = template_slug or (
-            store.template.slug if store.template else "starter"
+        resolved_template = (
+            store.template.slug
+            if store.template
+            else "starter"
         )
 
         template_name = f"store_templates/{resolved_template}/home.html"
@@ -1390,7 +1392,6 @@ class StoreHomeView(View):
             {
                 "store": store,
                 "products": products,
-                "template_slug": resolved_template,
             }
         )
 
@@ -1399,7 +1400,7 @@ class StoreHomeView(View):
 # About Page
 # -----------------------------
 class StoreAboutView(View):
-    def get(self, request, store_slug=None, template_slug=None):
+    def get(self, request, store_slug=None):
 
         if not settings.DEBUG and hasattr(request, "store") and request.store:
             store = request.store
@@ -1408,8 +1409,10 @@ class StoreAboutView(View):
 
         products = Item.objects.filter(store=store)
 
-        resolved_template = template_slug or (
-            store.template.slug if store.template else "starter"
+        resolved_template = (
+            store.template.slug
+            if store.template
+            else "starter"
         )
 
         template_name = f"store_templates/{resolved_template}/about.html"
@@ -1419,7 +1422,6 @@ class StoreAboutView(View):
             template_name,
             {
                 "store": store,
-                "template_slug": resolved_template,
             }
         )
 
@@ -1428,15 +1430,17 @@ class StoreAboutView(View):
 # Contact Page
 # -----------------------------
 class StoreContactView(View):
-    def get(self, request, store_slug=None, template_slug=None):
+    def get(self, request, store_slug=None):
 
         if not settings.DEBUG and hasattr(request, "store") and request.store:
             store = request.store
         else:
             store = get_object_or_404(Store, slug=store_slug)
 
-        resolved_template = template_slug or (
-            store.template.slug if store.template else "starter"
+        resolved_template = (
+            store.template.slug
+            if store.template
+            else "starter"
         )
 
         template_name = f"store_templates/{resolved_template}/contact.html"
@@ -1446,7 +1450,6 @@ class StoreContactView(View):
             template_name,
             {
                 "store": store,
-                "template_slug": resolved_template,
             }
         )
 
@@ -1455,7 +1458,7 @@ class StoreContactView(View):
 # Product List
 # -----------------------------
 class ProductListView(View):
-    def get(self, request, store_slug=None, template_slug=None):
+    def get(self, request, store_slug=None):
 
         if not settings.DEBUG and hasattr(request, "store") and request.store:
             store = request.store
@@ -1464,8 +1467,10 @@ class ProductListView(View):
 
         products = Item.objects.filter(store=store)
 
-        resolved_template = template_slug or (
-            store.template.slug if store.template else "starter"
+        resolved_template = (
+            store.template.slug
+            if store.template
+            else "starter"
         )
 
         template_name = f"store_templates/{resolved_template}/products.html"
@@ -1476,40 +1481,50 @@ class ProductListView(View):
             {
                 "store": store,
                 "products": products,
-                "template_slug": resolved_template,
             }
         )
-
 
 # -----------------------------
 # Product Detail
 # -----------------------------
 class ProductDetailView(View):
-    def get(self, request, store_slug=None, product_slug=None, template_slug=None):
+    def get(self, request, store_slug=None, product_slug=None):
 
+        # Get store
         if not settings.DEBUG and hasattr(request, "store") and request.store:
             store = request.store
         else:
             store = get_object_or_404(Store, slug=store_slug)
 
+        # Get product
         product = get_object_or_404(
             Item,
             slug=product_slug,
             store=store
         )
 
+        # Related products
         products = Item.objects.filter(store=store)
 
         extra_files = product.extra_files.all()
         media = product.media.all()
         comments = product.comments.all()
-        items_meta = Item.objects.filter(store=store).exclude(pk=product.pk)[:8]
-
-        resolved_template = template_slug or (
-            store.template.slug if store.template else "starter"
+        items_meta = (
+            Item.objects
+            .filter(store=store)
+            .exclude(pk=product.pk)[:8]
         )
 
-        template_name = f"store_templates/{resolved_template}/product_detail.html"
+        # Get the template assigned to THIS store
+        resolved_template = (
+            store.template.slug
+            if store.template
+            else "starter"
+        )
+
+        template_name = (
+            f"store_templates/{resolved_template}/product_detail.html"
+        )
 
         return render(
             request,
@@ -1522,7 +1537,6 @@ class ProductDetailView(View):
                 "items_meta": items_meta,
                 "extra_files": extra_files,
                 "media": media,
-                "template_slug": resolved_template,
             }
         )
 

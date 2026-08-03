@@ -332,7 +332,7 @@
   <header class="aura-nav" id="auraNav">
     <div class="aura-nav-inner">
 
-      <a class="aura-brand" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+      <a class="aura-brand" href="{% url 'store_template_home' store_slug=store.slug  %}">
         <span class="aura-brand-mark">
           {% if "http" in store.brand_logo.name %}
             <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}" class="aura-logo">
@@ -350,10 +350,10 @@
       <!-- Desktop nav -->
       <nav class="aura-links-wrap" aria-label="Primary">
         <ul class="aura-links">
-          <li><a class="aura-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
-          <li><a class="aura-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
-          <li><a class="aura-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop</a></li>
-          <li><a class="aura-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_home' store_slug=store.slug  %}">Home</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_about' store_slug=store.slug  %}">About</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_product_list' store_slug=store.slug  %}">Shop</a></li>
+          <li><a class="aura-link" href="{% url 'store_template_contact' store_slug=store.slug  %}">Contact</a></li>
           <li>
             <a href="{% url 'cart' %}" class="aura-icon-btn position-relative" aria-label="Shopping Cart">
               <i class="bi bi-bag"></i>
@@ -426,10 +426,10 @@
         </button>
       </div>
       <div class="aura-drawer-body">
-        <a class="aura-drawer-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
-        <a class="aura-drawer-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About <i class="bi bi-arrow-up-right"></i></a>
-        <a class="aura-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop <i class="bi bi-arrow-up-right"></i></a>
-        <a class="aura-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_home' store_slug=store.slug  %}">Home <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_about' store_slug=store.slug  %}">About <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug  %}">Shop <i class="bi bi-arrow-up-right"></i></a>
+        <a class="aura-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug  %}">Contact <i class="bi bi-arrow-up-right"></i></a>
       </div>
       <div class="aura-drawer-foot">
         {% if request.user.is_authenticated and request.user == store.owner %}
@@ -543,10 +543,10 @@
       <div>
         <h5>Explore</h5>
         <ul>
-          <li><a href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
-          <li><a href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Shop All</a></li>
-          <li><a href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">Our Story</a></li>
-          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li><a href="{% url 'store_template_home' store_slug=store.slug  %}">Home</a></li>
+          <li><a href="{% url 'store_template_product_list' store_slug=store.slug  %}">Shop All</a></li>
+          <li><a href="{% url 'store_template_about' store_slug=store.slug  %}">Our Story</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug  %}">Contact</a></li>
         </ul>
       </div>
 
@@ -555,8 +555,8 @@
         <ul>
           {% if store.whatsapp %}<li><a href="https://wa.me/{{ store.whatsapp }}" target="_blank" rel="noopener">WhatsApp Concierge</a></li>{% endif %}
           <li><a href="{% url 'cart' %}">Your Bag</a></li>
-          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Shipping &amp; Returns</a></li>
-          <li><a href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">FAQs</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug  %}">Shipping &amp; Returns</a></li>
+          <li><a href="{% url 'store_template_contact' store_slug=store.slug  %}">FAQs</a></li>
         </ul>
       </div>
 

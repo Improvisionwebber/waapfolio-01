@@ -178,10 +178,9 @@ class Store(models.Model):
     def get_absolute_url(self):
         if settings.DEBUG:
             return reverse(
-                "store_template_home",
+                "store_home",
                 kwargs={
                     "store_slug": self.slug,
-                    "template_slug": self.template.slug if self.template else "starter",
                 },
             )
         return f"https://{self.slug}.waapfolio.com/"

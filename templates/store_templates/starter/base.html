@@ -372,7 +372,7 @@
   <header class="wf-nav" id="wfNav">
     <div class="wf-nav-inner">
 
-<a class="wf-brand" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">
+<a class="wf-brand" href="{% url 'store_template_home' store_slug=store.slug  %}">
   
   <span class="wf-brand-mark">
 
@@ -408,10 +408,10 @@
       <!-- Desktop nav -->
       <nav class="wf-links-wrap" aria-label="Primary">
         <ul class="wf-links">
-          <li><a class="wf-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home</a></li>
-          <li><a class="wf-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About</a></li>
-          <li><a class="wf-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Products</a></li>
-          <li><a class="wf-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_home' store_slug=store.slug  %}">Home</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_about' store_slug=store.slug  %}">About</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_product_list' store_slug=store.slug  %}">Products</a></li>
+          <li><a class="wf-link" href="{% url 'store_template_contact' store_slug=store.slug  %}">Contact</a></li>
           <li>
 
               <a
@@ -552,10 +552,10 @@
         </button>
       </div>
       <div class="wf-drawer-body">
-        <a class="wf-drawer-link" href="{% url 'store_template_home' store_slug=store.slug template_slug=template_slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
-        <a class="wf-drawer-link" href="{% url 'store_template_about' store_slug=store.slug template_slug=template_slug %}">About <i class="bi bi-arrow-up-right"></i></a>
-        <a class="wf-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug template_slug=template_slug %}">Products <i class="bi bi-arrow-up-right"></i></a>
-        <a class="wf-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug template_slug=template_slug %}">Contact <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_home' store_slug=store.slug  %}">Home <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_about' store_slug=store.slug  %}">About <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_product_list' store_slug=store.slug  %}">Products <i class="bi bi-arrow-up-right"></i></a>
+        <a class="wf-drawer-link" href="{% url 'store_template_contact' store_slug=store.slug  %}">Contact <i class="bi bi-arrow-up-right"></i></a>
       </div>
       <div class="wf-drawer-foot">
         {% if request.user.is_authenticated and request.user == store.owner %}

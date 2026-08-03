@@ -210,25 +210,35 @@ path("cart/remove/<int:item_id>/", views.remove_from_cart, name="remove_from_car
 
     path("pricing/", views.pricing, name="pricing"),
     # Store Home
-    path('<str:store_slug>/', StoreHomeView.as_view(), name='store_home'),
-    path('<str:store_slug>/<str:template_slug>/', StoreHomeView.as_view(), name='store_template_home'),
+path(
+    "<str:store_slug>/",
+    StoreHomeView.as_view(),
+    name="store_home",
+),
 
-    # About
-    path('<str:store_slug>/about/', StoreAboutView.as_view(), name='store_about'),
-    path('<str:store_slug>/<str:template_slug>/about/', StoreAboutView.as_view(), name='store_template_about'),
+path(
+    "<str:store_slug>/about/",
+    StoreAboutView.as_view(),
+    name="store_about",
+),
 
-    # Contact
-    path('<str:store_slug>/contact/', StoreContactView.as_view(), name='store_contact'),
-    path('<str:store_slug>/<str:template_slug>/contact/', StoreContactView.as_view(), name='store_template_contact'),
+path(
+    "<str:store_slug>/products/",
+    ProductListView.as_view(),
+    name="store_products",
+),
 
-    # Product List
-    path('<str:store_slug>/products/', ProductListView.as_view(), name='store_product_list'),
-    path('<str:store_slug>/<str:template_slug>/products/', ProductListView.as_view(), name='store_template_product_list'),
+path(
+    "<str:store_slug>/contact/",
+    StoreContactView.as_view(),
+    name="store_contact",
+),
 
-    # Product Detail
-    path('<str:store_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_product_detail'),
-    path('<str:store_slug>/<str:template_slug>/products/<str:product_slug>/', ProductDetailView.as_view(), name='store_template_product_detail'),
-
+path(
+    "<str:store_slug>/products/<str:product_slug>/",
+    ProductDetailView.as_view(),
+    name="store_product_detail",
+),
 ]
 handler404 = 'app.views.custom_404'
 handler500 = 'app.views.custom_500'
