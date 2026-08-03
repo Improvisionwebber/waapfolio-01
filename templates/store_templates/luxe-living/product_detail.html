@@ -1,0 +1,456 @@
+{% extends "store_templates/luxe-living/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} | {{ product.store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+:root{
+  --lx-bg:#f6f3ed;
+  --lx-ink:#26201a;
+  --lx-ink-2:#3a2f26;
+  --lx-mute:#4d443b;
+  --lx-mute-2:#8c8477;
+  --lx-line:#e3ddd0;
+  --lx-line-2:#d6cdb9;
+  --lx-soft:#efe9de;
+  --lx-brass:#9c7a44;
+  --lx-brass-deep:#6e5730;
+  --lx-radius:14px;
+  --lx-radius-sm:8px;
+  --font-display:'Fraunces','Times New Roman',serif;
+  --font-sans:"Inter","SF Pro Display",-apple-system,BlinkMacSystemFont,system-ui,sans-serif;
+}
+
+.lxd-scroll-progress{position:fixed;top:0;left:0;height:2px;width:0%;z-index:9999;background:var(--lx-brass-deep);transition:width .08s linear}
+
+.lxd-shell{position:relative;color:var(--lx-ink);font-family:var(--font-sans);background:var(--lx-bg);padding:clamp(30px,5vw,60px) 0 140px;-webkit-font-smoothing:antialiased}
+.lxd-shell *{box-sizing:border-box}
+.lxd-container{width:100%;max-width:1320px;margin:0 auto;padding:0 clamp(16px,3vw,32px);position:relative;z-index:2}
+
+.lxd-crumbs{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--lx-mute-2);margin-bottom:28px;flex-wrap:wrap;font-weight:600}
+.lxd-crumbs a{color:var(--lx-mute-2);text-decoration:none;transition:color .25s}
+.lxd-crumbs a:hover{color:var(--lx-ink)}
+.lxd-crumbs .sep{opacity:.5}
+.lxd-crumbs .now{color:var(--lx-ink);font-weight:700}
+
+.lxd-hero{display:grid;grid-template-columns:1.2fr .8fr;gap:clamp(28px,4vw,64px);align-items:start}
+@media(max-width:992px){.lxd-hero{grid-template-columns:1fr;gap:32px}}
+
+.lxd-gallery{position:relative}
+.lxd-stage{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--lx-soft);border-radius:10px}
+@media(max-width:600px){.lxd-stage{aspect-ratio:1/1;border-radius:8px}}
+.lxd-stage-media{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.lxd-stage-media img,.lxd-stage-media iframe{width:100%;height:100%;object-fit:cover;transition:transform .8s cubic-bezier(.2,.7,.2,1),opacity .4s;display:block}
+.lxd-stage:hover .lxd-stage-media img{transform:scale(1.03)}
+.lxd-stage-badge{position:absolute;top:14px;left:14px;display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:4px;font-size:10px;letter-spacing:.16em;text-transform:uppercase;font-weight:700;background:var(--lx-ink);color:#fff;z-index:3}
+.lxd-stage-badge .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:lxdPulse 1.6s ease-in-out infinite}
+@keyframes lxdPulse{0%,100%{opacity:1}50%{opacity:.4}}
+.lxd-stage-zoom{position:absolute;bottom:14px;right:14px;width:42px;height:42px;border-radius:50%;background:var(--lx-ink);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;z-index:3;transition:transform .3s}
+.lxd-stage-zoom:hover{transform:scale(1.08)}
+.lxd-stage-zoom svg{width:18px;height:18px}
+
+.lxd-thumbs{display:flex;gap:10px;margin-top:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:4px 2px;scrollbar-width:thin}
+.lxd-thumb{flex:0 0 80px;height:80px;overflow:hidden;position:relative;cursor:pointer;border:2px solid transparent;background:var(--lx-soft);transition:transform .3s,border-color .25s;scroll-snap-align:start;border-radius:6px}
+@media(max-width:600px){.lxd-thumb{flex:0 0 68px;height:68px}}
+.lxd-thumb img,.lxd-thumb .vthumb{width:100%;height:100%;object-fit:cover;display:block}
+.lxd-thumb .vthumb{display:flex;align-items:center;justify-content:center;background:#111;color:#fff}
+.lxd-thumb:hover{transform:translateY(-3px)}
+.lxd-thumb.active{border-color:var(--lx-ink)}
+.lxd-thumb .play{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.4);color:#fff}
+.lxd-thumb .play svg{width:22px;height:22px;fill:#fff}
+
+.lxd-info{padding:0;position:sticky;top:24px}
+@media(max-width:992px){.lxd-info{position:static}}
+.lxd-store-chip{display:inline-flex;align-items:center;gap:10px;padding:6px 14px 6px 6px;border-radius:999px;background:#fff;border:1.5px solid var(--lx-line);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--lx-ink);font-weight:700;margin-bottom:20px;transition:border-color .25s;text-decoration:none}
+.lxd-store-chip:hover{border-color:var(--lx-ink)}
+.lxd-store-chip .avatar{width:26px;height:26px;border-radius:50%;background:var(--lx-ink);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:12px}
+
+.lxd-title{font-family:var(--font-display);font-size:clamp(28px,4vw,46px);line-height:1.08;letter-spacing:-.02em;font-weight:500;margin:0 0 16px;color:var(--lx-ink)}
+.lxd-meta-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:22px;font-size:13px;color:var(--lx-mute-2);font-weight:500}
+.lxd-avail{display:inline-flex;align-items:center;gap:8px;padding:5px 11px;border-radius:999px;background:var(--lx-ink);color:#fff;font-size:11px;letter-spacing:.1em;text-transform:uppercase;font-weight:700}
+.lxd-avail .dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:lxdPulse 1.6s ease-in-out infinite}
+
+.lxd-price-wrap{display:flex;align-items:baseline;gap:8px;margin:8px 0 26px;padding:20px 0;border-top:1.5px solid var(--lx-line);border-bottom:1.5px solid var(--lx-line)}
+.lxd-currency{font-size:clamp(20px,2vw,26px);color:var(--lx-ink);font-weight:600;font-family:var(--font-display)}
+.lxd-price{font-size:clamp(36px,4.4vw,52px);font-weight:500;letter-spacing:-.03em;color:var(--lx-ink);font-variant-numeric:tabular-nums;line-height:1;font-family:var(--font-display)}
+
+.lxd-desc{position:relative;color:var(--lx-ink-2);line-height:1.7;font-size:15px;margin-bottom:26px;font-weight:400}
+.lxd-desc-title{font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--lx-mute-2);margin-bottom:12px;font-weight:700}
+.lxd-desc-body{max-height:140px;overflow:hidden;position:relative;transition:max-height .6s ease}
+.lxd-desc-body.open{max-height:2000px}
+.lxd-desc-body:not(.open)::after{content:"";position:absolute;left:0;right:0;bottom:0;height:60px;background:linear-gradient(180deg,transparent,var(--lx-bg) 95%);pointer-events:none}
+.lxd-desc-toggle{margin-top:10px;background:none;border:none;color:var(--lx-brass-deep);font-size:12px;cursor:pointer;letter-spacing:.1em;text-transform:uppercase;padding:0;font-weight:700;border-bottom:1.5px solid var(--lx-brass-deep);padding-bottom:2px;transition:opacity .2s}
+.lxd-desc-toggle:hover{opacity:.7}
+
+.lxd-specs{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--lx-line);border:1px solid var(--lx-line);border-radius:8px;overflow:hidden;margin-bottom:26px}
+@media(max-width:420px){.lxd-specs{grid-template-columns:1fr}}
+.lxd-spec{background:#fff;padding:16px 18px}
+.lxd-spec .k{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--lx-mute-2);font-weight:700;margin-bottom:6px}
+.lxd-spec .v{font-size:13.5px;color:var(--lx-ink);font-weight:500;line-height:1.5}
+
+.lxd-order{margin-top:8px;display:flex;flex-direction:column;gap:12px}
+.lxd-btn{position:relative;display:flex;align-items:center;justify-content:center;gap:10px;padding:18px 26px;border-radius:6px;border:none;background:var(--lx-ink);color:#fff;font-weight:700;font-size:14px;letter-spacing:.05em;text-transform:uppercase;text-decoration:none;cursor:pointer;overflow:hidden;transition:transform .3s cubic-bezier(.2,.7,.2,1),background .3s}
+.lxd-btn:hover{transform:translateY(-2px);background:var(--lx-ink-2)}
+.lxd-btn .arrow{margin-left:6px;transition:transform .35s cubic-bezier(.7,0,.2,1)}
+.lxd-btn:hover .arrow{transform:translateX(4px)}
+.lxd-btn.outline{background:#fff;color:var(--lx-ink);border:1.5px solid var(--lx-ink)}
+.lxd-btn.outline:hover{background:var(--lx-ink);color:#fff}
+.lxd-btn .ripple{position:absolute;border-radius:50%;background:rgba(255,255,255,.25);transform:scale(0);animation:lxdRipple .7s ease-out;pointer-events:none}
+@keyframes lxdRipple{to{transform:scale(4);opacity:0}}
+
+.lxd-section{margin-top:clamp(60px,8vw,100px)}
+.lxd-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:32px;flex-wrap:wrap;padding-bottom:16px;border-bottom:1.5px solid var(--lx-line)}
+.lxd-eyebrow{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--lx-mute-2);margin-bottom:8px;font-weight:700}
+.lxd-h2{font-family:var(--font-display);font-size:clamp(24px,3vw,36px);letter-spacing:-.015em;line-height:1.08;font-weight:500;margin:0;color:var(--lx-ink)}
+.lxd-section-sub{font-size:.94rem;color:var(--lx-mute);max-width:420px;margin:0}
+
+.lxd-info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:0;border-top:1.5px solid var(--lx-line);border-left:1.5px solid var(--lx-line)}
+.lxd-info-card{padding:26px 24px;border-right:1.5px solid var(--lx-line);border-bottom:1.5px solid var(--lx-line);transition:background .3s}
+.lxd-info-card:hover{background:#fbf9f5}
+.lxd-info-num{font-size:11px;letter-spacing:.18em;color:var(--lx-mute-2);font-weight:700;margin-bottom:14px;display:block}
+.lxd-info-card h4{font-size:16.5px;font-weight:700;margin:0 0 8px;color:var(--lx-ink);letter-spacing:-.005em;line-height:1.25;font-family:var(--font-sans)}
+.lxd-info-card p{font-size:13.5px;color:var(--lx-ink-2);line-height:1.55;margin:0}
+
+.lxd-rel-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:24px}
+@media(max-width:1200px){.lxd-rel-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:768px){.lxd-rel-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}}
+.lxd-rel-card{position:relative;display:flex;flex-direction:column;background:#fff;border:1px solid var(--lx-line);border-radius:14px;overflow:hidden;text-decoration:none;transition:transform .4s cubic-bezier(.19,1,.22,1),box-shadow .4s ease}
+.lxd-rel-card:hover{transform:translateY(-6px);box-shadow:0 24px 46px -28px rgba(38,32,26,.28)}
+.lxd-rel-media{position:relative;width:100%;aspect-ratio:1/1;overflow:hidden;background:var(--lx-soft)}
+.lxd-rel-media img{width:100%;height:100%;object-fit:cover;transition:transform .6s ease}
+.lxd-rel-card:hover .lxd-rel-media img{transform:scale(1.06)}
+.lxd-rel-badge{position:absolute;top:12px;left:12px;padding:6px 11px;border-radius:999px;background:rgba(255,255,255,.9);font-size:10.5px;font-weight:700;color:var(--lx-ink)}
+.lxd-rel-info{padding:16px 18px;display:flex;justify-content:space-between;align-items:flex-start;gap:10px}
+.lxd-rel-info .name{margin:0;font-size:.94rem;font-weight:600;color:var(--lx-ink)}
+.lxd-rel-info .meta{margin-top:5px;font-size:.76rem;color:var(--lx-mute-2)}
+.lxd-rel-price{white-space:nowrap;font-size:.9rem;font-weight:700;color:var(--lx-ink)}
+.lxd-rel-cta{margin-top:auto;display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;border-top:1px solid var(--lx-line);font-size:.8rem;font-weight:700;color:var(--lx-ink);transition:.3s ease}
+.lxd-rel-card:hover .lxd-rel-cta{background:var(--lx-ink);color:#fff}
+.lxd-rel-empty{grid-column:1/-1;padding:60px 20px;border-radius:16px;background:#fbf9f5;border:1px dashed var(--lx-line);text-align:center}
+
+.lxd-mobile-cta{position:fixed;left:0;right:0;bottom:0;z-index:9000;display:none;padding:10px 12px;background:#fff;border-top:1.5px solid var(--lx-line);align-items:center;gap:12px}
+.lxd-mobile-cta .mc-thumb{width:46px;height:46px;border-radius:6px;object-fit:cover;flex-shrink:0;background:var(--lx-soft)}
+.lxd-mobile-cta .mc-info{flex:1;min-width:0}
+.lxd-mobile-cta .mc-name{font-size:13px;font-weight:700;color:var(--lx-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:0}
+.lxd-mobile-cta .mc-price{font-size:12px;color:var(--lx-mute-2);margin:0;font-weight:600}
+.lxd-mobile-cta .mc-btn{padding:13px 20px;border-radius:6px;background:var(--lx-ink);color:#fff;text-decoration:none;font-size:12px;font-weight:700;white-space:nowrap;letter-spacing:.08em;text-transform:uppercase}
+@media(max-width:768px){.lxd-mobile-cta{display:flex}.lxd-shell{padding-bottom:100px}}
+
+.lxd-lightbox{position:fixed;inset:0;background:rgba(38,32,26,.96);z-index:10000;display:none;align-items:center;justify-content:center;padding:24px;opacity:0;transition:opacity .3s}
+.lxd-lightbox.open{display:flex;opacity:1}
+.lxd-lightbox img,.lxd-lightbox iframe{max-width:94vw;max-height:90vh;border-radius:6px}
+.lxd-lightbox-close{position:absolute;top:18px;right:18px;width:44px;height:44px;border-radius:50%;background:#fff;border:none;color:var(--lx-ink);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .3s}
+.lxd-lightbox-close:hover{transform:rotate(90deg)}
+.lxd-lightbox-close svg{width:18px;height:18px}
+
+.lxd-reveal{opacity:0;transform:translateY(20px);transition:opacity .8s cubic-bezier(.2,.7,.2,1),transform .8s cubic-bezier(.2,.7,.2,1)}
+.lxd-reveal.in{opacity:1;transform:translateY(0)}
+
+@media(max-width:600px){
+  .lxd-price-wrap{padding:16px 0;margin:6px 0 20px}
+  .lxd-btn{padding:16px 20px;font-size:13px}
+}
+</style>
+
+<!-- SCROLL PROGRESS BAR -->
+<div class="lxd-scroll-progress" id="lxdProgress"></div>
+
+<div class="lxd-shell">
+  <div class="lxd-container">
+
+    <!-- BREADCRUMBS -->
+    <nav class="lxd-crumbs lxd-reveal">
+      <a href="{{ product.store.get_absolute_url }}">{{ product.store.brand_name|default:"Store" }}</a>
+      <span class="sep">/</span>
+      <a href="{{ product.store.get_absolute_url }}">Collection</a>
+      <span class="sep">/</span>
+      <span class="now">{{ product.name }}</span>
+    </nav>
+
+    <!-- HERO -->
+    <div class="lxd-hero">
+
+      <!-- GALLERY -->
+      <div class="lxd-gallery lxd-reveal">
+        <div class="lxd-stage" id="lxdStage">
+          <div class="lxd-stage-badge"><span class="dot"></span> In Stock</div>
+          <button class="lxd-stage-zoom" id="lxdZoomBtn" aria-label="Zoom image">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/><line x1="11" y1="8" x2="11" y2="14"/><line x1="8" y1="11" x2="14" y2="11"/></svg>
+          </button>
+          <div class="lxd-stage-media" id="lxdStageMedia">
+            {% if product.image %}
+              <img id="lxdMainImg" src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img id="lxdMainImg" src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img id="lxdMainImg" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="lxd-thumbs" id="lxdThumbs">
+          {% if product.image %}
+            <div class="lxd-thumb active" data-type="img" data-src="{{ product.image.url }}">
+              <img src="{{ product.image.url }}" alt="">
+            </div>
+          {% elif product.image_url %}
+            <div class="lxd-thumb active" data-type="img" data-src="{{ product.image_url }}">
+              <img src="{{ product.image_url }}" alt="">
+            </div>
+          {% endif %}
+
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <div class="lxd-thumb" data-type="img" data-src="{{ img.image.url }}">
+                <img src="{{ img.image.url }}" alt="">
+              </div>
+            {% elif img.image_url %}
+              <div class="lxd-thumb" data-type="img" data-src="{{ img.image_url }}">
+                <img src="{{ img.image_url }}" alt="">
+              </div>
+            {% endif %}
+          {% endfor %}
+
+          {% for y in product.media.all %}
+            {% if y.youtube_id %}
+              <div class="lxd-thumb" data-type="yt" data-src="{{ y.youtube_id }}">
+                <div class="vthumb">
+                  <img src="https://img.youtube.com/vi/{{ y.youtube_id }}/hqdefault.jpg" alt="">
+                </div>
+                <div class="play"><svg viewBox="0 0 24 24"><polygon points="6,4 20,12 6,20"/></svg></div>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- INFO PANEL -->
+      <div class="lxd-info lxd-reveal">
+
+        <a href="{{ product.store.get_absolute_url }}" class="lxd-store-chip">
+          <span class="avatar">{{ product.store.brand_name|slice:":1"|upper }}</span>
+          {{ product.store.brand_name }}
+        </a>
+
+        <h1 class="lxd-title">{{ product.name }}</h1>
+
+        <div class="lxd-meta-row">
+          <span class="lxd-avail"><span class="dot"></span> In Stock</span>
+          <span>Posted {{ product.created_at|date:"M j, Y" }}</span>
+        </div>
+
+        {% if product.price %}
+        <div class="lxd-price-wrap">
+          <span class="lxd-currency">
+            {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}&euro;{% elif product.currency == "GBP" %}&pound;{% elif product.currency == "GHS" %}&#8373;{% elif product.currency == "MWK" %}MK{% endif %}
+          </span>
+          <span class="lxd-price" id="lxdPrice" data-value="{{ product.price }}">{{ product.price|intcomma }}</span>
+        </div>
+        {% endif %}
+
+        <div class="lxd-desc">
+          <div class="lxd-desc-title">Product Description</div>
+          <div class="lxd-desc-body" id="lxdDescBody">
+            {{ product.description|default:"No description available."|linebreaks }}
+          </div>
+          <button class="lxd-desc-toggle" id="lxdDescToggle">Read more</button>
+        </div>
+
+        <!-- MATERIALS & DIMENSIONS -->
+        <div class="lxd-specs">
+          <div class="lxd-spec">
+            <div class="k">Materials</div>
+            <div class="v">Solid hardwood frame, natural finish, premium upholstery where applicable.</div>
+          </div>
+          <div class="lxd-spec">
+            <div class="k">Dimensions</div>
+            <div class="v">Exact measurements confirmed with our team before dispatch.</div>
+          </div>
+          <div class="lxd-spec">
+            <div class="k">Delivery</div>
+            <div class="v">Coordinated directly with you on WhatsApp after order confirmation.</div>
+          </div>
+          <div class="lxd-spec">
+            <div class="k">Care</div>
+            <div class="v">Wipe with a dry, soft cloth. Avoid direct sunlight and excess moisture.</div>
+          </div>
+        </div>
+
+        <!-- ORDER -->
+        <div class="lxd-order">
+          <a class="lxd-btn" href="{% url 'add_to_cart' product.slug %}">
+            <span class="ic">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor">
+                <path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10
+                0c-1.1 0-1.99.9-1.99 2S15.9 22 17 22s2-.9
+                2-2-.9-2-2-2zM7.17 14h9.95c.75
+                0 1.41-.41 1.75-1.03l3.58-6.49A1
+                1 0 0 0 21.58 5H5.21L4.27
+                3H1v2h2l3.6 7.59-1.35
+                2.44A2 2 0 0 0 7 18h12v-2H7.42a.25.25
+                0 0 1-.22-.37L7.17 14z"/>
+              </svg>
+            </span>
+            Add to Cart
+            <span class="arrow">→</span>
+          </a>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TRUST & SAFETY -->
+    <section class="lxd-section lxd-reveal">
+      <div class="lxd-section-head">
+        <div>
+          <div class="lxd-eyebrow">Trust &amp; Safety</div>
+          <h2 class="lxd-h2">Shop with confidence.</h2>
+        </div>
+      </div>
+      <div class="lxd-info-grid">
+        <div class="lxd-info-card"><span class="lxd-info-num">01</span><h4>Verify the seller</h4><p>Always confirm the seller's identity before sending payment.</p></div>
+        <div class="lxd-info-card"><span class="lxd-info-num">02</span><h4>Request a video call</h4><p>Ask to see the piece live, including finish and scale, before ordering.</p></div>
+        <div class="lxd-info-card"><span class="lxd-info-num">03</span><h4>Confirm delivery details</h4><p>Clarify lead times, assembly, and access requirements up front.</p></div>
+        <div class="lxd-info-card"><span class="lxd-info-num">04</span><h4>Avoid upfront payments</h4><p>Never pay in full without proper verification.</p></div>
+        <div class="lxd-info-card"><span class="lxd-info-num">05</span><h4>Prefer cash on delivery</h4><p>Where possible, choose COD for maximum safety.</p></div>
+        <div class="lxd-info-card"><span class="lxd-info-num">06</span><h4>Too good to be true?</h4><p>Be cautious of prices that look suspiciously low for solid materials.</p></div>
+      </div>
+    </section>
+
+    <!-- RELATED PRODUCTS -->
+    {% if items_meta %}
+    <section class="lxd-section lxd-reveal">
+      <div class="lxd-section-head">
+        <div>
+          <div class="lxd-eyebrow">Curated for you</div>
+          <h2 class="lxd-h2">You may also like</h2>
+        </div>
+        <p class="lxd-section-sub">Discover more premium pieces from {{ product.store.brand_name }}</p>
+      </div>
+
+      <div class="lxd-rel-grid">
+        {% for product in products|slice:":4" %}
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lxd-rel-card">
+            <div class="lxd-rel-media">
+              <span class="lxd-rel-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+            </div>
+            <div class="lxd-rel-info">
+              <div>
+                <h6 class="name">{{ product.name }}</h6>
+                <div class="meta">{{ store.brand_name }}</div>
+              </div>
+              <div class="lxd-rel-price">
+                {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}&euro;{% elif product.currency == "GBP" %}&pound;{% elif product.currency == "GHS" %}&#8373;{% endif %}
+                {{ product.price|intcomma }}
+              </div>
+            </div>
+            <span class="lxd-rel-cta">View Details →</span>
+          </a>
+        {% empty %}
+          <div class="lxd-rel-empty">
+            <h3>No more products yet</h3>
+            <p>Products will appear here once added to the store.</p>
+          </div>
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+  </div>
+</div>
+
+<!-- STICKY MOBILE CTA -->
+<div class="lxd-mobile-cta">
+
+  {% if product.image %}
+    <img class="mc-thumb" src="{{ product.image.url }}" alt="{{ product.name }}">
+  {% elif product.image_url %}
+    <img class="mc-thumb" src="{{ product.image_url }}" alt="{{ product.name }}">
+  {% endif %}
+
+  <div class="mc-info">
+    <p class="mc-name">{{ product.name }}</p>
+    <p class="mc-price">
+      {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}&euro;{% elif product.currency == "GBP" %}&pound;{% elif product.currency == "GHS" %}&#8373;{% endif %}
+      {{ product.price|intcomma }}
+    </p>
+  </div>
+
+  <a class="mc-btn" href="{% url 'add_to_cart' product.slug %}">Add to Cart</a>
+
+</div>
+
+<!-- LIGHTBOX -->
+<div class="lxd-lightbox" id="lxdLightbox" aria-hidden="true">
+  <button class="lxd-lightbox-close" id="lxdLbClose" aria-label="Close">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+  </button>
+  <div id="lxdLbBody"></div>
+</div>
+
+<script>
+(function(){
+  // SCROLL PROGRESS
+  const bar=document.getElementById('lxdProgress');
+  if(bar){window.addEventListener('scroll',()=>{const h=document.documentElement;const sc=(h.scrollTop)/(h.scrollHeight-h.clientHeight)*100;bar.style.width=sc+'%';},{passive:true});}
+
+  // REVEAL
+  const io=new IntersectionObserver((es)=>es.forEach(e=>e.isIntersecting&&e.target.classList.add('in')),{threshold:.12});
+  document.querySelectorAll('.lxd-reveal').forEach(el=>io.observe(el));
+
+  // PRICE COUNT-UP
+  const pr=document.getElementById('lxdPrice');
+  if(pr){const target=parseFloat((pr.dataset.value||'0').toString().replace(/,/g,''))||0;let cur=0;const step=Math.max(1,target/40);const fmt=new Intl.NumberFormat();const tick=()=>{cur+=step;if(cur>=target){pr.textContent=fmt.format(target);return;}pr.textContent=fmt.format(Math.floor(cur));requestAnimationFrame(tick);};requestAnimationFrame(tick);}
+
+  // DESCRIPTION TOGGLE
+  const db=document.getElementById('lxdDescBody'),dt=document.getElementById('lxdDescToggle');
+  if(db&&dt){if(db.scrollHeight<=140){dt.style.display='none';}dt.addEventListener('click',()=>{db.classList.toggle('open');dt.textContent=db.classList.contains('open')?'Show less':'Read more';});}
+
+  // GALLERY
+  const stageMedia=document.getElementById('lxdStageMedia');
+  document.querySelectorAll('#lxdThumbs .lxd-thumb').forEach(t=>{
+    t.addEventListener('click',()=>{
+      document.querySelectorAll('#lxdThumbs .lxd-thumb').forEach(x=>x.classList.remove('active'));
+      t.classList.add('active');
+      const type=t.dataset.type, src=t.dataset.src;
+      stageMedia.style.opacity='0';
+      setTimeout(()=>{
+        if(type==='img'){
+          stageMedia.innerHTML = `<img id="lxdMainImg" src="${src}" alt="">`;
+        } else if(type==='yt'){
+          stageMedia.innerHTML = `
+            <iframe width="100%" height="100%"
+              src="https://www.youtube.com/embed/${src}?autoplay=1&mute=1&playsinline=1&rel=0"
+              title="YouTube video player" frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>`;
+        }
+        stageMedia.style.opacity='1';
+      },200);
+    });
+  });
+
+  // LIGHTBOX
+  const lb=document.getElementById('lxdLightbox'),lbBody=document.getElementById('lxdLbBody');
+  const zb=document.getElementById('lxdZoomBtn');
+  if(zb){zb.addEventListener('click',()=>{const m=stageMedia.querySelector('img,iframe');if(!m)return;lbBody.innerHTML=m.outerHTML;lb.classList.add('open');});}
+  document.getElementById('lxdLbClose').addEventListener('click',()=>{lb.classList.remove('open');lbBody.innerHTML='';});
+  lb.addEventListener('click',(e)=>{if(e.target===lb){lb.classList.remove('open');lbBody.innerHTML='';}});
+
+  // RIPPLE ON ORDER BUTTONS
+  document.querySelectorAll('.lxd-btn').forEach(b=>{
+    b.addEventListener('click',(e)=>{const r=b.getBoundingClientRect();const c=document.createElement('span');c.className='ripple';const s=Math.max(r.width,r.height);c.style.width=c.style.height=s+'px';c.style.left=(e.clientX-r.left-s/2)+'px';c.style.top=(e.clientY-r.top-s/2)+'px';b.appendChild(c);setTimeout(()=>c.remove(),720);});
+  });
+})();
+</script>
+
+{% endblock %}

@@ -258,7 +258,8 @@ def register(request):
                 request.session["email"] = email
                 request.session["username"] = username
                 request.session["password"] = make_password(password)
-
+                request.session["otp"] = str(otp)
+                request.session["otp_created_at"] = timezone.now().timestamp()   # add this line
                 # Send OTP via Brevo API
                 send_otp_email(email, otp)
 
@@ -269,30 +270,40 @@ def register(request):
         form = UserRegistrationForm()
 
     return render(request, "register.html", {"form": form})
-
 def verify_otp(request):
     if request.method == "POST":
         entered_otp = request.POST.get("otp")
         session_otp = request.session.get("otp")
+        otp_created_at = request.session.get("otp_created_at")
+        attempts = request.session.get("otp_attempts", 0)
 
-        if not session_otp:
+        if not session_otp or not otp_created_at:
             return render(request, "verify_otp.html", {"error": "Session expired. Please register again."})
 
+        # Expire after 10 minutes
+        if timezone.now().timestamp() - otp_created_at > 600:
+            request.session.flush()
+            return render(request, "verify_otp.html", {"error": "OTP expired. Please register again."})
+
+        # Lock out after 5 wrong attempts
+        if attempts >= 5:
+            request.session.flush()
+            return render(request, "verify_otp.html", {"error": "Too many attempts. Please register again."})
+
         if entered_otp == session_otp:
-            # Create user
             user = User.objects.create(
                 username=request.session["username"],
                 email=request.session["email"],
-                password=request.session["password"],  # already hashed
+                password=request.session["password"],
             )
             user.save()
 
-            # Clear session data after success
             request.session.flush()
 
             messages.success(request, "Account created successfully! Please log in.")
             return redirect("login")
         else:
+            request.session["otp_attempts"] = attempts + 1
             return render(request, "verify_otp.html", {"error": "Invalid OTP"})
 
     return render(request, "verify_otp.html")
@@ -318,15 +329,15 @@ from .models import Store
 from .forms import StoreForm
 
 from .services.permissions import check_store_limit  # 👈 IMPORTANT
-
+@login_required
 def create_store(request, slug=None):
     store = None
 
     if slug:
-        store = get_object_or_404(Store, slug=slug)
+        store = get_object_or_404(Store, slug=slug, owner=request.user)
 
     # =========================
-    # PLAN LIMIT CHECK (NEW)
+    # PLAN LIMIT CHECK
     # =========================
     if request.method == "POST" and not store:
         current_store_count = Store.objects.filter(owner=request.user).count()
@@ -349,7 +360,6 @@ def create_store(request, slug=None):
             store.total_views = store.total_views or 0
             store.total_orders = store.total_orders or 0
 
-            # AUTO SLUG
             if not store.slug:
                 base_slug = slugify(store.brand_name)
                 slug_val = base_slug
@@ -383,114 +393,114 @@ from .models import Store, Item, ItemView
 
 logger = logging.getLogger(__name__)
 
-def view_store(request, slug=None):
-    try:
-        # -------------------------------
-        # Resolve store (subdomain + normal path)
-        # -------------------------------
-        store = None
+# def view_store(request, slug=None):
+#     try:
+#         # -------------------------------
+#         # Resolve store (subdomain + normal path)
+#         # -------------------------------
+#         store = None
 
-        # Subdomain resolution (works in production)
-        if hasattr(request, "store") and request.store:
-            # Re-fetch from DB to ensure FK matches
-            store = Store.objects.filter(slug=request.store.slug).first()
+#         # Subdomain resolution (works in production)
+#         if hasattr(request, "store") and request.store:
+#             # Re-fetch from DB to ensure FK matches
+#             store = Store.objects.filter(slug=request.store.slug).first()
 
-        # Normal path fallback
-        if not store and slug:
-            store = get_object_or_404(Store, slug=slug)
+#         # Normal path fallback
+#         if not store and slug:
+#             store = get_object_or_404(Store, slug=slug)
 
-        # Dev fallback (if testing on localhost / 127.0.0.1)
-        if not store and request.get_host() in ["127.0.0.1", "localhost"]:
-            store = Store.objects.first()  # pick first store for testing
+#         # Dev fallback (if testing on localhost / 127.0.0.1)
+#         if not store and request.get_host() in ["127.0.0.1", "localhost"]:
+#             store = Store.objects.first()  # pick first store for testing
 
-        if not store:
-            raise Http404("Store not found")
+#         if not store:
+#             raise Http404("Store not found")
 
-        # -------------------------------
-        # Products (all items for the store)
-        # -------------------------------
-        items_qs = Item.objects.filter(store=store).select_related()
+#         # -------------------------------
+#         # Products (all items for the store)
+#         # -------------------------------
+#         items_qs = Item.objects.filter(store=store).select_related()
 
 
-        # -------------------------------
-        # Search filter
-        # -------------------------------
-        query = request.GET.get("q")
-        if query:
-            items_qs = items_qs.filter(
-                Q(name__icontains=query) |
-                Q(description__icontains=query)
-            )
+#         # -------------------------------
+#         # Search filter
+#         # -------------------------------
+#         query = request.GET.get("q")
+#         if query:
+#             items_qs = items_qs.filter(
+#                 Q(name__icontains=query) |
+#                 Q(description__icontains=query)
+#             )
 
-        # -------------------------------
-        # Session
-        # -------------------------------
-        if not request.session.session_key:
-            request.session.create()
-        session_key = request.session.session_key
+#         # -------------------------------
+#         # Session
+#         # -------------------------------
+#         if not request.session.session_key:
+#             request.session.create()
+#         session_key = request.session.session_key
 
-        # -------------------------------
-        # Store views tracking
-        # -------------------------------
-        if request.user != store.owner:
-            viewed_key = f"viewed_store_{store.id}"
-            if not request.session.get(viewed_key):
-                store.total_views += 1
-                store.save(update_fields=["total_views"])
-                request.session[viewed_key] = True
+#         # -------------------------------
+#         # Store views tracking
+#         # -------------------------------
+#         if request.user != store.owner:
+#             viewed_key = f"viewed_store_{store.id}"
+#             if not request.session.get(viewed_key):
+#                 store.total_views += 1
+#                 store.save(update_fields=["total_views"])
+#                 request.session[viewed_key] = True
 
-        # -------------------------------
-        # Helper: image
-        # -------------------------------
-        def get_cover(item):
-            if item.image_url:
-                return item.image_url
-            if item.image:
-                return item.image.url
-            return static("images/no-image.png")
+#         # -------------------------------
+#         # Helper: image
+#         # -------------------------------
+#         def get_cover(item):
+#             if item.image_url:
+#                 return item.image_url
+#             if item.image:
+#                 return item.image.url
+#             return static("images/no-image.png")
 
-        # -------------------------------
-        # Build items_meta
-        # -------------------------------
-        items_meta = []
-        for item in items_qs:
-            if not ItemView.objects.filter(item=item, session_key=session_key).exists():
-                item.views += 1
-                item.save(update_fields=["views"])
-                ItemView.objects.create(
-                    item=item,
-                    user=request.user if request.user.is_authenticated else None,
-                    session_key=session_key
-                )
+#         # -------------------------------
+#         # Build items_meta
+#         # -------------------------------
+#         items_meta = []
+#         for item in items_qs:
+#             if not ItemView.objects.filter(item=item, session_key=session_key).exists():
+#                 item.views += 1
+#                 item.save(update_fields=["views"])
+#                 ItemView.objects.create(
+#                     item=item,
+#                     user=request.user if request.user.is_authenticated else None,
+#                     session_key=session_key
+#                 )
 
-            items_meta.append({
-                "item": item,
-                "cover_url": get_cover(item),
-                "likes_count": item.likes.count(),
-                "user_liked": (
-                    request.user.is_authenticated and
-                    item.likes.filter(id=request.user.id).exists()
-                )
-            })
+#             items_meta.append({
+#                 "item": item,
+#                 "cover_url": get_cover(item),
+#                 "likes_count": item.likes.count(),
+#                 "user_liked": (
+#                     request.user.is_authenticated and
+#                     item.likes.filter(id=request.user.id).exists()
+#                 )
+#             })
 
-        # -------------------------------
-        # Share / meta
-        # -------------------------------
-        full_url = request.build_absolute_uri()
-        whatsapp_link = f"https://wa.me/{store.whatsapp_number}" if store.whatsapp_number else ""
-        og_image = request.build_absolute_uri(items_meta[0]["cover_url"]) if items_meta else request.build_absolute_uri(static("images/logo.png"))
+#         # -------------------------------
+#         # Share / meta
+#         # -------------------------------
+#         full_url = request.build_absolute_uri()
+#         whatsapp_link = f"https://wa.me/{store.whatsapp_number}" if store.whatsapp_number else ""
+#         og_image = request.build_absolute_uri(items_meta[0]["cover_url"]) if items_meta else request.build_absolute_uri(static("images/logo.png"))
 
-        return render(request, "store/view_store.html", {
-            "store": store,
-            "items_meta": items_meta,
-            "full_url": full_url,
-            "whatsapp_link": whatsapp_link,
-            "og_image": og_image,
-        })
+#         return render(request, "store/view_store.html", {
+#             "store": store,
+#             "items_meta": items_meta,
+#             "full_url": full_url,
+#             "whatsapp_link": whatsapp_link,
+#             "og_image": og_image,
+#         })
 
-    except Exception:
-        logger.error(traceback.format_exc())
-        return HttpResponse("Server error", status=500)
+#     except Exception:
+#         logger.error(traceback.format_exc())
+#         return HttpResponse("Server error", status=500)
 
 
 # -------------------------
@@ -1133,16 +1143,19 @@ def product_search(request):
 from django.views.decorators.csrf import csrf_exempt
 
 @csrf_exempt
+@login_required
 def record_order(request, store_id):
-    if request.method == "POST":
-        try:
-            store = Store.objects.get(id=store_id)
-            store.total_orders += 1
-            store.save()
-            return JsonResponse({"success": True, "total_orders": store.total_orders})
-        except Store.DoesNotExist:
-            return JsonResponse({"success": False, "error": "Store not found"}, status=404)
-    return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+    if request.method != "POST":
+        return JsonResponse({"success": False, "error": "Invalid request"}, status=400)
+
+    store = Store.objects.filter(id=store_id).first()
+    if not store:
+        # Same response as success path — don't leak existence of the ID
+        return JsonResponse({"success": True})
+
+    store.total_orders += 1
+    store.save(update_fields=["total_orders"])
+    return JsonResponse({"success": True})
 import random
 from itertools import chain, product
 from django.db.models import Q
@@ -1786,7 +1799,7 @@ def paystack_webhook(request):
         hashlib.sha512
     ).hexdigest()
 
-    if computed_hash != signature:
+    if not signature or not hmac.compare_digest(computed_hash, signature):
         return JsonResponse({"error": "invalid signature"}, status=400)
 
     event = json.loads(payload)
