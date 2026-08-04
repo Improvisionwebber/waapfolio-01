@@ -393,114 +393,114 @@ from .models import Store, Item, ItemView
 
 logger = logging.getLogger(__name__)
 
-# def view_store(request, slug=None):
-#     try:
-#         # -------------------------------
-#         # Resolve store (subdomain + normal path)
-#         # -------------------------------
-#         store = None
+def view_store(request, slug=None):
+    try:
+        # -------------------------------
+        # Resolve store (subdomain + normal path)
+        # -------------------------------
+        store = None
 
-#         # Subdomain resolution (works in production)
-#         if hasattr(request, "store") and request.store:
-#             # Re-fetch from DB to ensure FK matches
-#             store = Store.objects.filter(slug=request.store.slug).first()
+        # Subdomain resolution (works in production)
+        if hasattr(request, "store") and request.store:
+            # Re-fetch from DB to ensure FK matches
+            store = Store.objects.filter(slug=request.store.slug).first()
 
-#         # Normal path fallback
-#         if not store and slug:
-#             store = get_object_or_404(Store, slug=slug)
+        # Normal path fallback
+        if not store and slug:
+            store = get_object_or_404(Store, slug=slug)
 
-#         # Dev fallback (if testing on localhost / 127.0.0.1)
-#         if not store and request.get_host() in ["127.0.0.1", "localhost"]:
-#             store = Store.objects.first()  # pick first store for testing
+        # Dev fallback (if testing on localhost / 127.0.0.1)
+        if not store and request.get_host() in ["127.0.0.1", "localhost"]:
+            store = Store.objects.first()  # pick first store for testing
 
-#         if not store:
-#             raise Http404("Store not found")
+        if not store:
+            raise Http404("Store not found")
 
-#         # -------------------------------
-#         # Products (all items for the store)
-#         # -------------------------------
-#         items_qs = Item.objects.filter(store=store).select_related()
+        # -------------------------------
+        # Products (all items for the store)
+        # -------------------------------
+        items_qs = Item.objects.filter(store=store).select_related()
 
 
-#         # -------------------------------
-#         # Search filter
-#         # -------------------------------
-#         query = request.GET.get("q")
-#         if query:
-#             items_qs = items_qs.filter(
-#                 Q(name__icontains=query) |
-#                 Q(description__icontains=query)
-#             )
+        # -------------------------------
+        # Search filter
+        # -------------------------------
+        query = request.GET.get("q")
+        if query:
+            items_qs = items_qs.filter(
+                Q(name__icontains=query) |
+                Q(description__icontains=query)
+            )
 
-#         # -------------------------------
-#         # Session
-#         # -------------------------------
-#         if not request.session.session_key:
-#             request.session.create()
-#         session_key = request.session.session_key
+        # -------------------------------
+        # Session
+        # -------------------------------
+        if not request.session.session_key:
+            request.session.create()
+        session_key = request.session.session_key
 
-#         # -------------------------------
-#         # Store views tracking
-#         # -------------------------------
-#         if request.user != store.owner:
-#             viewed_key = f"viewed_store_{store.id}"
-#             if not request.session.get(viewed_key):
-#                 store.total_views += 1
-#                 store.save(update_fields=["total_views"])
-#                 request.session[viewed_key] = True
+        # -------------------------------
+        # Store views tracking
+        # -------------------------------
+        if request.user != store.owner:
+            viewed_key = f"viewed_store_{store.id}"
+            if not request.session.get(viewed_key):
+                store.total_views += 1
+                store.save(update_fields=["total_views"])
+                request.session[viewed_key] = True
 
-#         # -------------------------------
-#         # Helper: image
-#         # -------------------------------
-#         def get_cover(item):
-#             if item.image_url:
-#                 return item.image_url
-#             if item.image:
-#                 return item.image.url
-#             return static("images/no-image.png")
+        # -------------------------------
+        # Helper: image
+        # -------------------------------
+        def get_cover(item):
+            if item.image_url:
+                return item.image_url
+            if item.image:
+                return item.image.url
+            return static("images/no-image.png")
 
-#         # -------------------------------
-#         # Build items_meta
-#         # -------------------------------
-#         items_meta = []
-#         for item in items_qs:
-#             if not ItemView.objects.filter(item=item, session_key=session_key).exists():
-#                 item.views += 1
-#                 item.save(update_fields=["views"])
-#                 ItemView.objects.create(
-#                     item=item,
-#                     user=request.user if request.user.is_authenticated else None,
-#                     session_key=session_key
-#                 )
+        # -------------------------------
+        # Build items_meta
+        # -------------------------------
+        items_meta = []
+        for item in items_qs:
+            if not ItemView.objects.filter(item=item, session_key=session_key).exists():
+                item.views += 1
+                item.save(update_fields=["views"])
+                ItemView.objects.create(
+                    item=item,
+                    user=request.user if request.user.is_authenticated else None,
+                    session_key=session_key
+                )
 
-#             items_meta.append({
-#                 "item": item,
-#                 "cover_url": get_cover(item),
-#                 "likes_count": item.likes.count(),
-#                 "user_liked": (
-#                     request.user.is_authenticated and
-#                     item.likes.filter(id=request.user.id).exists()
-#                 )
-#             })
+            items_meta.append({
+                "item": item,
+                "cover_url": get_cover(item),
+                "likes_count": item.likes.count(),
+                "user_liked": (
+                    request.user.is_authenticated and
+                    item.likes.filter(id=request.user.id).exists()
+                )
+            })
 
-#         # -------------------------------
-#         # Share / meta
-#         # -------------------------------
-#         full_url = request.build_absolute_uri()
-#         whatsapp_link = f"https://wa.me/{store.whatsapp_number}" if store.whatsapp_number else ""
-#         og_image = request.build_absolute_uri(items_meta[0]["cover_url"]) if items_meta else request.build_absolute_uri(static("images/logo.png"))
+        # -------------------------------
+        # Share / meta
+        # -------------------------------
+        full_url = request.build_absolute_uri()
+        whatsapp_link = f"https://wa.me/{store.whatsapp_number}" if store.whatsapp_number else ""
+        og_image = request.build_absolute_uri(items_meta[0]["cover_url"]) if items_meta else request.build_absolute_uri(static("images/logo.png"))
 
-#         return render(request, "store/view_store.html", {
-#             "store": store,
-#             "items_meta": items_meta,
-#             "full_url": full_url,
-#             "whatsapp_link": whatsapp_link,
-#             "og_image": og_image,
-#         })
+        return render(request, "store/view_store.html", {
+            "store": store,
+            "items_meta": items_meta,
+            "full_url": full_url,
+            "whatsapp_link": whatsapp_link,
+            "og_image": og_image,
+        })
 
-#     except Exception:
-#         logger.error(traceback.format_exc())
-#         return HttpResponse("Server error", status=500)
+    except Exception:
+        logger.error(traceback.format_exc())
+        return HttpResponse("Server error", status=500)
 
 
 # -------------------------
