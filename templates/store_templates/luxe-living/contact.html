@@ -227,13 +227,26 @@
         <div class="lxc-reveal">
           <div class="lxc-brand-mark">
             <div class="logo">
-              {% if store.brand_logo_url %}
-                <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
-              {% elif store.brand_logo %}
-                <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
-              {% else %}
-                <span class="fallback">{{ store.brand_name|first|upper }}</span>
-              {% endif %}
+            {% if "http" in store.brand_logo.name %}
+                <img src="{{ store.brand_logo }}"
+                    alt="{{ store.brand_name }}"
+                    class="wf-logo">
+
+            {% elif store.brand_logo %}
+                <img src="{{ store.brand_logo.url }}"
+                    alt="{{ store.brand_name }}"
+                    class="wf-logo">
+
+            {% elif store.brand_logo_url %}
+                <img src="{{ store.brand_logo_url }}"
+                    alt="{{ store.brand_name }}"
+                    class="wf-logo">
+
+            {% else %}
+                <span class="wf-mono">
+                    {{ store.brand_name|first|upper }}
+                </span>
+            {% endif %}
             </div>
             <div>
               <div class="name">{{ store.brand_name }}</div>
