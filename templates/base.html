@@ -791,8 +791,11 @@ body {
                 {% if active_store %}
                 <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
                 {% endif %}
+                {% if active_store %}
+                <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+                {% endif %}
                 {% comment %} <li><a href="/marketplace">Marketplace</a></li> {% endcomment %}
-                <li><a href="/pricing">Pricing</a></li>
+                <li><a href="{% url 'pricing' %}">Pricing</a></li>
                 <li><a href="{% url 'templates_page' %}">Templates</a></li>
             </ul>
 
@@ -830,7 +833,9 @@ body {
             {% if active_store %}
             <li><a href="{{ active_store.get_absolute_url }}">Store</a></li>
             {% endif %}
-
+            {% if active_store %}
+            <li><a href="{% url 'dashboard' %}">Dashboard</a></li>
+            {% endif %}
             <li><a href="{% url 'templates_page' %}">Templates</a></li>
 
             {% if request.user.is_authenticated %}
