@@ -1,0 +1,239 @@
+{% extends "store_templates/urban-kicks/base.html" %}
+{% load static %}
+
+{% block title %}Contact — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+
+<style>
+  .ukc{position:relative;background:var(--uk-paper)}
+
+  .ukc-hero{
+    position:relative;overflow:hidden;padding:clamp(60px,9vw,130px) 0 clamp(46px,7vw,86px);
+    background:linear-gradient(180deg,#fff 0%,var(--uk-off) 100%);border-bottom:1px solid var(--uk-line)
+  }
+  .ukc-hero .uk-orb{width:560px;height:560px;background:var(--uk-flare);opacity:.13;top:-210px;right:-140px}
+  .ukc-hero .uk-ring{width:640px;aspect-ratio:1/1;top:-140px;right:-60px;border-style:dashed;border-color:rgba(11,11,12,.09)}
+  .ukc-hero__grid{position:relative;z-index:2;display:grid;gap:32px;align-items:end}
+  @media(min-width:960px){.ukc-hero__grid{grid-template-columns:1.3fr .7fr}}
+  .ukc-hero h1{font-size:clamp(50px,10.5vw,146px);letter-spacing:-.055em;text-transform:uppercase;line-height:.85;margin-top:20px}
+  .ukc-hero h1 em{font-style:italic;font-weight:500;color:var(--uk-flare)}
+  .ukc-hero p{color:#5b5b5d;font-size:15.5px;line-height:1.8;max-width:38ch}
+
+  .ukc-sec{padding:clamp(60px,9vw,120px) 0}
+  .ukc-grid{display:grid;gap:clamp(24px,3.4vw,44px);grid-template-columns:1fr}
+  @media(min-width:1000px){.ukc-grid{grid-template-columns:1.05fr .95fr;align-items:start}}
+
+  /* glass console */
+  .ukc-console{
+    position:relative;overflow:hidden;border-radius:30px;padding:clamp(28px,4vw,48px);
+    background:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.9);
+    backdrop-filter:blur(22px) saturate(180%);box-shadow:0 60px 90px -60px rgba(11,11,12,.5)
+  }
+  .ukc-console .uk-ring{width:380px;aspect-ratio:1/1;right:-140px;top:-120px}
+  .ukc-console h3{position:relative;font-size:clamp(26px,3.6vw,42px);text-transform:uppercase;letter-spacing:-.045em;margin:16px 0 14px}
+  .ukc-console p{position:relative;color:#5b5b5d;font-size:15px;line-height:1.75;max-width:44ch}
+  .ukc-field{position:relative;margin-top:20px}
+  .ukc-field label{display:block;font-family:var(--uk-mono);font-size:9.5px;letter-spacing:.24em;text-transform:uppercase;color:var(--uk-fog);margin-bottom:8px}
+  .ukc-field input,.ukc-field textarea{
+    width:100%;border:1px solid var(--uk-line-2);border-radius:16px;padding:14px 16px;background:#fff;
+    font-family:var(--uk-sans);font-size:14.5px;outline:none;transition:border-color .35s
+  }
+  .ukc-field textarea{min-height:130px;resize:vertical}
+  .ukc-field input:focus,.ukc-field textarea:focus{border-color:var(--uk-ink)}
+  .ukc-send{margin-top:24px}
+
+  /* channels */
+  .ukc-channels{display:grid;gap:14px}
+  .ukc-channel{
+    position:relative;overflow:hidden;display:flex;align-items:center;gap:18px;
+    padding:22px 24px;border-radius:22px;border:1px solid var(--uk-line);background:#fff;
+    transition:transform .6s var(--uk-ease),box-shadow .6s var(--uk-ease)
+  }
+  .ukc-channel:hover{transform:translateY(-6px);box-shadow:var(--uk-shadow-float)}
+  .ukc-channel i.ico{
+    width:46px;height:46px;flex:0 0 auto;border-radius:16px;display:grid;place-items:center;
+    background:var(--uk-ink);color:#fff;font-size:19px;font-style:normal
+  }
+  .ukc-channel b{display:block;font-family:var(--uk-display);font-size:15.5px;letter-spacing:-.025em}
+  .ukc-channel span{font-family:var(--uk-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--uk-fog)}
+  .ukc-channel .go{margin-left:auto;color:var(--uk-flare);font-size:18px;transition:transform .5s var(--uk-ease)}
+  .ukc-channel:hover .go{transform:translateX(6px)}
+
+  .ukc-hours{margin-top:16px;border-radius:22px;border:1px solid var(--uk-line);background:var(--uk-off);padding:24px}
+  .ukc-hour{display:flex;justify-content:space-between;gap:14px;padding:11px 0;border-bottom:1px solid var(--uk-line)}
+  .ukc-hour:last-child{border-bottom:0}
+  .ukc-hour span{font-family:var(--uk-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--uk-fog)}
+  .ukc-hour b{font-family:var(--uk-display);font-size:14px;letter-spacing:-.02em}
+
+  /* faq */
+  .ukc-faq{border-top:1px solid var(--uk-line-2);margin-top:clamp(30px,4vw,50px)}
+  .ukc-q{border-bottom:1px solid var(--uk-line)}
+  .ukc-q button{
+    width:100%;display:flex;align-items:center;justify-content:space-between;gap:18px;text-align:left;
+    padding:clamp(18px,2.6vw,26px) 0;background:none;border:0;cursor:pointer;
+    font-family:var(--uk-display);font-weight:800;text-transform:uppercase;letter-spacing:-.035em;
+    font-size:clamp(17px,2.4vw,28px);color:var(--uk-ink)
+  }
+  .ukc-q button i{color:var(--uk-flare);transition:transform .45s var(--uk-ease)}
+  .ukc-q.open button i{transform:rotate(45deg)}
+  .ukc-a{max-height:0;overflow:hidden;transition:max-height .55s var(--uk-ease)}
+  .ukc-a p{margin:0 0 22px;color:#5b5b5d;font-size:14.5px;line-height:1.75;max-width:60ch}
+
+  .ukc-cta{position:relative;overflow:hidden;background:var(--uk-ink);color:#fff;text-align:center;padding:clamp(60px,9vw,120px) 0}
+  .ukc-cta .uk-orb{width:520px;height:520px;background:var(--uk-flare);opacity:.2;bottom:-240px;left:50%;transform:translateX(-50%)}
+  .ukc-cta h3{position:relative;font-size:clamp(30px,6vw,72px);text-transform:uppercase;letter-spacing:-.05em;margin:16px 0 20px}
+  .ukc-cta h3 em{font-style:italic;font-weight:500;color:var(--uk-flare)}
+  .ukc-cta p{position:relative;color:rgba(255,255,255,.62);max-width:44ch;margin:0 auto 28px}
+</style>
+
+<div class="ukc">
+
+  <!-- HERO -->
+  <section class="ukc-hero">
+    <div class="uk-orb"></div>
+    <div class="uk-ring"></div>
+    <div class="uk-shell">
+      <div class="ukc-hero__grid">
+        <div class="uk-rev">
+          <span class="uk-kicker">Contact the atelier</span>
+          <h1>Talk to <em>a human</em></h1>
+        </div>
+        <p class="uk-rev" data-d="1">
+          {{ store.bio|default:"Sizing, sourcing, condition notes or dispatch — every message reaches the people who actually handle the shoes." }}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CONSOLE + CHANNELS -->
+  <section class="ukc-sec">
+    <div class="uk-shell">
+      <div class="ukc-grid">
+
+        <div class="ukc-console uk-rev">
+          <span class="uk-ring"></span>
+          <span class="uk-kicker">Start a conversation</span>
+          <h3>Send it straight to WhatsApp</h3>
+          <p>Write your message below — it opens directly in WhatsApp with everything pre-filled. No forms sitting in an inbox.</p>
+
+          <div class="ukc-field">
+            <label for="ukcName">Your name</label>
+            <input id="ukcName" type="text" placeholder="e.g. Ada">
+          </div>
+          <div class="ukc-field">
+            <label for="ukcMsg">Message</label>
+            <textarea id="ukcMsg" placeholder="Which pair are you after? Include your size if you know it."></textarea>
+          </div>
+
+          <div class="ukc-send">
+            {% if store.whatsapp_number %}
+              <button class="uk-btn" type="button" id="ukcSend" data-num="{{ store.whatsapp_number }}" data-brand="{{ store.brand_name|urlencode }}"><span>Open WhatsApp</span></button>
+            {% elif store.whatsapp %}
+              <a class="uk-btn" href="{{ store.whatsapp }}" target="_blank" rel="noopener"><span>Open WhatsApp</span></a>
+            {% else %}
+              <a class="uk-btn" href="{% url 'store_product_list' store_slug=store.slug %}"><span>Browse the floor</span></a>
+            {% endif %}
+          </div>
+        </div>
+
+        <div>
+          <div class="ukc-channels">
+            {% if store.whatsapp %}
+              <a class="ukc-channel uk-rev" href="{{ store.whatsapp }}" target="_blank" rel="noopener">
+                <i class="ico"><span class="bi bi-whatsapp"></span></i>
+                <span><b>WhatsApp concierge</b><span>Usually replies within the hour</span></span>
+                <i class="go bi bi-arrow-up-right"></i>
+              </a>
+            {% endif %}
+            <a class="ukc-channel uk-rev" data-d="1" href="{% url 'store_product_list' store_slug=store.slug %}">
+              <i class="ico"><span class="bi bi-grid"></span></i>
+              <span><b>Browse the floor</b><span>Every pair currently available</span></span>
+              <i class="go bi bi-arrow-up-right"></i>
+            </a>
+            <a class="ukc-channel uk-rev" data-d="2" href="{% url 'store_about' store_slug=store.slug %}">
+              <i class="ico"><span class="bi bi-building"></span></i>
+              <span><b>Inside the atelier</b><span>How we source and inspect</span></span>
+              <i class="go bi bi-arrow-up-right"></i>
+            </a>
+            <a class="ukc-channel uk-rev" data-d="3" href="#" data-bs-toggle="modal" data-bs-target="#ukShareModal">
+              <i class="ico"><span class="bi bi-share"></span></i>
+              <span><b>Share {{ store.brand_name }}</b><span>Send the storefront onward</span></span>
+              <i class="go bi bi-arrow-up-right"></i>
+            </a>
+          </div>
+
+          <div class="ukc-hours uk-rev" data-d="2">
+            <span class="uk-kicker">Studio hours</span>
+            <div style="margin-top:14px">
+              <div class="ukc-hour"><span>Mon — Fri</span><b>09:00 — 19:00</b></div>
+              <div class="ukc-hour"><span>Saturday</span><b>10:00 — 16:00</b></div>
+              <div class="ukc-hour"><span>Sunday</span><b>Messages only</b></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- FAQ -->
+      <div class="uk-rev" style="margin-top:clamp(50px,7vw,90px)">
+        <span class="uk-kicker">Before you write</span>
+        <h2 style="font-size:clamp(28px,5vw,62px);letter-spacing:-.05em;text-transform:uppercase;margin-top:14px">Quick <span style="font-style:italic;font-weight:500;color:var(--uk-fog)">answers</span></h2>
+      </div>
+      <div class="ukc-faq uk-rev" data-d="1">
+        <div class="ukc-q">
+          <button type="button">How do I confirm my size? <i class="bi bi-plus-lg"></i></button>
+          <div class="ukc-a"><p>Send us the brand and size you currently wear. We compare it against the specific silhouette, since fit varies between models.</p></div>
+        </div>
+        <div class="ukc-q">
+          <button type="button">How fast do orders ship? <i class="bi bi-plus-lg"></i></button>
+          <div class="ukc-a"><p>Confirmed orders leave the studio within forty eight hours, packed in a sealed crate with the original box protected.</p></div>
+        </div>
+        <div class="ukc-q">
+          <button type="button">Can you source a pair not listed? <i class="bi bi-plus-lg"></i></button>
+          <div class="ukc-a"><p>Often, yes. Send the silhouette, colourway and size — we will tell you honestly whether we can find it and at what range.</p></div>
+        </div>
+        <div class="ukc-q">
+          <button type="button">Are all pairs verified? <i class="bi bi-plus-lg"></i></button>
+          <div class="ukc-a"><p>Every pair passes a twelve point inspection before listing. If it does not clear, it never reaches the floor.</p></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="ukc-cta">
+    <div class="uk-orb"></div>
+    <div class="uk-shell">
+      <span class="uk-kicker" style="color:rgba(255,255,255,.55)">Still deciding?</span>
+      <h3>Let the floor <em>decide for you</em></h3>
+      <p>Walk the full index — every pair, same plate, same light.</p>
+      <a class="uk-btn uk-btn--light" href="{% url 'store_product_list' store_slug=store.slug %}"><span>Enter the drop</span></a>
+    </div>
+  </section>
+
+</div>
+
+<script>
+(function(){
+  var btn=document.getElementById('ukcSend');
+  if(btn){
+    btn.addEventListener('click',function(){
+      var n=(document.getElementById('ukcName').value||'').trim();
+      var m=(document.getElementById('ukcMsg').value||'').trim();
+      var text='Hello '+decodeURIComponent(btn.dataset.brand||'')+'!'+(n?(' I am '+n+'.'):'')+(m?(' '+m):' I would like to ask about a pair.');
+      var num=(btn.dataset.num||'').replace(/[^0-9]/g,'');
+      window.open('https://wa.me/'+num+'?text='+encodeURIComponent(text),'_blank','noopener');
+    });
+  }
+  document.querySelectorAll('.ukc-q button').forEach(function(b){
+    b.addEventListener('click',function(){
+      var q=b.parentElement, a=q.querySelector('.ukc-a'), open=q.classList.contains('open');
+      document.querySelectorAll('.ukc-q').forEach(function(x){x.classList.remove('open');x.querySelector('.ukc-a').style.maxHeight=null;});
+      if(!open){ q.classList.add('open'); a.style.maxHeight=a.scrollHeight+'px'; }
+    });
+  });
+})();
+</script>
+
+{% endblock %}

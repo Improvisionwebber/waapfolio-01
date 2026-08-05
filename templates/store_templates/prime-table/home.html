@@ -1,0 +1,378 @@
+{% extends "store_templates/prime-table/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ store.brand_name }} — Fine Dining, Seasonal Plates{% endblock %}
+
+{% block body %}
+<style>
+  /* ===== HERO ===== */
+  .ph-hero{position:relative;min-height:clamp(560px,92vh,940px);display:flex;align-items:flex-end;overflow:hidden;background:var(--pt-ink)}
+  .ph-hero__bg{position:absolute;inset:0}
+  .ph-hero__bg img{width:100%;height:100%;object-fit:cover;opacity:.62;transform:scale(1.06);animation:phDrift 22s var(--pt-ease) forwards}
+  @keyframes phDrift{to{transform:scale(1)}}
+  .ph-hero__veil{
+    position:absolute;inset:0;
+    background:linear-gradient(180deg,rgba(18,16,14,.72) 0%,rgba(18,16,14,.28) 38%,rgba(18,16,14,.92) 100%);
+  }
+  .ph-hero__in{position:relative;z-index:2;width:100%;padding:clamp(90px,13vw,150px) 0 clamp(46px,6vw,74px);color:var(--pt-ivory)}
+  .ph-hero h1{font-size:clamp(3rem,10.5vw,8.6rem);color:var(--pt-ivory);letter-spacing:-.03em}
+  .ph-hero h1 em{font-style:italic;color:var(--pt-gold);font-weight:300}
+  .ph-hero__row{display:grid;gap:clamp(26px,4vw,54px);margin-top:clamp(30px,4vw,52px);grid-template-columns:1fr;align-items:end}
+  @media(min-width:900px){.ph-hero__row{grid-template-columns:1.15fr .85fr}}
+  .ph-hero p{color:rgba(247,244,236,.76);max-width:48ch;font-size:1.05rem}
+  .ph-hero__acts{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:1.8rem}
+  .ph-hero__facts{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;border-top:1px solid var(--pt-line-dark);padding-top:1.4rem}
+  .ph-hero__facts b{display:block;font-family:var(--pt-serif);font-size:clamp(1.6rem,3.4vw,2.4rem);color:var(--pt-ivory);font-weight:400}
+  .ph-hero__facts span{font-size:.62rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(247,244,236,.5)}
+
+  /* ===== MARQUEE ===== */
+  .ph-strip{background:var(--pt-walnut);color:var(--pt-cream);overflow:hidden;padding:.95rem 0;border-bottom:1px solid rgba(247,244,236,.1)}
+  .ph-strip__track{display:flex;gap:3.4rem;white-space:nowrap;width:max-content;animation:phSlide 34s linear infinite}
+  .ph-strip__track span{font-size:.68rem;letter-spacing:.38em;text-transform:uppercase;display:inline-flex;align-items:center;gap:3.4rem}
+  .ph-strip__track span::after{content:"◆";color:var(--pt-gold);font-size:.5rem}
+  @keyframes phSlide{to{transform:translateX(-50%)}}
+  @media (prefers-reduced-motion:reduce){.ph-strip__track{animation:none}}
+
+  /* ===== SECTION FRAME ===== */
+  .ph-sec{padding:clamp(70px,10vw,140px) 0}
+  .ph-head{display:grid;gap:1.4rem;grid-template-columns:1fr;align-items:end;margin-bottom:clamp(36px,5vw,64px)}
+  @media(min-width:900px){.ph-head{grid-template-columns:1.3fr .7fr}}
+  .ph-head h2{font-size:clamp(2.1rem,5.4vw,4rem)}
+  .ph-head h2 em{font-style:italic;color:var(--pt-bronze)}
+
+  /* ===== DISH CARDS ===== */
+  .ph-grid{display:grid;gap:clamp(20px,2.6vw,34px);grid-template-columns:repeat(1,1fr)}
+  @media(min-width:640px){.ph-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1080px){.ph-grid{grid-template-columns:repeat(4,1fr)}}
+  .ph-dish{position:relative;display:flex;flex-direction:column;height:100%}
+  .ph-dish__media{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--pt-cream);border-radius:2px}
+  .ph-dish__media img{width:100%;height:100%;object-fit:cover;transition:transform 1.3s var(--pt-ease),filter .8s var(--pt-ease)}
+  .ph-dish:hover .ph-dish__media img{transform:scale(1.07)}
+  .ph-dish__no{
+    position:absolute;top:14px;left:14px;z-index:2;font-family:var(--pt-serif);font-size:.95rem;
+    width:38px;height:38px;display:grid;place-items:center;border-radius:50%;
+    background:rgba(251,249,244,.92);color:var(--pt-walnut);
+  }
+  .ph-dish__body{padding-top:1.1rem;display:flex;flex-direction:column;gap:.45rem;flex:1}
+  .ph-dish__name{font-family:var(--pt-serif);font-size:1.5rem;line-height:1.15}
+  .ph-dish__meta{display:flex;align-items:baseline;justify-content:space-between;gap:1rem;margin-top:auto;padding-top:.7rem;border-top:1px solid var(--pt-line)}
+  .ph-dish__price{font-family:var(--pt-serif);font-size:1.22rem;color:var(--pt-walnut)}
+  .ph-dish__go{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-bronze)}
+
+  /* ===== CHEF LIST ===== */
+  .ph-chef{background:var(--pt-ink);color:var(--pt-ivory)}
+  .ph-chef h2{color:var(--pt-ivory)}
+  .ph-chef__row{
+    display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center;
+    padding:1.55rem 0;border-bottom:1px solid var(--pt-line-dark);
+    transition:padding-left .5s var(--pt-ease),background .5s var(--pt-ease);
+  }
+  .ph-chef__row:hover{padding-left:1rem;background:rgba(247,244,236,.03)}
+  .ph-chef__no{font-family:var(--pt-serif);color:var(--pt-gold);font-size:.9rem;min-width:34px}
+  .ph-chef__name{font-family:var(--pt-serif);font-size:clamp(1.3rem,2.6vw,2rem);color:var(--pt-ivory)}
+  .ph-chef__note{font-size:.8rem;color:rgba(247,244,236,.5);letter-spacing:.02em}
+  .ph-chef__price{font-family:var(--pt-serif);font-size:1.15rem;color:var(--pt-cream);white-space:nowrap}
+
+  /* ===== EXPERIENCE ===== */
+  .ph-exp{display:grid;gap:clamp(30px,5vw,68px);grid-template-columns:1fr;align-items:center}
+  @media(min-width:960px){.ph-exp{grid-template-columns:1.05fr .95fr}}
+  .ph-exp__stack{position:relative;min-height:clamp(340px,48vw,560px)}
+  .ph-exp__a,.ph-exp__b{position:absolute;overflow:hidden;border-radius:2px;box-shadow:var(--pt-shadow)}
+  .ph-exp__a{inset:0 22% 16% 0}
+  .ph-exp__b{width:52%;right:0;bottom:0;aspect-ratio:3/4;border:8px solid var(--pt-paper)}
+  .ph-exp__a img,.ph-exp__b img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--pt-ease)}
+  .ph-exp__stack:hover img{transform:scale(1.05)}
+  .ph-exp__list{list-style:none;padding:0;margin:2rem 0 0;display:grid;gap:1.05rem}
+  .ph-exp__list li{display:flex;gap:.9rem;align-items:flex-start;color:var(--pt-brown)}
+  .ph-exp__list i{color:var(--pt-bronze);margin-top:.28rem}
+
+  /* ===== GALLERY ===== */
+  .ph-gal{display:grid;gap:12px;grid-template-columns:repeat(2,1fr)}
+  @media(min-width:900px){.ph-gal{grid-template-columns:repeat(4,1fr);grid-auto-rows:190px}}
+  .ph-gal figure{margin:0;overflow:hidden;position:relative;border-radius:2px;aspect-ratio:1/1}
+  @media(min-width:900px){
+    .ph-gal figure{aspect-ratio:auto}
+    .ph-gal figure:nth-child(1){grid-column:span 2;grid-row:span 2}
+    .ph-gal figure:nth-child(4){grid-row:span 2}
+    .ph-gal figure:nth-child(6){grid-column:span 2}
+  }
+  .ph-gal img{width:100%;height:100%;object-fit:cover;filter:saturate(.92);transition:transform 1.3s var(--pt-ease),filter .7s var(--pt-ease)}
+  .ph-gal figure:hover img{transform:scale(1.06);filter:saturate(1.05)}
+
+  /* ===== QUOTES ===== */
+  .ph-quotes{display:grid;gap:clamp(18px,2.4vw,30px);grid-template-columns:1fr}
+  @media(min-width:860px){.ph-quotes{grid-template-columns:repeat(3,1fr)}}
+  .ph-quote{background:var(--pt-cream);padding:clamp(26px,3.4vw,40px);border-radius:2px;display:flex;flex-direction:column;gap:1.1rem;height:100%}
+  .ph-quote__stars{color:var(--pt-bronze);font-size:.8rem;letter-spacing:.2em}
+  .ph-quote p{font-family:var(--pt-serif);font-size:1.28rem;line-height:1.45;color:var(--pt-char);margin:0;font-style:italic}
+  .ph-quote small{font-size:.64rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-mute);margin-top:auto}
+
+  /* ===== VISIT ===== */
+  .ph-visit{position:relative;overflow:hidden;background:var(--pt-char);color:var(--pt-ivory);border-radius:2px}
+  .ph-visit img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.34}
+  .ph-visit__in{position:relative;z-index:2;padding:clamp(48px,8vw,110px) clamp(24px,5vw,80px);text-align:center;display:grid;justify-items:center;gap:1.3rem}
+  .ph-visit h2{color:var(--pt-ivory);font-size:clamp(2rem,5.6vw,4rem)}
+  .ph-visit p{color:rgba(247,244,236,.7);max-width:52ch;margin:0}
+</style>
+
+<!-- ============ HERO ============ -->
+<section class="ph-hero">
+  <div class="ph-hero__bg">
+    <img src="https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=2000&q=80" alt="Candlelit dining room at {{ store.brand_name }}">
+  </div>
+  <div class="ph-hero__veil"></div>
+  <div class="pt-shell ph-hero__in">
+    <div class="pt-kicker is-light pt-rise">Est. house of seasonal fire</div>
+    <h1 class="pt-rise" data-d="1">The art of <em>the plate</em></h1>
+    <div class="ph-hero__row">
+      <div class="pt-rise" data-d="2">
+        <p>
+          {{ store.bio|default:"A candlelit room, an open pass and a kitchen that cooks to the season. Every course is written the morning it is served." }}
+        </p>
+        <div class="ph-hero__acts">
+          <a class="pt-btn pt-btn--gold" href="{% url 'store_product_list' store_slug=store.slug %}">Explore the menu</a>
+          {% if store.whatsapp %}
+            <a class="pt-btn pt-btn--light" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Reserve a table</a>
+          {% else %}
+            <a class="pt-btn pt-btn--light" href="{% url 'store_contact' store_slug=store.slug %}">Reserve a table</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="ph-hero__facts pt-rise" data-d="3">
+        <div><b>7</b><span>Courses</span></div>
+        <div><b>18h</b><span>Slow fire</span></div>
+        <div><b>100%</b><span>Seasonal</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MARQUEE ============ -->
+<div class="ph-strip" aria-hidden="true">
+  <div class="ph-strip__track">
+    <span>Seasonal Produce</span><span>Open Fire Kitchen</span><span>Chef's Table</span><span>Cellar Selection</span><span>Quiet Luxury</span>
+    <span>Seasonal Produce</span><span>Open Fire Kitchen</span><span>Chef's Table</span><span>Cellar Selection</span><span>Quiet Luxury</span>
+  </div>
+</div>
+
+<!-- ============ SIGNATURE DISHES ============ -->
+<section class="ph-sec">
+  <div class="pt-shell">
+    <div class="ph-head">
+      <div class="pt-rise">
+        <div class="pt-kicker">Signature dishes</div>
+        <h2 class="mt-3">Plates that define <em>the house</em></h2>
+      </div>
+      <p class="pt-lead pt-rise" data-d="1">
+        A short list of the dishes our regulars return for — refined over seasons, plated to order, and never rushed.
+      </p>
+    </div>
+
+    <div class="ph-grid">
+      {% for product in products|slice:":4" %}
+        <article class="ph-dish pt-rise" data-d="{{ forloop.counter }}">
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ph-dish__media">
+            <span class="ph-dish__no">{{ forloop.counter|stringformat:"02d" }}</span>
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+          </a>
+          <div class="ph-dish__body">
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ph-dish__name">{{ product.name }}</a>
+            {% if product.category %}
+              <span style="font-size:.62rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-mute)">{{ product.category.name }}</span>
+            {% endif %}
+            <div class="ph-dish__meta">
+              <span class="ph-dish__price">
+                {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+              </span>
+              <a class="ph-dish__go" href="{% url 'store_product_detail' store.slug product.slug %}">View <i class="bi bi-arrow-right"></i></a>
+            </div>
+          </div>
+        </article>
+      {% empty %}
+        <p class="pt-lead">The kitchen is writing tonight's menu. Please check back shortly.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHEF RECOMMENDATIONS ============ -->
+<section class="ph-sec ph-chef">
+  <div class="pt-shell">
+    <div class="ph-head">
+      <div class="pt-rise">
+        <div class="pt-kicker is-light">Chef recommendations</div>
+        <h2 class="mt-3">Tonight, we suggest</h2>
+      </div>
+      <p class="pt-rise" data-d="1" style="color:rgba(247,244,236,.6);max-width:46ch">
+        Chosen at the pass each evening, guided by the market and the hands that cook it.
+      </p>
+    </div>
+
+    {% for product in products|slice:"4:9" %}
+      <a class="ph-chef__row pt-rise" href="{% url 'store_product_detail' store.slug product.slug %}">
+        <span class="ph-chef__no">{{ forloop.counter|stringformat:"02d" }}</span>
+        <span>
+          <span class="ph-chef__name d-block">{{ product.name }}</span>
+          <span class="ph-chef__note">{% if product.category %}{{ product.category.name }} · {% endif %}Served from the open pass</span>
+        </span>
+        <span class="ph-chef__price">
+          {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+        </span>
+      </a>
+    {% empty %}
+      <p style="color:rgba(247,244,236,.6)">Tonight's selection will be published shortly.</p>
+    {% endfor %}
+
+    <div class="mt-5 pt-rise">
+      <a class="pt-btn pt-btn--light" href="{% url 'store_product_list' store_slug=store.slug %}">See the full menu</a>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EXPERIENCE ============ -->
+<section class="ph-sec">
+  <div class="pt-shell ph-exp">
+    <div class="ph-exp__stack pt-rise">
+      <div class="ph-exp__a">
+        <img src="https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?auto=format&fit=crop&w=1400&q=80" alt="Dining room detail" loading="lazy">
+      </div>
+      <div class="ph-exp__b">
+        <img src="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?auto=format&fit=crop&w=900&q=80" alt="Chef finishing a plate" loading="lazy">
+      </div>
+    </div>
+    <div class="pt-rise" data-d="1">
+      <div class="pt-kicker">The experience</div>
+      <h2 class="mt-3" style="font-size:clamp(2rem,4.6vw,3.4rem)">An evening measured in <em style="font-style:italic;color:var(--pt-bronze)">courses</em>, not minutes</h2>
+      <p class="pt-lead mt-3">
+        The room dims, the pass lights, and service begins. Our team reads the table before the first plate arrives — pacing, pairing and quiet attention until the last spoon rests.
+      </p>
+      <ul class="ph-exp__list">
+        <li><i class="bi bi-fire"></i><span>Wood-fired hearth at the centre of the kitchen, visible from every seat.</span></li>
+        <li><i class="bi bi-basket2"></i><span>Produce sourced each morning; the menu is written after the market.</span></li>
+        <li><i class="bi bi-cup-hot"></i><span>Cellar pairings poured by hand, from low-intervention growers.</span></li>
+        <li><i class="bi bi-stars"></i><span>A chef's counter for six, booked directly with our team.</span></li>
+      </ul>
+      <div class="mt-4">
+        <a class="pt-btn pt-btn--ghost" href="{% url 'store_about' store_slug=store.slug %}">Inside the house</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ FEATURED MENU ============ -->
+<section class="ph-sec" style="background:var(--pt-cream)">
+  <div class="pt-shell">
+    <div class="ph-head">
+      <div class="pt-rise">
+        <div class="pt-kicker">Featured menu</div>
+        <h2 class="mt-3">This season's <em>table</em></h2>
+      </div>
+      <p class="pt-lead pt-rise" data-d="1">Add a plate to your tray and our team will take it from there.</p>
+    </div>
+
+    <div class="ph-grid">
+      {% for product in products|slice:":8" %}
+        <article class="ph-dish pt-rise">
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ph-dish__media">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+          </a>
+          <div class="ph-dish__body">
+            <a href="{% url 'store_product_detail' store.slug product.slug %}" class="ph-dish__name">{{ product.name }}</a>
+            <div class="ph-dish__meta">
+              <span class="ph-dish__price">
+                {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+              </span>
+            </div>
+            <form action="{% url 'add_to_cart' product.slug %}" method="post" class="mt-2">
+              {% csrf_token %}
+              <button type="submit" class="pt-btn pt-btn--ghost pt-btn--wide"><i class="bi bi-bag-plus"></i> Add to tray</button>
+            </form>
+          </div>
+        </article>
+      {% empty %}
+        <p class="pt-lead">No dishes have been published yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ============ GALLERY ============ -->
+<section class="ph-sec">
+  <div class="pt-shell">
+    <div class="ph-head">
+      <div class="pt-rise">
+        <div class="pt-kicker">The gallery</div>
+        <h2 class="mt-3">Light, fire and <em>linen</em></h2>
+      </div>
+    </div>
+    <div class="ph-gal pt-rise">
+      <figure><img src="https://images.unsplash.com/photo-1550966871-3ed3cdb5ed0c?auto=format&fit=crop&w=1400&q=80" alt="Plated course" loading="lazy"></figure>
+      <figure><img src="https://images.unsplash.com/photo-1424847651672-bf20a4b0982b?auto=format&fit=crop&w=900&q=80" alt="Table setting" loading="lazy"></figure>
+      <figure><img src="https://images.unsplash.com/photo-1552566626-52f8b828add9?auto=format&fit=crop&w=900&q=80" alt="Dining room" loading="lazy"></figure>
+      <figure><img src="https://images.unsplash.com/photo-1481931098730-318b6f776db0?auto=format&fit=crop&w=900&q=80" alt="Kitchen pass" loading="lazy"></figure>
+      <figure><img src="https://images.unsplash.com/photo-1514933651103-005eec06c04b?auto=format&fit=crop&w=900&q=80" alt="Bar counter" loading="lazy"></figure>
+      <figure><img src="https://images.unsplash.com/photo-1476224203421-9ac39bcb3327?auto=format&fit=crop&w=1400&q=80" alt="Seasonal produce" loading="lazy"></figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ GUEST IMPRESSIONS ============ -->
+<section class="ph-sec" style="padding-top:0">
+  <div class="pt-shell">
+    <div class="ph-head">
+      <div class="pt-rise">
+        <div class="pt-kicker">Guest impressions</div>
+        <h2 class="mt-3">Words from <em>the room</em></h2>
+      </div>
+    </div>
+    <div class="ph-quotes">
+      <div class="ph-quote pt-rise">
+        <div class="ph-quote__stars">★★★★★</div>
+        <p>“The pacing was flawless. Three hours passed and we never once looked at the time.”</p>
+        <small>Adaeze — Chef's counter</small>
+      </div>
+      <div class="ph-quote pt-rise" data-d="1">
+        <div class="ph-quote__stars">★★★★★</div>
+        <p>“Smoke, butter and something citrus I still cannot name. Easily the finest table this year.”</p>
+        <small>Marcus — Dinner service</small>
+      </div>
+      <div class="ph-quote pt-rise" data-d="2">
+        <div class="ph-quote__stars">★★★★★</div>
+        <p>“Quiet luxury done properly — nothing shouts, everything is considered.”</p>
+        <small>Ife — Private dining</small>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ VISIT ============ -->
+<section class="pt-shell" style="padding-bottom:clamp(50px,7vw,90px)">
+  <div class="ph-visit pt-rise">
+    <img src="https://images.unsplash.com/photo-1559339352-11d035aa65de?auto=format&fit=crop&w=1900&q=80" alt="Restaurant interior at night" loading="lazy">
+    <div class="ph-visit__in">
+      <div class="pt-kicker is-light">Reserve</div>
+      <h2>Your table is waiting</h2>
+      <p>Reservations are handled personally by our team. Send us a message and we will confirm your evening, your seating and any dietary notes.</p>
+      <div class="d-flex flex-wrap gap-2 justify-content-center mt-2">
+        {% if store.whatsapp %}
+          <a class="pt-btn pt-btn--gold" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Message us</a>
+        {% endif %}
+        <a class="pt-btn pt-btn--light" href="{% url 'store_contact' store_slug=store.slug %}">Visit details</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

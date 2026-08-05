@@ -1,0 +1,190 @@
+{% extends "store_templates/prime-table/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}Visit Us — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .pc-hero{position:relative;overflow:hidden;background:var(--pt-ink);color:var(--pt-ivory);padding:clamp(88px,12vw,150px) 0 clamp(52px,7vw,96px)}
+  .pc-hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.26}
+  .pc-hero__in{position:relative;z-index:2}
+  .pc-hero h1{font-size:clamp(2.8rem,9vw,7rem);color:var(--pt-ivory)}
+  .pc-hero h1 em{font-style:italic;color:var(--pt-gold)}
+  .pc-hero p{color:rgba(247,244,236,.7);max-width:52ch;margin-top:1.2rem}
+
+  .pc-sec{padding:clamp(56px,8vw,120px) 0}
+  .pc-split{display:grid;gap:clamp(26px,4vw,56px);grid-template-columns:1fr;align-items:start}
+  @media(min-width:960px){.pc-split{grid-template-columns:1.05fr .95fr}}
+
+  .pc-card{background:var(--pt-cream);border-radius:2px;padding:clamp(28px,4vw,52px)}
+  .pc-card h2{font-size:clamp(1.9rem,4.2vw,3rem)}
+  .pc-rows{list-style:none;margin:clamp(22px,3vw,34px) 0 0;padding:0;display:grid;gap:1px;background:var(--pt-line);border:1px solid var(--pt-line);border-radius:2px;overflow:hidden}
+  .pc-row{background:var(--pt-paper);display:flex;align-items:center;gap:1rem;padding:1.15rem 1.25rem}
+  .pc-row i{width:38px;height:38px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--pt-ink);color:var(--pt-gold);font-size:.95rem}
+  .pc-row small{display:block;font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--pt-mute)}
+  .pc-row b{font-weight:400;font-size:1rem;color:var(--pt-ink)}
+  .pc-row a{color:var(--pt-ink)}
+  .pc-row a:hover{color:var(--pt-bronze)}
+
+  .pc-hours{display:grid;gap:1px;background:var(--pt-line);border:1px solid var(--pt-line);border-radius:2px;overflow:hidden}
+  .pc-hours div{background:var(--pt-paper);display:flex;justify-content:space-between;gap:1rem;padding:1rem 1.2rem;font-size:.94rem;color:var(--pt-brown)}
+  .pc-hours div b{font-weight:400;color:var(--pt-ink)}
+
+  .pc-panel{position:relative;overflow:hidden;border-radius:2px;box-shadow:var(--pt-shadow);aspect-ratio:3/4;min-height:340px}
+  .pc-panel img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--pt-ease)}
+  .pc-panel:hover img{transform:scale(1.05)}
+  .pc-panel__tag{position:absolute;left:0;bottom:0;right:26%;background:rgba(18,16,14,.9);color:var(--pt-cream);padding:1.05rem 1.3rem;font-family:var(--pt-serif);font-style:italic}
+
+  .pc-faq .accordion-item{background:transparent;border:0;border-bottom:1px solid var(--pt-line)}
+  .pc-faq .accordion-button{
+    background:transparent;box-shadow:none;padding:1.3rem 0;
+    font-family:var(--pt-serif);font-size:clamp(1.15rem,2.4vw,1.6rem);color:var(--pt-ink);
+  }
+  .pc-faq .accordion-button:not(.collapsed){color:var(--pt-walnut)}
+  .pc-faq .accordion-button::after{filter:grayscale(1) opacity(.6)}
+  .pc-faq .accordion-body{padding:0 0 1.4rem;color:var(--pt-brown);font-size:.98rem;max-width:70ch}
+
+  .pc-cta{position:relative;overflow:hidden;background:var(--pt-char);color:var(--pt-ivory);border-radius:2px}
+  .pc-cta img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.32}
+  .pc-cta__in{position:relative;z-index:2;padding:clamp(46px,8vw,104px) clamp(24px,5vw,72px);display:grid;gap:1.2rem;justify-items:center;text-align:center}
+  .pc-cta h2{color:var(--pt-ivory);font-size:clamp(2rem,5.4vw,3.8rem)}
+  .pc-cta p{color:rgba(247,244,236,.68);max-width:52ch;margin:0}
+</style>
+
+<!-- HERO -->
+<header class="pc-hero">
+  <img class="bg" src="https://images.unsplash.com/photo-1600891964092-4316c288032e?auto=format&fit=crop&w=1900&q=80" alt="Table setting" loading="lazy">
+  <div class="pt-shell pc-hero__in">
+    <div class="pt-kicker is-light pt-rise">Visit us</div>
+    <h1 class="mt-3 pt-rise" data-d="1">Come <em>sit with us</em></h1>
+    <p class="pt-rise" data-d="2">
+      {{ store.bio|default:"Every reservation is handled by a person, not a form. Message our team and we will confirm your evening, your seating and any dietary notes." }}
+    </p>
+  </div>
+</header>
+
+<!-- CONTACT -->
+<section class="pc-sec">
+  <div class="pt-shell pc-split">
+    <div class="pc-card pt-rise">
+      <div class="pt-kicker">Reach the house</div>
+      <h2 class="mt-3">Speak with our team</h2>
+      <p class="pt-lead mt-3">
+        Reservations, private dining, larger tables and dietary requirements — all arranged directly with us.
+      </p>
+
+      <ul class="pc-rows">
+        {% if store.whatsapp %}
+          <li class="pc-row">
+            <i class="bi bi-whatsapp"></i>
+            <span>
+              <small>WhatsApp</small>
+              <b><a href="https://wa.me/{{ store.whatsapp_number }}?text=Hello%20{{ store.brand_name|urlencode }}" target="_blank" rel="noopener">{{ store.whatsapp_number }}</a></b>
+            </span>
+          </li>
+        {% endif %}
+        <li class="pc-row">
+          <i class="bi bi-journal-text"></i>
+          <span><small>Menu</small><b><a href="{% url 'store_product_list' store_slug=store.slug %}">Browse tonight's plates</a></b></span>
+        </li>
+        <li class="pc-row">
+          <i class="bi bi-bag"></i>
+          <span><small>Your tray</small><b><a href="{% url 'cart' %}">Review your selection</a></b></span>
+        </li>
+        <li class="pc-row">
+          <i class="bi bi-house-door"></i>
+          <span><small>The house</small><b><a href="{% url 'store_about' store_slug=store.slug %}">Read our story</a></b></span>
+        </li>
+      </ul>
+
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        {% if store.whatsapp %}
+          <a class="pt-btn pt-btn--gold" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Message us now</a>
+        {% endif %}
+        <a class="pt-btn pt-btn--ghost" href="{% url 'store_product_list' store_slug=store.slug %}">Start an order</a>
+      </div>
+    </div>
+
+    <div class="pt-rise" data-d="1">
+      <div class="pc-panel">
+        <img src="https://images.unsplash.com/photo-1533777324565-a040eb52facd?auto=format&fit=crop&w=1200&q=80" alt="Dining room detail" loading="lazy">
+        <div class="pc-panel__tag">The room is at its best after dark.</div>
+      </div>
+
+      <div class="mt-4">
+        <div class="pt-kicker">Service hours</div>
+        <div class="pc-hours mt-3">
+          <div><b>Tuesday — Thursday</b><span>12:00 — 15:00 · 18:00 — 23:00</span></div>
+          <div><b>Friday — Saturday</b><span>12:00 — 15:00 · 18:00 — 00:00</span></div>
+          <div><b>Sunday</b><span>Chef's table only</span></div>
+          <div><b>Monday</b><span>Closed — market day</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section class="pc-sec" style="background:var(--pt-cream)">
+  <div class="pt-shell" style="max-width:960px">
+    <div class="pt-rise">
+      <div class="pt-kicker">Before you arrive</div>
+      <h2 class="mt-3" style="font-size:clamp(1.9rem,4.4vw,3.2rem)">Details worth knowing</h2>
+    </div>
+
+    <div class="accordion pc-faq mt-4" id="pcFaq">
+      <div class="accordion-item pt-rise">
+        <h3 class="accordion-header">
+          <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#pcQ1">How do I place an order?</button>
+        </h3>
+        <div id="pcQ1" class="accordion-collapse collapse show" data-bs-parent="#pcFaq">
+          <div class="accordion-body">Add the plates you would like to your tray from the menu, then complete your order. Our team confirms every order personally before the kitchen begins.</div>
+        </div>
+      </div>
+      <div class="accordion-item pt-rise">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pcQ2">Can you accommodate allergies?</button>
+        </h3>
+        <div id="pcQ2" class="accordion-collapse collapse" data-bs-parent="#pcFaq">
+          <div class="accordion-body">Yes. Share your requirements when you order or message us directly, and the kitchen will adapt the course rather than remove it.</div>
+        </div>
+      </div>
+      <div class="accordion-item pt-rise">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pcQ3">Do you host private dining?</button>
+        </h3>
+        <div id="pcQ3" class="accordion-collapse collapse" data-bs-parent="#pcFaq">
+          <div class="accordion-body">The chef's counter seats six and the rear room takes larger parties. Message the house with your date and we will arrange the details.</div>
+        </div>
+      </div>
+      <div class="accordion-item pt-rise">
+        <h3 class="accordion-header">
+          <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#pcQ4">Does the menu change?</button>
+        </h3>
+        <div id="pcQ4" class="accordion-collapse collapse" data-bs-parent="#pcFaq">
+          <div class="accordion-body">Frequently. The menu follows the market, so plates arrive and retire with the season. What you see today is what the kitchen is cooking today.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="pt-shell" style="padding-bottom:clamp(30px,5vw,60px)">
+  <div class="pc-cta pt-rise">
+    <img src="https://images.unsplash.com/photo-1543007630-9710e4a00a20?auto=format&fit=crop&w=1900&q=80" alt="Restaurant at night" loading="lazy">
+    <div class="pc-cta__in">
+      <div class="pt-kicker is-light">{{ store.brand_name }}</div>
+      <h2>The candles are lit</h2>
+      <p>Tell us when you would like to dine and we will hold the table. No forms, no waiting — simply a message and a reply.</p>
+      <div class="d-flex flex-wrap gap-2 justify-content-center">
+        {% if store.whatsapp %}
+          <a class="pt-btn pt-btn--gold" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}</a>
+        {% endif %}
+        <a class="pt-btn pt-btn--light" href="{% url 'store_product_list' store_slug=store.slug %}">View the menu</a>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

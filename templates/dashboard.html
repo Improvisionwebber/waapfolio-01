@@ -44,11 +44,20 @@
   @media(min-width:768px){.waap-shell{padding:32px 32px 120px}}
 
   /* ---------- Header ---------- */
-  .store-header{
-    background:#fff;border:1px solid var(--border);border-radius:var(--radius-lg);
-    padding:18px;box-shadow:var(--shadow-sm);
-    display:flex;flex-direction:column;gap:16px;
-  }
+.store-header{
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:var(--radius-lg);
+    padding:18px;
+    box-shadow:var(--shadow-sm);
+
+    display:flex;
+    flex-direction:column;
+    gap:16px;
+
+    position:relative;
+    z-index:1000;
+}
   @media(min-width:900px){
     .store-header{flex-direction:row;align-items:center;justify-content:space-between;padding:22px 26px}
   }
@@ -86,12 +95,28 @@
   .btn-block{width:100%}
 
   /* ---------- Store switch ---------- */
-  .store-switch{position:relative}
-  .store-switch-menu{
-    position:absolute;right:0;top:calc(100% + 8px);min-width:280px;background:#fff;
-    border:1px solid var(--border);border-radius:14px;box-shadow:var(--shadow-lg);
-    padding:8px;z-index:50;display:none;
+  .store-switch{
+      position:relative;
+      z-index:1100;
   }
+.store-switch-menu{
+    position:absolute;
+    right:0;
+    top:calc(100% + 8px);
+
+    min-width:280px;
+
+    background:#fff;
+    border:1px solid var(--border);
+    border-radius:14px;
+    box-shadow:var(--shadow-lg);
+
+    padding:8px;
+
+    z-index:99999;
+
+    display:none;
+}
   .store-switch.open .store-switch-menu{display:block}
   .switch-item{
     display:flex;align-items:center;justify-content:space-between;gap:8px;
@@ -343,7 +368,11 @@
         <div class="store-name">
           {% if active_store %}{{ active_store.brand_name }}{% else %}Welcome back{% endif %}
         </div>
-        <div class="store-sub">Here is how your business is performing today.</div>
+        {% if active_store %}
+        Viewing analytics for {{ active_store.brand_name }}. Wallet totals include all your stores.
+        {% else %}
+        Here is how your business is performing today.
+        {% endif %}
       </div>
     </div>
 
@@ -356,11 +385,15 @@
           <div class="store-switch-menu">
             {% for s in user.stores.all %}
               {# MANAGE_STORE_LINK #}
-              <a class="switch-item {% if active_store and s.id == active_store.id %}active{% endif %}"
-                 {% comment %} href="{% url 'manage_store' store.slug %}"> {% endcomment %}
-                <span>{{ s.brand_name }}</span>
-                {% if active_store and s.id == active_store.id %}<span class="check">✓</span>{% endif %}
-              </a>
+              <a href="?store={{ s.id }}"
+                class="switch-item {% if active_store and s.id == active_store.id %}active{% endif %}">
+                  <span>{{ s.brand_name }}</span>
+
+                  {% if active_store and s.id == active_store.id %}
+                      <span class="check">✓</span>
+                  {% endif %}
+              </a>        
+
             {% endfor %}
             <div class="switch-divider"></div>
             {# MANAGE_STORE_LINK #}
@@ -378,22 +411,22 @@
   <!-- ============================ KPI CARDS ============================ -->
   <div class="stat-grid">
     <div class="stat-card is-green">
-      <div class="stat-label">Available Balance</div>
+      <div class="stat-label">Account Wallet</div>
       <div class="stat-value green" data-metric="balance" data-value="{{ wallet_balance|default:0 }}">₦{{ wallet_balance|intcomma }}</div>
       <div class="stat-foot">Ready to withdraw</div>
     </div>
     <div class="stat-card is-ink">
-      <div class="stat-label">Total Revenue</div>
+      <div class="stat-label">Store Revenue</div>
       <div class="stat-value" data-metric="revenue" data-value="{{ total_revenue|default:0 }}">₦{{ total_revenue|intcomma }}</div>
       <div class="stat-foot">Lifetime earnings</div>
     </div>
     <div class="stat-card is-amber">
-      <div class="stat-label">Total Sales</div>
+      <div class="stat-label">Store Sales</div>
       <div class="stat-value" data-metric="sales" data-value="{{ total_sales|default:0 }}">{{ total_sales|intcomma }}</div>
       <div class="stat-foot">Completed orders</div>
     </div>
     <div class="stat-card is-danger">
-      <div class="stat-label">Pending Orders</div>
+      <div class="stat-label">Store Pending Orders</div>
       <div class="stat-value" data-metric="pending" data-value="{{ pending_orders|default:0 }}">{{ pending_orders|intcomma }}</div>
       <div class="stat-foot">Awaiting verification</div>
     </div>
@@ -512,7 +545,7 @@
       <div class="stat-card is-danger">
         <div class="stat-label">Total Withdrawn</div>
         <div class="stat-value danger" data-metric="withdrawn" data-value="{{ total_withdrawn|default:0 }}">₦{{ total_withdrawn|intcomma }}</div>
-        <div class="stat-foot">Paid out to your bank</div>
+        <div class="stat-foot">Total withdrawn across all stores</div>
       </div>
 
     </div>
@@ -547,15 +580,15 @@
           <div class="store-card-stats">
             <div class="scs">
               <div class="scs-k">Products</div>
-              <div class="scs-v">{{ s.items.count|default:"0" }}</div>
+              <div class="scs-v">{{ s.item_set.count }}</div>
             </div>
             <div class="scs">
               <div class="scs-k">Catalog</div>
-              <div class="scs-v">{% if s.items.count %}Live{% else %}Empty{% endif %}</div>
+              <div class="scs-v">{% if s.item_set.count %}Live{% else %}Empty{% endif %}</div>
             </div>
           </div>
 
-          <div class="store-bar" data-store-bar="{{ s.items.count|default:0 }}"><span style="width:0%"></span></div>
+          <div class="store-bar" data-store-bar="{{ s.item_set.count|default:0 }}"><span style="width:0%"></span></div>
 
           {# MANAGE_STORE_LINK #}
           {% comment %} <a href="{% url 'manage_store' %}?store={{ s.id }}" class="btn-w btn-green btn-sm btn-block">Manage this store</a> {% endcomment %}

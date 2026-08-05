@@ -527,7 +527,7 @@ a{ text-decoration:none; }
         <a href="{% url 'register' %}" class="btn btn-success">Sign Up &amp; Create Your Store</a>
       {% else %}
         {% if store %}
-          <a href="{% url 'view_store' slug=store.slug %}" class="btn btn-outline-success">Visit Your Store</a>
+          <a href="{% url 'store_home' store.slug %}" class="btn btn-outline-success">Visit Your Store</a>
         {% else %}
           <a href="{% url 'create_store' %}" class="btn btn-success">Create Your Store</a>
         {% endif %}

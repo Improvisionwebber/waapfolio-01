@@ -1,0 +1,399 @@
+{% extends "store_templates/aurum-fine-jewelry/base.html" %}
+{% load static %}
+{% load humanize %}
+{% block title %}{{ store.brand_name }} — Fine Jewelry, Considered{% endblock %}
+
+{% block body %}
+<style>
+  :root{
+    --au-bg:#fffefc;
+    --au-cream:#f7f3ec;
+    --au-ink:#0c0c0c;
+    --au-ink-2:#232323;
+    --au-muted:#6f6f68;
+    --au-faint:#a3a39a;
+    --au-line:#e9e5db;
+    --au-gold:#a9812f;
+    --au-gold-soft:#c9a25c;
+    --au-gold-pale:#f0e4c8;
+    --au-radius:2px;
+    --au-ease:cubic-bezier(.19,1,.22,1);
+  }
+  .au-page{font-family:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;color:var(--au-ink);background:var(--au-bg);-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .au-page *{box-sizing:border-box}
+  .au-container{max-width:1320px;margin:0 auto;padding:0 32px}
+  @media(max-width:640px){.au-container{padding:0 20px}}
+
+  .au-reveal{opacity:0;transform:translateY(20px);transition:opacity .9s var(--au-ease),transform .9s var(--au-ease)}
+  .au-reveal.is-visible{opacity:1;transform:none}
+
+  /* ── HERO ── */
+  .au-hero{position:relative;padding:clamp(90px,13vw,150px) 0 clamp(70px,9vw,110px);text-align:center;background:
+    radial-gradient(1100px 560px at 82% -12%, var(--au-gold-pale) 0%, transparent 60%),
+    radial-gradient(700px 460px at -5% 15%, #f6f2e6 0%, transparent 55%),
+    var(--au-bg);
+    border-bottom:1px solid var(--au-line);overflow:hidden}
+  .au-hero-inner{position:relative;max-width:820px;margin:0 auto}
+  .au-eyebrow{display:inline-flex;align-items:center;gap:10px;padding:8px 18px;border:1px solid var(--au-gold-soft);border-radius:999px;font-size:.68rem;font-weight:600;letter-spacing:.28em;text-transform:uppercase;color:var(--au-gold);margin-bottom:2.5rem}
+  .au-eyebrow .dot{width:5px;height:5px;border-radius:50%;background:var(--au-gold)}
+  .au-hero h1{font-family:'Fraunces','Times New Roman',serif;font-weight:500;font-size:clamp(2.6rem,7vw,5.4rem);line-height:1.02;letter-spacing:-.025em;color:var(--au-ink);margin:0 0 1.8rem}
+  .au-hero h1 em{font-style:italic;font-weight:400;color:var(--au-gold)}
+  .au-hero .au-lead{font-family:'Cormorant Garamond',Georgia,serif;font-size:clamp(1.2rem,2vw,1.5rem);line-height:1.6;color:var(--au-ink-2);max-width:560px;margin:0 auto 2.8rem;font-style:italic}
+  .au-cta-row{display:inline-flex;flex-direction:column;align-items:center;gap:1.1rem}
+  .au-cta{display:inline-flex;align-items:center;gap:12px;padding:18px 34px;background:var(--au-ink);color:#fff;border:1px solid var(--au-ink);border-radius:999px;font-size:.78rem;font-weight:600;letter-spacing:.16em;text-transform:uppercase;text-decoration:none;transition:transform .4s var(--au-ease),background .4s var(--au-ease)}
+  .au-cta:hover{background:var(--au-gold);border-color:var(--au-gold);color:#fff;transform:translateY(-2px)}
+  .au-cta svg{width:16px;height:16px}
+  .au-cta-meta{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--au-faint)}
+
+  /* ── TRUST BAR ── */
+  .au-trust{padding:2rem 0;border-bottom:1px solid var(--au-line);background:var(--au-bg)}
+  .au-trust-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:.6rem 3rem;color:var(--au-muted);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase}
+  .au-trust-item{display:inline-flex;align-items:center;gap:10px}
+  .au-trust-item svg{width:14px;height:14px;stroke:var(--au-gold)}
+
+  /* ── SECTION SCAFFOLD ── */
+  .au-section{padding:clamp(70px,9vw,120px) 0}
+  .au-section--alt{background:var(--au-cream)}
+  .au-section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:2rem;margin-bottom:4.5rem;flex-wrap:wrap}
+  .au-section-head__left{max-width:600px}
+  .au-label{display:inline-block;font-size:.68rem;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--au-gold);margin-bottom:1.1rem}
+  .au-title{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(2.1rem,4.4vw,3.4rem);line-height:1.08;letter-spacing:-.02em;color:var(--au-ink);margin:0}
+  .au-sub{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.15rem;font-style:italic;color:var(--au-muted);line-height:1.6;max-width:380px;margin:0}
+
+  /* ── COLLECTIONS ── */
+  .au-collections{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--au-line)}
+  @media(max-width:900px){.au-collections{grid-template-columns:1fr}}
+  .au-collection{position:relative;background:linear-gradient(155deg,#efe7d4,#dccb9f);aspect-ratio:4/5;overflow:hidden;display:flex;align-items:flex-end;padding:34px;text-decoration:none}
+  .au-collection::before{content:"";position:absolute;inset:0;background:linear-gradient(0deg,rgba(10,10,10,.62) 0%,rgba(10,10,10,0) 46%);transition:background .5s var(--au-ease)}
+  .au-collection:hover::before{background:linear-gradient(0deg,rgba(10,10,10,.78) 0%,rgba(10,10,10,.05) 60%)}
+  .au-collection-body{position:relative;z-index:2;color:#fff}
+  .au-collection-eyebrow{font-size:.66rem;letter-spacing:.22em;text-transform:uppercase;color:var(--au-gold-soft);margin-bottom:8px;display:block;font-weight:600}
+  .au-collection-name{font-family:'Fraunces',serif;font-size:1.7rem;font-weight:500;letter-spacing:-.01em;margin:0 0 6px}
+  .au-collection-arrow{font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;opacity:.85;display:inline-flex;align-items:center;gap:8px;transition:gap .4s var(--au-ease)}
+  .au-collection:hover .au-collection-arrow{gap:14px}
+
+  /* ── PRODUCT GRID ── */
+  .lux-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:44px 32px}
+  @media(max-width:1100px){.lux-grid{grid-template-columns:repeat(2,1fr);gap:36px 24px}}
+  @media(max-width:560px){.lux-grid{grid-template-columns:1fr 1fr;gap:24px 16px}}
+  .lux-card{display:flex;flex-direction:column;text-decoration:none;color:inherit;transition:transform .5s var(--au-ease)}
+  .lux-card .media{position:relative;aspect-ratio:4/5;overflow:hidden;background:linear-gradient(155deg,#f2ece0,#e2d5b6);margin-bottom:1.2rem}
+  .lux-card .media img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--au-ease)}
+  .lux-card:hover .media img{transform:scale(1.05)}
+  .lux-badge{position:absolute;top:14px;left:14px;z-index:2;padding:6px 12px;font-size:10px;letter-spacing:.2em;text-transform:uppercase;background:rgba(255,255,255,.94);color:var(--au-ink);font-weight:700}
+  .lux-fav{position:absolute;top:12px;right:12px;z-index:2;width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.9);border:0;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:0;transform:translateY(-4px);transition:all .4s var(--au-ease)}
+  .lux-card:hover .lux-fav{opacity:1;transform:translateY(0)}
+  .lux-fav svg{width:14px;height:14px;color:var(--au-ink)}
+  .lux-quick{position:absolute;left:14px;right:14px;bottom:14px;z-index:2;padding:12px;text-align:center;background:rgba(12,12,12,.92);color:#fff;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;font-weight:600;opacity:0;transform:translateY(10px);transition:all .4s var(--au-ease)}
+  .lux-card:hover .lux-quick{opacity:1;transform:translateY(0)}
+  .lux-info{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem}
+  .lux-info .name{font-size:1rem;font-weight:500;color:var(--au-ink);margin:0 0 4px;line-height:1.35;font-family:'Fraunces',serif}
+  .lux-info .meta{font-size:.72rem;color:var(--au-faint);letter-spacing:.1em;text-transform:uppercase}
+  .lux-price{font-size:.95rem;font-weight:600;color:var(--au-gold);white-space:nowrap}
+  .lux-details{margin-top:10px;font-size:.72rem;letter-spacing:.1em;text-transform:uppercase;color:var(--au-muted);font-weight:600}
+  .lux-empty{padding:80px 20px;text-align:center;border:1px dashed var(--au-line);background:var(--au-cream)}
+  .lux-empty .mark{width:56px;height:56px;border-radius:50%;background:#fff;border:1px solid var(--au-line);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;color:var(--au-gold)}
+  .lux-empty h3{font-family:'Fraunces',serif;font-size:1.4rem;margin:0 0 8px}
+  .lux-empty p{color:var(--au-muted);margin:0}
+
+  /* ── CRAFTSMANSHIP / VALUES ── */
+  .au-values{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--au-line);border-left:1px solid var(--au-line)}
+  @media(max-width:900px){.au-values{grid-template-columns:repeat(2,1fr)}}
+  .au-value{padding:38px 32px;border-right:1px solid var(--au-line);border-bottom:1px solid var(--au-line);transition:background .3s}
+  .au-value:hover{background:#fff}
+  .au-value-num{font-family:'Cormorant Garamond',serif;font-style:italic;font-size:1.4rem;color:var(--au-gold);margin-bottom:16px}
+  .au-value h3{font-family:'Fraunces',serif;font-size:1.2rem;font-weight:500;margin:0 0 10px;letter-spacing:-.01em}
+  .au-value p{color:var(--au-muted);font-size:.9rem;line-height:1.65;margin:0}
+
+  /* ── BRAND STORY STRIP ── */
+  .au-story{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center}
+  @media(max-width:900px){.au-story{grid-template-columns:1fr;gap:36px}}
+  .au-story-media{aspect-ratio:4/5;background:linear-gradient(155deg,#f2ece0,#dccb9f);position:relative;overflow:hidden}
+  .au-story-copy h2{font-family:'Fraunces',serif;font-size:clamp(2rem,3.6vw,2.9rem);font-weight:500;letter-spacing:-.02em;line-height:1.1;margin:0 0 1.4rem}
+  .au-story-copy h2 em{font-style:italic;color:var(--au-gold);font-weight:400}
+  .au-story-copy p{color:var(--au-ink-2);font-size:1.02rem;line-height:1.8;max-width:52ch;margin:0 0 1.4rem}
+
+  /* ── TESTIMONIALS ── */
+  .au-testi-track{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;background:var(--au-line)}
+  @media(max-width:900px){.au-testi-track{grid-template-columns:1fr}}
+  .au-testi{background:#fff;padding:44px 38px}
+  .au-testi .stars{color:var(--au-gold);font-size:.9rem;letter-spacing:2px;margin-bottom:20px}
+  .au-testi p{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.3rem;font-style:italic;line-height:1.55;color:var(--au-ink-2);margin:0 0 22px}
+  .au-testi .who{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--au-muted);font-weight:600}
+
+  /* ── FINAL CTA ── */
+  .au-final{padding:clamp(90px,11vw,140px) 0;text-align:center;background:#0c0c0c;color:#fff}
+  .au-final h2{font-family:'Fraunces',serif;font-weight:500;font-size:clamp(2.2rem,4.6vw,3.6rem);letter-spacing:-.02em;line-height:1.1;margin:0 0 1.2rem;color:#fff}
+  .au-final h2 em{font-style:italic;color:var(--au-gold-soft);font-weight:400}
+  .au-final p{font-family:'Cormorant Garamond',Georgia,serif;font-size:1.2rem;font-style:italic;color:#c9c6bd;max-width:520px;margin:0 auto 2.6rem}
+  .au-final .au-cta{background:var(--au-gold);border-color:var(--au-gold)}
+  .au-final .au-cta:hover{background:#c9a25c;border-color:#c9a25c}
+</style>
+
+<div class="au-page">
+
+  <!-- ─── HERO ─── -->
+  <section class="au-hero">
+    <div class="au-container">
+      <div class="au-hero-inner au-reveal">
+        <span class="au-eyebrow"><span class="dot"></span> The Atelier is Open</span>
+        <h1>{{ store.brand_name }}<br><em>Fine jewelry, considered.</em></h1>
+        {% if store.bio %}
+          <p class="au-lead">{{ store.bio }}</p>
+        {% else %}
+          <p class="au-lead">Pieces designed to be worn for decades, not seasons — crafted with quiet precision and a point of view.</p>
+        {% endif %}
+        {% if store.whatsapp %}
+          <div class="au-cta-row">
+            <a href="https://wa.me/{{ store.whatsapp }}" class="au-cta" target="_blank" rel="noopener">
+              <i class="bi bi-whatsapp"></i> Enquire on WhatsApp
+            </a>
+            <span class="au-cta-meta">A private line to our atelier · replies within minutes</span>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TRUST BAR ─── -->
+  <section class="au-trust">
+    <div class="au-container">
+      <div class="au-trust-row au-reveal">
+        <span class="au-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 2l2.9 6 6.6.9-4.8 4.6 1.1 6.5-5.8-3-5.8 3 1.1-6.5-4.8-4.6 6.6-.9z"/></svg> Handpicked materials</span>
+        <span class="au-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9 12l2 2 4-4"/><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg> Verified atelier · Waapfolio</span>
+        <span class="au-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg> Personal WhatsApp ordering</span>
+        <span class="au-trust-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Secure, private communication</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── COLLECTIONS ─── -->
+  <section class="au-section">
+    <div class="au-container">
+      <div class="au-section-head au-reveal">
+        <div class="au-section-head__left">
+          <div class="au-label">Shop by Occasion</div>
+          <h2 class="au-title">A collection for every chapter.</h2>
+        </div>
+        <p class="au-sub">From the everyday to the once-in-a-lifetime — three ways to begin.</p>
+      </div>
+
+      <div class="au-collections au-reveal">
+        <a class="au-collection" href="{% url 'store_product_list' store_slug=store.slug %}">
+          <div class="au-collection-body">
+            <span class="au-collection-eyebrow">Chapter One</span>
+            <h3 class="au-collection-name">Engagement</h3>
+            <span class="au-collection-arrow">Explore rings →</span>
+          </div>
+        </a>
+        <a class="au-collection" href="{% url 'store_product_list' store_slug=store.slug %}">
+          <div class="au-collection-body">
+            <span class="au-collection-eyebrow">Chapter Two</span>
+            <h3 class="au-collection-name">Wedding</h3>
+            <span class="au-collection-arrow">Explore bands →</span>
+          </div>
+        </a>
+        <a class="au-collection" href="{% url 'store_product_list' store_slug=store.slug %}">
+          <div class="au-collection-body">
+            <span class="au-collection-eyebrow">Chapter Three</span>
+            <h3 class="au-collection-name">Signature Pieces</h3>
+            <span class="au-collection-arrow">Explore the edit →</span>
+          </div>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FEATURED PRODUCTS ─── -->
+  <section class="au-section au-section--alt">
+    <div class="au-container">
+      <div class="au-section-head au-reveal">
+        <div class="au-section-head__left">
+          <div class="au-label">Featured</div>
+          <h2 class="au-title">New arrivals &amp; best sellers.</h2>
+        </div>
+        <p class="au-sub">A refined edit from {{ store.brand_name }} — handpicked, and ready to enquire about instantly.</p>
+      </div>
+
+      <div class="lux-grid">
+        {% for product in products|slice:":8" %}
+          <a href="{% url 'store_product_detail' store.slug product.slug %}" class="lux-card au-reveal">
+            <div class="media">
+              <span class="lux-badge">#{{ forloop.counter|stringformat:"02d" }}</span>
+              <button type="button" class="lux-fav" onclick="event.preventDefault();event.stopPropagation();this.classList.toggle('on');">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 1 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z"/></svg>
+              </button>
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              <span class="lux-quick">View Piece</span>
+            </div>
+            <div class="lux-info">
+              <div>
+                <h6 class="name">{{ product.name }}</h6>
+                <div class="meta">{{ store.brand_name }}</div>
+              </div>
+              <div class="lux-price">
+                {% if product.currency == "NGN" %}&#8358;{% elif product.currency == "USD" %}${% elif product.currency == "EUR" %}€{% elif product.currency == "GBP" %}£{% elif product.currency == "GHS" %}₵{% endif %}
+                {{ product.price|intcomma }}
+              </div>
+            </div>
+            <span class="lux-details">View Details →</span>
+          </a>
+        {% empty %}
+          <div style="grid-column:1/-1;">
+            <div class="lux-empty">
+              <div class="mark">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4"><path d="M6 7h12l-1.2 12.2a2 2 0 0 1-2 1.8H9.2a2 2 0 0 1-2-1.8L6 7z"/><path d="M9 7V5a3 3 0 0 1 6 0v2"/></svg>
+              </div>
+              <h3>No pieces yet</h3>
+              <p>Products will appear here once added to your store.</p>
+            </div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── BRAND STORY ─── -->
+  <section class="au-section">
+    <div class="au-container">
+      <div class="au-story au-reveal">
+        <div class="au-story-media">
+        {% if "http" in store.brand_logo.name %}
+            <img src="{{ store.brand_logo }}"
+                alt="{{ store.brand_name }}"
+                class="wf-logo">
+
+        {% elif store.brand_logo %}
+            <img src="{{ store.brand_logo.url }}"
+                alt="{{ store.brand_name }}"
+                class="wf-logo">
+
+        {% elif store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}"
+                alt="{{ store.brand_name }}"
+                class="wf-logo">
+
+        {% else %}
+            <span class="wf-mono">
+                {{ store.brand_name|first|upper }}
+            </span>
+        {% endif %}
+        </div>
+        <div class="au-story-copy">
+          <div class="au-label">Our Story</div>
+          <h2>Made slowly.<br><em>Worn forever.</em></h2>
+          <p>{{ store.display_about|default:"Every piece begins with an idea, not a trend — refined by hand until it earns its place in someone's story." }}</p>
+          <a class="au-cta" style="background:transparent;color:var(--au-ink);border-color:var(--au-ink);" href="{% url 'store_about' store_slug=store.slug %}">Read our story</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── CRAFTSMANSHIP / VALUES ─── -->
+  <section class="au-section au-section--alt">
+    <div class="au-container">
+      <div class="au-section-head au-reveal">
+        <div class="au-section-head__left">
+          <div class="au-label">Why {{ store.brand_name }}</div>
+          <h2 class="au-title">Built for trust. Made to last.</h2>
+        </div>
+        <p class="au-sub">Every order is handled personally — no checkout friction, no automated noise.</p>
+      </div>
+      <div class="au-values au-reveal">
+        <div class="au-value">
+          <div class="au-value-num">01</div>
+          <h3>Considered craftsmanship</h3>
+          <p>Every detail is reviewed and refined before it ever reaches you.</p>
+        </div>
+        <div class="au-value">
+          <div class="au-value-num">02</div>
+          <h3>Direct communication</h3>
+          <p>Speak to a real person from the first message — no bots, no scripts.</p>
+        </div>
+        <div class="au-value">
+          <div class="au-value-num">03</div>
+          <h3>Verified storefront</h3>
+          <p>Hosted on Waapfolio — a platform built for trusted, direct commerce.</p>
+        </div>
+        <div class="au-value">
+          <div class="au-value-num">04</div>
+          <h3>Secure ordering</h3>
+          <p>Your conversation and details stay within WhatsApp's encrypted channel.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── TESTIMONIALS ─── -->
+  <section class="au-section">
+    <div class="au-container">
+      <div class="au-section-head au-reveal">
+        <div class="au-section-head__left">
+          <div class="au-label">In Their Words</div>
+          <h2 class="au-title">Quietly loved.</h2>
+        </div>
+      </div>
+      <div class="au-testi-track au-reveal">
+        <div class="au-testi">
+          <div class="stars">★★★★★</div>
+          <p>"A piece that feels like it was made for me, not just made to sell. Impeccable quality."</p>
+          <div class="who">A Customer, Lagos</div>
+        </div>
+        <div class="au-testi">
+          <div class="stars">★★★★★</div>
+          <p>"Ordering over WhatsApp felt personal — like a private appointment, not a checkout page."</p>
+          <div class="who">A Customer, London</div>
+        </div>
+        <div class="au-testi">
+          <div class="stars">★★★★★</div>
+          <p>"The kind of jewelry you pass down. Understated, and genuinely beautiful in person."</p>
+          <div class="who">A Customer, Accra</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── FINAL CTA ─── -->
+  <section class="au-final">
+    <div class="au-container au-reveal">
+      <div class="au-label" style="color:var(--au-gold-soft);">Begin a Conversation</div>
+      <h2>Every piece starts<br><em>with a message.</em></h2>
+      <p>Tell us what you're looking for. We'll guide you through the collection, personally.</p>
+      {% if store.whatsapp %}
+        <a href="https://wa.me/{{ store.whatsapp }}" class="au-cta" target="_blank" rel="noopener">
+          <i class="bi bi-whatsapp"></i> Message {{ store.brand_name }}
+        </a>
+      {% endif %}
+    </div>
+  </section>
+
+</div>
+
+<script>
+  (function() {
+    if (!('IntersectionObserver' in window)) {
+      document.querySelectorAll('.au-reveal').forEach(function(el){ el.classList.add('is-visible'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries) {
+      entries.forEach(function(entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-visible');
+          io.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+    document.querySelectorAll('.au-reveal').forEach(function(el){ io.observe(el); });
+  })();
+</script>
+{% if store.logo %}
+<link rel="icon" type="image/png" href="{{ store.logo.url }}">
+<link rel="apple-touch-icon" href="{{ store.logo.url }}">
+{% endif %}
+{% endblock %}

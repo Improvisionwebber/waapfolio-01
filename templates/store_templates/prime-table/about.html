@@ -1,0 +1,186 @@
+{% extends "store_templates/prime-table/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}The House — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .pa-hero{position:relative;overflow:hidden;background:var(--pt-ink);color:var(--pt-ivory);padding:clamp(90px,13vw,160px) 0 clamp(56px,8vw,110px)}
+  .pa-hero img.bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.3}
+  .pa-hero__in{position:relative;z-index:2}
+  .pa-hero h1{font-size:clamp(2.9rem,9.5vw,7.4rem);color:var(--pt-ivory)}
+  .pa-hero h1 em{font-style:italic;color:var(--pt-gold)}
+  .pa-hero__row{display:grid;gap:clamp(24px,4vw,54px);grid-template-columns:1fr;margin-top:clamp(30px,4vw,52px);align-items:end}
+  @media(min-width:900px){.pa-hero__row{grid-template-columns:1.2fr .8fr}}
+  .pa-hero p{color:rgba(247,244,236,.7);max-width:52ch;margin:0}
+  .pa-mark{display:flex;align-items:center;gap:1rem}
+  .pa-mark__badge{width:74px;height:74px;flex:none;border-radius:50%;overflow:hidden;display:grid;place-items:center;background:rgba(247,244,236,.06);border:1px solid rgba(201,162,39,.4);color:var(--pt-gold);font-family:var(--pt-serif);font-size:1.7rem}
+  .pa-mark__badge img{width:100%;height:100%;object-fit:cover}
+  .pa-mark small{display:block;font-size:.6rem;letter-spacing:.32em;text-transform:uppercase;color:rgba(247,244,236,.55)}
+
+  .pa-sec{padding:clamp(64px,9vw,130px) 0}
+  .pa-split{display:grid;gap:clamp(30px,5vw,72px);grid-template-columns:1fr;align-items:center}
+  @media(min-width:960px){.pa-split{grid-template-columns:.95fr 1.05fr}}
+  .pa-frame{position:relative;overflow:hidden;border-radius:2px;box-shadow:var(--pt-shadow);aspect-ratio:4/5}
+  .pa-frame img{width:100%;height:100%;object-fit:cover;transition:transform 1.4s var(--pt-ease)}
+  .pa-frame:hover img{transform:scale(1.05)}
+  .pa-quote{
+    position:absolute;left:0;bottom:0;right:22%;background:rgba(18,16,14,.9);color:var(--pt-cream);
+    padding:1.1rem 1.3rem;font-family:var(--pt-serif);font-style:italic;font-size:1.05rem;
+  }
+  .pa-body p{color:var(--pt-brown);margin-bottom:1rem}
+
+  .pa-stats{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--pt-line);border:1px solid var(--pt-line);border-radius:2px;overflow:hidden;margin-top:clamp(28px,4vw,44px)}
+  @media(min-width:700px){.pa-stats{grid-template-columns:repeat(4,1fr)}}
+  .pa-stats div{background:var(--pt-paper);padding:1.5rem 1.1rem}
+  .pa-stats b{display:block;font-family:var(--pt-serif);font-size:clamp(1.9rem,3.6vw,2.7rem);font-weight:400}
+  .pa-stats span{font-size:.58rem;letter-spacing:.28em;text-transform:uppercase;color:var(--pt-mute)}
+
+  .pa-values{display:grid;gap:1px;background:var(--pt-line);border-top:1px solid var(--pt-line);border-bottom:1px solid var(--pt-line);grid-template-columns:1fr}
+  @media(min-width:800px){.pa-values{grid-template-columns:repeat(3,1fr)}}
+  .pa-value{background:var(--pt-paper);padding:clamp(28px,4vw,48px)}
+  .pa-value i{font-size:1.4rem;color:var(--pt-bronze)}
+  .pa-value h3{font-size:1.55rem;margin:.9rem 0 .55rem}
+  .pa-value p{margin:0;color:var(--pt-brown);font-size:.94rem}
+
+  .pa-founder{background:var(--pt-walnut);color:var(--pt-cream)}
+  .pa-founder h2{color:var(--pt-cream)}
+  .pa-founder p{color:rgba(247,244,236,.72)}
+
+  .pa-strip{display:grid;gap:clamp(16px,2vw,26px);grid-template-columns:repeat(2,1fr)}
+  @media(min-width:1000px){.pa-strip{grid-template-columns:repeat(4,1fr)}}
+  .pa-strip a{display:block}
+  .pa-strip .m{overflow:hidden;aspect-ratio:1/1;border-radius:2px;background:var(--pt-cream)}
+  .pa-strip img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--pt-ease)}
+  .pa-strip a:hover img{transform:scale(1.06)}
+  .pa-strip h4{font-size:1.15rem;margin-top:.7rem}
+</style>
+
+<!-- HERO -->
+<header class="pa-hero">
+  <img class="bg" src="https://images.unsplash.com/photo-1592861956120-e524fc739696?auto=format&fit=crop&w=1900&q=80" alt="{{ store.brand_name }} dining room" loading="lazy">
+  <div class="pt-shell pa-hero__in">
+    <div class="pt-kicker is-light pt-rise">The house</div>
+    <h1 class="mt-3 pt-rise" data-d="1">Cooking with <em>memory</em></h1>
+    <div class="pa-hero__row">
+      <p class="pt-rise" data-d="2">
+        {{ store.display_about|default:"We built this room around one idea — that a meal should be remembered long after the plates are cleared. Fire, season and patience do the rest." }}
+      </p>
+      <div class="pa-mark pt-rise" data-d="3">
+        <span class="pa-mark__badge">
+          {% if store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+          {% elif store.brand_logo %}
+            <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+          {% else %}
+            {{ store.brand_name|first|upper }}
+          {% endif %}
+        </span>
+        <span>
+          <small>The house of</small>
+          <span style="font-family:var(--pt-serif);font-size:1.6rem">{{ store.brand_name }}</span>
+        </span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- STORY -->
+<section class="pa-sec">
+  <div class="pt-shell pa-split">
+    <div class="pa-frame pt-rise">
+      <img src="https://images.unsplash.com/photo-1556910103-1c02745aae4d?auto=format&fit=crop&w=1200&q=80" alt="Kitchen at work" loading="lazy">
+      <div class="pa-quote">“We cook what the morning gives us.”</div>
+    </div>
+    <div class="pa-body pt-rise" data-d="1">
+      <div class="pt-kicker">Our story</div>
+      <h2 class="mt-3" style="font-size:clamp(2rem,4.6vw,3.4rem)">A room, a hearth, and a standard we refuse to lower</h2>
+      <div class="mt-3">
+        <p>{{ store.bio|default:"What began as a single counter and one wood-fired oven is now a dining room where every seat has a view of the pass. The kitchen is deliberately small — it keeps us honest." }}</p>
+        <p>{{ store.display_mission|default:"Our mission is uncomplicated: source with care, cook with restraint, and serve with warmth. Nothing on the plate is there for decoration alone." }}</p>
+      </div>
+      <div class="pa-stats">
+        <div><b>12</b><span>Seats at the pass</span></div>
+        <div><b>40+</b><span>Local growers</span></div>
+        <div><b>7</b><span>Course tasting</span></div>
+        <div><b>1</b><span>Standard</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VALUES -->
+<section>
+  <div class="pa-values">
+    <div class="pa-value pt-rise">
+      <i class="bi bi-basket3"></i>
+      <h3>Sourced with names</h3>
+      <p>Every crate arrives from a grower, fisher or forager we know personally. If they have a poor week, the menu changes.</p>
+    </div>
+    <div class="pa-value pt-rise" data-d="1">
+      <i class="bi bi-fire"></i>
+      <h3>Cooked with fire</h3>
+      <p>Embers, cast iron and time. The hearth is the oldest tool in the kitchen and still the most exacting.</p>
+    </div>
+    <div class="pa-value pt-rise" data-d="2">
+      <i class="bi bi-hand-thumbs-up"></i>
+      <h3>Served with quiet</h3>
+      <p>Service that anticipates rather than interrupts. You should notice the meal, not the choreography around it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOUNDER -->
+<section class="pa-sec pa-founder">
+  <div class="pt-shell pa-split">
+    <div class="pa-body pt-rise">
+      <div class="pt-kicker is-light">The founder</div>
+      <h2 class="mt-3" style="font-size:clamp(2rem,4.4vw,3.2rem)">The hand behind the pass</h2>
+      <p class="mt-3">{{ store.display_founder|default:"Trained across small kitchens and long shifts, our founder opened this house to cook without compromise — a short menu, a full hearth and a team that cares about the last plate as much as the first." }}</p>
+      <div class="mt-4 d-flex flex-wrap gap-2">
+        <a class="pt-btn pt-btn--light" href="{% url 'store_product_list' store_slug=store.slug %}">See the menu</a>
+        {% if store.whatsapp %}
+          <a class="pt-btn pt-btn--gold" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Reserve a table</a>
+        {% endif %}
+      </div>
+    </div>
+    <div class="pa-frame pt-rise" data-d="1">
+      <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?auto=format&fit=crop&w=1200&q=80" alt="Chef portrait" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- DISH STRIP -->
+<section class="pa-sec">
+  <div class="pt-shell">
+    <div class="d-flex flex-wrap align-items-end justify-content-between gap-3 mb-4">
+      <div class="pt-rise">
+        <div class="pt-kicker">From our kitchen</div>
+        <h2 class="mt-3" style="font-size:clamp(1.9rem,4.2vw,3rem)">A taste of the current menu</h2>
+      </div>
+      <a class="pt-btn pt-btn--ghost pt-rise" href="{% url 'store_product_list' store_slug=store.slug %}">All plates</a>
+    </div>
+
+    <div class="pa-strip">
+      {% for product in products|slice:":4" %}
+        <a class="pt-rise" href="{% url 'store_product_detail' store.slug product.slug %}">
+          <div class="m">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+          </div>
+          <h4>{{ product.name }}</h4>
+          <span style="font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-mute)">Course {{ forloop.counter }}</span>
+        </a>
+      {% empty %}
+        <p style="color:var(--pt-mute)">Our plates will appear here once the menu is published.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

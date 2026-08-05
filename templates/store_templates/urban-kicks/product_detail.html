@@ -1,0 +1,484 @@
+{% extends "store_templates/urban-kicks/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} — {{ product.store.brand_name }}{% endblock %}
+
+{% block body %}
+
+<style>
+  /* ============================================================
+     URBAN KICKS • PRODUCT DETAIL
+  ============================================================ */
+  .ukd{position:relative;background:var(--uk-paper);padding-bottom:clamp(70px,10vw,130px)}
+
+  .ukd-crumbs{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:26px 0 0;
+    font-family:var(--uk-mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--uk-fog)
+  }
+  .ukd-crumbs a{transition:color .3s}
+  .ukd-crumbs a:hover{color:var(--uk-ink)}
+  .ukd-crumbs .now{color:var(--uk-ink)}
+
+  /* ---- HERO ---- */
+  .ukd-hero{
+    position:relative;display:grid;gap:clamp(30px,4.5vw,64px);grid-template-columns:1fr;
+    padding:clamp(28px,4vw,50px) 0 clamp(50px,7vw,90px)
+  }
+  @media(min-width:1000px){.ukd-hero{grid-template-columns:1.08fr .92fr;align-items:start}}
+
+  /* stage */
+  .ukd-stage{position:relative;perspective:1500px}
+  .ukd-stage__bg{
+    position:absolute;inset:-6% -4%;border-radius:32px;z-index:0;
+    background:radial-gradient(110% 80% at 50% 6%, #ffffff 0%, var(--uk-off) 46%, var(--uk-concrete) 100%);
+  }
+  .ukd-stage__ring{
+    position:absolute;left:50%;top:52%;width:78%;aspect-ratio:1/1;transform:translate(-50%,-50%);
+    border-radius:50%;border:1px dashed rgba(11,11,12,.12);z-index:1;pointer-events:none
+  }
+  .ukd-stage__halo{
+    position:absolute;left:50%;top:48%;width:66%;aspect-ratio:1/1;transform:translate(-50%,-50%);
+    border-radius:50%;background:radial-gradient(circle,rgba(201,84,31,.16) 0%,rgba(201,84,31,0) 70%);
+    z-index:1;animation:ukd-pulse 7s ease-in-out infinite
+  }
+  @keyframes ukd-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:.8}50%{transform:translate(-50%,-53%) scale(1.06);opacity:1}}
+  .ukd-plate{
+    position:absolute;left:50%;bottom:9%;width:62%;aspect-ratio:1/1;transform:translateX(-50%) rotateX(76deg);
+    border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.92) 0%,rgba(255,255,255,0) 68%);z-index:2
+  }
+  .ukd-drop-shadow{
+    position:absolute;left:50%;bottom:12%;width:46%;height:26px;transform:translateX(-50%);
+    border-radius:50%;background:radial-gradient(ellipse,rgba(11,11,12,.34) 0%,rgba(11,11,12,0) 70%);
+    filter:blur(9px);z-index:2;animation:ukd-shadow 6s ease-in-out infinite
+  }
+  @keyframes ukd-shadow{0%,100%{transform:translateX(-50%) scale(1);opacity:.7}50%{transform:translateX(-50%) scale(.88);opacity:.48}}
+  .ukd-frame{
+    position:relative;z-index:3;aspect-ratio:1/1;display:grid;place-items:center;padding:8%;
+    cursor:zoom-in;transform-style:preserve-3d
+  }
+  .ukd-frame img,.ukd-frame iframe{
+    width:100%;height:100%;object-fit:contain;border-radius:12px;
+    filter:drop-shadow(0 40px 40px rgba(11,11,12,.28));
+    animation:ukd-float 7s ease-in-out infinite;
+    transition:transform .9s var(--uk-ease)
+  }
+  @keyframes ukd-float{0%,100%{transform:translateY(0) rotate(-3deg)}50%{transform:translateY(-18px) rotate(-1deg)}}
+  .ukd-frame:hover img{transform:scale(1.05)}
+  .ukd-badge{
+    position:absolute;z-index:5;top:16px;left:16px;padding:9px 15px;border-radius:999px;
+    background:rgba(255,255,255,.68);backdrop-filter:blur(16px);border:1px solid rgba(255,255,255,.86);
+    font-family:var(--uk-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase
+  }
+  .ukd-zoomhint{
+    position:absolute;z-index:5;bottom:16px;right:16px;padding:9px 15px;border-radius:999px;
+    background:rgba(11,11,12,.85);color:#fff;font-family:var(--uk-mono);font-size:9px;
+    letter-spacing:.2em;text-transform:uppercase
+  }
+
+  .ukd-thumbs{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;position:relative;z-index:4}
+  .ukd-thumb{
+    width:74px;height:74px;border-radius:16px;overflow:hidden;border:1px solid var(--uk-line-2);
+    background:var(--uk-off);padding:8px;cursor:pointer;transition:all .45s var(--uk-ease)
+  }
+  .ukd-thumb img{width:100%;height:100%;object-fit:contain}
+  .ukd-thumb:hover{transform:translateY(-4px)}
+  .ukd-thumb.is-on{border-color:var(--uk-ink);box-shadow:0 16px 28px -20px rgba(11,11,12,.7)}
+
+  /* ---- INFO ---- */
+  .ukd-info{position:relative}
+  .ukd-title{font-size:clamp(34px,5.4vw,66px);letter-spacing:-.05em;text-transform:uppercase;margin:16px 0 0;line-height:.92}
+  .ukd-store{
+    display:inline-flex;align-items:center;gap:12px;margin-top:20px;padding:9px 16px 9px 9px;
+    border-radius:999px;border:1px solid var(--uk-line);background:var(--uk-off);
+    font-size:12.5px;transition:transform .4s var(--uk-ease)
+  }
+  .ukd-store:hover{transform:translateY(-2px)}
+  .ukd-store i.mark{
+    width:30px;height:30px;border-radius:50%;background:var(--uk-ink);color:#fff;display:grid;place-items:center;
+    font-family:var(--uk-display);font-style:normal;font-weight:800;font-size:12px
+  }
+  .ukd-price{
+    display:flex;align-items:baseline;gap:12px;margin:28px 0 0;
+    font-family:var(--uk-display);font-weight:800;letter-spacing:-.045em;font-size:clamp(30px,4.4vw,52px)
+  }
+  .ukd-price small{font-family:var(--uk-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--uk-fog);font-weight:400}
+  .ukd-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .ukd-note{
+    margin-top:18px;font-family:var(--uk-mono);font-size:10px;letter-spacing:.2em;
+    text-transform:uppercase;color:var(--uk-fog)
+  }
+
+  .ukd-specs{display:grid;gap:0;margin-top:34px;border-top:1px solid var(--uk-line-2)}
+  .ukd-spec{display:flex;justify-content:space-between;gap:18px;padding:14px 0;border-bottom:1px solid var(--uk-line)}
+  .ukd-spec span{font-family:var(--uk-mono);font-size:10px;letter-spacing:.24em;text-transform:uppercase;color:var(--uk-fog)}
+  .ukd-spec b{font-family:var(--uk-display);font-size:14px;letter-spacing:-.02em;text-align:right}
+
+  .ukd-sizes{display:flex;flex-wrap:wrap;gap:8px;margin-top:26px}
+  .ukd-size{
+    min-width:52px;padding:11px 8px;text-align:center;border-radius:14px;border:1px solid var(--uk-line-2);
+    background:#fff;font-family:var(--uk-mono);font-size:11px;cursor:pointer;transition:all .4s var(--uk-ease)
+  }
+  .ukd-size:hover{transform:translateY(-3px)}
+  .ukd-size.is-on{background:var(--uk-ink);color:#fff;border-color:var(--uk-ink)}
+
+  /* ---- DESCRIPTION ---- */
+  .ukd-sec{padding:clamp(50px,7vw,100px) 0 0}
+  .ukd-sec__head{margin-bottom:clamp(24px,3vw,40px)}
+  .ukd-sec__title{font-size:clamp(28px,4.6vw,58px);letter-spacing:-.05em;text-transform:uppercase;margin-top:14px}
+  .ukd-sec__title em{font-style:italic;font-weight:500;color:var(--uk-fog)}
+  .ukd-copy{
+    display:grid;gap:clamp(26px,4vw,60px);grid-template-columns:1fr;align-items:start
+  }
+  @media(min-width:900px){.ukd-copy{grid-template-columns:.9fr 1.1fr}}
+  .ukd-copy__body{font-size:15.5px;line-height:1.85;color:#4c4c4e;max-width:62ch}
+  .ukd-copy__body p{margin:0 0 1em}
+  .ukd-panel{
+    border-radius:24px;padding:clamp(24px,3vw,36px);background:var(--uk-off);border:1px solid var(--uk-line);
+    position:relative;overflow:hidden
+  }
+  .ukd-panel .uk-ring{width:320px;aspect-ratio:1/1;right:-120px;top:-100px}
+
+  /* ---- MEDIA STRIP ---- */
+  .ukd-strip{display:grid;gap:14px;grid-template-columns:repeat(2,1fr);margin-top:26px}
+  @media(min-width:900px){.ukd-strip{grid-template-columns:repeat(4,1fr)}}
+  .ukd-strip__cell{
+    border-radius:20px;overflow:hidden;aspect-ratio:1/1;background:var(--uk-off);border:1px solid var(--uk-line);
+    transition:transform .7s var(--uk-ease),box-shadow .7s var(--uk-ease);cursor:zoom-in
+  }
+  .ukd-strip__cell:hover{transform:translateY(-8px);box-shadow:var(--uk-shadow-float)}
+  .ukd-strip__cell img,.ukd-strip__cell iframe{width:100%;height:100%;object-fit:cover;border:0;display:block}
+
+  /* ---- COMMENTS ---- */
+  .ukd-notes{display:grid;gap:14px;margin-top:26px}
+  .ukd-note-card{
+    display:flex;gap:14px;padding:18px 20px;border-radius:20px;border:1px solid var(--uk-line);background:#fff
+  }
+  .ukd-avatar{
+    width:40px;height:40px;flex:0 0 auto;border-radius:50%;background:var(--uk-ink);color:#fff;
+    display:grid;place-items:center;font-family:var(--uk-display);font-weight:800;font-size:14px
+  }
+  .ukd-note-card h6{margin:0;font-family:var(--uk-display);font-size:14px;letter-spacing:-.02em}
+  .ukd-note-card time{font-family:var(--uk-mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--uk-fog)}
+  .ukd-note-card p{margin:8px 0 0;font-size:14px;color:#4c4c4e}
+  .ukd-form{margin-top:18px;border-radius:22px;border:1px solid var(--uk-line);background:var(--uk-off);padding:20px}
+  .ukd-form textarea{
+    width:100%;min-height:110px;border:1px solid var(--uk-line-2);border-radius:16px;padding:14px 16px;
+    background:#fff;font-family:var(--uk-sans);font-size:14.5px;resize:vertical;outline:none
+  }
+  .ukd-form textarea:focus{border-color:var(--uk-ink)}
+  .ukd-err{color:#b23a1c;font-size:12.5px;margin-top:8px}
+
+  /* ---- RELATED ---- */
+  .ukd-rel{display:grid;gap:clamp(18px,2.4vw,28px);grid-template-columns:repeat(2,1fr);margin-top:14px}
+  @media(min-width:1000px){.ukd-rel{grid-template-columns:repeat(4,1fr)}}
+  .ukd-rel__card{display:block;transform-style:preserve-3d}
+  .ukd-rel__frame{
+    position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/5;
+    background:linear-gradient(170deg,#fbfaf9 0%,var(--uk-concrete) 100%);
+    transition:transform .7s var(--uk-ease),box-shadow .7s var(--uk-ease)
+  }
+  .ukd-rel__card:hover .ukd-rel__frame{transform:translateY(-10px);box-shadow:var(--uk-shadow-float)}
+  .ukd-rel__frame img{
+    position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:12%;
+    transition:transform .9s var(--uk-ease);filter:drop-shadow(0 24px 20px rgba(11,11,12,.2))
+  }
+  .ukd-rel__card:hover .ukd-rel__frame img{transform:translateY(-8px) rotate(-4deg) scale(1.07)}
+  .ukd-rel__meta{display:flex;justify-content:space-between;gap:12px;padding:14px 4px 0}
+  .ukd-rel__meta b{font-family:var(--uk-display);font-size:14px;letter-spacing:-.02em}
+  .ukd-rel__meta span{font-family:var(--uk-display);font-weight:700;font-size:13.5px;white-space:nowrap}
+
+  /* ---- STICKY BAR (mobile) ---- */
+  .ukd-bar{
+    position:fixed;left:12px;right:12px;bottom:12px;z-index:1050;
+    display:flex;align-items:center;gap:12px;justify-content:space-between;
+    padding:12px 12px 12px 20px;border-radius:22px;
+    background:rgba(255,255,255,.78);backdrop-filter:blur(22px) saturate(180%);
+    border:1px solid rgba(255,255,255,.9);box-shadow:0 40px 60px -40px rgba(11,11,12,.6);
+    transform:translateY(140%);transition:transform .6s var(--uk-ease)
+  }
+  .ukd-bar.show{transform:none}
+  .ukd-bar b{font-family:var(--uk-display);font-size:16px;letter-spacing:-.03em}
+  .ukd-bar small{display:block;font-family:var(--uk-mono);font-size:9px;letter-spacing:.2em;text-transform:uppercase;color:var(--uk-fog)}
+  @media(min-width:1000px){.ukd-bar{display:none}}
+
+  /* ---- LIGHTBOX ---- */
+  .ukd-lb{
+    position:fixed;inset:0;z-index:2500;background:rgba(11,11,12,.92);display:none;
+    align-items:center;justify-content:center;padding:5vw
+  }
+  .ukd-lb.open{display:flex}
+  .ukd-lb img{max-width:92vw;max-height:86vh;object-fit:contain}
+  .ukd-lb__close{
+    position:absolute;top:22px;right:22px;width:44px;height:44px;border-radius:50%;
+    border:1px solid rgba(255,255,255,.24);background:rgba(255,255,255,.06);color:#fff;font-size:18px;cursor:pointer
+  }
+</style>
+
+<div class="ukd">
+  <div class="uk-shell">
+
+    <!-- ============ CRUMBS ============ -->
+    <nav class="ukd-crumbs uk-rev">
+      <a href="{% url 'store_home' store_slug=store.slug %}">Index</a><span>/</span>
+      <a href="{% url 'store_product_list' store_slug=store.slug %}">The Drop</a><span>/</span>
+      <span class="now">{{ product.name|truncatechars:34 }}</span>
+    </nav>
+
+    <!-- ============ HERO ============ -->
+    <section class="ukd-hero uk-stage3d">
+      <div class="ukd-stage uk-rev">
+        <div class="ukd-stage__bg"></div>
+        <div class="ukd-stage__ring"></div>
+        <div class="ukd-stage__halo"></div>
+        <div class="ukd-plate"></div>
+        <div class="ukd-drop-shadow"></div>
+
+        <span class="ukd-badge">Studio plate — {{ product.created_at|date:"M j, Y" }}</span>
+        <div class="ukd-frame" id="ukdFrame" data-tilt="8">
+          {% if product.image %}
+            <img id="ukdMain" src="{{ product.image.url }}" alt="{{ product.name }}">
+          {% elif product.image_url %}
+            <img id="ukdMain" src="{{ product.image_url }}" alt="{{ product.name }}">
+          {% else %}
+            <img id="ukdMain" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+          {% endif %}
+        </div>
+        <span class="ukd-zoomhint">Click to enlarge</span>
+
+        <div class="ukd-thumbs">
+          <button class="ukd-thumb is-on" type="button" data-src="{% if product.image %}{{ product.image.url }}{% elif product.image_url %}{{ product.image_url }}{% else %}{% static 'images/placeholder.png' %}{% endif %}">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+            {% endif %}
+          </button>
+          {% for img in product.extra_files.all %}
+            {% if img.image %}
+              <button class="ukd-thumb" type="button" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy"></button>
+            {% elif img.image_url %}
+              <button class="ukd-thumb" type="button" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt="{{ product.name }}" loading="lazy"></button>
+            {% endif %}
+          {% endfor %}
+        </div>
+      </div>
+
+      <!-- ---- INFO ---- -->
+      <div class="ukd-info uk-rev" data-d="1">
+        <span class="uk-kicker">{% if product.category %}{{ product.category.name }}{% else %}Archive silhouette{% endif %}</span>
+        <h1 class="ukd-title">{{ product.name }}</h1>
+
+        <a class="ukd-store" href="{{ product.store.get_absolute_url }}">
+          <i class="mark">{{ product.store.brand_name|slice:":1"|upper }}</i>
+          {{ product.store.brand_name|default:"Store" }}
+        </a>
+
+        {% if product.price %}
+          <div class="ukd-price">
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+            <small>Incl. studio packaging</small>
+          </div>
+        {% endif %}
+
+        <div class="ukd-sizes">
+          <button class="ukd-size" type="button">EU 39</button>
+          <button class="ukd-size" type="button">EU 40</button>
+          <button class="ukd-size is-on" type="button">EU 41</button>
+          <button class="ukd-size" type="button">EU 42</button>
+          <button class="ukd-size" type="button">EU 43</button>
+          <button class="ukd-size" type="button">EU 44</button>
+        </div>
+        <div class="ukd-note">Sizing guidance — message the atelier before ordering</div>
+
+        <div class="ukd-actions">
+          <a class="uk-btn" href="{% url 'add_to_cart' product.slug %}"><span>Add to bag</span> <i class="bi bi-bag" style="position:relative;z-index:2"></i></a>
+          {% if store.whatsapp %}
+            <a class="uk-btn uk-btn--ghost" href="{{ store.whatsapp }}" target="_blank" rel="noopener"><span>Ask about this pair</span></a>
+          {% else %}
+            <a class="uk-btn uk-btn--ghost" href="{% url 'store_contact' store_slug=store.slug %}"><span>Ask about this pair</span></a>
+          {% endif %}
+        </div>
+
+        <div class="ukd-specs">
+          <div class="ukd-spec"><span>Reference</span><b>{{ product.name|truncatechars:26 }}</b></div>
+          <div class="ukd-spec"><span>Listed</span><b>{{ product.created_at|date:"M j, Y" }}</b></div>
+          <div class="ukd-spec"><span>Condition</span><b>Inspected — 12 point</b></div>
+          <div class="ukd-spec"><span>Dispatch</span><b>Within 48 hours</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ DESCRIPTION ============ -->
+    <section class="ukd-sec">
+      <div class="ukd-sec__head uk-rev">
+        <span class="uk-kicker">The notes</span>
+        <h2 class="ukd-sec__title">Everything <em>we know</em></h2>
+      </div>
+      <div class="ukd-copy">
+        <div class="ukd-panel uk-rev">
+          <span class="uk-ring"></span>
+          <span class="uk-kicker">At a glance</span>
+          <div class="ukd-specs" style="margin-top:18px">
+            <div class="ukd-spec"><span>House</span><b>{{ product.store.brand_name|default:"Atelier" }}</b></div>
+            <div class="ukd-spec"><span>Category</span><b>{% if product.category %}{{ product.category.name }}{% else %}Archive{% endif %}</b></div>
+            <div class="ukd-spec"><span>Release</span><b>Small batch</b></div>
+          </div>
+        </div>
+        <div class="ukd-copy__body uk-rev" data-d="1">
+          {{ product.description|default:"A considered silhouette, inspected and photographed in studio. Reach out on WhatsApp for material notes, sizing guidance and condition detail before you order."|linebreaks }}
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ EXTRA MEDIA ============ -->
+    {% if product.extra_files.all or product.media.all %}
+    <section class="ukd-sec">
+      <div class="ukd-sec__head uk-rev">
+        <span class="uk-kicker">Angles</span>
+        <h2 class="ukd-sec__title">From every <em>side</em></h2>
+      </div>
+      <div class="ukd-strip">
+        {% for img in product.extra_files.all %}
+          {% if img.image %}
+            <div class="ukd-strip__cell uk-rev" data-d="{{ forloop.counter0 }}" data-zoom="{{ img.image.url }}"><img src="{{ img.image.url }}" alt="{{ product.name }}" loading="lazy"></div>
+          {% elif img.image_url %}
+            <div class="ukd-strip__cell uk-rev" data-d="{{ forloop.counter0 }}" data-zoom="{{ img.image_url }}"><img src="{{ img.image_url }}" alt="{{ product.name }}" loading="lazy"></div>
+          {% endif %}
+        {% endfor %}
+        {% for y in product.media.all %}
+          {% if y.youtube_id %}
+            <div class="ukd-strip__cell uk-rev">
+              <iframe src="https://www.youtube.com/embed/{{ y.youtube_id }}" title="{{ product.name }}" allowfullscreen loading="lazy"></iframe>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </section>
+    {% endif %}
+
+    <!-- ============ NOTES / COMMENTS ============ -->
+    <section class="ukd-sec">
+      <div class="ukd-sec__head uk-rev">
+        <span class="uk-kicker">Conversation</span>
+        <h2 class="ukd-sec__title">Questions <em>on this pair</em></h2>
+      </div>
+
+      {% if comments %}
+        <div class="ukd-notes">
+          {% for c in comments %}
+            <div class="ukd-note-card uk-rev">
+              <span class="ukd-avatar">{{ c.user.username|slice:":1"|upper }}</span>
+              <div>
+                <h6>{{ c.user.username }}</h6>
+                <time>{{ c.created_at|timesince }} ago</time>
+                {{ c.text|linebreaks }}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p style="color:var(--uk-fog);font-size:14.5px">No notes yet on this pair.</p>
+      {% endif %}
+
+      {% if user.is_authenticated %}
+        <form class="ukd-form uk-rev" method="post" action="{{ request.path }}">
+          {% csrf_token %}
+          <textarea name="text" placeholder="Ask about fit, material or condition…">{% if form.text.value %}{{ form.text.value }}{% endif %}</textarea>
+          {% if form.text.errors %}<div class="ukd-err">{{ form.text.errors|join:", " }}</div>{% endif %}
+          <div style="margin-top:14px"><button class="uk-btn" type="submit"><span>Post note</span></button></div>
+        </form>
+      {% else %}
+        <div class="ukd-form uk-rev">
+          <p style="margin:0 0 14px;color:#4c4c4e;font-size:14.5px">Sign in to leave a note on this pair.</p>
+          <a class="uk-btn uk-btn--ghost" href="{% url 'login' %}"><span>Sign in</span></a>
+        </div>
+      {% endif %}
+    </section>
+
+    <!-- ============ RELATED ============ -->
+    <section class="ukd-sec uk-stage3d">
+      <div class="ukd-sec__head uk-rev">
+        <span class="uk-kicker">Continue</span>
+        <h2 class="ukd-sec__title">Pairs that <em>sit alongside</em></h2>
+      </div>
+      <div class="ukd-rel">
+        {% for product in products|slice:":4" %}
+          <a class="ukd-rel__card uk-rev" data-d="{{ forloop.counter0 }}" data-tilt="6" href="{{ product.get_absolute_url }}">
+            <div class="ukd-rel__frame">
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+            </div>
+            <div class="ukd-rel__meta">
+              <b>{{ product.name|truncatechars:22 }}</b>
+              <span>{% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}</span>
+            </div>
+          </a>
+        {% empty %}
+          <p style="color:var(--uk-fog)">No other pairs on the floor yet.</p>
+        {% endfor %}
+      </div>
+    </section>
+
+  </div>
+</div>
+
+<!-- STICKY BAR -->
+<div class="ukd-bar" id="ukdBar">
+  <div>
+    <b>{% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}</b>
+    <small>{{ product.name|truncatechars:22 }}</small>
+  </div>
+  <a class="uk-btn" href="{% url 'add_to_cart' product.slug %}"><span>Add to bag</span></a>
+</div>
+
+<!-- LIGHTBOX -->
+<div class="ukd-lb" id="ukdLb" aria-hidden="true">
+  <button class="ukd-lb__close" id="ukdLbClose" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+  <img id="ukdLbImg" src="" alt="{{ product.name }}">
+</div>
+
+<script>
+(function(){
+  var main=document.getElementById('ukdMain');
+  document.querySelectorAll('.ukd-thumb').forEach(function(t){
+    t.addEventListener('click',function(){
+      document.querySelectorAll('.ukd-thumb').forEach(function(x){x.classList.remove('is-on');});
+      t.classList.add('is-on');
+      if(main&&t.dataset.src){ main.style.opacity=0; setTimeout(function(){ main.src=t.dataset.src; main.style.opacity=1; },160); }
+    });
+  });
+  document.querySelectorAll('.ukd-size').forEach(function(s){
+    s.addEventListener('click',function(){
+      document.querySelectorAll('.ukd-size').forEach(function(x){x.classList.remove('is-on');});
+      s.classList.add('is-on');
+    });
+  });
+
+  var lb=document.getElementById('ukdLb'),lbImg=document.getElementById('ukdLbImg');
+  function open(src){ if(!src)return; lbImg.src=src; lb.classList.add('open'); lb.setAttribute('aria-hidden','false'); document.body.style.overflow='hidden'; }
+  function close(){ lb.classList.remove('open'); lb.setAttribute('aria-hidden','true'); document.body.style.overflow=''; }
+  var frame=document.getElementById('ukdFrame');
+  if(frame) frame.addEventListener('click',function(){ open(main&&main.src); });
+  document.querySelectorAll('.ukd-strip__cell[data-zoom]').forEach(function(c){
+    c.addEventListener('click',function(){ open(c.dataset.zoom); });
+  });
+  document.getElementById('ukdLbClose').addEventListener('click',close);
+  lb.addEventListener('click',function(e){ if(e.target===lb) close(); });
+  document.addEventListener('keydown',function(e){ if(e.key==='Escape') close(); });
+
+  var bar=document.getElementById('ukdBar');
+  document.addEventListener('scroll',function(){
+    if(window.scrollY>640) bar.classList.add('show'); else bar.classList.remove('show');
+  },{passive:true});
+})();
+</script>
+
+{% endblock %}

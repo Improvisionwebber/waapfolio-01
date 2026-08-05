@@ -1708,8 +1708,8 @@ h1,h2,h3,h4,h5 { font-family: var(--font-head); line-height: 1.08; font-weight: 
       <div class="hero-cta reveal delay-3">
         {% if user.is_authenticated %}
           {% if store %}
-            <a href="{{ store.get_absolute_url }}" class="btn btn-green btn-lg">
-              <i class="fas fa-arrow-up-right-from-square"></i> Visit My Store
+            <a href="{% url 'dashboard' %}" class="btn btn-green btn-lg">
+              <i class="fas fa-arrow-up-right-from-square"></i> Visit Your Dashboard
             </a>
           {% else %}
             <a href="{% url 'create_store' %}" class="btn btn-green btn-lg">

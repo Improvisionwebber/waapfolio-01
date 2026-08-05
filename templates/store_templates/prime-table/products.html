@@ -1,0 +1,199 @@
+{% extends "store_templates/prime-table/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}The Menu — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .pm-head{position:relative;overflow:hidden;background:var(--pt-ink);color:var(--pt-ivory);padding:clamp(80px,12vw,150px) 0 clamp(48px,7vw,90px)}
+  .pm-head img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:.28}
+  .pm-head__in{position:relative;z-index:2}
+  .pm-head h1{font-size:clamp(2.8rem,9vw,7rem);color:var(--pt-ivory)}
+  .pm-head h1 em{font-style:italic;color:var(--pt-gold)}
+  .pm-head p{color:rgba(247,244,236,.68);max-width:52ch;margin-top:1.2rem}
+  .pm-head__meta{display:flex;flex-wrap:wrap;gap:2.4rem;margin-top:clamp(28px,4vw,48px);padding-top:1.4rem;border-top:1px solid var(--pt-line-dark);font-size:.66rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(247,244,236,.55)}
+
+  .pm-bar{position:sticky;top:var(--pt-nav);z-index:1020;background:rgba(251,249,244,.93);backdrop-filter:blur(14px);border-bottom:1px solid var(--pt-line)}
+  .pm-bar__in{display:flex;align-items:center;gap:1rem;overflow-x:auto;padding:.9rem 0;scrollbar-width:none}
+  .pm-bar__in::-webkit-scrollbar{display:none}
+  .pm-chip{
+    flex:none;padding:.5rem 1.1rem;border:1px solid var(--pt-line);border-radius:999px;
+    font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--pt-brown);
+    background:transparent;cursor:pointer;transition:all .4s var(--pt-ease);
+  }
+  .pm-chip:hover{border-color:var(--pt-bronze);color:var(--pt-ink)}
+  .pm-chip.is-on{background:var(--pt-ink);border-color:var(--pt-ink);color:var(--pt-ivory)}
+  .pm-count{margin-left:auto;flex:none;font-size:.64rem;letter-spacing:.24em;text-transform:uppercase;color:var(--pt-mute);white-space:nowrap}
+
+  .pm-sec{padding:clamp(46px,7vw,96px) 0}
+  .pm-grid{display:grid;gap:clamp(24px,3vw,44px) clamp(20px,2.4vw,32px);grid-template-columns:1fr}
+  @media(min-width:600px){.pm-grid{grid-template-columns:repeat(2,1fr)}}
+  @media(min-width:1040px){.pm-grid{grid-template-columns:repeat(3,1fr)}}
+
+  .pm-card{display:flex;flex-direction:column;height:100%;position:relative}
+  .pm-card__media{position:relative;overflow:hidden;aspect-ratio:5/6;background:var(--pt-cream);border-radius:2px}
+  .pm-card__media img{width:100%;height:100%;object-fit:cover;transition:transform 1.3s var(--pt-ease)}
+  .pm-card:hover .pm-card__media img{transform:scale(1.06)}
+  .pm-card__tag{
+    position:absolute;top:14px;left:14px;padding:.35rem .8rem;border-radius:999px;
+    background:rgba(18,16,14,.82);color:var(--pt-gold);
+    font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;
+  }
+  .pm-card__cat{position:absolute;bottom:14px;left:14px;padding:.35rem .8rem;border-radius:999px;background:rgba(251,249,244,.9);color:var(--pt-walnut);font-size:.56rem;letter-spacing:.26em;text-transform:uppercase}
+  .pm-card__body{padding-top:1.15rem;display:flex;flex-direction:column;gap:.55rem;flex:1}
+  .pm-card__name{font-family:var(--pt-serif);font-size:1.6rem;line-height:1.12}
+  .pm-card__desc{font-size:.9rem;color:var(--pt-mute);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .pm-card__foot{margin-top:auto;padding-top:.9rem;border-top:1px solid var(--pt-line);display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .pm-card__price{font-family:var(--pt-serif);font-size:1.35rem;color:var(--pt-walnut)}
+  .pm-card__acts{display:grid;grid-template-columns:1fr auto;gap:.55rem;margin-top:.85rem}
+  .pm-card__view{
+    display:inline-grid;place-items:center;width:46px;border:1px solid var(--pt-line);border-radius:2px;
+    color:var(--pt-ink);transition:all .4s var(--pt-ease);
+  }
+  .pm-card__view:hover{background:var(--pt-ink);color:var(--pt-ivory);border-color:var(--pt-ink)}
+
+  .pm-empty{text-align:center;padding:clamp(60px,10vw,120px) 0;border:1px solid var(--pt-line);border-radius:2px;background:var(--pt-cream)}
+  .pm-empty h3{font-size:clamp(1.6rem,3.6vw,2.4rem)}
+
+  .pm-note{background:var(--pt-walnut);color:var(--pt-cream);border-radius:2px;padding:clamp(30px,4vw,54px);display:grid;gap:1.2rem;justify-items:start}
+  .pm-note h3{color:var(--pt-cream);font-size:clamp(1.6rem,3.4vw,2.4rem)}
+  .pm-note p{margin:0;color:rgba(247,244,236,.68);max-width:56ch}
+</style>
+
+<!-- ===== HEADER ===== -->
+<header class="pm-head">
+  <img src="https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?auto=format&fit=crop&w=1900&q=80" alt="Chef plating a dish" loading="lazy">
+  <div class="pt-shell pm-head__in">
+    <div class="pt-kicker is-light pt-rise">The menu</div>
+    <h1 class="mt-3 pt-rise" data-d="1">Written by <em>the season</em></h1>
+    <p class="pt-rise" data-d="2">
+      Each plate is prepared to order. Add what draws you to your tray and our team will complete the rest of your order personally.
+    </p>
+    <div class="pm-head__meta pt-rise" data-d="3">
+      <span>{{ products|length }} Plate{{ products|length|pluralize }}</span>
+      <span>Lunch &amp; Dinner</span>
+      <span>Open fire kitchen</span>
+    </div>
+  </div>
+</header>
+
+<!-- ===== CATEGORY BAR ===== -->
+<div class="pm-bar">
+  <div class="pt-shell pm-bar__in" id="pmBar">
+    <button class="pm-chip is-on" type="button" data-cat="all">All plates</button>
+    {% for product in products %}
+      {% if product.category %}
+        <button class="pm-chip pm-chip--dyn" type="button" data-cat="{{ product.category.name|slugify }}">{{ product.category.name }}</button>
+      {% endif %}
+    {% endfor %}
+    <span class="pm-count" id="pmCount">{{ products|length }} showing</span>
+  </div>
+</div>
+
+<!-- ===== GRID ===== -->
+<section class="pm-sec">
+  <div class="pt-shell">
+    {% if products %}
+      <div class="pm-grid" id="pmGrid">
+        {% for product in products %}
+          <article class="pm-card pt-rise" data-cat="{% if product.category %}{{ product.category.name|slugify }}{% else %}uncategorised{% endif %}">
+            <a class="pm-card__media" href="{% url 'store_product_detail' store.slug product.slug %}">
+              {% if product.is_featured %}<span class="pm-card__tag">Chef's pick</span>{% endif %}
+              {% if product.image %}
+                <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+              {% elif product.image_url %}
+                <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+              {% else %}
+                <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+              {% endif %}
+              {% if product.category %}<span class="pm-card__cat">{{ product.category.name }}</span>{% endif %}
+            </a>
+            <div class="pm-card__body">
+              <a class="pm-card__name" href="{% url 'store_product_detail' store.slug product.slug %}">{{ product.name }}</a>
+              {% if product.description %}
+                <p class="pm-card__desc">{{ product.description|striptags|truncatewords:18 }}</p>
+              {% endif %}
+              <div class="pm-card__foot">
+                <span class="pm-card__price">
+                  {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+                </span>
+                <span style="font-size:.6rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-mute)">Served hot</span>
+              </div>
+              <div class="pm-card__acts">
+                <form action="{% url 'add_to_cart' product.slug %}" method="post">
+                  {% csrf_token %}
+                  <button type="submit" class="pt-btn pt-btn--wide"><i class="bi bi-bag-plus"></i> Add to tray</button>
+                </form>
+                <a class="pm-card__view" href="{% url 'store_product_detail' store.slug product.slug %}" aria-label="View {{ product.name }}">
+                  <i class="bi bi-arrow-up-right"></i>
+                </a>
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div class="pm-empty">
+        <div class="pt-kicker justify-content-center">Kitchen closed</div>
+        <h3 class="mt-3">No plates are published yet</h3>
+        <p class="pt-lead mx-auto mt-2" style="text-align:center">
+          Our menu is being written. Please return shortly, or message us for tonight's availability.
+        </p>
+        <div class="mt-4">
+          <a class="pt-btn" href="{% url 'store_contact' store_slug=store.slug %}">Talk to the house</a>
+        </div>
+      </div>
+    {% endif %}
+  </div>
+</section>
+
+<!-- ===== NOTE ===== -->
+<section class="pt-shell" style="padding-bottom:clamp(30px,5vw,60px)">
+  <div class="pm-note pt-rise">
+    <div class="pt-kicker is-light">Dietary notes</div>
+    <h3>Tell us before you sit</h3>
+    <p>Allergies, intolerances and preferences are handled quietly and completely. Share them when you place your order and the kitchen will adapt the course.</p>
+    {% if store.whatsapp %}
+      <a class="pt-btn pt-btn--light" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Message the kitchen</a>
+    {% else %}
+      <a class="pt-btn pt-btn--light" href="{% url 'store_contact' store_slug=store.slug %}">Contact the kitchen</a>
+    {% endif %}
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function(){
+    var bar = document.getElementById('pmBar');
+    var grid = document.getElementById('pmGrid');
+    var count = document.getElementById('pmCount');
+    if(!bar || !grid) return;
+
+    // de-duplicate repeated category chips
+    var seen = {};
+    Array.prototype.forEach.call(bar.querySelectorAll('.pm-chip--dyn'), function(chip){
+      var key = chip.getAttribute('data-cat');
+      if(seen[key]){ chip.remove(); return; }
+      seen[key] = true;
+    });
+
+    var cards = Array.prototype.slice.call(grid.querySelectorAll('.pm-card'));
+    bar.addEventListener('click', function(e){
+      var chip = e.target.closest('.pm-chip');
+      if(!chip) return;
+      Array.prototype.forEach.call(bar.querySelectorAll('.pm-chip'), function(c){ c.classList.remove('is-on'); });
+      chip.classList.add('is-on');
+      var cat = chip.getAttribute('data-cat');
+      var shown = 0;
+      cards.forEach(function(card){
+        var ok = (cat === 'all') || (card.getAttribute('data-cat') === cat);
+        card.style.display = ok ? '' : 'none';
+        if(ok) shown++;
+      });
+      if(count) count.textContent = shown + ' showing';
+    });
+  })();
+</script>
+{% endblock %}

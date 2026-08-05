@@ -1,0 +1,281 @@
+{% extends "store_templates/urban-kicks/base.html" %}
+{% load static %}
+
+{% block title %}Atelier — {{ store.brand_name }}{% endblock %}
+
+{% block body %}
+
+<style>
+  .uka{position:relative;background:var(--uk-paper)}
+
+  /* HERO */
+  .uka-hero{
+    position:relative;overflow:hidden;padding:clamp(60px,9vw,130px) 0 clamp(50px,7vw,90px);
+    background:linear-gradient(180deg,#fff 0%,var(--uk-off) 100%);border-bottom:1px solid var(--uk-line)
+  }
+  .uka-hero .uk-orb{width:560px;height:560px;background:var(--uk-flare);opacity:.13;top:-200px;left:-140px}
+  .uka-hero .uk-ring{width:680px;aspect-ratio:1/1;top:-150px;right:-120px;border-style:dashed;border-color:rgba(11,11,12,.09)}
+  .uka-hero__grid{position:relative;z-index:2;display:grid;gap:34px;align-items:end}
+  @media(min-width:960px){.uka-hero__grid{grid-template-columns:1.3fr .7fr}}
+  .uka-hero h1{font-size:clamp(50px,10.5vw,148px);letter-spacing:-.055em;text-transform:uppercase;line-height:.85;margin-top:20px}
+  .uka-hero h1 em{font-style:italic;font-weight:500;color:var(--uk-flare)}
+  .uka-hero p{color:#5b5b5d;font-size:15.5px;line-height:1.8;max-width:40ch}
+
+  /* MARK */
+  .uka-mark{
+    width:120px;height:120px;border-radius:50%;overflow:hidden;display:grid;place-items:center;
+    background:var(--uk-ink);color:#fff;font-family:var(--uk-display);font-weight:900;font-size:40px;
+    box-shadow:var(--uk-shadow-float);margin-bottom:26px
+  }
+  .uka-mark img{width:100%;height:100%;object-fit:cover}
+
+  .uka-sec{position:relative;padding:clamp(70px,10vw,130px) 0}
+  .uka-title{font-size:clamp(32px,5.6vw,74px);letter-spacing:-.05em;text-transform:uppercase;margin-top:16px}
+  .uka-title em{font-style:italic;font-weight:500;color:var(--uk-fog)}
+  .uka-body{font-size:15.5px;line-height:1.85;color:#4c4c4e;max-width:58ch}
+
+  /* STORY SPLIT */
+  .uka-split{display:grid;gap:clamp(30px,5vw,68px);grid-template-columns:1fr;align-items:center}
+  @media(min-width:960px){.uka-split{grid-template-columns:1fr 1fr}}
+  .uka-stack{position:relative;height:clamp(340px,48vw,540px);perspective:1400px}
+  .uka-pane{position:absolute;border-radius:24px;overflow:hidden;box-shadow:var(--uk-shadow-float);background:var(--uk-off)}
+  .uka-pane img{width:100%;height:100%;object-fit:cover}
+  .uka-pane.p1{inset:0 24% 20% 0;z-index:2}
+  .uka-pane.p2{width:50%;aspect-ratio:3/4;right:0;bottom:0;z-index:3}
+  .uka-pane.p3{width:34%;aspect-ratio:1/1;left:6%;bottom:-4%;z-index:4;border:6px solid #fff}
+
+  /* PILLARS */
+  .uka-pillars{display:grid;gap:0;border-top:1px solid var(--uk-line);border-left:1px solid var(--uk-line)}
+  @media(min-width:820px){.uka-pillars{grid-template-columns:repeat(3,1fr)}}
+  .uka-pillar{
+    position:relative;overflow:hidden;padding:clamp(26px,3.6vw,44px);
+    border-right:1px solid var(--uk-line);border-bottom:1px solid var(--uk-line);
+    transition:color .5s var(--uk-ease)
+  }
+  .uka-pillar::before{content:"";position:absolute;inset:0;background:var(--uk-ink);transform:translateY(101%);transition:transform .6s var(--uk-ease)}
+  .uka-pillar:hover::before{transform:none}
+  .uka-pillar>*{position:relative;z-index:2}
+  .uka-pillar b{display:block;font-family:var(--uk-display);font-size:clamp(20px,2.4vw,28px);letter-spacing:-.035em;text-transform:uppercase;margin:14px 0 10px}
+  .uka-pillar p{font-size:14px;color:#5b5b5d;line-height:1.7;margin:0}
+  .uka-pillar:hover b{color:#fff}
+  .uka-pillar:hover p{color:rgba(255,255,255,.62)}
+  .uka-pillar:hover .uk-kicker{color:var(--uk-flare)}
+  .uka-pillar i{
+    font-style:normal;font-family:var(--uk-display);font-weight:900;font-size:52px;letter-spacing:-.05em;
+    color:transparent;-webkit-text-stroke:1px rgba(11,11,12,.14);display:block
+  }
+  .uka-pillar:hover i{-webkit-text-stroke-color:rgba(255,255,255,.24)}
+
+  /* WORKSHOP TIMELINE */
+  .uka-time{border-top:1px solid var(--uk-line-2)}
+  .uka-step{
+    display:grid;grid-template-columns:auto 1fr;gap:20px;padding:clamp(20px,3vw,34px) 0;
+    border-bottom:1px solid var(--uk-line);transition:padding-left .6s var(--uk-ease)
+  }
+  .uka-step:hover{padding-left:14px}
+  .uka-step__n{font-family:var(--uk-mono);font-size:10px;letter-spacing:.24em;color:var(--uk-fog);padding-top:8px}
+  .uka-step h4{font-size:clamp(20px,3.2vw,38px);text-transform:uppercase;letter-spacing:-.045em}
+  .uka-step p{margin:10px 0 0;color:#5b5b5d;font-size:14.5px;max-width:52ch;line-height:1.7}
+
+  /* FLOOR STRIP */
+  .uka-floor{display:grid;gap:clamp(16px,2.2vw,26px);grid-template-columns:repeat(2,1fr)}
+  @media(min-width:1000px){.uka-floor{grid-template-columns:repeat(4,1fr)}}
+  .uka-floor__cell{
+    position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/5;
+    background:linear-gradient(170deg,#fbfaf9,var(--uk-concrete));
+    transition:transform .7s var(--uk-ease),box-shadow .7s var(--uk-ease)
+  }
+  .uka-floor__cell:hover{transform:translateY(-10px);box-shadow:var(--uk-shadow-float)}
+  .uka-floor__cell img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;padding:12%;transition:transform .9s var(--uk-ease);filter:drop-shadow(0 24px 20px rgba(11,11,12,.2))}
+  .uka-floor__cell:hover img{transform:translateY(-8px) rotate(-4deg) scale(1.07)}
+  .uka-floor__cap{position:absolute;left:14px;bottom:14px;z-index:3;font-family:var(--uk-mono);font-size:9.5px;letter-spacing:.22em;text-transform:uppercase;color:var(--uk-char)}
+
+  /* FOUNDER */
+  .uka-founder{
+    position:relative;overflow:hidden;border-radius:30px;color:#fff;padding:clamp(34px,5vw,72px);
+    background:linear-gradient(140deg,#141416,#242427 48%,#0d0d0e)
+  }
+  .uka-founder .uk-orb{width:520px;height:520px;background:var(--uk-flare);opacity:.24;bottom:-230px;right:-130px}
+  .uka-founder h3{position:relative;font-size:clamp(28px,4.8vw,62px);text-transform:uppercase;letter-spacing:-.05em;margin:18px 0 20px}
+  .uka-founder h3 em{font-style:italic;font-weight:500;color:var(--uk-flare)}
+  .uka-founder p{position:relative;color:rgba(255,255,255,.66);max-width:52ch;font-size:15px;line-height:1.8}
+
+  .uka-cta{text-align:center;padding:clamp(60px,9vw,120px) 0;background:var(--uk-off);position:relative;overflow:hidden}
+  .uka-cta .uk-orb{width:520px;height:520px;background:var(--uk-flare);opacity:.14;top:-210px;left:50%;transform:translateX(-50%)}
+  .uka-cta h3{position:relative;font-size:clamp(30px,6vw,72px);text-transform:uppercase;letter-spacing:-.05em;margin:16px 0 20px}
+  .uka-cta h3 em{font-style:italic;font-weight:500;color:var(--uk-flare)}
+  .uka-cta p{position:relative;color:#5b5b5d;max-width:44ch;margin:0 auto 28px}
+</style>
+
+<div class="uka">
+
+  <!-- HERO -->
+  <section class="uka-hero">
+    <div class="uk-orb"></div>
+    <div class="uk-ring"></div>
+    <div class="uk-shell">
+      <div class="uka-hero__grid">
+        <div class="uk-rev">
+          <div class="uka-mark">
+            {% if store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
+              {% if "http" in store.brand_logo.name %}
+                <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+              {% else %}
+                <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+              {% endif %}
+            {% else %}
+              {{ store.brand_name|first|upper }}
+            {% endif %}
+          </div>
+          <span class="uk-kicker">Inside the atelier</span>
+          <h1>{{ store.brand_name }} <em>—</em><br>a sneaker house</h1>
+        </div>
+        <p class="uk-rev" data-d="1">
+          {% if store.bio %}{{ store.bio }}{% else %}A small team obsessed with proportion, material and the honest wear of a good pair. We source, inspect, photograph and release in limited runs.{% endif %}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- STORY -->
+  <section class="uka-sec">
+    <div class="uk-shell">
+      <div class="uka-split">
+        <div class="uka-stack uk-rev">
+          <div class="uka-pane p1" data-par="0.04">
+            {% for product in products|slice:":1" %}
+              {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">{% else %}<img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">{% endif %}
+            {% empty %}<img src="{% static 'images/placeholder.png' %}" alt="{{ store.brand_name }}" loading="lazy">{% endfor %}
+          </div>
+          <div class="uka-pane p2" data-par="-0.05">
+            {% for product in products|slice:"1:2" %}
+              {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">{% else %}<img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">{% endif %}
+            {% empty %}<img src="{% static 'images/placeholder.png' %}" alt="{{ store.brand_name }}" loading="lazy">{% endfor %}
+          </div>
+          <div class="uka-pane p3">
+            {% for product in products|slice:"2:3" %}
+              {% if product.image %}<img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">{% else %}<img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">{% endif %}
+            {% empty %}<img src="{% static 'images/placeholder.png' %}" alt="{{ store.brand_name }}" loading="lazy">{% endfor %}
+          </div>
+        </div>
+
+        <div class="uk-rev" data-d="1">
+          <span class="uk-kicker">Our story</span>
+          <h2 class="uka-title">Built slowly, <em>on purpose</em></h2>
+          <div class="uka-body" style="margin-top:22px">
+            {% if store.display_about %}
+              <p>{{ store.display_about }}</p>
+            {% else %}
+              <p>We started with a single shelf and a stubborn belief: a sneaker floor should feel like a gallery, not a warehouse. Every pair that reaches us is inspected by hand, photographed on the same plate and released only when we would wear it ourselves.</p>
+            {% endif %}
+          </div>
+          <div style="margin-top:28px">
+            <a class="uk-btn" href="{% url 'store_product_list' store_slug=store.slug %}"><span>See the floor</span></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PILLARS -->
+  <section class="uka-sec" style="padding-top:0">
+    <div class="uk-shell">
+      <div class="uka-pillars uk-rev">
+        <div class="uka-pillar">
+          <i>01</i><span class="uk-kicker">Sourcing</span>
+          <b>Verified, always</b>
+          <p>Every pair is traced, inspected and documented before it is listed. No guesswork, no grey areas.</p>
+        </div>
+        <div class="uka-pillar">
+          <i>02</i><span class="uk-kicker">Craft</span>
+          <b>Material first</b>
+          <p>We judge leather, mesh and foam the way a workshop does — by hand, in daylight, over time.</p>
+        </div>
+        <div class="uka-pillar">
+          <i>03</i><span class="uk-kicker">Service</span>
+          <b>One conversation</b>
+          <p>A real person answers. Sizing, condition, dispatch — all handled directly, usually within the hour.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MISSION / TIMELINE -->
+  <section class="uka-sec" style="padding-top:0">
+    <div class="uk-shell">
+      <div style="margin-bottom:clamp(28px,4vw,52px)" class="uk-rev">
+        <span class="uk-kicker">The workshop process</span>
+        <h2 class="uka-title">Four steps, <em>no shortcuts</em></h2>
+        {% if store.display_mission %}
+          <p class="uka-body" style="margin-top:20px">{{ store.display_mission }}</p>
+        {% endif %}
+      </div>
+
+      <div class="uka-time">
+        <div class="uka-step uk-rev"><span class="uka-step__n">01</span><div><h4>Source</h4><p>We track silhouettes across trusted channels and only bring in what we can verify end to end.</p></div></div>
+        <div class="uka-step uk-rev" data-d="1"><span class="uka-step__n">02</span><div><h4>Inspect</h4><p>A twelve point check — stitching, midsole, insole, box, tags. Anything short of standard is returned.</p></div></div>
+        <div class="uka-step uk-rev" data-d="2"><span class="uka-step__n">03</span><div><h4>Photograph</h4><p>Same plate, same light, no retouching. What you see is exactly the pair that ships.</p></div></div>
+        <div class="uka-step uk-rev" data-d="3"><span class="uka-step__n">04</span><div><h4>Release</h4><p>Small batches, dispatched in studio packaging within forty eight hours of confirmation.</p></div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FLOOR PREVIEW -->
+  <section class="uka-sec uk-stage3d" style="padding-top:0">
+    <div class="uk-shell">
+      <div style="margin-bottom:clamp(24px,3.4vw,44px)" class="uk-rev">
+        <span class="uk-kicker">On the floor now</span>
+        <h2 class="uka-title">A short <em>preview</em></h2>
+      </div>
+      <div class="uka-floor">
+        {% for product in products|slice:":4" %}
+          <a class="uka-floor__cell uk-rev" data-d="{{ forloop.counter }}" data-tilt="6" href="{{ product.get_absolute_url }}">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+            <span class="uka-floor__cap">{{ product.name|truncatechars:20 }}</span>
+          </a>
+        {% empty %}
+          <p style="color:var(--uk-fog)">Pairs are being staged for the next release.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  <!-- FOUNDER -->
+  <section class="uka-sec" style="padding-top:0">
+    <div class="uk-shell">
+      <div class="uka-founder uk-rev">
+        <div class="uk-orb"></div>
+        <span class="uk-kicker" style="color:rgba(255,255,255,.55)">Founder's note</span>
+        <h3>“We only list what <em>we would wear</em>”</h3>
+        <p>
+          {% if store.display_founder %}{{ store.display_founder }}{% else %}Every release passes through my hands before it reaches the floor. If the shape is off, the leather is tired or the box tells a different story than the shoe, it does not go up. That is the whole standard.{% endif %}
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="uka-cta">
+    <div class="uk-orb"></div>
+    <div class="uk-shell">
+      <span class="uk-kicker">Say hello</span>
+      <h3>Come find <em>your pair</em></h3>
+      <p>The atelier answers directly — sizing advice, sourcing requests, or just a conversation about shoes.</p>
+      <div style="display:flex;gap:14px;justify-content:center;flex-wrap:wrap">
+        {% if store.whatsapp %}
+          <a class="uk-btn" href="{{ store.whatsapp }}" target="_blank" rel="noopener"><span>Message the atelier</span></a>
+        {% endif %}
+        <a class="uk-btn uk-btn--ghost" href="{% url 'store_contact' store_slug=store.slug %}"><span>Contact page</span></a>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+{% endblock %}

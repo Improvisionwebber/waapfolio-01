@@ -1,0 +1,293 @@
+{% extends "store_templates/prime-table/base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} — {{ product.store.brand_name|default:store.brand_name }}{% endblock %}
+
+{% block body %}
+<style>
+  .pd-wrap{padding:clamp(26px,4vw,56px) 0 0}
+  .pd-crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.6rem;font-size:.62rem;letter-spacing:.24em;text-transform:uppercase;color:var(--pt-mute);margin-bottom:clamp(24px,3.4vw,44px)}
+  .pd-crumbs a:hover{color:var(--pt-ink)}
+  .pd-crumbs .now{color:var(--pt-ink)}
+
+  .pd-top{display:grid;gap:clamp(28px,4vw,64px);grid-template-columns:1fr;align-items:start}
+  @media(min-width:992px){.pd-top{grid-template-columns:1.05fr .95fr}}
+
+  .pd-stage{position:relative;overflow:hidden;aspect-ratio:4/5;background:var(--pt-cream);border-radius:2px;box-shadow:var(--pt-shadow)}
+  @media(max-width:600px){.pd-stage{aspect-ratio:1/1}}
+  .pd-stage img,.pd-stage iframe{width:100%;height:100%;object-fit:cover;border:0;display:block;transition:transform 1.4s var(--pt-ease)}
+  .pd-stage:hover img{transform:scale(1.04)}
+  .pd-stage__tag{position:absolute;top:16px;left:16px;padding:.4rem .9rem;border-radius:999px;background:rgba(18,16,14,.84);color:var(--pt-gold);font-size:.56rem;letter-spacing:.28em;text-transform:uppercase;z-index:2}
+  .pd-thumbs{display:flex;gap:10px;margin-top:12px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+  .pd-thumbs::-webkit-scrollbar{display:none}
+  .pd-thumb{flex:none;width:78px;height:92px;overflow:hidden;border:1px solid var(--pt-line);border-radius:2px;background:var(--pt-cream);cursor:pointer;transition:border-color .4s var(--pt-ease),opacity .4s var(--pt-ease);opacity:.72}
+  .pd-thumb img{width:100%;height:100%;object-fit:cover}
+  .pd-thumb.is-on,.pd-thumb:hover{border-color:var(--pt-bronze);opacity:1}
+  .pd-thumb--yt{display:grid;place-items:center;color:var(--pt-walnut);font-size:1.2rem}
+
+  .pd-name{font-size:clamp(2.1rem,5.6vw,4rem);letter-spacing:-.02em}
+  .pd-cat{font-size:.62rem;letter-spacing:.3em;text-transform:uppercase;color:var(--pt-bronze)}
+  .pd-price{font-family:var(--pt-serif);font-size:clamp(1.8rem,4vw,2.6rem);color:var(--pt-walnut)}
+  .pd-desc{color:var(--pt-brown);font-size:1rem}
+  .pd-desc p{margin-bottom:.9rem}
+  .pd-line{height:1px;background:var(--pt-line);margin:clamp(20px,3vw,32px) 0}
+
+  .pd-facts{display:grid;grid-template-columns:repeat(2,1fr);gap:1px;background:var(--pt-line);border:1px solid var(--pt-line);border-radius:2px;overflow:hidden}
+  @media(min-width:560px){.pd-facts{grid-template-columns:repeat(4,1fr)}}
+  .pd-facts div{background:var(--pt-paper);padding:1.05rem .9rem}
+  .pd-facts b{display:block;font-family:var(--pt-serif);font-size:1.15rem;font-weight:400;color:var(--pt-ink)}
+  .pd-facts span{font-size:.56rem;letter-spacing:.26em;text-transform:uppercase;color:var(--pt-mute)}
+
+  .pd-buy{display:grid;gap:.7rem;grid-template-columns:1fr;margin-top:1.4rem}
+  @media(min-width:520px){.pd-buy{grid-template-columns:1fr 1fr}}
+
+  .pd-panels{display:grid;gap:clamp(18px,2.4vw,28px);grid-template-columns:1fr;margin-top:clamp(46px,7vw,90px)}
+  @media(min-width:860px){.pd-panels{grid-template-columns:repeat(3,1fr)}}
+  .pd-panel{background:var(--pt-cream);border-radius:2px;padding:clamp(24px,3vw,36px);height:100%}
+  .pd-panel i{font-size:1.3rem;color:var(--pt-bronze)}
+  .pd-panel h4{font-size:1.35rem;margin:.8rem 0 .5rem}
+  .pd-panel p{margin:0;font-size:.92rem;color:var(--pt-brown)}
+
+  .pd-sec{padding:clamp(56px,8vw,110px) 0}
+  .pd-sec__head{display:flex;flex-wrap:wrap;align-items:end;justify-content:space-between;gap:1.2rem;margin-bottom:clamp(26px,4vw,46px)}
+  .pd-sec__head h2{font-size:clamp(1.8rem,4.4vw,3rem)}
+
+  /* comments */
+  .pd-note{background:var(--pt-paper);border:1px solid var(--pt-line);border-radius:2px;padding:clamp(22px,3vw,34px)}
+  .pd-note textarea{
+    width:100%;min-height:118px;resize:vertical;border:1px solid var(--pt-line);border-radius:2px;
+    background:#fff;padding:.95rem 1.05rem;font-family:var(--pt-sans);font-size:.95rem;color:var(--pt-ink);
+  }
+  .pd-note textarea:focus{outline:none;border-color:var(--pt-bronze);box-shadow:0 0 0 3px rgba(166,124,71,.12)}
+  .pd-c{display:flex;gap:1rem;padding:1.35rem 0;border-bottom:1px solid var(--pt-line)}
+  .pd-c__av{width:44px;height:44px;flex:none;border-radius:50%;display:grid;place-items:center;background:var(--pt-ink);color:var(--pt-gold);font-family:var(--pt-serif);font-size:1.05rem}
+  .pd-c__who{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--pt-mute)}
+  .pd-c__txt{color:var(--pt-brown);font-size:.96rem}
+  .pd-c__txt p{margin:.3rem 0 0}
+
+  /* related */
+  .pd-rel{display:grid;gap:clamp(18px,2.4vw,30px);grid-template-columns:repeat(2,1fr)}
+  @media(min-width:1000px){.pd-rel{grid-template-columns:repeat(4,1fr)}}
+  .pd-rel__card .m{overflow:hidden;aspect-ratio:4/5;background:var(--pt-cream);border-radius:2px}
+  .pd-rel__card img{width:100%;height:100%;object-fit:cover;transition:transform 1.2s var(--pt-ease)}
+  .pd-rel__card:hover img{transform:scale(1.06)}
+  .pd-rel__card h4{font-size:1.2rem;margin-top:.8rem}
+  .pd-rel__card span{font-family:var(--pt-serif);color:var(--pt-walnut)}
+</style>
+
+<div class="pt-shell pd-wrap">
+  <nav class="pd-crumbs">
+    <a href="{% url 'store_home' store_slug=store.slug %}">Home</a><span>/</span>
+    <a href="{% url 'store_product_list' store_slug=store.slug %}">Menu</a><span>/</span>
+    <span class="now">{{ product.name }}</span>
+  </nav>
+
+  <div class="pd-top">
+    <!-- GALLERY -->
+    <div class="pt-rise">
+      <div class="pd-stage" id="pdStage">
+        {% if product.is_featured %}<span class="pd-stage__tag">Chef's pick</span>{% endif %}
+        {% if product.image %}
+          <img id="pdMain" src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% elif product.image_url %}
+          <img id="pdMain" src="{{ product.image_url }}" alt="{{ product.name }}">
+        {% else %}
+          <img id="pdMain" src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}">
+        {% endif %}
+      </div>
+
+      <div class="pd-thumbs">
+        {% if product.image %}
+          <button type="button" class="pd-thumb is-on" data-src="{{ product.image.url }}"><img src="{{ product.image.url }}" alt="{{ product.name }}"></button>
+        {% elif product.image_url %}
+          <button type="button" class="pd-thumb is-on" data-src="{{ product.image_url }}"><img src="{{ product.image_url }}" alt="{{ product.name }}"></button>
+        {% endif %}
+        {% for img in product.extra_files.all %}
+          {% if img.image %}
+            <button type="button" class="pd-thumb" data-src="{{ img.image.url }}"><img src="{{ img.image.url }}" alt="{{ product.name }} detail" loading="lazy"></button>
+          {% elif img.image_url %}
+            <button type="button" class="pd-thumb" data-src="{{ img.image_url }}"><img src="{{ img.image_url }}" alt="{{ product.name }} detail" loading="lazy"></button>
+          {% endif %}
+        {% endfor %}
+        {% for y in product.media.all %}
+          {% if y.youtube_id %}
+            <button type="button" class="pd-thumb pd-thumb--yt" data-yt="{{ y.youtube_id }}" aria-label="Play video"><i class="bi bi-play-circle"></i></button>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- DETAILS -->
+    <div class="pt-rise" data-d="1">
+      {% if product.category %}<div class="pd-cat">{{ product.category.name }}</div>{% endif %}
+      <h1 class="pd-name mt-2">{{ product.name }}</h1>
+
+      {% if product.price %}
+        <div class="pd-price mt-3">
+          {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% elif product.currency == "MWK" %}MK{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+        </div>
+      {% endif %}
+
+      <div class="pd-line"></div>
+
+      <div class="pd-desc">
+        {{ product.description|default:"Prepared to order by our kitchen. Ask our team for tonight's accompaniments and pairing."|linebreaks }}
+      </div>
+
+      <div class="pd-facts mt-4">
+        <div><b>Kitchen</b><span>Made to order</span></div>
+        <div><b>Season</b><span>Current market</span></div>
+        <div><b>Service</b><span>Lunch &amp; dinner</span></div>
+        <div><b>Added</b><span>{{ product.created_at|date:"M j, Y" }}</span></div>
+      </div>
+
+      <form class="pd-buy" action="{% url 'add_to_cart' product.slug %}" method="post">
+        {% csrf_token %}
+        <button type="submit" class="pt-btn pt-btn--wide"><i class="bi bi-bag-plus"></i> Add to tray</button>
+        {% if store.whatsapp %}
+          <a class="pt-btn pt-btn--ghost pt-btn--wide" href="https://wa.me/{{ store.whatsapp_number }}?text={{ product.name|urlencode }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> Ask the kitchen</a>
+        {% else %}
+          <a class="pt-btn pt-btn--ghost pt-btn--wide" href="{% url 'store_contact' store_slug=store.slug %}">Ask the kitchen</a>
+        {% endif %}
+      </form>
+
+      <p class="mt-3" style="font-size:.76rem;letter-spacing:.14em;text-transform:uppercase;color:var(--pt-mute)">
+        Served by {{ product.store.brand_name|default:store.brand_name }} · Allergen notes welcome
+      </p>
+    </div>
+  </div>
+
+  <!-- PANELS -->
+  <div class="pd-panels">
+    <div class="pd-panel pt-rise">
+      <i class="bi bi-fire"></i>
+      <h4>From the hearth</h4>
+      <p>Finished over wood embers at the pass, so the plate reaches you at the exact moment the kitchen intends.</p>
+    </div>
+    <div class="pd-panel pt-rise" data-d="1">
+      <i class="bi bi-cup-hot"></i>
+      <h4>Suggested pairing</h4>
+      <p>Our team will suggest a glass from the cellar — low intervention, poured by hand, matched to the course.</p>
+    </div>
+    <div class="pd-panel pt-rise" data-d="2">
+      <i class="bi bi-flower1"></i>
+      <h4>Sourcing</h4>
+      <p>Produce arrives each morning from growers we know by name. Availability follows the season, never the other way round.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== NOTES / COMMENTS ===== -->
+<section class="pd-sec">
+  <div class="pt-shell" style="max-width:920px">
+    <div class="pd-sec__head">
+      <div>
+        <div class="pt-kicker">Guest notes</div>
+        <h2 class="mt-3">What the room says</h2>
+      </div>
+    </div>
+
+    {% if user.is_authenticated %}
+      <form class="pd-note" method="post" action="{{ request.path }}">
+        {% csrf_token %}
+        <textarea name="text" placeholder="Share a note about this dish…">{% if form.text.value %}{{ form.text.value }}{% endif %}</textarea>
+        {% if form.text.errors %}
+          <div class="mt-2" style="color:#8c2f2f;font-size:.85rem">{{ form.text.errors|join:", " }}</div>
+        {% endif %}
+        <div class="mt-3"><button type="submit" class="pt-btn">Leave a note</button></div>
+      </form>
+    {% else %}
+      <div class="pd-note">
+        <p class="mb-3" style="color:var(--pt-brown)">Sign in to leave a note about this dish.</p>
+        <a class="pt-btn pt-btn--ghost" href="{% url 'login' %}?next={{ request.path }}">Sign in</a>
+      </div>
+    {% endif %}
+
+    <div class="mt-4">
+      {% for c in comments %}
+        <div class="pd-c">
+          <div class="pd-c__av">{{ c.user.username|slice:":1"|upper }}</div>
+          <div>
+            <div class="pd-c__who">{{ c.user.username }} · {{ c.created_at|timesince }} ago</div>
+            <div class="pd-c__txt">{{ c.text|linebreaks }}</div>
+          </div>
+        </div>
+      {% empty %}
+        <p style="color:var(--pt-mute)">No notes yet for this dish.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+
+<!-- ===== RELATED ===== -->
+<section class="pd-sec" style="background:var(--pt-cream)">
+  <div class="pt-shell">
+    <div class="pd-sec__head">
+      <div>
+        <div class="pt-kicker">Continue the menu</div>
+        <h2 class="mt-3">You may also enjoy</h2>
+      </div>
+      <a class="pt-btn pt-btn--ghost" href="{% url 'store_product_list' store_slug=store.slug %}">All plates</a>
+    </div>
+
+    <div class="pd-rel">
+      {% for product in products|slice:":4" %}
+        <a class="pd-rel__card pt-rise" href="{% url 'store_product_detail' store.slug product.slug %}">
+          <div class="m">
+            {% if product.image %}
+              <img src="{{ product.image.url }}" alt="{{ product.name }}" loading="lazy">
+            {% elif product.image_url %}
+              <img src="{{ product.image_url }}" alt="{{ product.name }}" loading="lazy">
+            {% else %}
+              <img src="{% static 'images/placeholder.png' %}" alt="{{ product.name }}" loading="lazy">
+            {% endif %}
+          </div>
+          <h4>{{ product.name }}</h4>
+          <span>
+            {% if product.currency == "NGN" %}₦{% elif product.currency == "USD" %}${% elif product.currency == "GBP" %}£{% elif product.currency == "EUR" %}€{% elif product.currency == "GHS" %}₵{% else %}{{ product.currency }} {% endif %}{{ product.price|intcomma }}
+          </span>
+        </a>
+      {% empty %}
+        <p style="color:var(--pt-mute)">More plates are on the way.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function(){
+    var stage = document.getElementById('pdStage');
+    var main = document.getElementById('pdMain');
+    if(!stage) return;
+    document.querySelectorAll('.pd-thumb').forEach(function(t){
+      t.addEventListener('click', function(){
+        document.querySelectorAll('.pd-thumb').forEach(function(x){ x.classList.remove('is-on'); });
+        t.classList.add('is-on');
+        var yt = t.getAttribute('data-yt');
+        var src = t.getAttribute('data-src');
+        if(yt){
+          stage.querySelectorAll('img,iframe').forEach(function(n){ n.remove(); });
+          var f = document.createElement('iframe');
+          f.src = 'https://www.youtube.com/embed/' + yt;
+          f.title = 'Dish video';
+          f.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; picture-in-picture';
+          f.allowFullscreen = true;
+          stage.appendChild(f);
+        } else if(src){
+          var img = stage.querySelector('img');
+          if(!img){
+            stage.querySelectorAll('iframe').forEach(function(n){ n.remove(); });
+            img = document.createElement('img');
+            img.id = 'pdMain';
+            stage.appendChild(img);
+          }
+          img.src = src;
+        }
+      });
+    });
+  })();
+</script>
+{% endblock %}

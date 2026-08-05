@@ -1,0 +1,324 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{% block title %}{{ store.brand_name }} — Fine Dining{% endblock %}</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5">
+  <meta name="theme-color" content="#12100e">
+  <meta name="description" content="{{ store.brand_name }} — a cinematic fine dining experience. Seasonal tasting plates, chef selections and an elegant table waiting for you.">
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root{
+      --pt-ivory:#f7f4ec;
+      --pt-cream:#efe9dc;
+      --pt-paper:#fbf9f4;
+      --pt-ink:#12100e;
+      --pt-char:#1d1a17;
+      --pt-walnut:#3b2d22;
+      --pt-brown:#5a4636;
+      --pt-bronze:#a67c47;
+      --pt-gold:#c9a227;
+      --pt-olive:#6b6f4a;
+      --pt-mute:#8b8377;
+      --pt-line:rgba(18,16,14,.12);
+      --pt-line-dark:rgba(247,244,236,.16);
+      --pt-serif:'Cormorant Garamond',Georgia,'Times New Roman',serif;
+      --pt-sans:'Jost','Helvetica Neue',system-ui,sans-serif;
+      --pt-ease:cubic-bezier(.2,.7,.2,1);
+      --pt-shadow:0 40px 80px -50px rgba(18,16,14,.55), 0 12px 30px -22px rgba(18,16,14,.35);
+      --pt-nav:78px;
+    }
+
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;background:var(--pt-paper);color:var(--pt-ink);
+      font-family:var(--pt-sans);font-size:16px;font-weight:300;line-height:1.65;
+      letter-spacing:.005em;-webkit-font-smoothing:antialiased;overflow-x:hidden;
+    }
+    a{color:inherit;text-decoration:none}
+    img{max-width:100%;display:block}
+    h1,h2,h3,h4,h5{font-family:var(--pt-serif);font-weight:400;letter-spacing:-.015em;margin:0;line-height:1.06}
+    ::selection{background:var(--pt-gold);color:var(--pt-ink)}
+
+    .pt-shell{max-width:1280px;margin:0 auto;padding:0 clamp(18px,4vw,44px)}
+    .pt-kicker{
+      display:inline-flex;align-items:center;gap:.75rem;font-size:.68rem;font-weight:500;
+      letter-spacing:.4em;text-transform:uppercase;color:var(--pt-bronze);
+    }
+    .pt-kicker::before{content:"";width:34px;height:1px;background:var(--pt-bronze);opacity:.7}
+    .pt-kicker.is-light{color:var(--pt-gold)}
+    .pt-kicker.is-light::before{background:var(--pt-gold)}
+    .pt-title{font-size:clamp(2.2rem,5.2vw,4.3rem)}
+    .pt-lead{color:var(--pt-brown);max-width:56ch;font-size:1.02rem}
+    .pt-rule{height:1px;background:var(--pt-line);border:0;opacity:1;margin:0}
+
+    /* buttons */
+    .pt-btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
+      padding:.92rem 1.9rem;border-radius:2px;border:1px solid var(--pt-ink);
+      background:var(--pt-ink);color:var(--pt-ivory);
+      font-size:.72rem;font-weight:500;letter-spacing:.24em;text-transform:uppercase;
+      transition:background .45s var(--pt-ease),color .45s var(--pt-ease),border-color .45s var(--pt-ease),transform .45s var(--pt-ease);
+      cursor:pointer;
+    }
+    .pt-btn:hover{background:var(--pt-walnut);border-color:var(--pt-walnut);color:var(--pt-ivory);transform:translateY(-2px)}
+    .pt-btn--ghost{background:transparent;color:var(--pt-ink);border-color:var(--pt-line)}
+    .pt-btn--ghost:hover{background:var(--pt-ink);color:var(--pt-ivory);border-color:var(--pt-ink)}
+    .pt-btn--gold{background:var(--pt-bronze);border-color:var(--pt-bronze);color:#fffdf7}
+    .pt-btn--gold:hover{background:var(--pt-walnut);border-color:var(--pt-walnut)}
+    .pt-btn--light{background:transparent;border-color:var(--pt-line-dark);color:var(--pt-ivory)}
+    .pt-btn--light:hover{background:var(--pt-ivory);color:var(--pt-ink);border-color:var(--pt-ivory)}
+    .pt-btn--wide{width:100%}
+
+    /* reveal */
+    .pt-rise{opacity:0;transform:translateY(26px);transition:opacity 1s var(--pt-ease),transform 1s var(--pt-ease)}
+    .pt-rise.pt-in{opacity:1;transform:none}
+    .pt-rise[data-d="1"]{transition-delay:.1s}
+    .pt-rise[data-d="2"]{transition-delay:.2s}
+    .pt-rise[data-d="3"]{transition-delay:.3s}
+    .pt-rise[data-d="4"]{transition-delay:.4s}
+    @media (prefers-reduced-motion:reduce){.pt-rise{opacity:1;transform:none;transition:none}}
+
+    /* nav */
+    .pt-nav{
+      position:sticky;top:0;z-index:1040;height:var(--pt-nav);
+      background:rgba(251,249,244,.82);
+      backdrop-filter:saturate(170%) blur(16px);-webkit-backdrop-filter:saturate(170%) blur(16px);
+      border-bottom:1px solid var(--pt-line);
+      transition:box-shadow .5s var(--pt-ease),background .5s var(--pt-ease);
+    }
+    .pt-nav.pt-stuck{box-shadow:0 18px 40px -34px rgba(18,16,14,.6)}
+    .pt-nav__in{height:var(--pt-nav);display:flex;align-items:center;justify-content:space-between;gap:1.4rem}
+    .pt-brand{display:flex;align-items:center;gap:.85rem;min-width:0}
+    .pt-brand__mark{
+      width:42px;height:42px;flex:none;border-radius:50%;overflow:hidden;
+      display:grid;place-items:center;background:var(--pt-ink);color:var(--pt-gold);
+      font-family:var(--pt-serif);font-size:1.15rem;letter-spacing:.02em;
+      border:1px solid rgba(201,162,39,.35);
+    }
+    .pt-brand__mark img{width:100%;height:100%;object-fit:cover}
+    .pt-brand__name{font-family:var(--pt-serif);font-size:1.35rem;line-height:1;letter-spacing:.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pt-brand__sub{display:block;font-family:var(--pt-sans);font-size:.56rem;letter-spacing:.42em;text-transform:uppercase;color:var(--pt-mute);margin-top:.3rem}
+    .pt-menu{display:none;align-items:center;gap:2.1rem}
+    @media(min-width:992px){.pt-menu{display:flex}}
+    .pt-menu a{
+      position:relative;font-size:.71rem;letter-spacing:.24em;text-transform:uppercase;
+      color:var(--pt-brown);font-weight:400;padding:.3rem 0;transition:color .35s var(--pt-ease);
+    }
+    .pt-menu a::after{
+      content:"";position:absolute;left:0;bottom:-2px;height:1px;width:0;background:var(--pt-bronze);
+      transition:width .5s var(--pt-ease);
+    }
+    .pt-menu a:hover{color:var(--pt-ink)}
+    .pt-menu a:hover::after{width:100%}
+    .pt-nav__act{display:flex;align-items:center;gap:.65rem}
+    .pt-icon{
+      position:relative;width:42px;height:42px;border-radius:50%;border:1px solid var(--pt-line);
+      display:grid;place-items:center;font-size:1.02rem;color:var(--pt-ink);
+      transition:background .4s var(--pt-ease),color .4s var(--pt-ease),border-color .4s var(--pt-ease);
+    }
+    .pt-icon:hover{background:var(--pt-ink);color:var(--pt-ivory);border-color:var(--pt-ink)}
+    .pt-icon__dot{
+      position:absolute;top:-4px;right:-4px;min-width:19px;height:19px;padding:0 5px;border-radius:999px;
+      background:var(--pt-bronze);color:#fff;font-family:var(--pt-sans);font-size:.6rem;font-weight:600;
+      display:grid;place-items:center;
+    }
+    .pt-nav__cta{display:none}
+    @media(min-width:1200px){.pt-nav__cta{display:inline-flex}}
+    .pt-burger{display:grid}
+    @media(min-width:992px){.pt-burger{display:none}}
+
+    .offcanvas.pt-off{background:var(--pt-ink);color:var(--pt-ivory);width:min(88vw,380px)}
+    .pt-off .offcanvas-header{border-bottom:1px solid var(--pt-line-dark)}
+    .pt-off__link{
+      display:flex;align-items:center;justify-content:space-between;
+      padding:1.15rem 0;border-bottom:1px solid var(--pt-line-dark);
+      font-family:var(--pt-serif);font-size:1.6rem;color:var(--pt-ivory);
+    }
+    .pt-off__link i{font-size:.95rem;color:var(--pt-gold);opacity:.8}
+
+    /* footer */
+    .pt-foot{background:var(--pt-ink);color:var(--pt-ivory);padding:clamp(64px,8vw,110px) 0 34px;margin-top:clamp(70px,9vw,130px)}
+    .pt-foot a{color:rgba(247,244,236,.72);transition:color .35s var(--pt-ease)}
+    .pt-foot a:hover{color:var(--pt-gold)}
+    .pt-foot__grid{display:grid;gap:clamp(34px,5vw,60px);grid-template-columns:1fr}
+    @media(min-width:768px){.pt-foot__grid{grid-template-columns:1.5fr 1fr 1fr}}
+    .pt-foot__t{font-size:.66rem;letter-spacing:.36em;text-transform:uppercase;color:var(--pt-gold);margin-bottom:1.3rem}
+    .pt-foot__list{list-style:none;margin:0;padding:0;display:grid;gap:.75rem;font-size:.92rem}
+    .pt-foot__bar{
+      margin-top:clamp(46px,6vw,74px);padding-top:24px;border-top:1px solid var(--pt-line-dark);
+      display:flex;flex-wrap:wrap;gap:.8rem;justify-content:space-between;
+      font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:rgba(247,244,236,.5);
+    }
+    .pt-foot__word{
+      font-family:var(--pt-serif);font-size:clamp(3rem,13vw,10rem);line-height:.9;
+      color:transparent;-webkit-text-stroke:1px rgba(247,244,236,.16);letter-spacing:.01em;
+      margin-top:clamp(40px,6vw,70px);white-space:nowrap;overflow:hidden;
+    }
+  </style>
+  {% block head %}{% endblock %}
+</head>
+<body>
+
+<nav class="pt-nav" id="ptNav">
+  <div class="pt-shell pt-nav__in">
+    <a class="pt-brand" href="{% url 'store_home' store_slug=store.slug %}">
+      <span class="pt-brand__mark">
+      {% if "http" in store.brand_logo.name %}
+          <img src="{{ store.brand_logo }}"
+              alt="{{ store.brand_name }}"
+              class="wf-logo">
+
+      {% elif store.brand_logo %}
+          <img src="{{ store.brand_logo.url }}"
+              alt="{{ store.brand_name }}"
+              class="wf-logo">
+
+      {% elif store.brand_logo_url %}
+          <img src="{{ store.brand_logo_url }}"
+              alt="{{ store.brand_name }}"
+              class="wf-logo">
+
+      {% else %}
+          <span class="wf-mono">
+              {{ store.brand_name|first|upper }}
+          </span>
+      {% endif %}
+      </span>
+      <span>
+        <span class="pt-brand__name">{{ store.brand_name }}</span>
+        <span class="pt-brand__sub">Fine Dining</span>
+      </span>
+    </a>
+
+    <div class="pt-menu">
+      <a href="{% url 'store_home' store_slug=store.slug %}">Home</a>
+      <a href="{% url 'store_product_list' store_slug=store.slug %}">Menu</a>
+      <a href="{% url 'store_about' store_slug=store.slug %}">The House</a>
+      <a href="{% url 'store_contact' store_slug=store.slug %}">Visit</a>
+      {% if request.user.is_authenticated and request.user == store.owner %}
+        <a href="{% url 'manage_store' store.slug %}">Manage</a>
+      {% endif %}
+    </div>
+
+    <div class="pt-nav__act">
+      <a class="pt-icon" href="{% url 'cart' %}" aria-label="Your tray">
+        <i class="bi bi-bag"></i>
+        {% if cart_count %}<span class="pt-icon__dot">{{ cart_count }}</span>{% endif %}
+      </a>
+      {% if store.whatsapp %}
+        <a class="pt-btn pt-btn--gold pt-nav__cta" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener">Reserve a table</a>
+      {% else %}
+        <a class="pt-btn pt-btn--gold pt-nav__cta" href="{% url 'store_contact' store_slug=store.slug %}">Reserve a table</a>
+      {% endif %}
+      <button class="pt-icon pt-burger" type="button" data-bs-toggle="offcanvas" data-bs-target="#ptMenu" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+    </div>
+  </div>
+</nav>
+
+<div class="offcanvas offcanvas-end pt-off" tabindex="-1" id="ptMenu">
+  <div class="offcanvas-header">
+    <span style="font-family:var(--pt-serif);font-size:1.4rem">{{ store.brand_name }}</span>
+    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+  <div class="offcanvas-body">
+    <a class="pt-off__link" href="{% url 'store_home' store_slug=store.slug %}">Home <i class="bi bi-arrow-up-right"></i></a>
+    <a class="pt-off__link" href="{% url 'store_product_list' store_slug=store.slug %}">Menu <i class="bi bi-arrow-up-right"></i></a>
+    <a class="pt-off__link" href="{% url 'store_about' store_slug=store.slug %}">The House <i class="bi bi-arrow-up-right"></i></a>
+    <a class="pt-off__link" href="{% url 'store_contact' store_slug=store.slug %}">Visit <i class="bi bi-arrow-up-right"></i></a>
+    <a class="pt-off__link" href="{% url 'cart' %}">Your tray <i class="bi bi-bag"></i></a>
+    {% if request.user.is_authenticated and request.user == store.owner %}
+      <a class="pt-off__link" href="{% url 'manage_store' store.slug %}">Manage <i class="bi bi-gear"></i></a>
+    {% endif %}
+    {% if store.whatsapp %}
+      <a class="pt-btn pt-btn--gold pt-btn--wide mt-4" href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener">Reserve on WhatsApp</a>
+    {% endif %}
+  </div>
+</div>
+
+<main>
+  {% block body %}{% endblock %}
+</main>
+
+<footer class="pt-foot">
+  <div class="pt-shell">
+    <div class="pt-foot__grid">
+      <div>
+        <div class="pt-kicker is-light">{{ store.brand_name }}</div>
+        <h3 style="font-size:clamp(1.9rem,3.4vw,2.9rem);margin:1.1rem 0 1rem;color:var(--pt-ivory)">
+          A table set with intention.
+        </h3>
+        <p style="color:rgba(247,244,236,.62);max-width:44ch;font-size:.96rem">
+          {{ store.bio|default:"Seasonal produce, slow fire and quiet luxury. Every plate leaves our pass composed, considered and served at its precise moment." }}
+        </p>
+      </div>
+      <div>
+        <div class="pt-foot__t">Navigate</div>
+        <ul class="pt-foot__list">
+          <li><a href="{% url 'store_home' store_slug=store.slug %}">Home</a></li>
+          <li><a href="{% url 'store_product_list' store_slug=store.slug %}">The Menu</a></li>
+          <li><a href="{% url 'store_about' store_slug=store.slug %}">The House</a></li>
+          <li><a href="{% url 'store_contact' store_slug=store.slug %}">Visit Us</a></li>
+          <li><a href="{% url 'cart' %}">Your Tray</a></li>
+        </ul>
+      </div>
+      <div>
+        <div class="pt-foot__t">Service</div>
+        <ul class="pt-foot__list">
+          <li>Lunch — 12:00 to 15:00</li>
+          <li>Dinner — 18:00 to 23:00</li>
+          <li>Sunday — Chef's table only</li>
+          {% if store.whatsapp %}
+            <li><a href="https://wa.me/{{ store.whatsapp_number }}" target="_blank" rel="noopener"><i class="bi bi-whatsapp"></i> {{ store.whatsapp_number }}</a></li>
+          {% endif %}
+        </ul>
+      </div>
+    </div>
+
+    <div class="pt-foot__word">{{ store.brand_name }}</div>
+
+    <div class="pt-foot__bar">
+      <span>&copy; {% now "Y" %} {{ store.brand_name }}</span>
+      <span>Prime Table — crafted on Waapfolio</span>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+  (function(){
+    var nav = document.getElementById('ptNav');
+    var onScroll = function(){
+      if(!nav) return;
+      nav.classList.toggle('pt-stuck', window.scrollY > 12);
+    };
+    window.addEventListener('scroll', onScroll, {passive:true});
+    onScroll();
+
+    var items = document.querySelectorAll('.pt-rise');
+    if(!('IntersectionObserver' in window)){
+      items.forEach(function(el){ el.classList.add('pt-in'); });
+      return;
+    }
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(e){
+        if(e.isIntersecting){ e.target.classList.add('pt-in'); io.unobserve(e.target); }
+      });
+    }, {threshold:0.12, rootMargin:'0px 0px -8% 0px'});
+    items.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

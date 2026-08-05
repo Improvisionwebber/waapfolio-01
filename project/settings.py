@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-DEBUG = False
+DEBUG = True
 LOCAL = os.getenv('DJANGO_LOCAL', 'False') == 'True'
 
 # Security

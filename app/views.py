@@ -3273,20 +3273,18 @@ def total(self):
         for item in self.items.all()
 
     )
+    
 @login_required
 def dashboard(request):
 
-    orders = Order.objects.filter(
+    # Release expired held funds
+    held_orders = Order.objects.filter(
         seller=request.user,
         status="ON_HOLD"
     )
 
-    for order in orders:
-
-        if (
-            order.hold_until
-            and order.hold_until <= timezone.now()
-        ):
+    for order in held_orders:
+        if order.hold_until and order.hold_until <= timezone.now():
             release_held_funds(order)
 
     wallet, created = Wallet.objects.get_or_create(
@@ -3295,13 +3293,28 @@ def dashboard(request):
 
     stores = Store.objects.filter(
         owner=request.user
-    )
+    ).order_by("brand_name")
 
-    orders = Order.objects.filter(
-        seller=request.user
-    ).order_by(
-        "-created_at"
-    )
+    # Active store
+    store_id = request.GET.get("store")
+
+    if store_id:
+        active_store = get_object_or_404(
+            Store,
+            id=store_id,
+            owner=request.user
+        )
+    else:
+        active_store = stores.first()
+
+    # Orders for selected store only
+    if active_store:
+        orders = Order.objects.filter(
+            seller=request.user,
+            store=active_store
+        ).order_by("-created_at")
+    else:
+        orders = Order.objects.none()
 
     total_sales = orders.filter(
         status__in=[
@@ -3328,25 +3341,18 @@ def dashboard(request):
     recent_orders = orders[:10]
 
     context = {
-
         "stores": stores,
+        "active_store": active_store,
 
         "wallet_balance": wallet.available_balance,
-
         "pending_balance": wallet.pending_balance,
-
-        "total_revenue": total_revenue,
-
-        "total_sales": total_sales,
-
-        "pending_orders": pending_orders,
-
-        "recent_orders": recent_orders,
-
+        "wallet": wallet,
         "total_withdrawn": wallet.total_withdrawn,
 
-        "wallet": wallet,
-
+        "total_sales": total_sales,
+        "total_revenue": total_revenue,
+        "pending_orders": pending_orders,
+        "recent_orders": recent_orders,
     }
 
     return render(
