@@ -430,6 +430,50 @@
       <div class="stat-value" data-metric="pending" data-value="{{ pending_orders|default:0 }}">{{ pending_orders|intcomma }}</div>
       <div class="stat-foot">Awaiting verification</div>
     </div>
+<div class="stat-card is-danger">
+
+    {% if subscription and not subscription_expired %}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <small class="text-muted d-block">Premium Subscription</small>
+                <strong class="text-danger">
+                    Expires in {{ days_left }}d {{ hours_left }}h {{ minutes_left }}m
+                </strong>
+            </div>
+
+            <a href="{% url 'pricing' %}" class="btn btn-sm btn-outline-success">
+                Renew
+            </a>
+        </div>
+
+    {% elif subscription_expired %}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <small class="text-muted d-block">Premium Subscription</small>
+                <strong class="text-danger">
+                    Your Premium subscription has expired.
+                </strong>
+            </div>
+
+            <a href="{% url 'pricing' %}" class="btn btn-sm btn-success">
+                Renew Now
+            </a>
+        </div>
+
+    {% else %}
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <small class="text-muted d-block">Current Plan</small>
+                <strong>Free Plan</strong>
+            </div>
+
+            <a href="{% url 'pricing' %}" class="btn btn-sm btn-success">
+                Upgrade
+            </a>
+        </div>
+    {% endif %}
+
+</div>
   </div>
 
   <!-- ============================ MAIN GRID ============================ -->

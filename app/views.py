@@ -1376,7 +1376,23 @@ def get_template_path(template_slug, store, page):
 from django.conf import settings
 from django.shortcuts import get_object_or_404, render
 from django.views import View
+from app.utils import store_is_suspended
+from django.shortcuts import get_object_or_404
 
+
+def get_current_store(request, store_slug=None):
+    if not settings.DEBUG and hasattr(request, "store") and request.store:
+        store = request.store
+    else:
+        store = get_object_or_404(
+            Store,
+            slug=store_slug
+        )
+
+    if store_is_suspended(store):
+        return None
+
+    return store
 
 # -----------------------------
 # Home
@@ -1384,10 +1400,16 @@ from django.views import View
 class StoreHomeView(View):
     def get(self, request, store_slug=None):
 
-        if not settings.DEBUG and hasattr(request, "store") and request.store:
-            store = request.store
-        else:
-            store = get_object_or_404(Store, slug=store_slug)
+        store = get_current_store(
+            request,
+            store_slug
+        )
+
+        if store is None:
+            return render(
+                request,
+                "store_suspended.html"
+            )
 
         resolved_template = (
             store.template.slug
@@ -1415,10 +1437,16 @@ class StoreHomeView(View):
 class StoreAboutView(View):
     def get(self, request, store_slug=None):
 
-        if not settings.DEBUG and hasattr(request, "store") and request.store:
-            store = request.store
-        else:
-            store = get_object_or_404(Store, slug=store_slug)
+        store = get_current_store(
+            request,
+            store_slug
+        )
+
+        if store is None:
+            return render(
+                request,
+                "store_suspended.html"
+            )
 
         products = Item.objects.filter(store=store)
 
@@ -1445,10 +1473,16 @@ class StoreAboutView(View):
 class StoreContactView(View):
     def get(self, request, store_slug=None):
 
-        if not settings.DEBUG and hasattr(request, "store") and request.store:
-            store = request.store
-        else:
-            store = get_object_or_404(Store, slug=store_slug)
+        store = get_current_store(
+            request,
+            store_slug
+        )
+
+        if store is None:
+            return render(
+                request,
+                "store_suspended.html"
+            )
 
         resolved_template = (
             store.template.slug
@@ -1473,10 +1507,16 @@ class StoreContactView(View):
 class ProductListView(View):
     def get(self, request, store_slug=None):
 
-        if not settings.DEBUG and hasattr(request, "store") and request.store:
-            store = request.store
-        else:
-            store = get_object_or_404(Store, slug=store_slug)
+        store = get_current_store(
+            request,
+            store_slug
+        )
+
+        if store is None:
+            return render(
+                request,
+                "store_suspended.html"
+            )
 
         products = Item.objects.filter(store=store)
 
@@ -1504,10 +1544,16 @@ class ProductDetailView(View):
     def get(self, request, store_slug=None, product_slug=None):
 
         # Get store
-        if not settings.DEBUG and hasattr(request, "store") and request.store:
-            store = request.store
-        else:
-            store = get_object_or_404(Store, slug=store_slug)
+        store = get_current_store(
+            request,
+            store_slug
+        )
+
+        if store is None:
+            return render(
+                request,
+                "store_suspended.html"
+            )
 
         # Get product
         product = get_object_or_404(
@@ -1790,38 +1836,73 @@ from .models import Subscription
 @csrf_exempt
 def paystack_webhook(request):
     payload = request.body
+
     signature = request.headers.get("x-paystack-signature")
 
-    # verify Paystack signature
     computed_hash = hmac.new(
-        settings.PAYSTACK_SECRET_KEY.encode("utf-8"),
+        settings.PAYSTACK_SECRET_KEY.encode(),
         payload,
         hashlib.sha512
     ).hexdigest()
 
     if not signature or not hmac.compare_digest(computed_hash, signature):
-        return JsonResponse({"error": "invalid signature"}, status=400)
+        return JsonResponse(
+            {"error": "Invalid signature"},
+            status=400
+        )
 
     event = json.loads(payload)
 
-    if event.get("event") == "charge.success":
-        data = event["data"]
+    if event.get("event") != "charge.success":
+        return JsonResponse({"status": "ignored"})
 
-        # we will send user_id in metadata when initializing payment
-        user_id = data.get("metadata", {}).get("user_id")
+    data = event["data"]
 
-        if user_id:
-            try:
-                user = User.objects.get(id=user_id)
+    metadata = data.get("metadata", {})
 
-                sub, _ = Subscription.objects.get_or_create(user=user)
-                sub.plan = "premium"
-                sub.save()
+    user_id = metadata.get("user_id")
+    plan = metadata.get("plan")
+    reference = data.get("reference")
 
-            except User.DoesNotExist:
-                pass
+    if not user_id:
+        return JsonResponse({"error": "Missing user id"}, status=400)
 
-    return JsonResponse({"status": "ok"})
+    try:
+        user = User.objects.get(id=user_id)
+
+        sub, _ = Subscription.objects.get_or_create(user=user)
+
+        sub.is_active = True
+        sub.started_at = timezone.now()
+
+        if plan == "premium_yearly":
+            sub.plan = "premium_yearly"
+            sub.expires_at = timezone.now() + timedelta(days=365)
+
+        else:
+            sub.plan = "premium_monthly"
+            sub.expires_at = timezone.now() + timedelta(days=30)
+
+        sub.last_payment_reference = reference
+
+        sub.save()
+
+        payment = Payment.objects.filter(
+            reference=reference
+        ).first()
+
+        if payment:
+            payment.status = "success"
+            payment.paid_at = timezone.now()
+            payment.save()
+
+    except User.DoesNotExist:
+        return JsonResponse(
+            {"error": "User not found"},
+            status=404
+        )
+
+    return JsonResponse({"status": "success"})
 @login_required
 def pricing(request):
     return render(request, "pricing.html")
@@ -3340,6 +3421,31 @@ def dashboard(request):
 
     recent_orders = orders[:10]
 
+    # ==========================
+    # Subscription Information
+    # ==========================
+    subscription = Subscription.objects.filter(
+        user=request.user
+    ).first()
+
+    days_left = 0
+    hours_left = 0
+    minutes_left = 0
+    subscription_expired = False
+
+    if (
+        subscription and
+        subscription.expires_at
+    ):
+        remaining = subscription.expires_at - timezone.now()
+
+        if remaining.total_seconds() > 0:
+            days_left = remaining.days
+            hours_left = remaining.seconds // 3600
+            minutes_left = (remaining.seconds % 3600) // 60
+        else:
+            subscription_expired = True
+
     context = {
         "stores": stores,
         "active_store": active_store,
@@ -3353,6 +3459,13 @@ def dashboard(request):
         "total_revenue": total_revenue,
         "pending_orders": pending_orders,
         "recent_orders": recent_orders,
+
+        # Subscription
+        "subscription": subscription,
+        "days_left": days_left,
+        "hours_left": hours_left,
+        "minutes_left": minutes_left,
+        "subscription_expired": subscription_expired,
     }
 
     return render(

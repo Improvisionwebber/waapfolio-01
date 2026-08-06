@@ -158,3 +158,37 @@ def upload_to_youtube(video_file, title="Untitled", description=""):
             raise Exception("🚫 Video Upload limit finished for today. Upload only images or check back in 24hrs")
         else:
             raise
+from django.utils import timezone
+
+from .models import Store, Subscription
+
+
+def store_is_suspended(store):
+    """
+    Returns True if this store should be suspended.
+    """
+
+    owner = store.owner
+
+    sub = Subscription.objects.filter(
+        user=owner
+    ).first()
+
+    # Premium with valid subscription
+    if (
+        sub
+        and sub.is_active
+        and sub.plan in ["premium_monthly", "premium_yearly"]
+        and sub.expires_at
+        and sub.expires_at > timezone.now()
+    ):
+        return False
+
+    first_store = (
+        Store.objects
+        .filter(owner=owner)
+        .order_by("created_at")
+        .first()
+    )
+
+    return first_store and first_store.id != store.id
