@@ -376,26 +376,17 @@
   
   <span class="wf-brand-mark">
 
-{% if "http" in store.brand_logo.name %}
-    <img src="{{ store.brand_logo }}"
-         alt="{{ store.brand_name }}"
-         class="wf-logo">
-
-{% elif store.brand_logo %}
-    <img src="{{ store.brand_logo.url }}"
-         alt="{{ store.brand_name }}"
-         class="wf-logo">
-
-{% elif store.brand_logo_url %}
-    <img src="{{ store.brand_logo_url }}"
-         alt="{{ store.brand_name }}"
-         class="wf-logo">
-
-{% else %}
-    <span class="wf-mono">
-        {{ store.brand_name|first|upper }}
-    </span>
-{% endif %}
+          {% if store.brand_logo_url %}
+            <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+          {% elif store.brand_logo %}
+            {% if "http" in store.brand_logo.name %}
+              <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
+            {% else %}
+              <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
+            {% endif %}
+          {% else %}
+            {{ store.brand_name|first|upper }}
+          {% endif %}
 
   </span>
 
