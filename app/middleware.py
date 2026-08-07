@@ -98,6 +98,7 @@ class StoreSubdomainMiddleware:
                 f"Store '{subdomain}' not found."
             )
 
-            request.store = None
+            from django.http import Http404
+            raise Http404("Store does not exist.")
 
         return self.get_response(request)
