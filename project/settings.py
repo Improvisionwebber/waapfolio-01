@@ -184,7 +184,7 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
 ]
 # Static files
 STATIC_URL = '/static/'
-STATIC_ROOT = '/home/waapfoli/public_html/staticfiles'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Authentication redirects
 LOGOUT_REDIRECT_URL = '/'
