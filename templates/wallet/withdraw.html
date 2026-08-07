@@ -2,88 +2,229 @@
 
 {% block body %}
 
-<div class="container py-5">
+<style>
 
-<div class="col-lg-6 mx-auto">
+.withdraw-wrapper{
+    max-width:720px;
+    margin:40px auto;
+}
 
-<div class="card shadow">
+.withdraw-card{
+    background:#fff;
+    border-radius:22px;
+    padding:35px;
+    box-shadow:0 10px 35px rgba(0,0,0,.06);
+    border:1px solid #edf2f7;
+}
 
-<div class="card-body p-4">
+.withdraw-title{
+    font-size:30px;
+    font-weight:700;
+    color:#111827;
+    margin-bottom:6px;
+}
 
-<h3>
+.withdraw-subtitle{
+    color:#6b7280;
+    margin-bottom:30px;
+}
 
+.balance-box{
+    background:#16a34a;
+    color:#fff;
+    border-radius:18px;
+    padding:24px;
+    margin-bottom:28px;
+}
+
+.balance-label{
+    opacity:.9;
+    font-size:14px;
+}
+
+.balance-amount{
+    font-size:36px;
+    font-weight:700;
+    margin-top:6px;
+}
+
+.bank-card{
+    border:1px solid #e5e7eb;
+    border-radius:16px;
+    padding:20px;
+    margin-bottom:28px;
+}
+
+.bank-title{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:15px;
+    color:#111827;
+}
+
+.bank-item{
+    display:flex;
+    justify-content:space-between;
+    padding:12px 0;
+    border-bottom:1px solid #f3f4f6;
+}
+
+.bank-item:last-child{
+    border-bottom:none;
+}
+
+.bank-label{
+    color:#6b7280;
+    font-size:14px;
+}
+
+.bank-value{
+    font-weight:600;
+    color:#111827;
+}
+
+.form-label{
+    font-weight:600;
+    margin-bottom:8px;
+    color:#111827;
+}
+
+.form-control{
+    height:55px;
+    border-radius:14px;
+    border:1px solid #d1d5db;
+    font-size:17px;
+}
+
+.form-control:focus{
+    border-color:#16a34a;
+    box-shadow:0 0 0 .2rem rgba(22,163,74,.15);
+}
+
+.withdraw-btn{
+    height:56px;
+    border-radius:14px;
+    background:#16a34a;
+    border:none;
+    font-weight:600;
+    font-size:17px;
+    transition:.25s;
+}
+
+.withdraw-btn:hover{
+    background:#15803d;
+}
+
+.note-box{
+    margin-top:22px;
+    padding:18px;
+    border-radius:14px;
+    background:#f0fdf4;
+    color:#166534;
+    font-size:14px;
+    border:1px solid #bbf7d0;
+}
+
+@media(max-width:768px){
+
+.withdraw-wrapper{
+margin:20px;
+}
+
+.withdraw-card{
+padding:24px;
+}
+
+.balance-amount{
+font-size:28px;
+}
+
+}
+
+</style>
+
+<div class="withdraw-wrapper">
+
+<div class="withdraw-card">
+
+<h2 class="withdraw-title">
 Withdraw Funds
-
-</h3>
-
-<hr>
-
-<p>
-
-Available Balance
-
-</p>
-
-<h2>
-
-₦{{ wallet.available_balance }}
-
 </h2>
 
-<hr>
-
-<p>
-
-Bank
-
+<p class="withdraw-subtitle">
+Transfer your available earnings to your bank account.
 </p>
 
-<strong>
+<div class="balance-box">
 
-{{ bank.bank_name }}
+<div class="balance-label">
+Available Balance
+</div>
 
-</strong>
+<div class="balance-amount">
+₦{{ wallet.available_balance }}
+</div>
 
-<br>
+</div>
 
-{{ bank.account_number }}
+<div class="bank-card">
 
-<br>
+<div class="bank-title">
+Withdrawal Account
+</div>
 
-{{ bank.account_name }}
+<div class="bank-item">
+<span class="bank-label">Bank</span>
+<span class="bank-value">{{ bank.bank_name }}</span>
+</div>
 
-<hr>
+<div class="bank-item">
+<span class="bank-label">Account Number</span>
+<span class="bank-value">{{ bank.account_number }}</span>
+</div>
 
-<form method="post">
+<div class="bank-item">
+<span class="bank-label">Account Name</span>
+<span class="bank-value">{{ bank.account_name }}</span>
+</div>
+
+</div>
+
+<form method="POST">
 
 {% csrf_token %}
 
-<label>
+<div class="mb-4">
 
-Amount
-
+<label class="form-label">
+Withdrawal Amount
 </label>
 
 <input
 type="number"
-step="0.01"
 name="amount"
+step="0.01"
 class="form-control"
-required
->
+placeholder="Enter amount"
+required>
+
+</div>
 
 <button
-class="btn btn-success w-100 mt-4"
->
+class="btn withdraw-btn w-100">
 
-Withdraw Now
+Request Withdrawal
 
 </button>
 
 </form>
 
-</div>
+<div class="note-box">
 
+Withdrawal requests are reviewed manually.
+
+Approved withdrawals are typically processed within 24 hours.
+Instant Withdrawals are coming soon.
 </div>
 
 </div>

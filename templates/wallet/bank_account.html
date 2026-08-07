@@ -1,108 +1,200 @@
 {% extends "base.html" %}
-
 {% block body %}
 
-<div class="container py-5">
+<div class="container py-4" style="max-width:760px;">
 
-<div class="col-lg-6 mx-auto">
+    <div class="mb-4">
 
-<div class="card shadow">
+        <h2 class="fw-bold mb-1">
+            Bank Account
+        </h2>
 
-<div class="card-body p-4">
+        <p class="text-muted mb-0">
+            Add the bank account where your Waapfolio earnings will be paid.
+        </p>
 
-<h3>
+    </div>
 
-Bank Account
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} rounded-4 shadow-sm">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
 
-</h3>
+    {% if account %}
 
-<hr>
+    <div class="card border-0 shadow-sm rounded-4 mb-4">
 
-<form method="post">
+        <div class="card-body">
 
-{% csrf_token %}
+            <div class="d-flex justify-content-between align-items-center mb-3">
 
-<label>
+                <h5 class="fw-bold mb-0">
+                    Current Bank Account
+                </h5>
 
-Bank
+                <span class="badge bg-success px-3 py-2">
+                    Verified
+                </span>
 
-</label>
+            </div>
 
-<select
-name="bank_code"
-class="form-select"
-required
->
+            <div class="row g-3">
 
-{% for bank in banks %}
+                <div class="col-md-4">
 
-<option value="{{ bank.code }}">
+                    <div class="border rounded-4 p-3 h-100">
 
-{{ bank.name }}
+                        <small class="text-muted d-block mb-2">
+                            Bank
+                        </small>
 
-</option>
+                        <div class="fw-semibold">
+                            {{ account.bank_name }}
+                        </div>
 
-{% endfor %}
+                    </div>
 
-</select>
+                </div>
 
-<br>
+                <div class="col-md-4">
 
-<label>
+                    <div class="border rounded-4 p-3 h-100">
 
-Account Number
+                        <small class="text-muted d-block mb-2">
+                            Account Number
+                        </small>
 
-</label>
+                        <div class="fw-semibold">
+                            {{ account.account_number }}
+                        </div>
 
-<input
-type="text"
-name="account_number"
-class="form-control"
-maxlength="10"
-required
->
+                    </div>
 
-<button
-class="btn btn-success w-100 mt-4"
->
+                </div>
 
-Save Bank Account
+                <div class="col-md-4">
 
-</button>
+                    <div class="border rounded-4 p-3 h-100">
 
-</form>
+                        <small class="text-muted d-block mb-2">
+                            Account Name
+                        </small>
 
-{% if account %}
+                        <div class="fw-semibold">
+                            {{ account.account_name }}
+                        </div>
 
-<hr>
+                    </div>
 
-<h5>
+                </div>
 
-Current Account
+            </div>
 
-</h5>
+        </div>
 
-<strong>
+    </div>
 
-{{ account.bank_name }}
+    {% endif %}
 
-</strong>
+    <div class="card border-0 shadow rounded-4">
 
-<br>
+        <div class="card-body p-4">
 
-{{ account.account_number }}
+            <h5 class="fw-bold mb-4">
+                {% if account %}
+                    Update Bank Account
+                {% else %}
+                    Add Bank Account
+                {% endif %}
+            </h5>
 
-<br>
+            <form method="POST">
 
-{{ account.account_name }}
+                {% csrf_token %}
 
-{% endif %}
+                <div class="mb-4">
 
-</div>
+                    <label class="form-label fw-semibold">
+                        Select Bank
+                    </label>
 
-</div>
+                    <select
+                        name="bank_code"
+                        class="form-select form-select-lg rounded-3"
+                        required
+                    >
 
-</div>
+                        <option value="">
+                            Choose your bank
+                        </option>
+
+                        {% for bank in banks %}
+
+                        <option value="{{ bank.code }}">
+                            {{ bank.name }}
+                        </option>
+
+                        {% endfor %}
+
+                    </select>
+
+                </div>
+
+                <div class="mb-4">
+
+                    <label class="form-label fw-semibold">
+                        Account Number
+                    </label>
+
+                    <input
+                        type="text"
+                        name="account_number"
+                        class="form-control form-control-lg rounded-3"
+                        maxlength="10"
+                        placeholder="Enter your 10-digit account number"
+                        required
+                    >
+
+                    <small class="text-muted">
+                        Your account name will be verified automatically.
+                    </small>
+
+                </div>
+
+                <button
+                    type="submit"
+                    class="btn btn-success btn-lg w-100 rounded-3 fw-semibold"
+                >
+
+                    {% if account %}
+                        Update Bank Account
+                    {% else %}
+                        Save Bank Account
+                    {% endif %}
+
+                </button>
+
+            </form>
+
+        </div>
+
+    </div>
+
+    <div class="alert alert-info border-0 rounded-4 mt-4">
+
+        <strong>
+            Secure Verification
+        </strong>
+
+        <br>
+
+        Waapfolio verifies your bank details directly with Paystack before
+        withdrawals can be processed.
+
+    </div>
 
 </div>
 

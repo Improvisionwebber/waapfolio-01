@@ -73,6 +73,11 @@ urlpatterns = [
     path('delete-account/', views.delete_account, name='delete_account'),
     path("search/", views.store_search, name="store_search"),
     path('notifications/', views.notifications_view, name='notifications'),
+    path(
+    "store/<int:store_id>/template/<int:template_id>/",
+    views.apply_template,
+    name="apply_template",
+    ),
     path("record-order/<int:store_id>/", views.record_order, name="record_order"),
     path("marketplace/", views.marketplace_view, name="marketplace"),
 path(

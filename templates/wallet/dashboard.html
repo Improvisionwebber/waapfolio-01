@@ -2,199 +2,219 @@
 
 {% block body %}
 
-<div class="container py-5">
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
+        <div>
+            <h2 class="fw-bold mb-1">My Wallet</h2>
+            <p class="text-muted mb-0">
+                Track your earnings and withdrawals.
+            </p>
+        </div>
+
+        <div class="d-flex gap-2 mt-3 mt-md-0">
+            <a href="{% url 'withdraw' %}" class="btn btn-success">
+                Withdraw
+            </a>
+
+            <a href="{% url 'payment_history' %}" class="btn btn-outline-dark">
+                History
+            </a>
+        </div>
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <small class="text-muted">
+                        Available Balance
+                    </small>
+
+                    <h2 class="fw-bold mt-2 mb-0">
+                        ₦{{ wallet.available_balance }}
+                    </h2>
+
+                    <small class="text-success">
+                        Ready for withdrawal
+                    </small>
+                </div>
+            </div>
+        </div>
 
-<h2 class="mb-4">
-My Wallet
-</h2>
+        <div class="col-lg-4 col-md-6">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <small class="text-muted">
+                        Pending Balance
+                    </small>
 
-<div class="row g-4">
+                    <h2 class="fw-bold mt-2 mb-0">
+                        ₦{{ wallet.pending_balance }}
+                    </h2>
 
-<div class="col-md-4">
+                    <small class="text-warning">
+                        Awaiting release
+                    </small>
+                </div>
+            </div>
+        </div>
 
-<div class="card shadow-sm">
+        <div class="col-lg-4 col-md-12">
+            <div class="card border-0 shadow-sm h-100 rounded-4">
+                <div class="card-body p-4">
+                    <small class="text-muted">
+                        Lifetime Earnings
+                    </small>
 
-<div class="card-body">
+                    <h2 class="fw-bold mt-2 mb-0">
+                        ₦{{ wallet.lifetime_earnings }}
+                    </h2>
 
-<h6 class="text-muted">
-Available Balance
-</h6>
+                    <small class="text-primary">
+                        Total earnings
+                    </small>
+                </div>
+            </div>
+        </div>
 
-<h2>
-₦{{ wallet.available_balance }}
-</h2>
+    </div>
 
-</div>
+    <div class="card border-0 shadow-sm rounded-4 mt-5">
+        <div class="card-body p-4">
 
-</div>
+            <h4 class="fw-bold mb-3">
+                Withdrawal Status
+            </h4>
 
-</div>
+            {% if trust.instant_withdrawal %}
 
-<div class="col-md-4">
+            <div class="alert alert-success rounded-3 mb-0">
 
-<div class="card shadow-sm">
+                <h6 class="fw-bold mb-2">
+                    Instant Withdrawals Enabled
+                </h6>
 
-<div class="card-body">
+                Your account qualifies for instant withdrawals.
 
-<h6 class="text-muted">
-Pending Balance
-</h6>
+            </div>
 
-<h2>
-₦{{ wallet.pending_balance }}
-</h2>
+            {% else %}
 
-</div>
+            <div class="alert alert-warning rounded-3 mb-0">
 
-</div>
+                <h6 class="fw-bold mb-2">
+                    Instant Withdrawals Locked
+                </h6>
 
-</div>
+                <p class="mb-2">
+                    Successful Orders:
+                    <strong>{{ trust.successful_orders }}</strong>
+                </p>
 
-<div class="col-md-4">
+                <p class="mb-0">
+                    Complete
+                    <strong>{{ 10|add:"-trust.successful_orders" }}</strong>
+                    more successful orders to unlock instant withdrawals.
+                </p>
 
-<div class="card shadow-sm">
+            </div>
 
-<div class="card-body">
+            {% endif %}
 
-<h6 class="text-muted">
-Lifetime Earnings
-</h6>
+        </div>
+    </div>
 
-<h2>
-₦{{ wallet.lifetime_earnings }}
-</h2>
+    <div class="card border-0 shadow-sm rounded-4 mt-5">
 
-</div>
+        <div class="card-header bg-white border-0 p-4">
+            <h4 class="fw-bold mb-0">
+                Recent Transactions
+            </h4>
+        </div>
 
-</div>
+        <div class="table-responsive">
 
-</div>
+            <table class="table align-middle mb-0">
 
-</div>
+                <thead class="table-light">
 
-<div class="mt-5">
+                    <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                    </tr>
 
-<h4>
+                </thead>
 
-Withdrawal Status
+                <tbody>
 
-</h4>
+                    {% for tx in transactions %}
 
-{% if trust.instant_withdrawal %}
+                    <tr>
 
-<div class="alert alert-success">
+                        <td>
 
-✅ Instant withdrawals are enabled.
+                            {% if tx.transaction_type == "earning" %}
+                                <span class="badge bg-success">
+                                    {{ tx.get_transaction_type_display }}
+                                </span>
 
-</div>
+                            {% elif tx.transaction_type == "withdrawal" %}
+                                <span class="badge bg-danger">
+                                    {{ tx.get_transaction_type_display }}
+                                </span>
 
-{% else %}
+                            {% else %}
+                                <span class="badge bg-secondary">
+                                    {{ tx.get_transaction_type_display }}
+                                </span>
 
-<div class="alert alert-warning">
+                            {% endif %}
 
-You currently have
+                        </td>
 
-<strong>
+                        <td class="fw-semibold">
+                            ₦{{ tx.amount }}
+                        </td>
 
-{{ trust.successful_orders }}
+                        <td>
+                            {{ tx.description }}
+                        </td>
 
-</strong>
+                        <td class="text-muted">
+                            {{ tx.created_at|date:"M d, Y H:i" }}
+                        </td>
 
-successful orders.
+                    </tr>
 
-Complete
+                    {% empty %}
 
-<strong>
+                    <tr>
 
-{{ 10|add:"-trust.successful_orders" }}
+                        <td colspan="4" class="text-center py-5 text-muted">
 
-</strong>
+                            <h6 class="mb-2">
+                                No transactions yet
+                            </h6>
 
-more successful orders to unlock instant withdrawals.
+                            Your wallet activity will appear here.
 
-</div>
+                        </td>
 
-{% endif %}
+                    </tr>
 
-</div>
+                    {% endfor %}
 
-<div class="mt-5">
+                </tbody>
 
-<h4>
+            </table>
 
-Recent Transactions
+        </div>
 
-</h4>
-
-<table class="table">
-
-<thead>
-
-<tr>
-
-<th>Type</th>
-
-<th>Amount</th>
-
-<th>Description</th>
-
-<th>Date</th>
-
-</tr>
-
-</thead>
-
-<tbody>
-
-{% for tx in transactions %}
-
-<tr>
-
-<td>
-
-{{ tx.get_transaction_type_display }}
-
-</td>
-
-<td>
-
-₦{{ tx.amount }}
-
-</td>
-
-<td>
-
-{{ tx.description }}
-
-</td>
-
-<td>
-
-{{ tx.created_at }}
-
-</td>
-
-</tr>
-
-{% empty %}
-
-<tr>
-
-<td colspan="4">
-
-No transactions yet.
-
-</td>
-
-</tr>
-
-{% endfor %}
-
-</tbody>
-
-</table>
-
-</div>
+    </div>
 
 </div>
 

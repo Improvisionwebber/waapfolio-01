@@ -23,9 +23,12 @@ logger = logging.getLogger(__name__)
 from .models import (
     Store, StoreImage, Item, ItemView, EmailOTP, ProductMedia, ItemLike, Comment
 )
+from .models import WithdrawalRequest
+
 from .forms import (
     StoreForm, StoreImageForm, ProductForm, CommentForm
 )
+from app.telegram import send_telegram_message
 from django.http import Http404
 from .utils import upload_to_imgbb, upload_to_youtube
 from utils.email_service import send_email
@@ -1213,7 +1216,14 @@ def marketplace_view(request):
     # ===========================================================
     # 🔥 Get all active products
     # ===========================================================
-    products = Item.objects.select_related("store").order_by("-created_at")
+    products = (
+    Item.objects
+    .select_related("store")
+    .filter(
+        store__is_demo=False
+    )
+    .order_by("-created_at")
+    )
 
     # ===========================================================
     # 🔥 SEARCH FILTER
@@ -1599,9 +1609,32 @@ class ProductDetailView(View):
             }
         )
 
+@login_required
 def templates_page(request):
-    templates = StoreTemplate.objects.filter(is_active=True)
-    return render(request, 'templates.html', {'templates': templates})
+
+    templates = StoreTemplate.objects.filter(
+        is_active=True
+    )
+
+    store = None
+
+    store_id = request.GET.get("store")
+
+    if store_id:
+        store = get_object_or_404(
+            Store,
+            id=store_id,
+            owner=request.user
+        )
+
+    return render(
+        request,
+        "templates.html",
+        {
+            "templates": templates,
+            "store": store,
+        }
+    )
 # context_processors.py
 def full_url(request):
     return {
@@ -1908,7 +1941,23 @@ def pricing(request):
     return render(request, "pricing.html")
 @login_required
 def payment_history(request):
+
     payments = Payment.objects.filter(
+        user=request.user
+    ).order_by("-created_at")
+
+    wallet = Wallet.objects.filter(
+        user=request.user
+    ).first()
+
+    if wallet:
+        transactions = WalletTransaction.objects.filter(
+            wallet=wallet
+        ).order_by("-created_at")
+    else:
+        transactions = WalletTransaction.objects.none()
+
+    withdrawals = WithdrawalRequest.objects.filter(
         user=request.user
     ).order_by("-created_at")
 
@@ -1916,10 +1965,11 @@ def payment_history(request):
         request,
         "payment_history.html",
         {
-            "payments": payments
-        }
+            "payments": payments,
+            "transactions": transactions,
+            "withdrawals": withdrawals,
+        },
     )
-
 from django.contrib import messages
 
 from app.models import Order
@@ -2031,53 +2081,8 @@ from app.models import Order
 
 from app.models import SupplierAccess
 
-@login_required
 def verify_order(request, token):
-
-    order = get_object_or_404(
-        Order,
-        verification_token=token
-    )
-
-    authorized = (
-
-        request.user == order.seller
-
-        or
-
-        SupplierAccess.objects.filter(
-
-            seller=order.seller,
-
-            supplier=request.user
-
-        ).exists()
-
-    )
-
-    if not authorized:
-
-        return render(
-
-            request,
-
-            "order_not_authorized.html",
-
-            status=403
-
-        )
-
-    return render(
-
-        request,
-
-        "verify_order.html",
-
-        {
-            "order": order
-        }
-
-    )
+    return HttpResponse("VERIFY VIEW IS WORKING")
 @login_required
 def store_checkout(request, slug):
 
@@ -2951,6 +2956,154 @@ from app.models import (
 )
 
 
+# @login_required
+# def withdraw(request):
+
+#     wallet = Wallet.objects.get(
+#         user=request.user
+#     )
+
+#     try:
+
+#         bank = BankAccount.objects.get(
+#             user=request.user
+#         )
+
+#     except BankAccount.DoesNotExist:
+
+#         messages.error(
+#             request,
+#             "Please add your bank account first."
+#         )
+
+#         return redirect(
+#             "bank_account"
+#         )
+
+#     if request.method == "POST":
+
+#         amount = Decimal(
+#             request.POST["amount"]
+#         )
+
+#         if amount <= 0:
+
+#             messages.error(
+#                 request,
+#                 "Invalid amount."
+#             )
+
+#             return redirect(
+#                 "withdraw"
+#             )
+
+#         if amount > wallet.available_balance:
+
+#             messages.error(
+#                 request,
+#                 "Insufficient balance."
+#             )
+
+#             return redirect(
+#                 "withdraw"
+#             )
+
+#         headers = {
+
+#             "Authorization":
+#             f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+
+#             "Content-Type":
+#             "application/json",
+
+#         }
+
+#         payload = {
+
+#             "source": "balance",
+
+#             "amount": int(
+#                 amount * 100
+#             ),
+
+#             "recipient":
+#             bank.recipient_code,
+
+#             "reason":
+#             "Waapfolio Withdrawal",
+
+#         }
+
+#         response = requests.post(
+
+#             "https://api.paystack.co/transfer",
+
+#             json=payload,
+
+#             headers=headers,
+
+#         )
+
+#         res = response.json()
+
+#         if not res["status"]:
+
+#             messages.error(
+#                 request,
+#                 res["message"]
+#             )
+
+#             return redirect(
+#                 "withdraw"
+#             )
+
+#         wallet.available_balance -= amount
+
+#         wallet.total_withdrawn += amount
+
+#         wallet.save()
+
+#         WalletTransaction.objects.create(
+
+#             wallet=wallet,
+
+#             transaction_type="withdrawal",
+
+#             amount=amount,
+
+#             description="Withdrawal to bank",
+
+#             reference=res["data"]["reference"],
+
+#         )
+
+#         messages.success(
+
+#             request,
+
+#             "Withdrawal sent successfully."
+
+#         )
+
+#         return redirect(
+#             "wallet_dashboard"
+#         )
+
+#     return render(
+
+#         request,
+
+#         "wallet/withdraw.html",
+
+#         {
+
+#             "wallet": wallet,
+
+#             "bank": bank,
+
+#         }
+
+#     )
 @login_required
 def withdraw(request):
 
@@ -3003,60 +3156,39 @@ def withdraw(request):
                 "withdraw"
             )
 
-        headers = {
+        # =====================================
+        # CREATE WITHDRAWAL REQUEST
+        # =====================================
 
-            "Authorization":
-            f"Bearer {settings.PAYSTACK_SECRET_KEY}",
+        withdrawal = WithdrawalRequest.objects.create(
 
-            "Content-Type":
-            "application/json",
+            user=request.user,
 
-        }
+            amount=amount,
 
-        payload = {
+            account_name=bank.account_name,
 
-            "source": "balance",
+            account_number=bank.account_number,
 
-            "amount": int(
-                amount * 100
-            ),
+            bank_name=bank.bank_name,
 
-            "recipient":
-            bank.recipient_code,
-
-            "reason":
-            "Waapfolio Withdrawal",
-
-        }
-
-        response = requests.post(
-
-            "https://api.paystack.co/transfer",
-
-            json=payload,
-
-            headers=headers,
+            status="pending",
 
         )
 
-        res = response.json()
-
-        if not res["status"]:
-
-            messages.error(
-                request,
-                res["message"]
-            )
-
-            return redirect(
-                "withdraw"
-            )
+        # =====================================
+        # UPDATE WALLET
+        # =====================================
 
         wallet.available_balance -= amount
 
         wallet.total_withdrawn += amount
 
         wallet.save()
+
+        # =====================================
+        # WALLET TRANSACTION
+        # =====================================
 
         WalletTransaction.objects.create(
 
@@ -3066,17 +3198,41 @@ def withdraw(request):
 
             amount=amount,
 
-            description="Withdrawal to bank",
+            description="Withdrawal Request",
 
-            reference=res["data"]["reference"],
+            reference=f"WD-{withdrawal.id}",
 
+        )
+
+        # =====================================
+        # TELEGRAM NOTIFICATION
+        # =====================================
+
+        send_telegram_message(
+            f"""
+💸 <b>New Withdrawal Request</b>
+
+👤 <b>User:</b> {request.user.username}
+
+💰 <b>Amount:</b> ₦{amount:,.2f}
+
+🏦 <b>Bank:</b> {bank.bank_name}
+
+🔢 <b>Account:</b> {bank.account_number}
+
+👤 <b>Account Name:</b> {bank.account_name}
+
+🕒 <b>Time:</b> {timezone.localtime().strftime("%d %b %Y %I:%M %p")}
+
+🆔 <b>Request ID:</b> #{withdrawal.id}
+"""
         )
 
         messages.success(
 
             request,
 
-            "Withdrawal sent successfully."
+            "Your withdrawal request has been submitted successfully. It will be reviewed shortly."
 
         )
 
@@ -3119,11 +3275,36 @@ def bank_account(request):
         user=request.user
     ).first()
 
+    # Fetch banks once
+    banks = requests.get(
+
+        "https://api.paystack.co/bank",
+
+        headers={
+            "Authorization":
+            f"Bearer {settings.PAYSTACK_SECRET_KEY}"
+        }
+
+    ).json()["data"]
+
     if request.method == "POST":
 
         bank_code = request.POST["bank_code"]
 
         account_number = request.POST["account_number"]
+
+        # Get bank name from selected bank code
+        bank_name = next(
+
+            (
+                bank["name"]
+                for bank in banks
+                if bank["code"] == bank_code
+            ),
+
+            ""
+
+        )
 
         # Verify account
         verify = requests.get(
@@ -3207,6 +3388,8 @@ def bank_account(request):
 
                 "bank_code": bank_code,
 
+                "bank_name": bank_name,
+
                 "account_number": account_number,
 
                 "account_name": account_name,
@@ -3229,18 +3412,6 @@ def bank_account(request):
         return redirect(
             "wallet_dashboard"
         )
-
-    # Fetch banks
-    banks = requests.get(
-
-        "https://api.paystack.co/bank",
-
-        headers={
-            "Authorization":
-            f"Bearer {settings.PAYSTACK_SECRET_KEY}"
-        }
-
-    ).json()["data"]
 
     return render(
 
@@ -3472,4 +3643,31 @@ def dashboard(request):
         request,
         "dashboard.html",
         context,
+    )
+@login_required
+def apply_template(request, store_id, template_id):
+
+    store = get_object_or_404(
+        Store,
+        id=store_id,
+        owner=request.user,
+    )
+
+    template = get_object_or_404(
+        StoreTemplate,
+        id=template_id,
+        is_active=True,
+    )
+
+    store.template = template
+    store.save()
+
+    messages.success(
+        request,
+        f"{template.name} has been applied successfully."
+    )
+
+    return redirect(
+        "manage_store",
+        slug=store.slug
     )

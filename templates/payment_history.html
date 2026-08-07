@@ -1,17 +1,39 @@
 {% extends "base.html" %}
+{% load humanize %}
+
 {% block body %}
 
-<div class="container py-5">
+<div class="container py-4">
 
-    <h2 class="fw-bold mb-4">
-        Payment History
-    </h2>
+    <div class="d-flex justify-content-between align-items-center flex-wrap mb-4">
 
-    <div class="card shadow-sm">
+        <div>
+            <h2 class="fw-bold mb-1">
+                Account History
+            </h2>
+
+            <p class="text-muted mb-0">
+                View your subscription payments, wallet activity and withdrawal requests.
+            </p>
+        </div>
+
+    </div>
+
+    <!-- =============================== -->
+    <!-- Subscription Payments -->
+    <!-- =============================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                Subscription Payments
+            </h5>
+        </div>
 
         <div class="table-responsive">
 
-            <table class="table mb-0">
+            <table class="table align-middle mb-0">
 
                 <thead class="table-light">
                     <tr>
@@ -26,37 +48,221 @@
                 <tbody>
 
                     {% for payment in payments %}
+
                     <tr>
+
                         <td>{{ payment.reference }}</td>
+
                         <td>{{ payment.get_plan_display }}</td>
-                        <td>₦{{ payment.amount }}</td>
+
+                        <td class="fw-semibold">
+                            ₦{{ payment.amount|intcomma }}
+                        </td>
 
                         <td>
+
                             {% if payment.status == "success" %}
                                 <span class="badge bg-success">
                                     Successful
                                 </span>
+
                             {% elif payment.status == "pending" %}
-                                <span class="badge bg-warning">
+                                <span class="badge bg-warning text-dark">
                                     Pending
                                 </span>
+
                             {% else %}
                                 <span class="badge bg-danger">
                                     Failed
                                 </span>
                             {% endif %}
+
                         </td>
 
                         <td>
-                            {{ payment.created_at }}
+                            {{ payment.created_at|date:"M d, Y • g:i A" }}
                         </td>
+
                     </tr>
+
                     {% empty %}
+
                     <tr>
-                        <td colspan="5" class="text-center py-5">
-                            No payment history found.
+
+                        <td colspan="5" class="text-center py-5 text-muted">
+                            No subscription payments yet.
                         </td>
+
                     </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- =============================== -->
+    <!-- Wallet Transactions -->
+    <!-- =============================== -->
+
+    <div class="card border-0 shadow-sm rounded-4 mb-5">
+
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                Wallet Transactions
+            </h5>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Type</th>
+                        <th>Amount</th>
+                        <th>Description</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for tx in transactions %}
+
+                    <tr>
+
+                        <td>
+                            {{ tx.get_transaction_type_display }}
+                        </td>
+
+                        <td class="fw-semibold">
+                            ₦{{ tx.amount|intcomma }}
+                        </td>
+
+                        <td>
+                            {{ tx.description }}
+                        </td>
+
+                        <td>
+                            {{ tx.created_at|date:"M d, Y • g:i A" }}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No wallet transactions found.
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+
+    <!-- =============================== -->
+    <!-- Withdrawal Requests -->
+    <!-- =============================== -->
+
+    <div class="card border-0 shadow-sm rounded-4">
+
+        <div class="card-header bg-white border-0 py-3">
+            <h5 class="fw-bold mb-0">
+                Withdrawal Requests
+            </h5>
+        </div>
+
+        <div class="table-responsive">
+
+            <table class="table align-middle mb-0">
+
+                <thead class="table-light">
+
+                    <tr>
+                        <th>Amount</th>
+                        <th>Bank</th>
+                        <th>Status</th>
+                        <th>Date</th>
+                    </tr>
+
+                </thead>
+
+                <tbody>
+
+                    {% for withdrawal in withdrawals %}
+
+                    <tr>
+
+                        <td class="fw-semibold">
+                            ₦{{ withdrawal.amount|intcomma }}
+                        </td>
+
+                        <td>
+                            {{ withdrawal.bank_name }}
+                        </td>
+
+                        <td>
+
+                            {% if withdrawal.status == "pending" %}
+
+                                <span class="badge bg-warning text-dark">
+                                    Pending
+                                </span>
+
+                            {% elif withdrawal.status == "approved" %}
+
+                                <span class="badge bg-primary">
+                                    Approved
+                                </span>
+
+                            {% elif withdrawal.status == "paid" %}
+
+                                <span class="badge bg-success">
+                                    Paid
+                                </span>
+
+                            {% else %}
+
+                                <span class="badge bg-danger">
+                                    Rejected
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+                            {{ withdrawal.created_at|date:"M d, Y • g:i A" }}
+                        </td>
+
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+
+                        <td colspan="4" class="text-center py-5 text-muted">
+                            No withdrawal requests yet.
+                        </td>
+
+                    </tr>
+
                     {% endfor %}
 
                 </tbody>

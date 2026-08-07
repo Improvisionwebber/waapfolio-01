@@ -85,7 +85,9 @@ class Store(models.Model):
     mission = models.TextField(blank=True, null=True, default="No Mission Set")
     founder_name = models.CharField(max_length=100, blank=True, null=True, default="Unknown")
     brand_story = models.TextField(blank=True, null=True, default="No Story Set")
-
+    is_demo = models.BooleanField(
+    default=False
+    )
 
     # ===== BUSINESS INFO =====
     BUSINESS_CHOICES = [
@@ -380,26 +382,85 @@ class CustomDomain(models.Model):
     purchased_from_waapfolio = models.BooleanField(default=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+import uuid
+
 class WithdrawalRequest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("paid", "Paid"),
+        ("rejected", "Rejected"),
+    ]
+
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
 
     amount = models.DecimalField(
         max_digits=12,
         decimal_places=2
     )
 
-    account_name = models.CharField(max_length=255)
+    account_name = models.CharField(
+        max_length=255
+    )
 
-    account_number = models.CharField(max_length=20)
+    account_number = models.CharField(
+        max_length=20
+    )
 
-    bank_name = models.CharField(max_length=100)
+    bank_name = models.CharField(
+        max_length=100
+    )
+
+    reference = models.CharField(
+        max_length=50,
+        unique=True,
+        blank=True,
+        null=True
+    )
 
     status = models.CharField(
         max_length=20,
+        choices=STATUS_CHOICES,
         default="pending"
     )
 
-    created_at = models.DateTimeField(auto_now_add=True)
+    admin_note = models.TextField(
+        blank=True,
+        null=True
+    )
+
+    processed_at = models.DateTimeField(
+        blank=True,
+        null=True
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True
+    )
+
+    class Meta:
+        ordering = ["-created_at"]
+
+    def save(self, *args, **kwargs):
+
+        if not self.reference:
+            self.reference = (
+                "WD-" +
+                uuid.uuid4().hex[:10].upper()
+            )
+
+        super().save(*args, **kwargs)
+
+    def __str__(self):
+        return (
+            f"{self.user.username} • "
+            f"₦{self.amount} • "
+            f"{self.status}"
+        )
 
 # Product Media
 class ProductMedia(models.Model):
