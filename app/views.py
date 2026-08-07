@@ -1448,16 +1448,23 @@ from django.shortcuts import get_object_or_404, render
 from django.views import View
 from app.utils import store_is_suspended
 from django.shortcuts import get_object_or_404
-
+from django.http import Http404
 
 def get_current_store(request, store_slug=None):
-    if not settings.DEBUG and hasattr(request, "store") and request.store:
+
+    # Production → use middleware
+    if hasattr(request, "store") and request.store:
         store = request.store
-    else:
+
+    # Localhost → use URL slug
+    elif store_slug:
         store = get_object_or_404(
             Store,
             slug=store_slug
         )
+
+    else:
+        raise Http404("Store not found.")
 
     if store_is_suspended(store):
         return None
