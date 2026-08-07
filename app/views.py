@@ -1408,16 +1408,9 @@ def root_dispatch(request):
 
     if hasattr(request, "store") and request.store:
 
-        template_slug = (
-            request.store.template.slug
-            if request.store.template
-            else "starter"
-        )
-
         return StoreHomeView.as_view()(
             request,
             store_slug=request.store.slug,
-            template_slug=template_slug,
         )
 
     return home(request)
@@ -1472,9 +1465,33 @@ def get_current_store(request, store_slug=None):
     return store
 
 # -----------------------------
+# Helper
+# -----------------------------
+
+def get_store_template(store):
+    return (
+        store.template.slug
+        if store.template
+        else "starter"
+    )
+
+
+def suspended_response(request, store):
+    if store is None:
+        return render(
+            request,
+            "store_suspended.html"
+        )
+
+    return None
+
+
+# -----------------------------
 # Home
 # -----------------------------
+
 class StoreHomeView(View):
+
     def get(self, request, store_slug=None):
 
         store = get_current_store(
@@ -1482,25 +1499,17 @@ class StoreHomeView(View):
             store_slug
         )
 
-        if store is None:
-            return render(
-                request,
-                "store_suspended.html"
-            )
+        suspended = suspended_response(request, store)
+        if suspended:
+            return suspended
 
-        resolved_template = (
-            store.template.slug
-            if store.template
-            else "starter"
-        )
-
-        template_name = f"store_templates/{resolved_template}/home.html"
+        resolved_template = get_store_template(store)
 
         products = Item.objects.filter(store=store)
 
         return render(
             request,
-            template_name,
+            f"store_templates/{resolved_template}/home.html",
             {
                 "store": store,
                 "products": products,
@@ -1511,7 +1520,9 @@ class StoreHomeView(View):
 # -----------------------------
 # About Page
 # -----------------------------
+
 class StoreAboutView(View):
+
     def get(self, request, store_slug=None):
 
         store = get_current_store(
@@ -1519,25 +1530,15 @@ class StoreAboutView(View):
             store_slug
         )
 
-        if store is None:
-            return render(
-                request,
-                "store_suspended.html"
-            )
+        suspended = suspended_response(request, store)
+        if suspended:
+            return suspended
 
-        products = Item.objects.filter(store=store)
-
-        resolved_template = (
-            store.template.slug
-            if store.template
-            else "starter"
-        )
-
-        template_name = f"store_templates/{resolved_template}/about.html"
+        resolved_template = get_store_template(store)
 
         return render(
             request,
-            template_name,
+            f"store_templates/{resolved_template}/about.html",
             {
                 "store": store,
             }
@@ -1547,7 +1548,9 @@ class StoreAboutView(View):
 # -----------------------------
 # Contact Page
 # -----------------------------
+
 class StoreContactView(View):
+
     def get(self, request, store_slug=None):
 
         store = get_current_store(
@@ -1555,23 +1558,15 @@ class StoreContactView(View):
             store_slug
         )
 
-        if store is None:
-            return render(
-                request,
-                "store_suspended.html"
-            )
+        suspended = suspended_response(request, store)
+        if suspended:
+            return suspended
 
-        resolved_template = (
-            store.template.slug
-            if store.template
-            else "starter"
-        )
-
-        template_name = f"store_templates/{resolved_template}/contact.html"
+        resolved_template = get_store_template(store)
 
         return render(
             request,
-            template_name,
+            f"store_templates/{resolved_template}/contact.html",
             {
                 "store": store,
             }
@@ -1581,7 +1576,9 @@ class StoreContactView(View):
 # -----------------------------
 # Product List
 # -----------------------------
+
 class ProductListView(View):
+
     def get(self, request, store_slug=None):
 
         store = get_current_store(
@@ -1589,82 +1586,73 @@ class ProductListView(View):
             store_slug
         )
 
-        if store is None:
-            return render(
-                request,
-                "store_suspended.html"
-            )
+        suspended = suspended_response(request, store)
+        if suspended:
+            return suspended
 
-        products = Item.objects.filter(store=store)
+        resolved_template = get_store_template(store)
 
-        resolved_template = (
-            store.template.slug
-            if store.template
-            else "starter"
+        products = Item.objects.filter(
+            store=store
         )
-
-        template_name = f"store_templates/{resolved_template}/products.html"
 
         return render(
             request,
-            template_name,
+            f"store_templates/{resolved_template}/products.html",
             {
                 "store": store,
                 "products": products,
             }
         )
 
+
 # -----------------------------
 # Product Detail
 # -----------------------------
-class ProductDetailView(View):
-    def get(self, request, store_slug=None, product_slug=None):
 
-        # Get store
+class ProductDetailView(View):
+
+    def get(
+        self,
+        request,
+        store_slug=None,
+        product_slug=None
+    ):
+
         store = get_current_store(
             request,
             store_slug
         )
 
-        if store is None:
-            return render(
-                request,
-                "store_suspended.html"
-            )
+        suspended = suspended_response(request, store)
+        if suspended:
+            return suspended
 
-        # Get product
         product = get_object_or_404(
             Item,
             slug=product_slug,
             store=store
         )
 
-        # Related products
-        products = Item.objects.filter(store=store)
+        products = Item.objects.filter(
+            store=store
+        )
 
         extra_files = product.extra_files.all()
         media = product.media.all()
         comments = product.comments.all()
+
         items_meta = (
             Item.objects
             .filter(store=store)
             .exclude(pk=product.pk)[:8]
         )
 
-        # Get the template assigned to THIS store
-        resolved_template = (
-            store.template.slug
-            if store.template
-            else "starter"
-        )
-
-        template_name = (
-            f"store_templates/{resolved_template}/product_detail.html"
-        )
+        resolved_template = get_store_template(store)
 
         return render(
             request,
-            template_name,
+            f"store_templates/{resolved_template}/product_detail.html",
             {
                 "store": store,
                 "product": product,
@@ -1675,7 +1663,6 @@ class ProductDetailView(View):
                 "media": media,
             }
         )
-
 @login_required
 def templates_page(request):
 
