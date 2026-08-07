@@ -8,7 +8,12 @@ logger = logging.getLogger(__name__)
 class StoreSubdomainMiddleware:
     def __init__(self, get_response):
         self.get_response = get_response
+    def __call__(self, request):
+        print("STORE MIDDLEWARE HIT")
+        print("HOST:", request.get_host())
 
+        response = self.get_response(request)
+        return response
     def __call__(self, request):
 
         request.store = None
