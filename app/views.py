@@ -334,57 +334,117 @@ from .forms import StoreForm
 from .services.permissions import check_store_limit  # 👈 IMPORTANT
 @login_required
 def create_store(request, slug=None):
+
     store = None
 
     if slug:
-        store = get_object_or_404(Store, slug=slug, owner=request.user)
+        store = get_object_or_404(
+            Store,
+            slug=slug,
+            owner=request.user
+        )
 
     # =========================
     # PLAN LIMIT CHECK
     # =========================
     if request.method == "POST" and not store:
-        current_store_count = Store.objects.filter(owner=request.user).count()
 
-        if not check_store_limit(request.user, current_store_count):
-            return render(request, "store/limit_reached.html", {
-                "message": "You have reached your store limit. Upgrade to premium."
-            })
+        current_store_count = Store.objects.filter(
+            owner=request.user
+        ).count()
+
+        if not check_store_limit(
+            request.user,
+            current_store_count
+        ):
+
+            return render(
+                request,
+                "store/limit_reached.html",
+                {
+                    "message":
+                    "You have reached your store limit. Upgrade to premium."
+                }
+            )
 
     # =========================
     # FORM HANDLING
     # =========================
     if request.method == "POST":
-        form = StoreForm(request.POST, request.FILES, instance=store)
+
+        form = StoreForm(
+            request.POST,
+            request.FILES,
+            instance=store
+        )
 
         if form.is_valid():
+
             store = form.save(commit=False)
 
             store.owner = request.user
             store.total_views = store.total_views or 0
             store.total_orders = store.total_orders or 0
 
+            # =========================
+            # Upload Brand Logo to ImgBB
+            # =========================
+            if request.FILES.get("brand_logo"):
+
+                image_url = upload_to_imgbb(
+                    request.FILES["brand_logo"]
+                )
+
+                if image_url:
+                    store.brand_logo_url = image_url
+
+            # =========================
+            # Generate slug
+            # =========================
             if not store.slug:
-                base_slug = slugify(store.brand_name)
+
+                base_slug = slugify(
+                    store.brand_name
+                )
+
                 slug_val = base_slug
                 counter = 1
 
-                while Store.objects.filter(slug=slug_val).exclude(id=store.id).exists():
-                    slug_val = f"{base_slug}-{counter}"
+                while Store.objects.filter(
+                    slug=slug_val
+                ).exclude(
+                    id=store.id
+                ).exists():
+
+                    slug_val = (
+                        f"{base_slug}-{counter}"
+                    )
+
                     counter += 1
 
                 store.slug = slug_val
 
             store.save()
 
-            return redirect("manage_store", slug=store.slug)
+            return redirect(
+                "manage_store",
+                slug=store.slug
+            )
 
     else:
-        form = StoreForm(instance=store)
 
-    return render(request, "store/create_store.html", {
-        "form": form,
-        "store": store
-    })
+        form = StoreForm(
+            instance=store
+        )
+
+    return render(
+        request,
+        "store/create_store.html",
+        {
+            "form": form,
+            "store": store,
+        }
+    )
 import logging
 import traceback
 from django.shortcuts import render, get_object_or_404

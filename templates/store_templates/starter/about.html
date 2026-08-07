@@ -462,27 +462,17 @@
         <div class="wpf-reveal" data-delay="2">
           <div class="wpf-story__media">
             <span class="tag">{{ store.brand_name }} · Atelier</span>
-          
+            {% if store.brand_logo_url %}
+              <img src="{{ store.brand_logo_url }}" alt="{{ store.brand_name }}">
+            {% elif store.brand_logo %}
               {% if "http" in store.brand_logo.name %}
-                  <img src="{{ store.brand_logo }}"
-                      alt="{{ store.brand_name }}"
-                      class="wf-logo">
-
-              {% elif store.brand_logo %}
-                  <img src="{{ store.brand_logo.url }}"
-                      alt="{{ store.brand_name }}"
-                      class="wf-logo">
-
-              {% elif store.brand_logo_url %}
-                  <img src="{{ store.brand_logo_url }}"
-                      alt="{{ store.brand_name }}"
-                      class="wf-logo">
-
+                <img src="{{ store.brand_logo }}" alt="{{ store.brand_name }}">
               {% else %}
-                  <span class="wf-mono">
-                      {{ store.brand_name|first|upper }}
-                  </span>
+                <img src="{{ store.brand_logo.url }}" alt="{{ store.brand_name }}">
               {% endif %}
+            {% else %}
+              {{ store.brand_name|first|upper }}
+            {% endif %}
           </div>
         </div>
       </div>
