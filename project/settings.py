@@ -183,8 +183,8 @@ TEMPLATES[0]['OPTIONS']['context_processors'] += [
     'app.context_processors.full_url',
 ]
 # Static files
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATIC_URL = '/staticfiles/'
+STATIC_ROOT = '/home/waapfoli/public_html/staticfiles'
 
 # Authentication redirects
 LOGOUT_REDIRECT_URL = '/'
