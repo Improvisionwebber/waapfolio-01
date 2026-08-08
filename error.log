@@ -31971,3 +31971,7 @@ Traceback (most recent call last):
     raise NoReverseMatch(msg)
 django.urls.exceptions.NoReverseMatch: Reverse for 'upgrade_to_premium' not found. 'upgrade_to_premium' is not a valid view function or pattern name.
 "GET /templates/ HTTP/1.1" 500 220787
+Internal Server Error: /
+"GET / HTTP/1.1" 500 887
+Internal Server Error: /favicon.ico
+"GET /favicon.ico HTTP/1.1" 500 887
